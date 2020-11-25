@@ -1,0 +1,95 @@
+<html>
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans" rel="stylesheet">
+
+    <link rel="stylesheet" href="flipdown.min.css" />
+    <script src="flipdown.min.js"></script>
+    <style rel="stylesheet">
+html {
+    height: 100%;
+}
+
+body {
+    margin: 0px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    align-content: space-around;
+}
+
+body,
+.example h1,
+.example p,
+.example .button {
+    transition: all .2s ease-in-out;
+}
+
+body.light-theme {
+    background-color: #151515;
+}
+
+body.light-theme .example h1 {
+    color: #FFFFFF;
+}
+
+body.light-theme .example p {
+    color: #FFFFFF;
+}
+
+body.light-theme .buttons .button {
+    color: #FFFFFF;
+    border-color: #FFFFFF;
+}
+
+body.light-theme .buttons .button:hover {
+    color: #151515;
+    background-color: #FFFFFF;
+}
+
+.example {
+    font-family: 'Google Sans', sans-serif;
+    width: 550px;
+    height: 378px;
+    margin: auto;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.example .flipdown {
+    margin: auto;
+}
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            var target = 1606334400;
+            var flipdown = new FlipDown(target).start()
+            .ifEnded(() => {
+                console.log('The countdown has ended!');
+            });
+
+            // Toggle theme
+            var interval = setInterval(() => {
+                let body = document.body;
+                body.classList.toggle('light-theme');
+                body.querySelector('#flipdown').classList.toggle('flipdown__theme-dark');
+                body.querySelector('#flipdown').classList.toggle('flipdown__theme-light');
+            }, 5000);
+
+            var ver = document.getElementById('ver');
+            ver.innerHTML = flipdown.version;
+        });
+
+    </script>
+</head>
+<body>
+
+    <div class="example">
+        <h1>Coming soon..</h1>
+
+        <div id="flipdown" class="flipdown"></div>
+    </div>
+</body>
+
+</html>

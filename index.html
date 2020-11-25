@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Deformable Neural Radiance Fields</title>
 
-  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
 
   <link rel="stylesheet" href="./static/css/bulma.min.css">
   <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
@@ -19,16 +19,6 @@
 </head>
 <body>
 
-
-<!--<section class="hero is-fullheight video">-->
-<!--  <div class="hero-body">-->
-<!--    <div class="hero-video publication-banner">-->
-<!--        <video poster="img/bgimg.jpg" id="bgvid" playsinline autoplay muted loop>-->
-<!--            <source src="./static/images/steve.webm" type="video/webm">-->
-<!--        </video>-->
-<!--    </div>-->
-<!--  </div>-->
-<!--</section>-->
 
 <section class="hero">
   <div class="hero-body">
@@ -104,6 +94,22 @@
   </div>
 </section>
 
+<section class="hero teaser">
+  <div class="hero-body">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <video poster="" id="teaser" autoplay muted loop height="100%">
+          <source src="https://storage.googleapis.com/nerfies-public/videos/teaser.mp4"
+                  type="video/mp4">
+        </video>
+        <h2 class="subtitle has-text-centered">
+          <span class="dnerf">D-NeRF</span> turns selfie videos from your phone into free-viewpoint portraits (<i>nerfies</i>).
+        </h2>
+      </div>
+    </div>
+  </div>
+</section>
+
 
 <section class="hero is-light is-small">
   <div class="hero-body">
@@ -162,6 +168,47 @@
   </div>
 </section>
 
+
+
+<section class="section">
+  <div class="container">
+
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-8">
+        <h2 class="title is-2">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            We present the first method capable of photorealistically reconstructing a non-rigidly
+            deforming scene using photos/videos captured casually from mobile phones.
+          </p>
+          <p>
+            Our approach -- <span class="dnerf">D-NeRF</span> -- augments neural radiance fields (NeRF) by optimizing an
+            additional continuous volumetric deformation field that warps each observed point into a
+            canonical 5D NeRF.
+            We observe that these NeRF-like deformation fields are prone to local minima, and
+            propose a coarse-to-fine optimization method for coordinate-based models that allows for
+            more robust optimization.
+            By adapting principles from geometry processing and physical simulation to NeRF-like
+            models, we propose an elastic regularization of the deformation field that further
+            improves robustness.
+          </p>
+          <p>
+            We show that <span class="dnerf">D-NeRF</span> can turn casually captured selfie photos/videos into deformable NeRF
+            models that allow for photorealistic renderings of the subject from arbitrary
+            viewpoints, which we dub <i>"nerfies"</i>. We evaluate our method by collecting data
+            using a
+            rig with two mobile phones that take time-synchronized photos, yielding train/validation
+            images of the same pose at different viewpoints. We show that our method faithfully
+            reconstructs non-rigidly deforming scenes and reproduces unseen views with high
+            fidelity.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
 <section class="hero">
   <div class="hero-body">
     <div class="columns is-centered">
@@ -179,48 +226,9 @@
 <section class="section">
   <div class="container">
 
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-8">
-        <h2 class="title is-2">Abstract</h2>
-        <div class="content has-text-justified">
-          <p>
-            We present the first method capable of photorealistically reconstructing a non-rigidly
-            deforming scene using photos/videos captured casually from mobile phones.
-          </p>
-          <p>
-            Our approach -- D-NeRF -- augments neural radiance fields (NeRF) by optimizing an
-            additional continuous volumetric deformation field that warps each observed point into a
-            canonical 5D NeRF.
-            We observe that these NeRF-like deformation fields are prone to local minima, and
-            propose a coarse-to-fine optimization method for coordinate-based models that allows for
-            more robust optimization.
-            By adapting principles from geometry processing and physical simulation to NeRF-like
-            models, we propose an elastic regularization of the deformation field that further
-            improves robustness.
-          </p>
-          <p>
-            We show that D-NeRF can turn casually captured selfie photos/videos into deformable NeRF
-            models that allow for photorealistic renderings of the subject from arbitrary
-            viewpoints, which we dub <i>"nerfies"</i>. We evaluate our method by collecting data
-            using a
-            rig with two mobile phones that take time-synchronized photos, yielding train/validation
-            images of the same pose at different viewpoints. We show that our method faithfully
-            reconstructs non-rigidly deforming scenes and reproduces unseen views with high
-            fidelity.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<section class="section">
-  <div class="container">
-
     <div class="columns is-centered">
       <!-- Visual effects. -->
-      <div class="column">
+      <div class="column is-10">
         <h2 class="title is-2">Visual Effects</h2>
         <div class="columns is-centered">
           <div class="column is-3">
@@ -256,7 +264,7 @@
 
     <div class="columns is-centered">
       <!-- Visual effects. -->
-      <div class="column">
+      <div class="column is-10">
         <h2 class="title is-2">Matting</h2>
         <div class="columns is-centered">
           <div class="column">
@@ -291,6 +299,7 @@
         <i class="fab fa-github"></i>
       </a>
     </div>
+  </div>
 </footer>
 
 

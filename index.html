@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deformable Neural Radiance Fields</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans" rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+
+<!--<section class="hero is-fullheight video">-->
+<!--  <div class="hero-body">-->
+<!--    <div class="hero-video publication-banner">-->
+<!--        <video poster="img/bgimg.jpg" id="bgvid" playsinline autoplay muted loop>-->
+<!--            <source src="./static/images/steve.webm" type="video/webm">-->
+<!--        </video>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</section>-->
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Deformable Neural Radiance Fields</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://keunhong.com">Keunhong Park</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://utkarshsinha.com">Utkarsh Sinha</a><sup>2</sup>,</span>
+            <span class="author-block">
+              <a href="https://jonbarron.info">Jonathan T. Barron</a><sup>2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="http://sofienbouaziz.com">Sofien Bouaziz</a><sup>2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://www.danbgoldman.com">Dan B Goldman</a><sup>2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://homes.cs.washington.edu/~seitz/">Steven M. Seitz</a><sup>1,2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="http://www.ricardomartinbrualla.com">Ricardo-Martin Brualla</a><sup>2</sup>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>University of Washington,</span>
+            <span class="author-block"><sup>2</sup>Google Research</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+              <a href="https://storage.googleapis.com/nerfies-public/videos/nerfies_paper.pdf"
+                 class="external-link button is-normal is-rounded is-dark">
+                <span class="icon">
+                    <i class="fas fa-file-pdf"></i>
+                </span>
+                <span>Paper</span>
+              </a>
+            </span>
+              <!-- Video Link. -->
+              <span class="link-block">
+              <a href="./data/nerfies.pdf"
+                 class="external-link button is-normal is-rounded is-dark">
+                <span class="icon">
+                    <i class="fab fa-youtube"></i>
+                </span>
+                <span>Video</span>
+              </a>
+            </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+              <a href=""
+                 class="external-link button is-normal is-rounded is-dark" disabled>
+                <span class="icon">
+                    <i class="fab fa-github"></i>
+                </span>
+                <span>Code</span>
+              </a>
+            </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <div id="results-carousel" class="carousel results-carousel">
+        <div class="item item-steve">
+          <video poster="" id="steve" autoplay controls muted loop height="100%">
+            <source src="https://storage.googleapis.com/nerfies-public/videos/steve.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-chair-tp">
+          <video poster="" id="chair-tp" autoplay controls muted loop height="100%">
+            <source src="https://storage.googleapis.com/nerfies-public/videos/chair-tp.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-shiba">
+          <video poster="" id="shiba" autoplay controls muted loop height="100%">
+            <source src="https://storage.googleapis.com/nerfies-public/videos/shiba.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-fullbody">
+          <video poster="" id="fullbody" autoplay controls muted loop height="100%">
+            <source src="https://storage.googleapis.com/nerfies-public/videos/fullbody.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-blueshirt">
+          <video poster="" id="blueshirt" autoplay controls muted loop height="100%">
+            <source src="https://storage.googleapis.com/nerfies-public/videos/blueshirt.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-mask">
+          <video poster="" id="mask" autoplay controls muted loop height="100%">
+            <source src="https://storage.googleapis.com/nerfies-public/videos/mask.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-coffee">
+          <video poster="" id="coffee" autoplay controls muted loop height="100%">
+            <source src="https://storage.googleapis.com/nerfies-public/videos/coffee.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-toby">
+          <video poster="" id="toby" autoplay controls muted loop height="100%">
+            <source src="https://storage.googleapis.com/nerfies-public/videos/toby2.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="publication-video">
+          <iframe src="https://www.youtube.com/embed/asdf?rel=0&amp;showinfo=0"
+                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container">
+
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-8">
+        <h2 class="title is-2">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            We present the first method capable of photorealistically reconstructing a non-rigidly
+            deforming scene using photos/videos captured casually from mobile phones.
+          </p>
+          <p>
+            Our approach -- D-NeRF -- augments neural radiance fields (NeRF) by optimizing an
+            additional continuous volumetric deformation field that warps each observed point into a
+            canonical 5D NeRF.
+            We observe that these NeRF-like deformation fields are prone to local minima, and
+            propose a coarse-to-fine optimization method for coordinate-based models that allows for
+            more robust optimization.
+            By adapting principles from geometry processing and physical simulation to NeRF-like
+            models, we propose an elastic regularization of the deformation field that further
+            improves robustness.
+          </p>
+          <p>
+            We show that D-NeRF can turn casually captured selfie photos/videos into deformable NeRF
+            models that allow for photorealistic renderings of the subject from arbitrary
+            viewpoints, which we dub <i>"nerfies"</i>. We evaluate our method by collecting data
+            using a
+            rig with two mobile phones that take time-synchronized photos, yielding train/validation
+            images of the same pose at different viewpoints. We show that our method faithfully
+            reconstructs non-rigidly deforming scenes and reproduces unseen views with high
+            fidelity.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container">
+
+    <div class="columns is-centered">
+      <!-- Visual effects. -->
+      <div class="column">
+        <h2 class="title is-2">Visual Effects</h2>
+        <div class="columns is-centered">
+          <div class="column is-3">
+            <video poster="" id="dollyzoom" autoplay controls muted loop height="100%">
+              <source src="https://storage.googleapis.com/nerfies-public/videos/dollyzoom.mp4"
+                      type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-3">
+            <video poster="" id="dollyzoom-depth" autoplay controls muted loop height="100%">
+              <source src="https://storage.googleapis.com/nerfies-public/videos/dollyzoom-depth.mp4"
+                      type="video/mp4">
+            </video>
+          </div>
+          <div class="column">
+            <div class="content has-text-justified">
+              <p>
+                Using <i>nerfies</i> you can create fun visual effects. This Dolly zoom effect
+                would be impossible without nerfies since it would require going through a wall.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container">
+
+    <div class="columns is-centered">
+      <!-- Visual effects. -->
+      <div class="column">
+        <h2 class="title is-2">Matting</h2>
+        <div class="columns is-centered">
+          <div class="column">
+            <div class="content has-text-justified">
+              <p>
+                Using <i>nerfies</i> you can create fun visual effects. This Dolly zoom effect
+                would be impossible without nerfies since it would require going through a wall.
+              </p>
+            </div>
+          </div>
+          <div class="column">
+            <video poster="" id="a" controls height="100%">
+              <source src="https://storage.googleapis.com/nerfies-public/videos/matting.mp4"
+                      type="video/mp4">
+            </video>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a href="https://storage.googleapis.com/nerfies-public/videos/nerfies_paper.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a href="https://github.com/keunhong" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+</footer>
+
+
+</body>
+</html>

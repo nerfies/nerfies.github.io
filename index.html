@@ -13,13 +13,20 @@
   gtag('js', new Date());
 
   gtag('config', 'G-PYVRSFMDRL');
+
+
+
+
+
   </script>
 
-  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
 
   <link rel="stylesheet" href="./static/css/bulma.min.css">
   <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
   <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
   <link rel="stylesheet" href="./static/css/index.css">
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -67,34 +74,43 @@
             <div class="publication-links">
               <!-- PDF Link. -->
               <span class="link-block">
-              <a href="https://storage.googleapis.com/nerfies-public/videos/nerfies_paper.pdf"
-                 class="external-link button is-normal is-rounded is-dark">
-                <span class="icon">
-                    <i class="fas fa-file-pdf"></i>
-                </span>
-                <span>Paper</span>
-              </a>
-            </span>
+                <a href="https://storage.googleapis.com/nerfies-public/videos/nerfies_paper.pdf"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2011.12948"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
               <!-- Video Link. -->
               <span class="link-block">
-              <a href="https://www.youtube.com/watch?v=MrKrnHhk8IA"
-                 class="external-link button is-normal is-rounded is-dark">
-                <span class="icon">
-                    <i class="fab fa-youtube"></i>
-                </span>
-                <span>Video</span>
-              </a>
-            </span>
+                <a href="https://www.youtube.com/watch?v=MrKrnHhk8IA"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span>
               <!-- Code Link. -->
               <span class="link-block">
-              <a href=""
-                 class="external-link button is-normal is-rounded is-dark" disabled>
-                <span class="icon">
-                    <i class="fab fa-github"></i>
-                </span>
-                <span>Code</span>
-              </a>
-            </span>
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark" disabled>
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
             </div>
 
           </div>
@@ -113,7 +129,8 @@
                   type="video/mp4">
         </video>
         <h2 class="subtitle has-text-centered">
-          <span class="dnerf">D-NeRF</span> turns selfie videos from your phone into free-viewpoint portraits (<i>nerfies</i>).
+          <span class="dnerf">D-NeRF</span> turns selfie videos from your phone into free-viewpoint
+          portraits (<i>nerfies</i>).
         </h2>
       </div>
     </div>
@@ -179,7 +196,6 @@
 </section>
 
 
-
 <section class="section">
   <div class="container">
 
@@ -192,7 +208,8 @@
             deforming scene using photos/videos captured casually from mobile phones.
           </p>
           <p>
-            Our approach -- <span class="dnerf">D-NeRF</span> -- augments neural radiance fields (NeRF) by optimizing an
+            Our approach -- <span class="dnerf">D-NeRF</span> -- augments neural radiance fields
+            (NeRF) by optimizing an
             additional continuous volumetric deformation field that warps each observed point into a
             canonical 5D NeRF.
             We observe that these NeRF-like deformation fields are prone to local minima, and
@@ -203,7 +220,8 @@
             improves robustness.
           </p>
           <p>
-            We show that <span class="dnerf">D-NeRF</span> can turn casually captured selfie photos/videos into deformable NeRF
+            We show that <span class="dnerf">D-NeRF</span> can turn casually captured selfie
+            photos/videos into deformable NeRF
             models that allow for photorealistic renderings of the subject from arbitrary
             viewpoints, which we dub <i>"nerfies"</i>. We evaluate our method by collecting data
             using a

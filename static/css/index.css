@@ -134,7 +134,7 @@ body {
 }
 
 .interpolation-panel .interpolation-image {
-  max-height: 300px;
+  width: 100%;
   border-radius: 5px;
 }
 

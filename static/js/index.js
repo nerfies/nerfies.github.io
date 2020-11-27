@@ -1,16 +1,14 @@
+window.HELP_IMPROVE_VIDEOJS = false;
+
+
 $(document).ready(function() {
-//		bulmaCarousel.attach('#carousel-demo', {
-//			slidesToScroll: 1,
-//			slidesToShow: 3,
-//			loop: true,
-//		});
     var options = {
 			slidesToScroll: 1,
 			slidesToShow: 3,
 			loop: true,
 			infinite: true,
-//			autoplay: true,
-//			autoplaySpeed: 3000,
+			autoplay: true,
+			autoplaySpeed: 3000,
     }
 
 		// Initialize all div with carousel class
@@ -32,4 +30,13 @@ $(document).ready(function() {
     		console.log(state);
     	});
     }
+
+    var player = videojs('interpolation-video');
+    $('#interpolation-slider').on('input', function(event) {
+      console.log(this.value, player.duration());
+      player.currentTime(player.duration() / 100 * this.value);
+    })
+
+    bulmaSlider.attach();
+
 })

@@ -128,3 +128,24 @@ body {
 }
 
 
+.interpolation-panel {
+  background: #f5f5f5;
+  border-radius: 10px;
+}
+
+.interpolation-panel .interpolation-image {
+  max-height: 300px;
+}
+
+.interpolation-video-column {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.interpolation-panel .slider {
+  margin: 0 !important;
+}
+
+.interpolation-panel .slider {
+  margin: 0 !important;
+}

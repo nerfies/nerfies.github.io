@@ -25,13 +25,16 @@
 
   <link rel="stylesheet" href="./static/css/bulma.min.css">
   <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
   <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.8.1/video-js.min.css" rel="stylesheet">
   <link rel="stylesheet" href="./static/css/index.css">
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script defer src="./static/js/fontawesome.all.min.js"></script>
   <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
   <script src="./static/js/index.js"></script>
 </head>
 <body>
@@ -199,8 +202,9 @@
 <section class="section">
   <div class="container">
 
+    <!-- Abstract. -->
     <div class="columns is-centered has-text-centered">
-      <div class="column is-8">
+      <div class="column is-two-thirds">
         <h2 class="title is-2">Abstract</h2>
         <div class="content has-text-justified">
           <p>
@@ -234,20 +238,19 @@
       </div>
     </div>
   </div>
-</section>
+  <!--/ Abstract. -->
 
-
-<section class="hero">
-  <div class="hero-body">
-    <div class="columns is-centered">
-      <div class="column is-8">
-        <div class="publication-video">
-          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"
-                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        </div>
+  <!-- Paper video. -->
+  <div class="columns is-centered has-text-centered">
+    <div class="column is-two-thirds">
+      <h2 class="title is-2">Video</h2>
+      <div class="publication-video">
+        <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"
+                frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
       </div>
     </div>
   </div>
+  <!--/ Paper video. -->
 </section>
 
 
@@ -255,55 +258,40 @@
   <div class="container">
 
     <div class="columns is-centered">
-      <!-- Visual effects. -->
-      <div class="column is-two-thirds">
+
+      <!-- Visual Effects. -->
+      <div class="column content">
         <h2 class="title is-2">Visual Effects</h2>
-        <div class="columns is-centered">
-          <div class="column is-3">
+        <p>
+          Using <i>nerfies</i> you can create fun visual effects. This Dolly zoom effect
+          would be impossible without nerfies since it would require going through a wall.
+        </p>
+        <div class="columns">
+          <div class="column is-half">
             <video poster="" id="dollyzoom" autoplay controls muted loop height="100%">
               <source src="https://storage.googleapis.com/nerfies-public/videos/dollyzoom.mp4"
                       type="video/mp4">
             </video>
           </div>
-          <div class="column is-3">
+          <div class="column is-half">
             <video poster="" id="dollyzoom-depth" autoplay controls muted loop height="100%">
               <source src="https://storage.googleapis.com/nerfies-public/videos/dollyzoom-depth.mp4"
                       type="video/mp4">
             </video>
           </div>
-          <div class="column">
-            <div class="content has-text-justified">
-              <p>
-                Using <i>nerfies</i> you can create fun visual effects. This Dolly zoom effect
-                would be impossible without nerfies since it would require going through a wall.
-              </p>
-            </div>
-          </div>
-
         </div>
       </div>
-    </div>
-  </div>
-</section>
+      <!--/ Visual Effects. -->
 
-
-<section class="section">
-  <div class="container">
-
-    <div class="columns is-centered">
-      <!-- Visual effects. -->
-      <div class="column is-two-thirds">
+      <!-- Matting. -->
+      <div class="column">
         <h2 class="title is-2">Matting</h2>
         <div class="columns is-centered">
-          <div class="column">
-            <div class="content has-text-justified">
-              <p>
-                As a byproduct of our method, we can also solve the matting problem by ignoring
-                samples that fall outside of a bounding box during rendering.
-              </p>
-            </div>
-          </div>
-          <div class="column">
+          <div class="column content">
+            <p>
+              As a byproduct of our method, we can also solve the matting problem by ignoring
+              samples that fall outside of a bounding box during rendering.
+            </p>
             <video poster="" id="a" controls height="100%">
               <source src="https://storage.googleapis.com/nerfies-public/videos/matting.mp4"
                       type="video/mp4">
@@ -313,55 +301,97 @@
         </div>
       </div>
     </div>
-  </div>
-</section>
+    <!--/ Matting. -->
 
-
-
-<section class="section">
-  <div class="container">
-
+    <!-- Animation. -->
     <div class="columns is-centered">
-      <!-- Visual effects. -->
-      <div class="column is-two-thirds">
-        <h2 class="title is-2">Re-rendering</h2>
-        <div class="columns is-centered">
-          <div class="column">
-            <div class="content has-text-justified">
-              <p>
-                Using <span class="dnerf">D-NeRF</span>, you can re-render a video from a novel
-                viewpoint such as a stabilized camera by playing back the training deformations.
-              </p>
-            </div>
-          </div>
+      <div class="column is-full-width">
+        <h2 class="title is-2">Animation</h2>
+
+        <!-- Interpolating. -->
+        <h3 class="title is-4">Interpolating states</h3>
+        <div class="content has-text-justified">
+          <p>
+            We can also animate the scene by interpolating the deformation latent codes of two input
+            frames. Use the slider here to linearly interpolate between the left frame and the right
+            frame.
+          </p>
         </div>
-        <div class="columns is-centered">
-          <div class="column is-full">
-            <video poster="" id="a" controls muted height="100%">
-              <source src="https://storage.googleapis.com/nerfies-public/videos/replay.mp4"
-                      type="video/mp4">
+        <div class="columns is-vcentered interpolation-panel">
+          <div class="column is-2 has-text-centered">
+            <img src="https://storage.googleapis.com/nerfies-public/images/interpolate_start.jpg"
+                 class="interpolation-image"
+                 alt="Interpolate start reference image." />
+            <p>Start Frame</p>
+          </div>
+          <div class="column interpolation-video-column">
+            <input class="slider is-fullwidth is-large is-circle is-info has-output"
+                   id="interpolation-slider"
+                   step="1" min="0" max="100" value="0" type="range">
+            <output for="interpolation-slider">50</output>
+            <video
+                id="interpolation-video"
+                class="video-js"
+                preload
+                width="100%"
+                data-setup='{"fluid": true}'>
+              <source src="https://storage.googleapis.com/nerfies-public/videos/interpolate.mp4" type="video/mp4" />
+              <p class="vjs-no-js">
+                To view this video please enable JavaScript, and consider upgrading to a
+                web browser that
+                <a href="https://videojs.com/html5-video-support/" target="_blank"
+                >supports HTML5 video</a
+                >
+              </p>
             </video>
           </div>
+          <div class="column is-2 has-text-centered">
+            <img src="https://storage.googleapis.com/nerfies-public/images/interpolate_end.jpg"
+                 class="interpolation-image"
+                 alt="Interpolation end reference image." />
+            <p class="is-bold">End Frame</p>
+          </div>
         </div>
+        <br />
+        <!--/ Interpolating. -->
+
+        <!-- Re-rendering. -->
+        <h3 class="title is-4">Re-rendering the input video</h3>
+        <div class="content has-text-justified">
+          <p>
+            Using <span class="dnerf">D-NeRF</span>, you can re-render a video from a novel
+            viewpoint such as a stabilized camera by playing back the training deformations.
+          </p>
+        </div>
+        <div class="content has-text-centered">
+          <video poster=""
+                 id="replay-video"
+                 controls
+                 muted
+                 preload
+                 width="75%">
+            <source src="https://storage.googleapis.com/nerfies-public/videos/replay.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <!--/ Re-rendering. -->
+
       </div>
     </div>
+    <!--/ Animation. -->
   </div>
 </section>
 
 
 <section class="section" id="BibTeX">
   <div class="container content">
-    <div class="columns is-centered">
-      <div class="column is-two-thirds has-text-justified">
-        <h2 class="titile">BibTeX</h2>
-        <pre><code>@article{park2020nerfies
+    <h2 class="titile">BibTeX</h2>
+    <pre><code>@article{park2020nerfies
   author    = {Park, Keunhong and Sinha, Utkarsh and Barron, Jonathan T. and Bouaziz, Sofien and Goldman, Dan B and Seitz, Steven M. and Martin-Brualla, Ricardo},
   title     = {Deformable Neural Radiance Fields},
   booktitle = {arXiv preprint arXiv:2011.12948},
   year      = {2020},
 }</code></pre>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -379,6 +409,7 @@
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.8.1/video.min.js"></script>
 
 </body>
 </html>

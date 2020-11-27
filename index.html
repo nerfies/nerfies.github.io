@@ -2,8 +2,10 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="description" content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
+  <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Deformable Neural Radiance Fields</title>
+  <title>Deformable Neural Radiance Fields | Nerfies</title>
 
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
@@ -13,11 +15,6 @@
   gtag('js', new Date());
 
   gtag('config', 'G-PYVRSFMDRL');
-
-
-
-
-
   </script>
 
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
@@ -126,7 +123,7 @@
   <div class="hero-body">
     <div class="columns is-centered">
       <div class="column is-8">
-        <video poster="" id="teaser" autoplay muted loop height="100%">
+        <video id="teaser" autoplay muted loop height="100%">
           <source src="https://storage.googleapis.com/nerfies-public/videos/teaser.mp4"
                   type="video/mp4">
         </video>
@@ -266,7 +263,7 @@
           Using <i>nerfies</i> you can create fun visual effects. This Dolly zoom effect
           would be impossible without nerfies since it would require going through a wall.
         </p>
-        <video poster="" id="dollyzoom" autoplay controls muted loop height="100%">
+        <video id="dollyzoom" autoplay controls muted loop height="100%">
           <source src="https://storage.googleapis.com/nerfies-public/videos/dollyzoom-stacked.mp4"
                   type="video/mp4">
         </video>
@@ -283,7 +280,7 @@
               As a byproduct of our method, we can also solve the matting problem by ignoring
               samples that fall outside of a bounding box during rendering.
             </p>
-            <video poster="" id="matting-video" controls height="100%">
+            <video id="matting-video" controls height="100%">
               <source src="https://storage.googleapis.com/nerfies-public/videos/matting.mp4"
                       type="video/mp4">
             </video>
@@ -316,24 +313,12 @@
             <p>Start Frame</p>
           </div>
           <div class="column interpolation-video-column">
-            <input class="slider is-fullwidth is-large is-circle is-info has-output"
+            <input class="slider is-fullwidth is-large is-circle is-info"
                    id="interpolation-slider"
                    step="1" min="0" max="100" value="0" type="range">
-            <output for="interpolation-slider">50</output>
-            <video
-                id="interpolation-video"
-                preload
-                width="100%"
-                >
-              <source src="https://storage.googleapis.com/nerfies-public/videos/interpolate.mp4" type="video/mp4" />
-              <p class="vjs-no-js">
-                To view this video please enable JavaScript, and consider upgrading to a
-                web browser that
-                <a href="https://videojs.com/html5-video-support/" target="_blank"
-                >supports HTML5 video</a
-                >
-              </p>
-            </video>
+            <div id="interpolation-image-wrapper">
+              Loading...
+            </div>
           </div>
           <div class="column is-2 has-text-centered">
             <img src="https://storage.googleapis.com/nerfies-public/images/interpolate_end.jpg"
@@ -354,8 +339,7 @@
           </p>
         </div>
         <div class="content has-text-centered">
-          <video poster=""
-                 id="replay-video"
+          <video id="replay-video"
                  controls
                  muted
                  preload

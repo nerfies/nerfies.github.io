@@ -135,6 +135,7 @@ body {
 
 .interpolation-panel .interpolation-image {
   max-height: 300px;
+  border-radius: 5px;
 }
 
 .interpolation-video-column {
@@ -146,4 +147,11 @@ body {
 
 .interpolation-panel .slider {
   margin: 0 !important;
+}
+
+#interpolation-image-wrapper {
+  width: 100%;
+}
+#interpolation-image-wrapper img {
+  border-radius: 5px;
 }

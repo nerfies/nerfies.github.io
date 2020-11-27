@@ -31,11 +31,13 @@ $(document).ready(function() {
     	});
     }
 
-    var player = videojs('interpolation-video');
-    $('#interpolation-slider').on('input', function(event) {
-      console.log(this.value, player.duration());
-      player.currentTime(player.duration() / 100 * this.value);
-    })
+    var player = document.getElementById('interpolation-video');
+    player.addEventListener('loadedmetadata', function() {
+      $('#interpolation-slider').on('input', function(event) {
+        console.log(this.value, player.duration);
+        player.currentTime = player.duration / 100 * this.value;
+      })
+    }, false);
 
     bulmaSlider.attach();
 

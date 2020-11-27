@@ -28,7 +28,6 @@
   <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
   <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.8.1/video-js.min.css" rel="stylesheet">
   <link rel="stylesheet" href="./static/css/index.css">
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -260,25 +259,17 @@
     <div class="columns is-centered">
 
       <!-- Visual Effects. -->
-      <div class="column content">
+      <div class="column">
+        <div class="content">
         <h2 class="title is-2">Visual Effects</h2>
         <p>
           Using <i>nerfies</i> you can create fun visual effects. This Dolly zoom effect
           would be impossible without nerfies since it would require going through a wall.
         </p>
-        <div class="columns">
-          <div class="column is-half">
-            <video poster="" id="dollyzoom" autoplay controls muted loop height="100%">
-              <source src="https://storage.googleapis.com/nerfies-public/videos/dollyzoom.mp4"
-                      type="video/mp4">
-            </video>
-          </div>
-          <div class="column is-half">
-            <video poster="" id="dollyzoom-depth" autoplay controls muted loop height="100%">
-              <source src="https://storage.googleapis.com/nerfies-public/videos/dollyzoom-depth.mp4"
-                      type="video/mp4">
-            </video>
-          </div>
+        <video poster="" id="dollyzoom" autoplay controls muted loop height="100%">
+          <source src="https://storage.googleapis.com/nerfies-public/videos/dollyzoom-stacked.mp4"
+                  type="video/mp4">
+        </video>
         </div>
       </div>
       <!--/ Visual Effects. -->
@@ -292,7 +283,7 @@
               As a byproduct of our method, we can also solve the matting problem by ignoring
               samples that fall outside of a bounding box during rendering.
             </p>
-            <video poster="" id="a" controls height="100%">
+            <video poster="" id="matting-video" controls height="100%">
               <source src="https://storage.googleapis.com/nerfies-public/videos/matting.mp4"
                       type="video/mp4">
             </video>
@@ -331,10 +322,9 @@
             <output for="interpolation-slider">50</output>
             <video
                 id="interpolation-video"
-                class="video-js"
                 preload
                 width="100%"
-                data-setup='{"fluid": true}'>
+                >
               <source src="https://storage.googleapis.com/nerfies-public/videos/interpolate.mp4" type="video/mp4" />
               <p class="vjs-no-js">
                 To view this video please enable JavaScript, and consider upgrading to a
@@ -408,8 +398,6 @@
     </div>
   </div>
 </footer>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.8.1/video.min.js"></script>
 
 </body>
 </html>

@@ -10,11 +10,15 @@
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
   <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    window.dataLayer = window.dataLayer || [];
 
-  gtag('config', 'G-PYVRSFMDRL');
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
   </script>
 
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
@@ -34,6 +38,43 @@
   <script src="./static/js/index.js"></script>
 </head>
 <body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="https://keunhong.com">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a>
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          More Research
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="https://nerfies.github.io">
+            Nerfies
+          </a>
+          <a class="navbar-item" href="https://latentfusion.github.io">
+            LatentFusion
+          </a>
+          <a class="navbar-item" href="https://photoshape.github.io">
+            PhotoShape
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</nav>
 
 
 <section class="hero">
@@ -258,15 +299,15 @@
       <!-- Visual Effects. -->
       <div class="column">
         <div class="content">
-        <h2 class="title is-2">Visual Effects</h2>
-        <p>
-          Using <i>nerfies</i> you can create fun visual effects. This Dolly zoom effect
-          would be impossible without nerfies since it would require going through a wall.
-        </p>
-        <video id="dollyzoom" autoplay controls muted loop height="100%">
-          <source src="https://storage.googleapis.com/nerfies-public/videos/dollyzoom-stacked.mp4"
-                  type="video/mp4">
-        </video>
+          <h2 class="title is-2">Visual Effects</h2>
+          <p>
+            Using <i>nerfies</i> you can create fun visual effects. This Dolly zoom effect
+            would be impossible without nerfies since it would require going through a wall.
+          </p>
+          <video id="dollyzoom" autoplay controls muted loop height="100%">
+            <source src="https://storage.googleapis.com/nerfies-public/videos/dollyzoom-stacked.mp4"
+                    type="video/mp4">
+          </video>
         </div>
       </div>
       <!--/ Visual Effects. -->
@@ -309,7 +350,7 @@
           <div class="column is-2 has-text-centered">
             <img src="https://storage.googleapis.com/nerfies-public/images/interpolate_start.jpg"
                  class="interpolation-image"
-                 alt="Interpolate start reference image." />
+                 alt="Interpolate start reference image."/>
             <p>Start Frame</p>
           </div>
           <div class="column interpolation-video-column">
@@ -323,11 +364,11 @@
           <div class="column is-2 has-text-centered">
             <img src="https://storage.googleapis.com/nerfies-public/images/interpolate_end.jpg"
                  class="interpolation-image"
-                 alt="Interpolation end reference image." />
+                 alt="Interpolation end reference image."/>
             <p class="is-bold">End Frame</p>
           </div>
         </div>
-        <br />
+        <br/>
         <!--/ Interpolating. -->
 
         <!-- Re-rendering. -->

@@ -2,8 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <meta name="description"
-        content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
+  <meta name="description" content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
   <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Deformable Neural Radiance Fields | Nerfies</title>
@@ -20,7 +19,6 @@
     gtag('js', new Date());
 
     gtag('config', 'G-PYVRSFMDRL');
-
   </script>
 
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
@@ -30,8 +28,7 @@
   <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
   <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
   <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
   <link rel="stylesheet" href="./static/css/index.css">
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -249,21 +246,30 @@
         <div class="content has-text-justified">
           <p>
             We present the first method capable of photorealistically reconstructing a non-rigidly
-            deforming scene using photos/videos captured casually from mobile phones. Our approach
-            -- <span class="dnerf">D-NeRF</span> -- augments neural radiance fields (NeRF) by
-            optimizing an additional continuous volumetric deformation field that warps each
-            observed point into a canonical 5D NeRF. We observe that these NeRF-like deformation
-            fields are prone to local minima, and propose a coarse-to-fine optimization method for
-            coordinate-based models that allows for more robust optimization. By adapting principles
-            from geometry processing and physical simulation to NeRF-like models, we propose an
-            elastic regularization of the deformation field that further improves robustness. We
-            show that <span class="dnerf">D-NeRF</span> can turn casually captured selfie
-            photos/videos into deformable NeRF models that allow for photorealistic renderings of
-            the subject from arbitrary viewpoints, which we dub <i>"nerfies"</i>. We evaluate our
-            method by collecting data using a rig with two mobile phones that take time-synchronized
-            photos, yielding train/validation images of the same pose at different viewpoints. We
-            show that our method faithfully reconstructs non-rigidly deforming scenes and reproduces
-            unseen views with high fidelity.
+            deforming scene using photos/videos captured casually from mobile phones.
+          </p>
+          <p>
+            Our approach -- <span class="dnerf">D-NeRF</span> -- augments neural radiance fields
+            (NeRF) by optimizing an
+            additional continuous volumetric deformation field that warps each observed point into a
+            canonical 5D NeRF.
+            We observe that these NeRF-like deformation fields are prone to local minima, and
+            propose a coarse-to-fine optimization method for coordinate-based models that allows for
+            more robust optimization.
+            By adapting principles from geometry processing and physical simulation to NeRF-like
+            models, we propose an elastic regularization of the deformation field that further
+            improves robustness.
+          </p>
+          <p>
+            We show that <span class="dnerf">D-NeRF</span> can turn casually captured selfie
+            photos/videos into deformable NeRF
+            models that allow for photorealistic renderings of the subject from arbitrary
+            viewpoints, which we dub <i>"nerfies"</i>. We evaluate our method by collecting data
+            using a
+            rig with two mobile phones that take time-synchronized photos, yielding train/validation
+            images of the same pose at different viewpoints. We show that our method faithfully
+            reconstructs non-rigidly deforming scenes and reproduces unseen views with high
+            fidelity.
           </p>
         </div>
       </div>

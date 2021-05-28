@@ -2,7 +2,8 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <meta name="description" content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
+  <meta name="description"
+        content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
   <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Nerfies: Deformable Neural Radiance Fields</title>
@@ -19,6 +20,9 @@
     gtag('js', new Date());
 
     gtag('config', 'G-PYVRSFMDRL');
+
+
+
   </script>
 
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
@@ -28,7 +32,8 @@
   <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
   <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
   <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
   <link rel="stylesheet" href="./static/css/index.css">
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -79,7 +84,7 @@
 
 <section class="hero">
   <div class="hero-body">
-    <div class="container">
+    <div class="container is-max-desktop">
       <div class="columns is-centered">
         <div class="column has-text-centered">
           <h1 class="title is-1 publication-title">Nerfies: Deformable Neural Radiance Fields</h1>
@@ -161,18 +166,17 @@
 </section>
 
 <section class="hero teaser">
-  <div class="hero-body">
-    <div class="columns is-centered">
-      <div class="column is-8">
-        <video id="teaser" autoplay muted loop height="100%">
-          <source src="https://homes.cs.washington.edu/~kpar/nerfies/videos/teaser.mp4"
-                  type="video/mp4">
-        </video>
-        <h2 class="subtitle has-text-centered">
-          <span class="dnerf">Nerfies</span> turns selfie videos from your phone into free-viewpoint
-          portraits.
-        </h2>
-      </div>
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" autoplay muted loop height="100%">
+        <source src="https://homes.cs.washington.edu/~kpar/nerfies/videos/teaser.mp4"
+                type="video/mp4">
+      </video>
+      <h2 class="subtitle has-text-centered">
+        <span class="dnerf">Nerfies</span> turns selfie videos from your phone into
+        free-viewpoint
+        portraits.
+      </h2>
     </div>
   </div>
 </section>
@@ -237,12 +241,11 @@
 
 
 <section class="section">
-  <div class="container">
-
+  <div class="container is-max-desktop">
     <!-- Abstract. -->
     <div class="columns is-centered has-text-centered">
-      <div class="column is-two-thirds">
-        <h2 class="title is-2">Abstract</h2>
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
         <div class="content has-text-justified">
           <p>
             We present the first method capable of photorealistically reconstructing a non-rigidly
@@ -274,32 +277,32 @@
         </div>
       </div>
     </div>
-  </div>
-  <!--/ Abstract. -->
+    <!--/ Abstract. -->
 
-  <!-- Paper video. -->
-  <div class="columns is-centered has-text-centered">
-    <div class="column is-two-thirds">
-      <h2 class="title is-2">Video</h2>
-      <div class="publication-video">
-        <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"
-                frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <!-- Paper video. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Video</h2>
+        <div class="publication-video">
+          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"
+                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
       </div>
     </div>
+    <!--/ Paper video. -->
   </div>
-  <!--/ Paper video. -->
 </section>
 
 
 <section class="section">
-  <div class="container">
+  <div class="container is-max-desktop">
 
     <div class="columns is-centered">
 
       <!-- Visual Effects. -->
       <div class="column">
         <div class="content">
-          <h2 class="title is-2">Visual Effects</h2>
+          <h2 class="title is-3">Visual Effects</h2>
           <p>
             Using <i>nerfies</i> you can create fun visual effects. This Dolly zoom effect
             would be impossible without nerfies since it would require going through a wall.
@@ -314,7 +317,7 @@
 
       <!-- Matting. -->
       <div class="column">
-        <h2 class="title is-2">Matting</h2>
+        <h2 class="title is-3">Matting</h2>
         <div class="columns is-centered">
           <div class="column content">
             <p>
@@ -335,7 +338,7 @@
     <!-- Animation. -->
     <div class="columns is-centered">
       <div class="column is-full-width">
-        <h2 class="title is-2">Animation</h2>
+        <h2 class="title is-3">Animation</h2>
 
         <!-- Interpolating. -->
         <h3 class="title is-4">Interpolating states</h3>
@@ -347,7 +350,7 @@
           </p>
         </div>
         <div class="columns is-vcentered interpolation-panel">
-          <div class="column is-2 has-text-centered">
+          <div class="column is-3 has-text-centered">
             <img src="https://homes.cs.washington.edu/~kpar/nerfies/images/interpolate_start.jpg"
                  class="interpolation-image"
                  alt="Interpolate start reference image."/>
@@ -361,7 +364,7 @@
                    id="interpolation-slider"
                    step="1" min="0" max="100" value="0" type="range">
           </div>
-          <div class="column is-2 has-text-centered">
+          <div class="column is-3 has-text-centered">
             <img src="https://homes.cs.washington.edu/~kpar/nerfies/images/interpolate_end.jpg"
                  class="interpolation-image"
                  alt="Interpolation end reference image."/>
@@ -394,12 +397,41 @@
       </div>
     </div>
     <!--/ Animation. -->
+
+
+    <!-- Concurrent Work. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Related Links</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            There's a lot of excellent work that was introduced around the same time as ours.
+          </p>
+          <p>
+            <a href="https://arxiv.org/abs/2104.09125">Progressive Encoding for Neural Optimization</a> introduces an idea similar to our windowed position encoding for coarse-to-fine optimization.
+          </p>
+          <p>
+            <a href="https://www.albertpumarola.com/research/D-NeRF/index.html">D-NeRF</a> and <a href="https://gvv.mpi-inf.mpg.de/projects/nonrigid_nerf/">NR-NeRF</a>
+            both use deformation fields to model non-rigid scenes.
+          </p>
+          <p>
+            Some works model videos with a NeRF by directly modulating the density, such as <a href="https://video-nerf.github.io/">Video-NeRF</a>, <a href="https://www.cs.cornell.edu/~zl548/NSFF/">NSFF</a>, and <a href="https://neural-3d-video.github.io/">DyNeRF</a>
+          </p>
+          <p>
+            There are probably many more by the time you are reading this. Check out <a href="https://dellaert.github.io/NeRF/">Frank Dellart's survey on recent NeRF papers</a>, and <a href="https://github.com/yenchenlin/awesome-NeRF">Yen-Chen Lin's curated list of NeRF papers</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Concurrent Work. -->
+
   </div>
 </section>
 
 
 <section class="section" id="BibTeX">
-  <div class="container content">
+  <div class="container is-max-desktop content">
     <h2 class="title">BibTeX</h2>
     <pre><code>@article{park2020nerfies
   author    = {Park, Keunhong and Sinha, Utkarsh and Barron, Jonathan T. and Bouaziz, Sofien and Goldman, Dan B and Seitz, Steven M. and Martin-Brualla, Ricardo},
@@ -414,7 +446,8 @@
 <footer class="footer">
   <div class="container">
     <div class="content has-text-centered">
-      <a class="icon-link" href="https://homes.cs.washington.edu/~kpar/nerfies/videos/nerfies_paper.pdf">
+      <a class="icon-link"
+         href="https://homes.cs.washington.edu/~kpar/nerfies/videos/nerfies_paper.pdf">
         <i class="fas fa-file-pdf"></i>
       </a>
       <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
@@ -425,11 +458,16 @@
       <div class="column is-8">
         <div class="content">
           <p>
-            This website is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
           </p>
           <p>
-            This means you are free to borrow the <a href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website, we just ask that you link back to this page in the footer.
-            Please remember to remove the analytics code included in the header of the website which you do not want on your website.
+            This means you are free to borrow the <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
+            we just ask that you link back to this page in the footer.
+            Please remember to remove the analytics code included in the header of the website which
+            you do not want on your website.
           </p>
         </div>
       </div>

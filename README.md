@@ -1,6 +1,6 @@
 # DLCDO
 
-This is the repository that contains source code for the [DLCDO website](https://-DLCDO.github.io).
+This is the repository that contains source code for the [DLCDO website](https://DLCDO.github.io).
 
 If you find Nerfies useful for your work please cite:
 ```

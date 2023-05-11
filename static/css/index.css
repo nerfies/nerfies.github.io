@@ -155,3 +155,10 @@ body {
 #interpolation-image-wrapper img {
   border-radius: 5px;
 }
+
+.under-construction {
+  background-color: red;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}

@@ -1,4 +1,4 @@
-# Nerfies
+# GPT-4 Is Too Smart To Be Safe: Clandestine Communication With LLM via Cipher
 
 This is the repository that contains source code for the [Nerfies website](https://nerfies.github.io).
 

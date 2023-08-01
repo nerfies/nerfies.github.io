@@ -1,6 +1,6 @@
-# GPT-4 Is Too Smart To Be Safe: Clandestine Communication With LLM via Cipher
+# LLMCipherChat
 
-This is the repository that contains source code for the [Nerfies website](https://nerfies.github.io).
+This is the repository that contains project website source code for the [llmcipherchat website](https://llmcipherchat.github.io).
 
 If you find Nerfies useful for your work please cite:
 ```

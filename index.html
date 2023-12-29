@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="description"
-        content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
-  <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
+        content="3D GAN Inversion with Pose Optimization.">
+  <meta name="keywords" content="NeRF, EG3D, GAN_Inversion">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Nerfies: Deformable Neural Radiance Fields</title>
+  <title>3D GAN Inversion with Pose Optimization</title>
 
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
@@ -42,7 +42,7 @@
 </head>
 <body>
 
-<nav class="navbar" role="navigation" aria-label="main navigation">
+<!-- <nav class="navbar" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
     <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
       <span aria-hidden="true"></span>
@@ -80,7 +80,7 @@
     </div>
 
   </div>
-</nav>
+</nav> -->
 
 
 <section class="hero">
@@ -88,48 +88,40 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered">
         <div class="column has-text-centered">
-          <h1 class="title is-1 publication-title">Nerfies: Deformable Neural Radiance Fields</h1>
+          <h1 class="title is-1 publication-title">3D GAN Inversion with Pose Optimization</h1>
           <div class="is-size-5 publication-authors">
             <span class="author-block">
-              <a href="https://keunhong.com">Keunhong Park</a><sup>1</sup>,</span>
+              <a href="https://scholar.google.com/citations?view_op=list_works&hl=en&user=ySBl-10AAAAJ">Jaehoon Ko</a><sup>1</sup>,</span>
             <span class="author-block">
-              <a href="https://utkarshsinha.com">Utkarsh Sinha</a><sup>2</sup>,</span>
+              <a href="https://scholar.google.com/citations?user=ToQ-jEIAAAAJ&hl=en&oi=ao">Kyusun Cho</a><sup>1</sup>,</span>
             <span class="author-block">
-              <a href="https://jonbarron.info">Jonathan T. Barron</a><sup>2</sup>,
+              <a href="https://github.com/ChoiDae1">Daewon Choi</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://cvlab.korea.ac.kr/members">Kwangrok Ryoo</a><sup>1,2</sup>,
             </span>
             <span class="author-block">
-              <a href="http://sofienbouaziz.com">Sofien Bouaziz</a><sup>2</sup>,
-            </span>
-            <span class="author-block">
-              <a href="https://www.danbgoldman.com">Dan B Goldman</a><sup>2</sup>,
-            </span>
-            <span class="author-block">
-              <a href="https://homes.cs.washington.edu/~seitz/">Steven M. Seitz</a><sup>1,2</sup>,
-            </span>
-            <span class="author-block">
-              <a href="http://www.ricardomartinbrualla.com">Ricardo Martin-Brualla</a><sup>2</sup>
+              <a href="https://cvlab.korea.ac.kr/members">Seungryong Kim</a><sup>1</sup>,
             </span>
           </div>
-
           <div class="is-size-5 publication-authors">
-            <span class="author-block"><sup>1</sup>University of Washington,</span>
-            <span class="author-block"><sup>2</sup>Google Research</span>
+            <span class="author-block"><sup>1</sup>Korea University,</span>
+            <span class="author-block"><sup>2</sup>LG AI Research</span>
           </div>
-
+          <h1 style="font-size:24px;font-weight:bold">WACV 2023</h1>
           <div class="column has-text-centered">
             <div class="publication-links">
               <!-- PDF Link. -->
-              <span class="link-block">
-                <a href="https://arxiv.org/pdf/2011.12948"
+              <!-- <span class="link-block">
+                <a href="#"
                    class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                       <i class="fas fa-file-pdf"></i>
                   </span>
                   <span>Paper</span>
                 </a>
-              </span>
+              </span> -->
               <span class="link-block">
-                <a href="https://arxiv.org/abs/2011.12948"
+                <a href="https://arxiv.org/abs/2210.07301"
                    class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                       <i class="ai ai-arxiv"></i>
@@ -138,18 +130,18 @@
                 </a>
               </span>
               <!-- Video Link. -->
-              <span class="link-block">
-                <a href="https://www.youtube.com/watch?v=MrKrnHhk8IA"
+              <!-- <span class="link-block">
+                <a href=""
                    class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                       <i class="fab fa-youtube"></i>
                   </span>
                   <span>Video</span>
                 </a>
-              </span>
+              </span> -->
               <!-- Code Link. -->
               <span class="link-block">
-                <a href="https://github.com/google/nerfies"
+                <a href="https://github.com/KU-CVLAB/3DGAN-Inversion"
                    class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                       <i class="fab fa-github"></i>
@@ -157,7 +149,7 @@
                   <span>Code</span>
                   </a>
               </span>
-              <!-- Dataset Link. -->
+              <!-- Dataset Link.
               <span class="link-block">
                 <a href="https://github.com/google/nerfies/releases/tag/0.1"
                    class="external-link button is-normal is-rounded is-dark">
@@ -165,7 +157,7 @@
                       <i class="far fa-images"></i>
                   </span>
                   <span>Data</span>
-                  </a>
+                  </a> -->
             </div>
 
           </div>
@@ -179,19 +171,13 @@
   <div class="container is-max-desktop">
     <div class="hero-body">
       <video id="teaser" autoplay muted loop playsinline height="100%">
-        <source src="./static/videos/teaser.mp4"
-                type="video/mp4">
+        <source src="./static/videos/teaser.mp4" type="video/mp4">
       </video>
-      <h2 class="subtitle has-text-centered">
-        <span class="dnerf">Nerfies</span> turns selfie videos from your phone into
-        free-viewpoint
-        portraits.
-      </h2>
     </div>
   </div>
 </section>
 
-
+<!-- 
 <section class="hero is-light is-small">
   <div class="hero-body">
     <div class="container">
@@ -247,7 +233,7 @@
       </div>
     </div>
   </div>
-</section>
+</section> -->
 
 
 <section class="section">
@@ -258,38 +244,27 @@
         <h2 class="title is-3">Abstract</h2>
         <div class="content has-text-justified">
           <p>
-            We present the first method capable of photorealistically reconstructing a non-rigidly
-            deforming scene using photos/videos captured casually from mobile phones.
-          </p>
-          <p>
-            Our approach augments neural radiance fields
-            (NeRF) by optimizing an
-            additional continuous volumetric deformation field that warps each observed point into a
-            canonical 5D NeRF.
-            We observe that these NeRF-like deformation fields are prone to local minima, and
-            propose a coarse-to-fine optimization method for coordinate-based models that allows for
-            more robust optimization.
-            By adapting principles from geometry processing and physical simulation to NeRF-like
-            models, we propose an elastic regularization of the deformation field that further
-            improves robustness.
-          </p>
-          <p>
-            We show that <span class="dnerf">Nerfies</span> can turn casually captured selfie
-            photos/videos into deformable NeRF
-            models that allow for photorealistic renderings of the subject from arbitrary
-            viewpoints, which we dub <i>"nerfies"</i>. We evaluate our method by collecting data
-            using a
-            rig with two mobile phones that take time-synchronized photos, yielding train/validation
-            images of the same pose at different viewpoints. We show that our method faithfully
-            reconstructs non-rigidly deforming scenes and reproduces unseen views with high
-            fidelity.
+            With the recent advances in NeRF-based 3D aware GANs quality,
+            projecting an image into the latent space of these 3D-aware GANs has a natural advantage over
+            2D GAN inversion: not only does it allow multi-view consistent editing of the projected image, 
+            but it also enables 3D reconstruction and novel view synthesis when given only a single image.
+            However, the explicit viewpoint control acts as a main hindrance in the 3D GAN inversion process,
+            as both camera pose and latent code have to be optimized simultaneously to reconstruct the given image.
+            Most works that explore the latent space of the 3D-aware GANs rely on ground-truth camera viewpoint or deformable 3D model,
+            thus limiting their applicability.
+            In this work, we introduce a generalizable 3D GAN inversion method that infers camera viewpoint and latent code simultaneously
+            to enable multi-view consistent semantic image editing.
+            The key to our approach is to leverage pre-trained estimators for better initialization and utilize the pixel-wise depth calculated from NeRF parameters 
+            to better reconstruct the given image.
+            We conduct extensive experiments on image reconstruction and editing both quantitatively and qualitatively,
+            and further compare our results with 2D GAN-based editing to demonstrate the advantages of utilizing the latent space of 3D GANs.
           </p>
         </div>
       </div>
     </div>
     <!--/ Abstract. -->
 
-    <!-- Paper video. -->
+    <!-- Paper video.
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
         <h2 class="title is-3">Video</h2>
@@ -300,56 +275,67 @@
       </div>
     </div>
     <!--/ Paper video. -->
-  </div>
+  </div> 
 </section>
 
 
 <section class="section">
+  <div class="container">
+    <div align="center" style="margin-top:20px;" style="margin-bottom:120px;">
+      <h2 class="title is-3">Our Optimization Scheme</h2>
+      <img style='height: auto; width: 45%; object-fit: contain' src="static/images/main_image.png" alt="overview_image">
+    </div> 
+  </div>
+    <p></p>
+    <br>
+    <p></p>
   <div class="container is-max-desktop">
-
     <div class="columns is-centered">
-
       <!-- Visual Effects. -->
       <div class="column">
         <div class="content">
-          <h2 class="title is-3">Visual Effects</h2>
+          <h4 style="font-size:22px", class="title is-3">Pre-trained Networks for Initialization</h4>
           <p>
-            Using <i>nerfies</i> you can create fun visual effects. This Dolly zoom effect
-            would be impossible without nerfies since it would require going through a wall.
+            We pre-train a camera pose estiamtor and latent code encoder for better initialization of the optimization process, 
+            by training the respective newtorks on a generated pseudo pair dataset. 
           </p>
           <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/dollyzoom-stacked.mp4"
-                    type="video/mp4">
-          </video>
+            <source src="./static/videos/dollyzoom-stacked.mp4" type="video/mp4">
+          </video> -->
         </div>
       </div>
       <!--/ Visual Effects. -->
-
+      <div class="column">
+        <div class="content">
+          <h4 style="font-size:22px", class="title is-3">Optimization using Depth-based Warping</h4>
+          <p>
+            We use the depth map calculated from NeRF parameters and compare the estimated depth from the obtained camrea pose and projected depth from a canoncial viewpoint 
+            which allows us to optimize the latent code and camera pose simultaneously.
+          </p>
+          <!-- <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+            <source src="https://homes.cs.washington.edu/~kpar/nerfies/videos/dollyzoom-stacked.mp4"
+                    type="video/mp4">
+          </video> -->
+        </div>
+      </div>
       <!-- Matting. -->
       <div class="column">
-        <h2 class="title is-3">Matting</h2>
+        <h4 style="font-size:22px", class="title is-3">Generater Tuning with Depth Regularization</h4>
         <div class="columns is-centered">
           <div class="column content">
             <p>
-              As a byproduct of our method, we can also solve the matting problem by ignoring
-              samples that fall outside of a bounding box during rendering.
+              We fine tune the generator for a more accurate reconstruction of the given image by adding a depth regularization term to the loss function.
             </p>
             <video id="matting-video" controls playsinline height="100%">
-              <source src="./static/videos/matting.mp4"
-                      type="video/mp4">
-            </video>
+              <source src="./static/videos/matting.mp4" type="video/mp4">
+            </video> -->
           </div>
 
         </div>
       </div>
     </div>
-    <!--/ Matting. -->
-
-    <!-- Animation. -->
-    <div class="columns is-centered">
-      <div class="column is-full-width">
-        <h2 class="title is-3">Animation</h2>
-
+  </div>
+</section>
         <!-- Interpolating. -->
         <h3 class="title is-4">Interpolating states</h3>
         <div class="content has-text-justified">
@@ -405,11 +391,10 @@
         </div>
         <!--/ Re-rendering. -->
 
-      </div>
-    </div>
-    <!--/ Animation. -->
 
 
+<section class="section">
+  <div class="container is-max-desktop">
     <!-- Concurrent Work. -->
     <div class="columns is-centered">
       <div class="column is-full-width">
@@ -417,20 +402,19 @@
 
         <div class="content has-text-justified">
           <p>
-            There's a lot of excellent work that was introduced around the same time as ours.
+            Our method was implemented on <a href="https://nvlabs.github.io/eg3d/">EG3D</a>, the state-of-the-art nerf-based 3D-aware GAN model. 
           </p>
           <p>
-            <a href="https://arxiv.org/abs/2104.09125">Progressive Encoding for Neural Optimization</a> introduces an idea similar to our windowed position encoding for coarse-to-fine optimization.
+            Our method was built upon <a href="https://arxiv.org/abs/2106.05744">Pivotal Tuning</a>, a popular and simple method for 2D GAN inversion.
           </p>
           <p>
-            <a href="https://www.albertpumarola.com/research/D-NeRF/index.html">D-NeRF</a> and <a href="https://gvv.mpi-inf.mpg.de/projects/nonrigid_nerf/">NR-NeRF</a>
-            both use deformation fields to model non-rigid scenes.
+            Our depth-based optimization scheme was inspired by <a href="https://openaccess.thecvf.com/content_cvpr_2017/papers/Zhou_Unsupervised_Learning_of_CVPR_2017_paper.pdf">monocular depth estimation</a> literature.
           </p>
           <p>
-            Some works model videos with a NeRF by directly modulating the density, such as <a href="https://video-nerf.github.io/">Video-NeRF</a>, <a href="https://www.cs.cornell.edu/~zl548/NSFF/">NSFF</a>, and <a href="https://neural-3d-video.github.io/">DyNeRF</a>
+            We borrowed the idea of using a depth smoothness regularization during the generator tuning step from <a href="https://m-niemeyer.github.io/regnerf/">RegNeRF</a>.
           </p>
           <p>
-            There are probably many more by the time you are reading this. Check out <a href="https://dellaert.github.io/NeRF/">Frank Dellart's survey on recent NeRF papers</a>, and <a href="https://github.com/yenchenlin/awesome-NeRF">Yen-Chen Lin's curated list of NeRF papers</a>.
+            There's a lot of excellent work that was introduced around the same time as ours, but most of them requires <a href="https://arxiv.org/abs/2112.09061">ground-truth camera pose</a> or <a href="https://www.computationalimaging.org/publications/3dganinversion/">3D morphable models</a>.
           </p>
         </div>
       </div>
@@ -444,11 +428,11 @@
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
     <h2 class="title">BibTeX</h2>
-    <pre><code>@article{park2021nerfies,
-  author    = {Park, Keunhong and Sinha, Utkarsh and Barron, Jonathan T. and Bouaziz, Sofien and Goldman, Dan B and Seitz, Steven M. and Martin-Brualla, Ricardo},
-  title     = {Nerfies: Deformable Neural Radiance Fields},
-  journal   = {ICCV},
-  year      = {2021},
+    <pre><code>@article{ko20233d,
+  author    = {Ko, Jaehoon and Cho, Kyusun and Choi, Daewon and Ryoo, Kwangrok and Kim, Seungryong},
+  title     = {3D GAN Inversion with Pose Optimization},
+  journal   = {WACV},
+  year      = {2023},
 }</code></pre>
   </div>
 </section>
@@ -461,27 +445,17 @@
          href="./static/videos/nerfies_paper.pdf">
         <i class="fas fa-file-pdf"></i>
       </a>
-      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
+      <a class="icon-link" href="" class="external-link" disabled>
         <i class="fab fa-github"></i>
       </a>
     </div>
     <div class="columns is-centered">
-      <div class="column is-8">
+      <h2 class="subtitle has-text-centered">
         <div class="content">
-          <p>
-            This website is licensed under a <a rel="license"
-                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
-            Commons Attribution-ShareAlike 4.0 International License</a>.
-          </p>
-          <p>
-            This means you are free to borrow the <a
-              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
-            we just ask that you link back to this page in the footer.
-            Please remember to remove the analytics code included in the header of the website which
-            you do not want on your website.
-          </p>
+            This website is borrowed from <a href="https://github.com/nerfies/nerfies.github.io">nerfies</a>.
+            We thank the authors for open-sourcing the source code. 
         </div>
-      </div>
+      </h2>
     </div>
   </div>
 </footer>

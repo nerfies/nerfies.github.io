@@ -170,20 +170,8 @@
 <section class="hero teaser">
   <div class="container is-max-desktop">
     <div class="hero-body">
-      <!-- <h2 class="subtitle has-text-centered">
-        Code and additional results will be available soon. Stay tuned!
-      </h2>                                              -->
-      <video id="teaser0" autoplay muted loop playsinline height="100%" style="border:1px solid black;">
-        <source src="static/images/tim_cook.mp4"
-                type="video/mp4">
-      </video>
-      <video id="teaser1" autoplay muted loop playsinline height="100%" style="border:1px solid black;">
-        <source src="static/images/jaeyonglee.mp4"
-                type="video/mp4">
-      </video>
-      <video id="teaser2" autoplay muted loop playsinline height="100%" style="border:1px solid black;">
-        <source src="static/images/Seungryong.mp4"
-                type="video/mp4">
+      <video id="teaser" autoplay muted loop playsinline height="100%">
+        <source src="./static/videos/teaser.mp4" type="video/mp4">
       </video>
     </div>
   </div>
@@ -196,49 +184,49 @@
       <div id="results-carousel" class="carousel results-carousel">
         <div class="item item-steve">
           <video poster="" id="steve" autoplay controls muted loop playsinline height="100%">
-            <source src="https://homes.cs.washington.edu/~kpar/nerfies/videos/steve.mp4"
+            <source src="./static/videos/steve.mp4"
                     type="video/mp4">
           </video>
         </div>
         <div class="item item-chair-tp">
           <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
-            <source src="https://homes.cs.washington.edu/~kpar/nerfies/videos/chair-tp.mp4"
+            <source src="./static/videos/chair-tp.mp4"
                     type="video/mp4">
           </video>
         </div>
         <div class="item item-shiba">
           <video poster="" id="shiba" autoplay controls muted loop playsinline height="100%">
-            <source src="https://homes.cs.washington.edu/~kpar/nerfies/videos/shiba.mp4"
+            <source src="./static/videos/shiba.mp4"
                     type="video/mp4">
           </video>
         </div>
         <div class="item item-fullbody">
           <video poster="" id="fullbody" autoplay controls muted loop playsinline height="100%">
-            <source src="https://homes.cs.washington.edu/~kpar/nerfies/videos/fullbody.mp4"
+            <source src="./static/videos/fullbody.mp4"
                     type="video/mp4">
           </video>
         </div>
         <div class="item item-blueshirt">
           <video poster="" id="blueshirt" autoplay controls muted loop playsinline height="100%">
-            <source src="https://homes.cs.washington.edu/~kpar/nerfies/videos/blueshirt.mp4"
+            <source src="./static/videos/blueshirt.mp4"
                     type="video/mp4">
           </video>
         </div>
         <div class="item item-mask">
           <video poster="" id="mask" autoplay controls muted loop playsinline height="100%">
-            <source src="https://homes.cs.washington.edu/~kpar/nerfies/videos/mask.mp4"
+            <source src="./static/videos/mask.mp4"
                     type="video/mp4">
           </video>
         </div>
         <div class="item item-coffee">
           <video poster="" id="coffee" autoplay controls muted loop playsinline height="100%">
-            <source src="https://homes.cs.washington.edu/~kpar/nerfies/videos/coffee.mp4"
+            <source src="./static/videos/coffee.mp4"
                     type="video/mp4">
           </video>
         </div>
         <div class="item item-toby">
           <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
-            <source src="https://homes.cs.washington.edu/~kpar/nerfies/videos/toby2.mp4"
+            <source src="./static/videos/toby2.mp4"
                     type="video/mp4">
           </video>
         </div>
@@ -311,9 +299,8 @@
             We pre-train a camera pose estiamtor and latent code encoder for better initialization of the optimization process, 
             by training the respective newtorks on a generated pseudo pair dataset. 
           </p>
-          <!-- <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
-            <source src="https://homes.cs.washington.edu/~kpar/nerfies/videos/dollyzoom-stacked.mp4"
-                    type="video/mp4">
+          <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/dollyzoom-stacked.mp4" type="video/mp4">
           </video> -->
         </div>
       </div>
@@ -339,9 +326,8 @@
             <p>
               We fine tune the generator for a more accurate reconstruction of the given image by adding a depth regularization term to the loss function.
             </p>
-            <!-- <video id="matting-video" controls playsinline height="100%">
-              <source src="https://homes.cs.washington.edu/~kpar/nerfies/videos/matting.mp4"
-                      type="video/mp4">
+            <video id="matting-video" controls playsinline height="100%">
+              <source src="./static/videos/matting.mp4" type="video/mp4">
             </video> -->
           </div>
 
@@ -350,21 +336,60 @@
     </div>
   </div>
 </section>
+        <!-- Interpolating. -->
+        <h3 class="title is-4">Interpolating states</h3>
+        <div class="content has-text-justified">
+          <p>
+            We can also animate the scene by interpolating the deformation latent codes of two input
+            frames. Use the slider here to linearly interpolate between the left frame and the right
+            frame.
+          </p>
+        </div>
+        <div class="columns is-vcentered interpolation-panel">
+          <div class="column is-3 has-text-centered">
+            <img src="./static/images/interpolate_start.jpg"
+                 class="interpolation-image"
+                 alt="Interpolate start reference image."/>
+            <p>Start Frame</p>
+          </div>
+          <div class="column interpolation-video-column">
+            <div id="interpolation-image-wrapper">
+              Loading...
+            </div>
+            <input class="slider is-fullwidth is-large is-info"
+                   id="interpolation-slider"
+                   step="1" min="0" max="100" value="0" type="range">
+          </div>
+          <div class="column is-3 has-text-centered">
+            <img src="./static/images/interpolate_end.jpg"
+                 class="interpolation-image"
+                 alt="Interpolation end reference image."/>
+            <p class="is-bold">End Frame</p>
+          </div>
+        </div>
+        <br/>
+        <!--/ Interpolating. -->
 
-
-<section class="section">
-  <div class="container">
-    <div align="center" style="margin-top:20px;" style="margin-bottom:120px;">
-      <h2 class="title is-3">Reconstruction Results</h2>
-      <img style='height: auto; width: 75%; object-fit: contain' src="static/images/results1.png" alt="overview_image">
-    </div> 
-    <div align="center" style="margin-top:20px;" style="margin-bottom:120px;">
-      <img style='height: auto; width: 75%; object-fit: contain' src="static/images/results2.jpg" alt="overview_image">
-    </div> 
-  </div>
-</section>
-
-
+        <!-- Re-rendering. -->
+        <h3 class="title is-4">Re-rendering the input video</h3>
+        <div class="content has-text-justified">
+          <p>
+            Using <span class="dnerf">Nerfies</span>, you can re-render a video from a novel
+            viewpoint such as a stabilized camera by playing back the training deformations.
+          </p>
+        </div>
+        <div class="content has-text-centered">
+          <video id="replay-video"
+                 controls
+                 muted
+                 preload
+                 playsinline
+                 width="75%">
+            <source src="./static/videos/replay.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <!--/ Re-rendering. -->
 
 
 
@@ -417,7 +442,7 @@
   <div class="container">
     <div class="content has-text-centered">
       <a class="icon-link"
-         href="#">
+         href="./static/videos/nerfies_paper.pdf">
         <i class="fas fa-file-pdf"></i>
       </a>
       <a class="icon-link" href="" class="external-link" disabled>

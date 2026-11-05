@@ -1,0 +1,50 @@
+---
+import Base from '../layouts/Base.astro';
+import DraftBanner from '../components/DraftBanner.astro';
+import { referencesHtml, manifest } from '../lib/manuscript';
+const html = referencesHtml();
+const counts = manifest.references.reduce((a: Record<string, number>, r) => { const t = r.tier ?? 'none'; a[t] = (a[t] ?? 0) + 1; return a; }, {});
+---
+<Base title="References" description="Searchable bibliography of the survey, with publication-status colouring.">
+  <div class="page-narrow">
+    <p class="eyebrow">Bibliography</p>
+    <h1>References</h1>
+    <DraftBanner />
+    <p class="lede">All {manifest.references.length} works cited in the survey. Filter by author, title, venue or year.</p>
+    <div style="display:grid;gap:.6rem;margin:1.2rem 0" data-pagefind-ignore>
+      <label for="ref-q" class="visually-hidden">Filter references</label>
+      <input id="ref-q" class="input" type="search" placeholder="Filter, e.g. “sparse autoencoder”, “Geva”, “2024”" autocomplete="off" />
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap" role="group" aria-label="Filter by publication status">
+        <button class="chip on" data-tier="all" aria-pressed="true">All</button>
+        <button class="chip" data-tier="established" aria-pressed="false">Peer-reviewed ({counts.established ?? 0})</button>
+        <button class="chip" data-tier="emerging" aria-pressed="false">Preprint / emerging ({counts.emerging ?? 0})</button>
+        {counts.none ? <button class="chip" data-tier="none" aria-pressed="false">Unclassified ({counts.none})</button> : null}
+      </div>
+      <p class="small muted" id="ref-count" aria-live="polite"></p>
+    </div>
+    <div class="refs" id="refs-list"><Fragment set:html={html} /></div>
+  </div>
+  <script is:inline>
+    const q = document.getElementById('ref-q'), list = document.getElementById('refs-list'), count = document.getElementById('ref-count');
+    const entries = [...list.querySelectorAll('.csl-entry')];
+    let tier = 'all';
+    const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const texts = entries.map((e) => norm(e.textContent));
+    function apply() {
+      const terms = norm(q.value).split(/\s+/).filter(Boolean);
+      let n = 0;
+      entries.forEach((e, i) => {
+        const ok = (tier === 'all' || e.classList.contains('tier-' + tier)) && terms.every((t) => texts[i].includes(t));
+        e.classList.toggle('hidden', !ok); if (ok) n++;
+      });
+      count.textContent = `${n} of ${entries.length} shown`;
+    }
+    q.addEventListener('input', apply);
+    document.querySelectorAll('[data-tier]').forEach((b) => b.addEventListener('click', () => {
+      tier = b.dataset.tier;
+      document.querySelectorAll('[data-tier]').forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', String(x === b)); });
+      apply();
+    }));
+    apply();
+  </script>
+</Base>

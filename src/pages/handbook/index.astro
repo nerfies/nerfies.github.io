@@ -1,0 +1,44 @@
+---
+import Base from '../../layouts/Base.astro';
+import DraftBanner from '../../components/DraftBanner.astro';
+import { chapters, pdfHref, manifest } from '../../lib/manuscript';
+import { url } from '../../lib/site';
+const main = chapters.filter((c) => !c.appendix);
+const apps = chapters.filter((c) => c.appendix);
+const words = chapters.reduce((a, c) => a + c.words, 0);
+---
+<Base title="Handbook" description="Read the full survey online: every chapter, with numbered sections, figures, tables, equations and linked references.">
+  <div class="page-narrow">
+    <p class="eyebrow">The handbook</p>
+    <h1>Read the survey</h1>
+    <p class="lede">The complete manuscript as an online book: {main.length} chapters, {apps.length} appendices and {manifest.references.length} references, about {Math.round(words / 1000)}k words.
+      Numbering matches the PDF, and every section, figure and table has a link you can share.</p>
+    <DraftBanner />
+    <p class="small muted">Citation colours follow the manuscript:
+      <span style="color:var(--tier-established)">■ peer-reviewed</span>,
+      <span style="color:var(--tier-emerging)">■ preprints and other non-peer-reviewed work</span>.</p>
+    <ol style="list-style:none;padding:0;margin:2rem 0">
+      {main.map((c) => (
+        <li style="padding:.9rem 0;border-bottom:1px solid var(--rule)">
+          <a href={url(`handbook/${c.slug}/`)} style="font-weight:650;font-size:1.05rem;text-decoration:none">
+            <span style="color:var(--gold);font-variant-numeric:tabular-nums;margin-right:.5rem">{c.num}</span>{c.title}
+          </a>
+          <span class="small muted"> · p. {c.page} · {Math.max(1, Math.round(c.words / 230))} min read</span>
+          {c.sections.filter((s) => s.level === 2).length > 0 && (
+            <details style="margin-top:.3rem">
+              <summary class="small muted" style="cursor:pointer">{c.sections.filter((s) => s.level === 2).length} sections</summary>
+              <ul class="small" style="margin:.4rem 0 0;padding-left:1.4rem">
+                {c.sections.filter((s) => s.level === 2).map((s) => <li><a href={url(`handbook/${c.slug}/#${s.id}`)}>{s.num} {s.title}</a></li>)}
+              </ul>
+            </details>
+          )}
+        </li>
+      ))}
+    </ol>
+    <h2>Appendices</h2>
+    <ul>
+      {apps.map((c) => <li><a href={url(`handbook/${c.slug}/`)}>Appendix {c.num}: {c.title.replace(/^[A-Z] /, '')}</a></li>)}
+    </ul>
+    <p><a href={url('references/')}>References ({manifest.references.length})</a></p>
+  </div>
+</Base>

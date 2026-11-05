@@ -1,0 +1,402 @@
+<section id="sec:circuit" class="level1"><h1 data-pdf-page="38"><span class="secnum">7</span> Circuits in Mechanistic Interpretability<a class="anchor" href="#sec:circuit" aria-label="Link to this section">#</a></h1>
+<p>Mechanistic interpretability aims not only to identify what information is represented inside a model, but also to explain how that information is transformed and combined to produce behavior. Feature-level analyses, such as those based on Sparse Autoencoders, provide a useful vocabulary for describing internal representations, but they are inherently local: they characterize individual directions or neurons in isolation. Many model behaviors, however, arise from structured interactions between multiple components operating together across layers. To explain such behaviors, we require a higher-level abstraction that captures patterns of computation rather than individual features. The circuit framework addresses this gap by modeling behavior as the result of coordinated subgraphs of the computation graph, making explicit how components interact causally to implement algorithms.</p>
+<section id="sec:what-are-circuits" class="level2"><h2 data-pdf-page="39"><span class="secnum">7.1</span> What Are Circuits?<a class="anchor" href="#sec:what-are-circuits" aria-label="Link to this section">#</a></h2>
+<div class="definitionbox">
+<p>A <em>circuit</em> is a subgraph of the computation graph implementing a specific algorithmic behavior: <span class="math display">\text{Circuit} = \{v_i, e_{ij}\}_{i,j \in S} \quad \text{s.t.} \quad f_\text{model}^{S}(X) \approx f_\text{model}(X),</span> where <span class="math inline">S</span> indexes components and <span class="math inline">f_\text{model}^{S}</span> is the model with only those components active. <span class="math inline">X</span> is either a specific input query or a set of queries that instantiates a specific model capability.</p>
+</div>
+<p>Circuits differ from features: <em>features describe what information is present</em>, while circuits describe <em>how components interact to implement behavior</em>.</p>
+<div class="examplebox">
+<ul>
+<li><p><strong>Induction head circuit</strong>: Two attention heads cooperate to implement in‑context learning <span class="citation" data-cites="olsson2022incontextlearninginductionheads">(<a href="@@BASE@@references/#ref-olsson2022incontextlearninginductionheads" class="cite cite-emerging" data-cite="olsson2022incontextlearninginductionheads" role="doc-biblioref">Olsson, Elhage, et al. 2022</a>)</span>.</p></li>
+<li><p><strong>QK circuits</strong>: Query-Key interactions prioritizing specific token positions <span class="citation" data-cites="kamath2025tracing">(<a href="@@BASE@@references/#ref-kamath2025tracing" class="cite cite-emerging" data-cite="kamath2025tracing" role="doc-biblioref">Kamath et al. 2025</a>)</span>.</p></li>
+</ul>
+</div>
+<figure id="fig:circuit" data-latex-placement="t">
+<img alt="Figure 10: Circuit. This diagram illustrates a “circuit” within a transformer, where specific nodes (MLP layers and Attention heads) perform specialized sub-computations." loading="lazy" src="@@BASE@@figures/7_circuit.svg" />
+<figcaption><span class="capnum">Figure 10:</span> <strong>Circuit</strong>. This diagram illustrates a “circuit” within a transformer, where specific nodes (MLP layers and Attention heads) perform specialized sub-computations.</figcaption>
+</figure>
+</section>
+<section id="sec:circuit-table" class="level2"><h2 data-pdf-page="39"><span class="secnum">7.2</span> Circuit Discovery and Tracing Methods<a class="anchor" href="#sec:circuit-table" aria-label="Link to this section">#</a></h2>
+<p>As discussed in Section <a href="@@BASE@@handbook/4-foundational-concepts-for-mechanistic-interpretability/#subsec:circuits" data-reference-type="ref" data-reference="subsec:circuits">4.5</a>, circuit discovery and tracing methods aim to identify internal mechanisms responsible for specific computations in a neural network. Below, we formalize important techniques, the SAE-based circuit discovery methods are introduced in <a href="@@BASE@@handbook/6-feature-extraction-and-multi-layer-analysis/#subsubsec:transcoder" data-reference-type="ref+label" data-reference="subsubsec:transcoder">6.4.1</a> and <a href="@@BASE@@handbook/6-feature-extraction-and-multi-layer-analysis/#subsubsec:cross-layer-transcoder" data-reference-type="ref+label" data-reference="subsubsec:cross-layer-transcoder">6.4.2</a>.</p>
+<div class="definitionbox">
+<p><span id="def:attribution-patching" data-label="def:attribution-patching"></span> <em>Activation patching</em> evaluates the causal contribution of a component or set of components <span class="math inline">S</span> by replacing their activations with baseline values <span class="math inline">\tilde{h}_S</span> and measuring output change: <span class="math display">\text{Effect}(S, x) = f_\text{model}(x) - f_\text{model}(x_{[S \leftarrow \tilde{h}_S]}).</span> This identifies which components are functionally necessary for the computation <span class="citation" data-cites="zhang2024towards">(<a href="@@BASE@@references/#ref-zhang2024towards" class="cite cite-emerging" data-cite="zhang2024towards" role="doc-biblioref">Zhang and Nanda 2024</a>)</span>.</p>
+</div>
+<div class="definitionbox">
+<p><span id="def:path-patching" data-label="def:path-patching"></span> <em>Path patching</em> extends attribution to specific paths or edges in the computation graph. For a connection <span class="math inline">p</span> from component <span class="math inline">i</span> to <span class="math inline">j</span>, one replaces activations along <span class="math inline">p</span> with baseline values and measures output effect: <span class="math display">\text{Effect}(p, x) = f_\text{model}(x) - f_\text{model}(x_{[p \leftarrow \tilde{h}_p]}).</span> This allows finer-grained causal localization along information flows <span class="citation" data-cites="goldowskydill2023localizingmodelbehaviorpath">(<a href="@@BASE@@references/#ref-goldowskydill2023localizingmodelbehaviorpath" class="cite cite-emerging" data-cite="goldowskydill2023localizingmodelbehaviorpath" role="doc-biblioref">Goldowsky-Dill et al. 2023</a>)</span>.</p>
+</div>
+<div class="definitionbox">
+<p><span id="def:acdc" data-label="def:acdc"></span> <em>ACDC</em> identifies minimal sufficient sets of components <span class="math inline">S \subseteq \text{Graph}(\text{model})</span> that reproduce the model’s behavior. Formally, it searches for the smallest <span class="math inline">S</span> such that <span class="math display">f_\text{model}^{S}(x) \approx f_\text{model}(x) \quad \forall x \in \mathcal{D},</span> where <span class="math inline">f_\text{model}^{S}</span> uses only components in <span class="math inline">S</span>. Components not in <span class="math inline">S</span> are pruned iteratively <span class="citation" data-cites="conmy2023automatedcircuitdiscoverymechanistic">(<a href="@@BASE@@references/#ref-conmy2023automatedcircuitdiscoverymechanistic" class="cite cite-established" data-cite="conmy2023automatedcircuitdiscoverymechanistic" role="doc-biblioref">Conmy et al. 2023</a>)</span>.</p>
+</div>
+<table id="tab:circuit-methods">
+<caption><span class="capnum">Table 8:</span> Circuit Discovery Methods: Trade-offs and Characteristics</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><span style="color: white"><strong>Method</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Core Idea</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Strengths</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Limitations</strong></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Activation Patching</strong></td>
+<td style="text-align: left;">Intervene on components; measure output change</td>
+<td style="text-align: left;">Simple, intuitive, approximates causality</td>
+<td style="text-align: left;">Confounds correlation with causation</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Path Patching</strong></td>
+<td style="text-align: left;">Patch specific information paths; measure output change</td>
+<td style="text-align: left;">Finer granularity</td>
+<td style="text-align: left;">Computationally expensive due to large number of paths; still approximate</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ACDC</strong></td>
+<td style="text-align: left;">Iteratively prune minimal sufficient paths</td>
+<td style="text-align: left;">Scales better due to automation; has been proved to recover known circuits</td>
+<td style="text-align: left;">Computationally expensive as it greedily prunes paths; misses subtle components</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>SAE- or CLT-Integrated</strong></td>
+<td style="text-align: left;">Discover circuits over sparse features</td>
+<td style="text-align: left;">Reduces search space; leverages features</td>
+<td style="text-align: left;">Depends on feature quality; intensive computation to train SAEs/CLTs</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="circuit-discovery-in-weight-sparse-architectures" class="level2"><h2 data-pdf-page="40"><span class="secnum">7.3</span> Circuit Discovery in Weight-Sparse Architectures<a class="anchor" href="#circuit-discovery-in-weight-sparse-architectures" aria-label="Link to this section">#</a></h2>
+<p>The circuit discovery methods described above—activation patching, path patching, ACDC—are designed for dense models where circuits are hidden within fully connected computational graphs. Weight-sparse architectures (Section <a href="@@BASE@@handbook/6-feature-extraction-and-multi-layer-analysis/#sec:architectural-interventions" data-reference-type="ref" data-reference="sec:architectural-interventions">6.9</a>) fundamentally alter this landscape by making circuits structurally explicit.</p>
+<section id="circuits-visible-by-inspection." class="level4">
+<h4>Circuits visible by inspection.</h4>
+<p>In a weight-sparse transformer with <span class="math inline">&lt;1\%</span> active parameters, the computational graph is directly observable. To identify the circuit responsible for a specific behavior, one traces non-zero weights backward from the relevant output neurons. Because each neuron connects to only a handful of others, the resulting subgraph is sparse and human-readable without algorithmic search <span class="citation" data-cites="gao2025weight">(<a href="@@BASE@@references/#ref-gao2025weight" class="cite cite-emerging" data-cite="gao2025weight" role="doc-biblioref">Gao, Rajaram, et al. 2025</a>)</span>.</p>
+<p>This eliminates the need for iterative pruning (ACDC), gradient-based attribution, or activation patching. The circuit <em>is</em> the set of non-zero weights—no discovery algorithm required.</p>
+</section>
+<section id="comparison-of-computational-costs." class="level4">
+<h4>Comparison of computational costs.</h4>
+<p>Table <a href="@@BASE@@handbook/7-circuits-in-mechanistic-interpretability/#tab:circuit-discovery-cost" data-reference-type="ref" data-reference="tab:circuit-discovery-cost">9</a> contrasts the computational requirements of circuit discovery across architectures.</p>
+<table id="tab:circuit-discovery-cost">
+<caption><span class="capnum">Table 9:</span> Circuit Discovery: Dense vs. Weight-Sparse Models</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Aspect</strong></th>
+<th style="text-align: left;"><strong>Dense Models</strong></th>
+<th style="text-align: left;"><strong>Weight-Sparse Models</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Discovery method</td>
+<td style="text-align: left;">Activation patching, ACDC, path patching</td>
+<td style="text-align: left;">Direct inspection of non-zero weights</td>
+</tr>
+<tr>
+<td style="text-align: left;">Computational cost</td>
+<td style="text-align: left;"><span class="math inline">O(n_{\text{components}} \times n_{\text{samples}})</span> forward passes</td>
+<td style="text-align: left;"><span class="math inline">O(1)</span>—read from weight matrix</td>
+</tr>
+<tr>
+<td style="text-align: left;">False positives</td>
+<td style="text-align: left;">Common due to correlated activations</td>
+<td style="text-align: left;">Minimal—only true connections exist</td>
+</tr>
+<tr>
+<td style="text-align: left;">Human verification</td>
+<td style="text-align: left;">Requires careful ablation studies</td>
+<td style="text-align: left;">Visual inspection often sufficient</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="implications-for-verification." class="level4">
+<h4>Implications for verification.</h4>
+<p>Causal verification (Section <a href="@@BASE@@handbook/7-circuits-in-mechanistic-interpretability/#sec:causal-verification" data-reference-type="ref" data-reference="sec:causal-verification">7.4</a>) are also simplified in sparse models. Because circuits are structurally isolated, ablation experiments yield cleaner results: removing a sparse circuit removes <em>only</em> that circuit, without the confounding effects of distributed computation. Empirically, sparse circuits satisfy necessity and sufficiency criteria with higher precision than circuits extracted from dense models via post-hoc methods <span class="citation" data-cites="gao2025weight haider2025multi">(<a href="@@BASE@@references/#ref-gao2025weight" class="cite cite-emerging" data-cite="gao2025weight" role="doc-biblioref">Gao, Rajaram, et al. 2025</a>; <a href="@@BASE@@references/#ref-haider2025multi" class="cite cite-emerging" data-cite="haider2025multi" role="doc-biblioref">Haider et al. 2025</a>)</span>.</p>
+</section>
+<section id="limitations." class="level4">
+<h4>Limitations.</h4>
+<p>Weight sparsity does not eliminate all challenges. Circuits may still be compositional (requiring understanding of how subcircuits interact), and the interpretability of individual neurons depends on training dynamics. Furthermore, this approach requires training sparse models from scratch or using Bridge proxies—it cannot be directly applied to existing dense models.</p>
+</section>
+</section>
+<section id="sec:causal-verification" class="level2"><h2 data-pdf-page="41"><span class="secnum">7.4</span> Causal Verification<a class="anchor" href="#sec:causal-verification" aria-label="Link to this section">#</a></h2>
+<p>Once circuits are identified, two critical questions arise: are they causally responsible for the behavior, and can we modify them reliably?</p>
+<section id="causal-necessity-and-sufficiency." class="level4">
+<h4>Causal Necessity and Sufficiency.</h4>
+<p>A circuit is <strong>causally necessary</strong> for a behavior if removing or ablating the circuit degrades that behavior. A circuit is <strong>causally sufficient</strong> if activating the circuit alone, with all other components zeroed or corrupted, reproduces the behavior. In practice, it is hard to be both strictly necessary and sufficient—citcuits typically explain 60–80% of behavioral variance.</p>
+</section>
+<section id="evaluating-circuits-and-benchmarking-discovery-methods." class="level4">
+<h4>Evaluating Circuits and Benchmarking Discovery Methods.</h4>
+<p>A circuit is considered <em>faithful</em> if it is both causally necessary and causally sufficient for the behavior it is claimed to explain <span class="citation" data-cites="wang2022interpretabilitywildcircuitindirect">(<a href="@@BASE@@references/#ref-wang2022interpretabilitywildcircuitindirect" class="cite cite-established" data-cite="wang2022interpretabilitywildcircuitindirect" role="doc-biblioref">Wang et al. 2023</a>)</span>. Two widely used high-level methods for testing these properties are causal scrubbing and interchange interventions <span class="citation" data-cites="heimersheim2024useinterpretactivationpatching chan2022causal">(<a href="@@BASE@@references/#ref-heimersheim2024useinterpretactivationpatching" class="cite cite-emerging" data-cite="heimersheim2024useinterpretactivationpatching" role="doc-biblioref">Heimersheim and Nanda 2024</a>; <a href="@@BASE@@references/#ref-chan2022causal" class="cite cite-emerging" data-cite="chan2022causal" role="doc-biblioref">Chan et al. 2022</a>)</span>. Causal scrubbing evaluates necessity by replacing circuit activations with corrupted or neutralized values and measuring the resulting change in model outputs. Interchange interventions test sufficiency by swapping circuit components between clean and corrupted forward passes and assessing whether the target behavior consistently tracks the substituted circuit across inputs.</p>
+<p>More recently, several works have proposed metrics to quantify circuit faithfulness as a continuous score (<span class="citation" data-cites="eapig">(<a href="@@BASE@@references/#ref-eapig" class="cite cite-established" data-cite="eapig" role="doc-biblioref">Hanna et al. 2024</a>)</span>; <span class="citation" data-cites="querycircuit">(<a href="@@BASE@@references/#ref-querycircuit" class="cite cite-emerging" data-cite="querycircuit" role="doc-biblioref">Wu and Barez 2025</a>)</span>), allowing systematic comparisons of circuits discovered by different algorithms. By aggregating faithfulness scores across tasks and settings, benchmarks such as MIB <span class="citation" data-cites="mueller2025mib">(<a href="@@BASE@@references/#ref-mueller2025mib" class="cite cite-emerging" data-cite="mueller2025mib" role="doc-biblioref">Mueller, Geiger, et al. 2025</a>)</span> evaluate the performance of circuit discovery methods in identifying causally meaningful model components.</p>
+</section>
+<section id="limitations-of-causal-verification." class="level4">
+<h4>Limitations of Causal Verification.</h4>
+<p>Strict necessity and sufficiency are often unattainable. Most behaviors depend on distributed representations and multiple redundant pathways. A circuit may implement the primary mechanism (60% of variance) while other components handle edge cases. Additionally, verification assumes the circuit mechanism is faithfully captured by the identified components, but if features are entangled or nonlinear interactions are present, the measured circuit may not reflect true causal structure.</p>
+</section>
+</section>
+<section id="case-study-induction-heads-1" class="level2"><h2 data-pdf-page="42"><span class="secnum">7.5</span> Case Study: Induction Heads<a class="anchor" href="#case-study-induction-heads-1" aria-label="Link to this section">#</a></h2>
+<div class="examplebox">
+<p><span class="citation" data-cites="olsson2022incontextlearninginductionheads">(<a href="@@BASE@@references/#ref-olsson2022incontextlearninginductionheads" class="cite cite-emerging" data-cite="olsson2022incontextlearninginductionheads" role="doc-biblioref">Olsson, Elhage, et al. 2022</a>)</span> provide a mechanistic explanation for how induction heads implement the conditional copying rule described in Definition <a href="@@BASE@@handbook/6-feature-extraction-and-multi-layer-analysis/#def:induction-heads" data-reference-type="ref" data-reference="def:induction-heads">6.6</a>. Consider a repeated sequence, for example</p>
+<p><span class="math display">\texttt{A B C A B \underline{?}},</span></p>
+<p>where the model must predict the next token following the second occurrence of <code>B</code>. In 2-layer attention-only models, the minimal induction circuit consists of two interacting attention heads that cooperate across layers to implement the copying computation.</p>
+<p>The first head, often called the <em>previous-token head</em>, propagates information about the immediately preceding token into the residual stream. At the current position <span class="math inline">j</span>, this head attends to the token at <span class="math inline">x_{j-1}</span> and writes a representation of it into the residual stream. By doing so, the residual stream carries contextual information about recent tokens that downstream computations can access. The second head, the true <em>induction head</em>, attends from the current token <span class="math inline">x_j</span> to all earlier positions <span class="math inline">i &lt; j</span> where the same token appeared (<span class="math inline">x_i = x_j</span>). Using the context provided by the previous-token head, the induction head retrieves the residual stream representation of the token following <span class="math inline">x_i</span>, namely <span class="math inline">x_{i+1}</span>, and incorporates it into the residual stream at position <span class="math inline">j</span>. This updated representation directly biases the next-token logits toward the retrieved token, effectively implementing the conditional copying rule:</p>
+<p><span class="math display">(x_i = x_j) \;\Rightarrow\; \hat{x}_{j+1} \approx x_{i+1}.</span></p>
+<p>Empirical evidence supports this mechanistic interpretation. Ablating either the previous-token head or the induction head significantly reduces the model’s pattern completion performance, demonstrating that both heads are causally responsible for the observed in-context learning behavior. Moreover, the circuit emerges sharply during training, coinciding with sudden improvements in in-context learning performance. In small attention-only models, this minimal two-head circuit is sufficient to reproduce the observed behavior.</p>
+<p>In larger models containing additional layers and MLPs, the precise mechanistic trace becomes more complex, but the core principle remains the same: context is propagated across layers and then used to conditionally retrieve tokens based on repeated subsequence matches. From this perspective, the circuit view complements feature-based analyses by explicitly identifying the causal structure responsible for induction behavior and clarifying how specific heads interact across layers to implement in-context pattern completion <span class="citation" data-cites="olsson2022incontextlearninginductionheads">(<a href="@@BASE@@references/#ref-olsson2022incontextlearninginductionheads" class="cite cite-emerging" data-cite="olsson2022incontextlearninginductionheads" role="doc-biblioref">Olsson, Elhage, et al. 2022</a>)</span>.</p>
+</div>
+</section>
+<section id="sec:evaluation-framework" class="level2"><h2 data-pdf-page="43"><span class="secnum">7.6</span> A Unified Evaluation Framework for Mechanistic Interpretability<a class="anchor" href="#sec:evaluation-framework" aria-label="Link to this section">#</a></h2>
+<p>A persistent challenge in mechanistic interpretability is the lack of standardized evaluation. Different methods—SAEs, transcoders, circuit discovery, probing—are evaluated using incompatible metrics, making it difficult to compare approaches or assess progress. This section proposes a unified evaluation framework covering five dimensions: faithfulness, completeness, stability, causal validity, and human interpretability.</p>
+<section id="the-need-for-standardized-evaluation" class="level3"><h3 data-pdf-page="43"><span class="secnum">7.6.1</span> The Need for Standardized Evaluation<a class="anchor" href="#the-need-for-standardized-evaluation" aria-label="Link to this section">#</a></h3>
+<p>Current evaluation practices suffer from several problems:</p>
+<ul>
+<li><p><strong>Metric fragmentation</strong>: SAEs are evaluated on reconstruction loss; circuits on task performance recovery; probes on classification accuracy. These metrics are not directly comparable.</p></li>
+<li><p><strong>Cherry-picking</strong>: Results are often reported on favorable examples without systematic coverage of failure cases.</p></li>
+<li><p><strong>Missing baselines</strong>: Claims of interpretability gains rarely compare against simple baselines (e.g., random directions, PCA components, raw neurons).</p></li>
+<li><p><strong>Reproducibility gaps</strong>: Hyperparameter sensitivity and seed dependence are underreported, making replication difficult.</p></li>
+</ul>
+<p>A unified framework enables principled comparison across methods, systematic identification of failure modes, and clearer communication of what interpretability methods actually achieve.</p>
+</section>
+<section id="five-evaluation-dimensions" class="level3"><h3 data-pdf-page="43"><span class="secnum">7.6.2</span> Five Evaluation Dimensions<a class="anchor" href="#five-evaluation-dimensions" aria-label="Link to this section">#</a></h3>
+<p>We propose evaluating mechanistic interpretability methods across five complementary dimensions. No single dimension suffices; strong methods should perform well across all five.</p>
+<table id="tab:evaluation-framework">
+<caption><span class="capnum">Table 10:</span> Unified Evaluation Framework for Mechanistic Interpretability</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><span style="color: white"><strong>Dimension</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Definition</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Metrics</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Methods</strong></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Faithfulness</strong></td>
+<td style="text-align: left;">Do identified components accurately reflect the model’s actual computation?</td>
+<td style="text-align: left;">Causal effect size; intervention consistency; counterfactual accuracy</td>
+<td style="text-align: left;">Ablation; activation patching; interchange interventions</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Completeness</strong></td>
+<td style="text-align: left;">What fraction of model behavior is explained by the identified components?</td>
+<td style="text-align: left;">Behavior coverage; reconstruction loss; unexplained variance</td>
+<td style="text-align: left;">Loss recovery; behavioral replication; residual analysis</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Stability</strong></td>
+<td style="text-align: left;">Are findings robust across seeds, checkpoints, and hyperparameters?</td>
+<td style="text-align: left;">Cross-seed agreement; checkpoint consistency; hyperparameter sensitivity</td>
+<td style="text-align: left;">Multi-seed training; checkpoint comparison; ablation studies</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Causal Validity</strong></td>
+<td style="text-align: left;">Do components satisfy necessity and sufficiency for target behaviors?</td>
+<td style="text-align: left;">Necessity score; sufficiency score; specificity</td>
+<td style="text-align: left;">Causal scrubbing; knockout experiments; circuit verification</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Interpretability</strong></td>
+<td style="text-align: left;">Can humans understand and use the explanations?</td>
+<td style="text-align: left;">Human accuracy; explanation utility; prediction improvement</td>
+<td style="text-align: left;">User studies; expert evaluation; downstream task performance</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="dimension-1-faithfulness" class="level3"><h3 data-pdf-page="43"><span class="secnum">7.6.3</span> Dimension 1: Faithfulness<a class="anchor" href="#dimension-1-faithfulness" aria-label="Link to this section">#</a></h3>
+<p><strong>Definition</strong>: Faithfulness measures whether identified components (features, circuits, explanations) accurately reflect the model’s actual internal computation, rather than post-hoc rationalizations or correlational artifacts.</p>
+<div class="definitionbox">
+<p><strong>Causal Effect Size</strong>: For a component <span class="math inline">C</span> claimed to implement behavior <span class="math inline">B</span>, measure: <span class="math display">\text{Effect}(C, B) = \frac{|P(B | \text{do}(C = \text{active})) - P(B | \text{do}(C = \text{ablated}))|}{P(B | \text{baseline})}</span> Higher values indicate stronger causal relationship between the component and behavior.</p>
+<p><strong>Intervention Consistency</strong>: Across multiple interventions on <span class="math inline">C</span>, do effects on <span class="math inline">B</span> remain consistent? <span class="math display">\text{Consistency}(C, B) = 1 - \frac{\text{Var}[\text{Effect}(C, B)]}{\mathbb{E}[\text{Effect}(C, B)]^2}</span></p>
+<p><strong>Counterfactual Accuracy</strong>: When component <span class="math inline">C</span> is patched from input <span class="math inline">x_1</span> to input <span class="math inline">x_2</span>, does the model’s behavior shift as predicted? <span class="math display">\text{CF-Acc} = \mathbb{E}_{x_1, x_2}\left[\mathbf{1}\left[f(x_1|_{C \leftarrow C(x_2)}) \approx f(x_2)\right]\right]</span></p>
+</div>
+<p><strong>Evaluation protocol</strong>:</p>
+<ol>
+<li><p>Identify component <span class="math inline">C</span> via the interpretability method being evaluated.</p></li>
+<li><p>Define target behavior <span class="math inline">B</span> with clear operational criteria.</p></li>
+<li><p>Perform ablation: replace <span class="math inline">C</span> with baseline (zero, mean, noise) and measure change in <span class="math inline">B</span>.</p></li>
+<li><p>Perform activation patching: swap <span class="math inline">C</span> between clean and corrupted inputs; verify behavior follows <span class="math inline">C</span>.</p></li>
+<li><p>Report effect sizes with confidence intervals across multiple inputs.</p></li>
+</ol>
+<p><strong>Baselines</strong>: Compare against random components, PCA directions, and individual neurons to establish that identified components are more faithful than naive alternatives.</p>
+</section>
+<section id="dimension-2-completeness" class="level3"><h3 data-pdf-page="44"><span class="secnum">7.6.4</span> Dimension 2: Completeness<a class="anchor" href="#dimension-2-completeness" aria-label="Link to this section">#</a></h3>
+<p><strong>Definition</strong>: Completeness measures what fraction of model behavior is explained by the identified components. High completeness means the method accounts for most of the model’s computation; low completeness means significant behavior remains unexplained.</p>
+<div class="definitionbox">
+<p><strong>Loss Recovery</strong>: After replacing model activations with reconstructions from identified components, what fraction of original loss is preserved? <span class="math display">\text{LR} = 1 - \frac{\mathcal{L}_{\text{reconstructed}} - \mathcal{L}_{\text{original}}}{\mathcal{L}_{\text{random}} - \mathcal{L}_{\text{original}}}</span> where <span class="math inline">\mathcal{L}_{\text{random}}</span> is loss with random/ablated activations.</p>
+<p><strong>Behavioral Coverage</strong>: Across a diverse test suite, what fraction of behaviors <span class="math inline">\mathcal{B}</span> can be explained by identified components? <span class="math display">\text{Coverage} = \frac{|\{b \in \mathcal{B} : \exists C \text{ with } \text{Effect}(C, b) \geq \tau\}|}{|\mathcal{B}|}</span></p>
+<p>where <span class="math inline">\tau</span> is set to be the smallest effect that counts as meaningful.</p>
+<p><strong>Unexplained Variance</strong>: What fraction of activation variance is not captured by identified features? <span class="math display">\text{UV} = \frac{\mathbb{E}[\|h - \hat{h}\|^2]}{\mathbb{E}[\|h\|^2]}</span> where <span class="math inline">h</span> is a model activation and <span class="math inline">\hat{h}</span> is the reconstruction from identified components.</p>
+</div>
+<p><strong>Evaluation protocol</strong>:</p>
+<ol>
+<li><p>Define a comprehensive behavioral test suite spanning diverse capabilities (factual recall, reasoning, safety behaviors, etc.).</p></li>
+<li><p>For each behavior, attempt to identify responsible components.</p></li>
+<li><p>Report coverage: fraction of behaviors with identified components meeting faithfulness thresholds.</p></li>
+<li><p>Report reconstruction metrics: loss recovery and unexplained variance.</p></li>
+<li><p>Analyze failure cases: which behaviors resist explanation?</p></li>
+</ol>
+<p><strong>Critical consideration</strong>: Methods may achieve high faithfulness on explained behaviors while leaving most behavior unexplained. Completeness ensures we track the gap between what is explained and what remains opaque.</p>
+</section>
+<section id="dimension-3-stability" class="level3"><h3 data-pdf-page="45"><span class="secnum">7.6.5</span> Dimension 3: Stability<a class="anchor" href="#dimension-3-stability" aria-label="Link to this section">#</a></h3>
+<p><strong>Definition</strong>: Stability measures whether findings are robust to incidental choices—random seeds, training checkpoints, hyperparameter settings—that should not affect conclusions about model internals.</p>
+<div class="definitionbox">
+<p><strong>Cross-Seed Agreement</strong>: Train the interpretability method (e.g., SAE) with <span class="math inline">K</span> different random seeds. Measure feature alignment: <span class="math display">\text{Seed-Stability} = \frac{1}{K(K-1)} \sum_{i \neq j} \text{Align}(F_i, F_j)</span> where <span class="math inline">\text{Align}</span> measures correspondence between feature sets (e.g., via Hungarian matching on cosine similarity).</p>
+<p><strong>Checkpoint Consistency</strong>: For features/circuits identified at checkpoint <span class="math inline">t</span>, do they persist at checkpoints <span class="math inline">t \pm \Delta</span>? <span class="math display">\text{Ckpt-Stability} = \mathbb{E}_t[\text{Align}(F_t, F_{t+\Delta})]</span></p>
+<p><strong>Hyperparameter Sensitivity</strong>: How much do results change under reasonable hyperparameter variation? <span class="math display">\text{HP-Sensitivity} = \frac{\max_{\theta \in \Theta} \text{Metric}(\theta) - \min_{\theta \in \Theta} \text{Metric}(\theta)}{\mathbb{E}_{\theta \in \Theta}[\text{Metric}(\theta)]}</span> Lower sensitivity indicates more robust findings.</p>
+</div>
+<p><strong>Evaluation protocol</strong>:</p>
+<ol>
+<li><p>Train interpretability method with at least 3–5 random seeds.</p></li>
+<li><p>Compute feature/circuit alignment across seeds.</p></li>
+<li><p>Report which findings are stable (appear across all seeds) vs. unstable (seed-specific).</p></li>
+<li><p>For key claims, verify they hold under hyperparameter variation (<span class="math inline">\pm 20\%</span> on key parameters).</p></li>
+<li><p>Distinguish “core” findings (stable) from “fragile” findings (unstable).</p></li>
+</ol>
+<p><strong>Reporting recommendation</strong>: Papers should report stability metrics alongside primary results. Claims based on unstable findings should be flagged as preliminary.</p>
+</section>
+<section id="dimension-4-causal-validity" class="level3"><h3 data-pdf-page="45"><span class="secnum">7.6.6</span> Dimension 4: Causal Validity<a class="anchor" href="#dimension-4-causal-validity" aria-label="Link to this section">#</a></h3>
+<p><strong>Definition</strong>: Causal validity assesses whether identified components satisfy formal causal criteria of necessity (removing the component disrupts the behavior) and sufficiency (the component alone can produce the behavior).</p>
+<div class="definitionbox">
+<p><strong>Necessity Score</strong>: Fraction of behavior explained by the component that is lost when the component is ablated: <span class="math display">\text{Necessity}(C, B) = \frac{P(B | \text{baseline}) - P(B | \text{do}(C = \text{ablated}))}{P(B | \text{baseline})}</span> High necessity means the component is required for the behavior.</p>
+<p><strong>Sufficiency Score</strong>: Fraction of behavior that can be produced by the component alone (all other components ablated or set to baseline): <span class="math display">\text{Sufficiency}(C, B) = \frac{P(B | \text{only } C \text{ active})}{P(B | \text{baseline})}</span> High sufficiency means the component is enough for the behavior.</p>
+<p><strong>Specificity</strong>: Does the component affect only the claimed behavior, or does it have broad side effects? <span class="math display">\text{Specificity}(C, B) = \frac{\text{Effect}(C, B)}{\sum_{B&#39; \in \mathcal{B}} \text{Effect}(C, B&#39;)}</span> High specificity means the component is selective for the target behavior.</p>
+</div>
+<p><strong>Evaluation protocol (Causal Scrubbing)</strong>:</p>
+<ol>
+<li><p><strong>Necessity test</strong>: Ablate the identified circuit/feature. Measure degradation on target behavior. Compare to ablating random components of equal size.</p></li>
+<li><p><strong>Sufficiency test</strong>: Ablate all components except the identified circuit. Measure preservation of target behavior. Compare to random circuits of equal size.</p></li>
+<li><p><strong>Interchange test</strong>: Swap circuit activations between inputs that differ on the target behavior. Verify behavior follows the swapped circuit.</p></li>
+<li><p><strong>Specificity test</strong>: Measure effects on a suite of non-target behaviors. Compute specificity ratio.</p></li>
+</ol>
+<p><strong>Benchmarks</strong>: The MIB benchmark <span class="citation" data-cites="mueller2025mib">(<a href="@@BASE@@references/#ref-mueller2025mib" class="cite cite-emerging" data-cite="mueller2025mib" role="doc-biblioref">Mueller, Geiger, et al. 2025</a>)</span> provides standardized tasks and metrics for causal circuit evaluation. AxBench <span class="citation" data-cites="wu2025axbench">(<a href="@@BASE@@references/#ref-wu2025axbench" class="cite cite-established" data-cite="wu2025axbench" role="doc-biblioref">Wu et al. 2025</a>)</span> and RAVEL <span class="citation" data-cites="huang-etal-2024-ravel">(<a href="@@BASE@@references/#ref-huang-etal-2024-ravel" class="cite cite-established" data-cite="huang-etal-2024-ravel" role="doc-biblioref">Huang et al. 2024</a>)</span> provide feature-level causal evaluation.</p>
+</section>
+<section id="dimension-5-human-interpretability" class="level3"><h3 data-pdf-page="46"><span class="secnum">7.6.7</span> Dimension 5: Human Interpretability<a class="anchor" href="#dimension-5-human-interpretability" aria-label="Link to this section">#</a></h3>
+<p><strong>Definition</strong>: Human interpretability measures whether explanations are actually useful to humans—whether they improve human understanding, prediction, or decision-making about model behavior.</p>
+<div class="definitionbox">
+<p><strong>Explanation Accuracy</strong>: Can humans predict model behavior based on the explanation? <span class="math display">\text{Expl-Acc} = P(\text{human predicts } f(x) | \text{explanation of } f)</span> Compare to baseline prediction accuracy without explanation.</p>
+<p><strong>Simulatability</strong>: After seeing explanations, can humans simulate the model’s computation on new inputs? <span class="math display">\text{Simulatability} = \text{Corr}(\text{human prediction}, f(x_{\text{new}}))</span></p>
+<p><strong>Debugging Utility</strong>: Do explanations help humans identify and fix model errors? <span class="math display">\text{Debug-Utility} = \frac{\text{\#Errors fixed with explanation}}{\text{\#Errors fixed without explanation}}</span></p>
+<p><strong>Consistency of Interpretation</strong>: Do different humans interpret the same explanation consistently? <span class="math display">\text{Inter-Rater} = \kappa(\text{human}_1 \text{ labels}, \text{human}_2 \text{ labels})</span> where <span class="math inline">\kappa</span> is Cohen’s kappa or a similar agreement metric.</p>
+</div>
+<p><strong>Evaluation protocol</strong>:</p>
+<ol>
+<li><p><strong>Prediction task</strong>: Show humans feature/circuit explanations. Ask them to predict model behavior on held-out inputs. Compare accuracy to no-explanation baseline.</p></li>
+<li><p><strong>Identification task</strong>: Show humans model outputs with errors. With and without mechanistic explanations, ask them to identify the cause. Measure accuracy and time.</p></li>
+<li><p><strong>Intervention task</strong>: Ask humans to propose fixes for model errors based on explanations. Measure success rate of proposed interventions.</p></li>
+<li><p><strong>Agreement task</strong>: Have multiple raters label feature interpretations. Measure inter-rater reliability.</p></li>
+</ol>
+<p><strong>Considerations</strong>:</p>
+<ul>
+<li><p>Human studies are expensive and introduce subjectivity. Automated proxies (LLM-based evaluation) can supplement but not replace human evaluation.</p></li>
+<li><p>Expertise matters: interpretations accessible to ML researchers may be opaque to domain experts, and vice versa.</p></li>
+<li><p>Task-specificity: a feature interpretable for one task may be confusing for another.</p></li>
+</ul>
+</section>
+<section id="integrated-evaluation-protocol" class="level3"><h3 data-pdf-page="47"><span class="secnum">7.6.8</span> Integrated Evaluation Protocol<a class="anchor" href="#integrated-evaluation-protocol" aria-label="Link to this section">#</a></h3>
+<p>We recommend the following integrated protocol for comprehensive evaluation:</p>
+<div class="definitionbox">
+<p><strong>Step 1: Define scope</strong></p>
+<ul>
+<li><p>Specify the model, layer(s), and behavior(s) under analysis.</p></li>
+<li><p>Define a behavioral test suite with clear success criteria.</p></li>
+</ul>
+<p><strong>Step 2: Establish baselines</strong></p>
+<ul>
+<li><p>Random directions in activation space.</p></li>
+<li><p>PCA components.</p></li>
+<li><p>Individual neurons.</p></li>
+<li><p>Supervised probes (if labels available).</p></li>
+</ul>
+<p><strong>Step 3: Apply interpretability method</strong></p>
+<ul>
+<li><p>Train with multiple seeds (minimum 3).</p></li>
+<li><p>Record hyperparameters and training details for reproducibility.</p></li>
+</ul>
+<p><strong>Step 4: Evaluate across all five dimensions</strong></p>
+<ul>
+<li><p>Faithfulness: ablation and patching experiments.</p></li>
+<li><p>Completeness: loss recovery and behavioral coverage.</p></li>
+<li><p>Stability: cross-seed and hyperparameter sensitivity.</p></li>
+<li><p>Causal validity: necessity, sufficiency, specificity tests.</p></li>
+<li><p>Human interpretability: user studies or proxy metrics.</p></li>
+</ul>
+<p><strong>Step 5: Report comprehensively</strong></p>
+<ul>
+<li><p>Report all five dimensions, not just favorable metrics.</p></li>
+<li><p>Include failure cases and unexplained behaviors.</p></li>
+<li><p>Compare to baselines on all metrics.</p></li>
+<li><p>Provide confidence intervals and significance tests.</p></li>
+</ul>
+</div>
+</section>
+<section id="applying-the-framework-method-specific-guidance" class="level3"><h3 data-pdf-page="47"><span class="secnum">7.6.9</span> Applying the Framework: Method-Specific Guidance<a class="anchor" href="#applying-the-framework-method-specific-guidance" aria-label="Link to this section">#</a></h3>
+<p>Different interpretability methods emphasize different dimensions. Table <a href="@@BASE@@handbook/7-circuits-in-mechanistic-interpretability/#tab:method-evaluation" data-reference-type="ref" data-reference="tab:method-evaluation">11</a> provides guidance on applying the framework to common methods.</p>
+<table id="tab:method-evaluation">
+<caption><span class="capnum">Table 11:</span> Evaluation Priorities by Method Type</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><span style="color: white"><strong>Method</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Faithfulness</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Completeness</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Stability</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Causal</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Human</strong></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">SAEs</td>
+<td style="text-align: left;">Feature ablation</td>
+<td style="text-align: left;">Loss recovery; UV</td>
+<td style="text-align: left;">Seed stability critical</td>
+<td style="text-align: left;">Feature-level N/S</td>
+<td style="text-align: left;">Auto-labeling quality</td>
+</tr>
+<tr>
+<td style="text-align: left;">Transcoders/CLTs</td>
+<td style="text-align: left;">Layer reconstruction</td>
+<td style="text-align: left;">Cross-layer coverage</td>
+<td style="text-align: left;">Architecture sensitivity</td>
+<td style="text-align: left;">Circuit-level N/S</td>
+<td style="text-align: left;">Circuit descriptions</td>
+</tr>
+<tr>
+<td style="text-align: left;">Circuit Discovery</td>
+<td style="text-align: left;">Path patching</td>
+<td style="text-align: left;">Behavioral coverage</td>
+<td style="text-align: left;">Method variance</td>
+<td style="text-align: left;">Primary focus</td>
+<td style="text-align: left;">Circuit diagrams</td>
+</tr>
+<tr>
+<td style="text-align: left;">Probing</td>
+<td style="text-align: left;">Probe <span class="math inline">\rightarrow</span> causal</td>
+<td style="text-align: left;">Information content</td>
+<td style="text-align: left;">Probe architecture</td>
+<td style="text-align: left;">Often weak</td>
+<td style="text-align: left;">Concept labels</td>
+</tr>
+<tr>
+<td style="text-align: left;">Steering Vectors</td>
+<td style="text-align: left;">Behavioral effect</td>
+<td style="text-align: left;">Behavior breadth</td>
+<td style="text-align: left;">Direction stability</td>
+<td style="text-align: left;">Implicit in method</td>
+<td style="text-align: left;">Steering descriptions</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="limitations-of-this-framework" class="level3"><h3 data-pdf-page="48"><span class="secnum">7.6.10</span> Limitations of This Framework<a class="anchor" href="#limitations-of-this-framework" aria-label="Link to this section">#</a></h3>
+<p>This evaluation framework has limitations that should be acknowledged:</p>
+<ul>
+<li><p><strong>Metric choice</strong>: The specific metrics proposed are not uniquely correct. Alternative formalizations may be appropriate for specific contexts.</p></li>
+<li><p><strong>Threshold arbitrariness</strong>: Proposed thresholds (e.g., necessity <span class="math inline">&gt; 0.5</span>) lack theoretical grounding and may need adjustment based on empirical calibration.</p></li>
+<li><p><strong>Computational cost</strong>: Comprehensive evaluation across all five dimensions is expensive, potentially prohibitive for large-scale studies.</p></li>
+<li><p><strong>Human evaluation bottleneck</strong>: Dimension 5 requires human studies that are slow, expensive, and introduce subjectivity.</p></li>
+<li><p><strong>Task dependence</strong>: Metrics may behave differently across tasks; a method excelling on factual recall may fail on reasoning.</p></li>
+</ul>
+<p>Despite these limitations, systematic evaluation across multiple dimensions provides more reliable evidence than ad-hoc metrics. The framework should be viewed as a starting point for community standardization, not a final answer.</p>
+</section>
+</section>
+</section>

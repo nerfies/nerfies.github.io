@@ -1,0 +1,42 @@
+---
+import Base from '../../layouts/Base.astro';
+import DraftBanner from '../../components/DraftBanner.astro';
+import MethodsExplorer from '../../components/MethodsExplorer.tsx';
+import { methods, families, familyById, hypotheses, sections, notebooksFor, demosFor, methodById } from '../../lib/data';
+import { url } from '../../lib/site';
+
+const rows = methods.map((m) => {
+  const s = sections(m.sections)[0];
+  return {
+    id: m.id, name: m.name, family: m.family, familyName: familyById.get(m.family)?.name ?? m.family,
+    section: s?.num ?? null, sectionHref: s?.href ?? null, definition: m.definition ?? '',
+    assumptions: m.assumptions ?? [], evaluation: m.evaluation ?? [], applications: m.applications ?? [], limitations: m.limitations ?? [],
+    related: (m.related ?? []).map((id: string) => ({ id, name: methodById.get(id)?.name ?? id })),
+    notebooks: notebooksFor('methods', m.id).length, demos: demosFor('methods', m.id).length, href: url(`methods/${m.id}/`),
+  };
+});
+const fams = families.map((f) => ({ id: f.id, name: f.name, count: methods.filter((m) => m.family === f.id).length }));
+---
+<Base title="Methods explorer" description="A searchable, filterable taxonomy of the interpretability methods in the survey, with side-by-side comparison drawn from the survey text.">
+  <div class="page">
+    <p class="eyebrow">Technical methods</p>
+    <h1>Methods explorer</h1>
+    <p class="lede">Every method the survey covers in its own section, grouped the way the survey groups them. All text here is quoted from the survey.
+      We don’t add scores, rankings or numbers the survey doesn’t report.</p>
+    <DraftBanner />
+    <MethodsExplorer client:load rows={rows} families={fams} />
+
+    <h2 style="margin-top:3rem">Core hypotheses</h2>
+    <p class="muted small">These are the assumptions many of the methods rely on. They are not methods themselves.</p>
+    <div class="grid grid-2">
+      {hypotheses.map((h) => {
+        const s = sections(h.sections)[0];
+        return <div class="card"><h3 style="margin:0 0 .3rem;font-size:1rem">{h.name}</h3>
+          <p style="font-family:var(--serif);margin:.2rem 0">“{h.definition}”</p>
+          {s?.href && <a class="small" href={s.href}>§{s.num} {s.title}</a>}
+          {demosFor('hypotheses', h.id).map((d) => <> · <a class="small" href={url(d.href)}>Demo: {d.title}</a></>)}
+        </div>;
+      })}
+    </div>
+  </div>
+</Base>

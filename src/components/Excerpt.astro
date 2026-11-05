@@ -1,0 +1,13 @@
+---
+// A verbatim quotation from the manuscript. Maths is rendered with KaTeX.
+import { renderMath } from '../lib/manuscript';
+interface Props { text: string; section?: { num: string | null; title: string; href: string | null } | null }
+const { text, section } = Astro.props;
+const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+// inline TeX in excerpts appears as \( ... \)
+const html = esc(text).replace(/\\\((.+?)\\\)/g, (_m, t) => renderMath(`<span class="math inline">${t}</span>`));
+---
+<blockquote class="excerpt">
+  <Fragment set:html={html} />
+  {section && <footer>Survey {section.href ? <a href={section.href}>{`§${section.num} ${section.title}`}</a> : <>§{section.num}</>}</footer>}
+</blockquote>

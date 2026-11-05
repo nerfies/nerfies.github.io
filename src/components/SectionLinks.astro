@@ -1,0 +1,11 @@
+---
+import { sections } from '../lib/data';
+interface Props { ids: string[]; label?: string }
+const { ids, label = 'In the survey' } = Astro.props;
+const list = sections(ids).filter((s) => s.href);
+---
+{list.length > 0 && (
+  <p class="small"><span class="muted">{label}:</span>{' '}
+    {list.map((s, i) => <>{i > 0 && ' · '}<a href={s.href!}>{`§${s.num} ${s.title}`}</a></>)}
+  </p>
+)}

@@ -1,0 +1,16 @@
+---
+import Base from '../../layouts/Base.astro';
+import DemoFrame from '../../components/DemoFrame.astro';
+import SuperpositionDemo from '../../components/demos/SuperpositionDemo.tsx';
+---
+<Base title="Superposition in a toy model" description="Train a toy model of superposition in your browser: five features, two dimensions, and a sparsity slider.">
+  <DemoFrame id="superposition" title="Superposition in a toy model" kind="computed" refs={['elhage2022superposition']}>
+    <p slot="intro" class="lede">A network can represent more features than it has dimensions if the features are rarely active at the same time. This model has 5 input features and only 2 hidden dimensions. Drag the sparsity slider and retrain to see when it starts sharing dimensions.</p>
+    <SuperpositionDemo client:visible />
+    <Fragment slot="method">
+      <h2 style="font-size:1rem">What is being computed</h2>
+      <p>This is the ReLU-output toy model of Elhage et al. (2022): <code>h = Wx</code>, <code>x′ = ReLU(Wᵀh + b)</code>. Training minimises importance-weighted reconstruction error, Σ<sub>i</sub> I<sub>i</sub>(x<sub>i</sub> − x′<sub>i</sub>)². Each feature is 0 with probability S and otherwise drawn from Uniform[0, 1]. Training is Adam (learning rate 0.01, batch 512) for 1,500 steps with a seeded random number generator, so the same settings give the same result every time.</p>
+      <p><strong>Checked results</strong> (seed 1, importance decay 0.9, tested in <code>tests/sim.test.ts</code>): at S = 0 the model represents only 2 of 5 features, at S = 0.7 it represents 4, and at S = 0.9 it represents all 5. A feature counts as represented when ‖W<sub>i</sub>‖ &gt; 0.5. This reproduces the qualitative finding of the original paper: sparsity drives superposition.</p>
+    </Fragment>
+  </DemoFrame>
+</Base>

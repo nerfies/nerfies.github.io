@@ -1,0 +1,31 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/site';
+---
+<Base title="Search" description="Full-text search across the survey, methods, notebooks and demos." noindex>
+  <link slot="head" href={url('pagefind/pagefind-ui.css')} rel="stylesheet" />
+  <div class="page-narrow">
+    <p class="eyebrow">Search</p>
+    <h1>Search the handbook</h1>
+    <p class="muted small">Searches the full text of every chapter plus the methods, evaluation, orientations, safety and notebook pages. The index is built statically, so it works offline once loaded.</p>
+    <div id="search"></div>
+    <noscript><p>Search needs JavaScript. You can still browse the <a href={url('handbook/')}>contents</a>.</p></noscript>
+  </div>
+  <script is:inline define:vars={{ src: url('pagefind/pagefind-ui.js') }}>
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = () => {
+      // eslint-disable-next-line no-undef
+      new PagefindUI({ element: '#search', showSubResults: true, showImages: false, autofocus: true,
+        translations: { placeholder: 'Search, e.g. superposition, activation patching, steering' } });
+      const q = new URLSearchParams(location.search).get('q');
+      if (q) { const i = document.querySelector('#search input'); if (i) { i.value = q; i.dispatchEvent(new Event('input')); } }
+    };
+    s.onerror = () => { document.getElementById('search').textContent = 'The search index is generated at build time (npm run build). It is not available in the dev server.'; };
+    document.head.append(s);
+  </script>
+  <style is:global>
+    #search { --pagefind-ui-primary: var(--accent); --pagefind-ui-text: var(--ink); --pagefind-ui-background: var(--surface);
+      --pagefind-ui-border: var(--rule); --pagefind-ui-tag: var(--surface-2); --pagefind-ui-font: var(--sans); margin-top: 1.5rem; }
+  </style>
+</Base>

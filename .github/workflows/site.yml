@@ -1,0 +1,65 @@
+name: Build, test and deploy
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1' # weekly: re-verify notebook links
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: npm ci
+
+      # Notebook catalogue is regenerated from the public notebooks repo and every
+      # link is checked, so the catalogue can never advertise a missing notebook.
+      - uses: actions/checkout@v4
+        with: { repository: TSGLAB/Interpretability_Survey_Safety, path: .notebooks }
+      - name: Catalogue notebooks and verify links
+        run: |
+          python3 scripts/catalogue_notebooks.py --repo .notebooks --verify-links
+          python3 - <<'PY'
+          import json, sys
+          d = json.load(open('src/data/notebooks.json'))
+          bad = [n['path'] for n in d['notebooks'] if not n['link_check']['source_exists_on_github']]
+          sys.exit(f'unreachable notebooks: {bad}' if bad else 0)
+          PY
+
+      - run: npm run build
+      - run: npm test
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: dist }
+
+  deploy:
+    # Deploys only from main. Requires Settings → Pages → Source = "GitHub Actions".
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refuse to publish draft manuscript text
+        run: |
+          python3 -c "import json,sys; s=json.load(open('src/generated/manifest.json'))['provenance']['status']; sys.exit(0 if s=='final' else f'manuscript status is {s!r}; ingest the final manuscript with --status final before deploying')"
+      - id: deployment
+        uses: actions/deploy-pages@v4

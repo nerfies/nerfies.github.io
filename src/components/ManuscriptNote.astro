@@ -1,0 +1,11 @@
+---
+interface Props { kind?: 'manuscript' | 'measured' | 'illustrative' | 'editorial' }
+const { kind = 'manuscript' } = Astro.props;
+const text = {
+  manuscript: 'Verbatim from the survey',
+  measured: 'Measured result',
+  illustrative: 'Illustrative',
+  editorial: 'Site summary, not survey text',
+}[kind];
+---
+<span class={`label ${kind}`}>{text}</span>

@@ -1,0 +1,73 @@
+---
+import '../styles/global.css';
+import 'katex/dist/katex.min.css';
+import { SITE, NAV, base, url } from '../lib/site';
+
+interface Props { title?: string; description?: string; image?: string; wide?: boolean; noindex?: boolean }
+const { title, description = 'An interactive handbook for the survey "The State of Interpretability for AI Safety": the full text, a methods explorer, evaluation framework, research orientations, open problems and runnable notebooks.', image = 'static/images/survey_overview.png' } = Astro.props;
+const fullTitle = title ? `${title} · ${SITE.short}` : `${SITE.title}: ${SITE.subtitle}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(url(image), Astro.site);
+const path = Astro.url.pathname;
+---
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{fullTitle}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+  <link rel="icon" href={url('static/images/favicon.svg')} type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={fullTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={ogImage} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#1f3a68" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet" />
+  <script is:inline>
+    try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+  <slot name="head" />
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href={base}>Interpretability <span>for</span> AI Safety</a>
+      <button class="icon-btn menu-btn" aria-expanded="false" aria-controls="site-nav" id="menu-btn">Menu</button>
+      <nav class="site-nav" id="site-nav" aria-label="Main">
+        {NAV.map((n) => <a href={url(n.href)} aria-current={path.startsWith(url(n.href)) ? 'page' : undefined}>{n.label}</a>)}
+        <a href={url('search/')} aria-current={path.startsWith(url('search/')) ? 'page' : undefined}>Search</a>
+      </nav>
+      <button class="icon-btn" id="theme-btn" aria-label="Toggle colour theme" title="Toggle colour theme">◐</button>
+    </div>
+  </header>
+  <main id="main" data-pagefind-body={Astro.props.noindex ? undefined : ''}>
+    <slot />
+  </main>
+  <footer class="site-footer">
+    <div class="inner">
+      <div>{SITE.title}: {SITE.subtitle}. Correspondence: <a href={`mailto:${SITE.contact}`}>{SITE.contact}</a>.</div>
+      <div>Notebooks: <a href={SITE.notebooksRepo}>TSGLAB/Interpretability_Survey_Safety</a> · Site source: <a href={SITE.siteRepo}>TSGLAB/mi_survey</a></div>
+      <div>The original project page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template">Academic Project Page Template</a>, adopted from the <a href="https://nerfies.github.io">Nerfies</a> project page. Licensed under <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.</div>
+    </div>
+  </footer>
+  <script is:inline>
+    (function () {
+      const root = document.documentElement;
+      document.getElementById('theme-btn').addEventListener('click', () => {
+        const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        root.dataset.theme = dark ? 'light' : 'dark';
+        try { localStorage.setItem('theme', root.dataset.theme); } catch (e) {}
+      });
+      const mb = document.getElementById('menu-btn'), nav = document.getElementById('site-nav');
+      mb.addEventListener('click', () => { const o = nav.classList.toggle('open'); mb.setAttribute('aria-expanded', String(o)); });
+    })();
+  </script>
+</body>
+</html>

@@ -25,10 +25,10 @@ const path = Astro.url.pathname;
   <meta property="og:url" content={canonical} />
   <meta property="og:image" content={ogImage} />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="theme-color" content="#1f3a68" />
+  <meta name="theme-color" content="#f8f6f1" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet" />
   <script is:inline>
     try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
   </script>
@@ -38,13 +38,13 @@ const path = Astro.url.pathname;
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="inner">
-      <a class="brand" href={base}>Interpretability <span>for</span> AI Safety</a>
+      <a class="brand" href={base}>The State of Interpretability <em>for AI Safety</em></a>
       <button class="icon-btn menu-btn" aria-expanded="false" aria-controls="site-nav" id="menu-btn">Menu</button>
       <nav class="site-nav" id="site-nav" aria-label="Main">
         {NAV.map((n) => <a href={url(n.href)} aria-current={path.startsWith(url(n.href)) ? 'page' : undefined}>{n.label}</a>)}
         <a href={url('search/')} aria-current={path.startsWith(url('search/')) ? 'page' : undefined}>Search</a>
       </nav>
-      <button class="icon-btn" id="theme-btn" aria-label="Toggle colour theme" title="Toggle colour theme">◐</button>
+      <button class="icon-btn" id="theme-btn" aria-label="Switch between light and dark">Dark</button>
     </div>
   </header>
   <main id="main" data-pagefind-body={Astro.props.noindex ? undefined : ''}>
@@ -63,8 +63,14 @@ const path = Astro.url.pathname;
       document.getElementById('theme-btn').addEventListener('click', () => {
         const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
         root.dataset.theme = dark ? 'light' : 'dark';
+        label();
         try { localStorage.setItem('theme', root.dataset.theme); } catch (e) {}
       });
+      function label() {
+        const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        document.getElementById('theme-btn').textContent = dark ? 'Light' : 'Dark';
+      }
+      label();
       const mb = document.getElementById('menu-btn'), nav = document.getElementById('site-nav');
       mb.addEventListener('click', () => { const o = nav.classList.toggle('open'); mb.setAttribute('aria-expanded', String(o)); });
     })();

@@ -81,9 +81,9 @@ button { font: inherit; color: inherit; }
 /* ---------- masthead ---------- */
 .site-header { border-bottom: 1px solid var(--hair); background: var(--paper); }
 .site-header .inner { max-width: 82rem; margin: 0 auto; display: flex; align-items: baseline; gap: 2rem; padding: 1rem 1.25rem .9rem; }
-.brand { font-family: var(--display); font-size: .9rem; line-height: 1.2; color: var(--ink); text-decoration: none; white-space: nowrap; letter-spacing: -0.05em; }
+.brand { display: inline-block; text-align: center; font-family: var(--display); font-size: .9rem; line-height: 1.2; color: var(--ink); text-decoration: none; white-space: nowrap; letter-spacing: -0.05em; }
 .brand:hover { color: var(--ink); }
-@media (max-width: 40rem) { .brand { white-space: normal; font-size: 1.02rem; line-height: 1.25; min-width: 0; } }
+@media (max-width: 40rem) { .brand { white-space: normal; text-align: left; font-size: 1.02rem; line-height: 1.25; min-width: 0; } }
 .brand em { font-style: italic; }
 .site-nav { display: flex; gap: 1.4rem; margin-left: auto; flex-wrap: wrap; justify-content: flex-end; }
 .site-nav a { color: var(--ink-2); text-decoration: none; font-size: .9rem; white-space: nowrap; }

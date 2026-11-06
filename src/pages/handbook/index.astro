@@ -18,7 +18,7 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
       {withheld.size > 0 && <>{withheld.size === 1 ? 'One chapter is' : `${withheld.size} chapters are`} held back until the final manuscript. </>}
       Numbering matches the {isDraft ? 'draft ' : ''}PDF, and every section, figure and table has a link you can share.</p>
     <DraftBanner />
-    <p class="small">The paper: <a href={SITE.paper}>arXiv:2611.08438</a> (<a href={SITE.paperPdf}>PDF</a>) · <a href={url('#cite')}>BibTeX</a></p>
+    <p class="small">The paper: <a href={SITE.paper}>arXiv:2611.08438</a> (<a href={SITE.paperPdf}>PDF</a>, <a href={SITE.alphaxiv}>alphaXiv</a>) · <a href={url('#cite')}>BibTeX</a></p>
     <p class="small muted">Citation colours follow the manuscript:
       <span style="color:var(--tier-established)">■ peer-reviewed</span> (plain),
       <span style="color:var(--tier-emerging)">■ preprints and other non-peer-reviewed work</span> (<span class="cite-emerging-sample">dotted underline</span>; tagged “Preprint” in the reference list).</p>

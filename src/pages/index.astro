@@ -20,7 +20,7 @@ const affiliations = ['University of Oxford', 'Martian', 'Università della Sviz
   'George Mason University', 'University of Edinburgh', 'Mila, Université de Montréal', 'EleutherAI', 'New York University Abu Dhabi & Dalhousie University'];
 
 const pillars = [
-  { n: 1, title: 'Motivation & Concepts', summary: 'Fundamental knowledge and core hypotheses.', href: 'handbook/',
+  { n: 1, title: 'Motivation & Concepts', summary: 'Fundamental knowledge and core hypotheses.', href: 'handbook/limits-of-behavioural-evaluation/',
     cta: 'Read the foundations',
     items: [['Limits of Behavioural Evaluation', ''], ['Overview of Interpretability Methods', 'Behavioural, attribution, concept-based, probing'],
       ['Core Concepts', 'Polysemanticity, features, transformer computation, circuits'],
@@ -138,7 +138,7 @@ const jsonld = {
     <div class="gut">Figure</div>
     <figure>
       <a href={url('static/images/survey_overview.png')} aria-label="Open the survey overview figure at full resolution">
-        <img src={url('static/images/survey_overview.png')} width="2832" height="1608" alt="Overview of the survey: Motivation & Concepts, Technical Methods, Research Directions, and Safety & Open Problems" />
+        <img src={url('static/images/survey_overview_transparent.png')} width="2832" height="1608" alt="Overview of the survey: Motivation & Concepts, Technical Methods, Research Directions, and Safety & Open Problems" />
       </a>
       <figcaption><strong>Overview of the survey</strong>, organised into four primary pillars: Motivation &amp; Concepts, Technical Methods, Research Directions, and Safety &amp; Open Problems.</figcaption>
     </figure>
@@ -158,7 +158,7 @@ const jsonld = {
     <div class="gut">Taxonomy</div>
     <figure class="tax">
       <a href={url('static/images/survey_taxonomy.png')} aria-label="Open the taxonomy figure at full resolution">
-        <img src={url('static/images/survey_taxonomy.png')} width="1730" height="2880" loading="lazy" alt="Taxonomy of interpretability methods covered in the survey, with representative citations for each category" />
+        <img src={url('static/images/survey_taxonomy_transparent.png')} width="1730" height="2880" loading="lazy" alt="Taxonomy of interpretability methods covered in the survey, with representative citations for each category" />
       </a>
       <figcaption>Taxonomy of interpretability methods covered in this survey. Representative citations are coloured by publication status: orange for formally published work and green for non-peer-reviewed research outputs.</figcaption>
     </figure>
@@ -228,7 +228,10 @@ const jsonld = {
   .compact .t { font-family: var(--display); font-size: 1.25rem; margin-right: .5rem; text-decoration: none; }
   .compact .t:hover { text-decoration: underline; }
   .figure-row figure { margin: 0; }
-  .figure-row img { display: block; background: #fff; }
+  /* Figures have transparent backgrounds so they sit on the page colour; dark mode keeps a white backing because the figure text is dark. */
+  .figure-row img { display: block; background: transparent; }
+  @media (prefers-color-scheme: dark) { :global(:root:not([data-theme="light"])) .figure-row img { background: #fff; } }
+  :global(:root[data-theme="dark"]) .figure-row img { background: #fff; }
   .figure-row figcaption { font-size: .84rem; color: var(--ink-2); margin-top: .8rem; max-width: 46rem; }
   .tax { max-width: 40rem; }
   #cite { padding-bottom: 4rem; }

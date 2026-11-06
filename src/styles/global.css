@@ -1,22 +1,33 @@
 /* Interpretability for AI Safety — handbook styles.
    Editorial, print-like: paper, ink, hairline rules, one accent.
    Tokens first; dark mode only redefines tokens. */
+/* Brand palette and type (6 Nov 2026):
+   primary #0c0c0c for text, links, buttons and UI; background #f4f4f4;
+   red #FF0000 and blue #0000FF for diagrams, data and highlights only, never UI.
+   Headers: Fragment Mono, letter-spacing -0.05em. Body and UI: Work Sans.
+   Dark mode swaps primary and background; the accents stay. */
 :root {
-  --paper: #f8f6f1;
-  --paper-2: #f0ede5;
-  --ink: #16140f;
-  --ink-2: #47433b;
-  --ink-3: #7d776b;
-  --hair: #d9d4c7;
-  --hair-strong: #16140f;
-  --accent: #a8401b;          /* oxide red: links on hover, active states, data highlights */
-  --link: #16140f;
-  --grid: #e7e2d6;
-  --focus: #a8401b;
-  --tier-established: #9a5a2c; --tier-emerging: #5c7a2b; --tier-flagged: #b3261e;
-  --note-bg: #f3efe3; --note-ink: #5e4a13; --note-rule: #c8a84a;
-  --measured: #1f5f52; --illustrative: #6a4f99;
-  --pos: #2f5fa7; --neg: #b8452a; --zero: #efece4;
+  --font-headers: 'Fragment Mono', ui-monospace, Menlo, monospace;
+  --font-body: 'Work Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --primary: #0c0c0c;
+  --accent-red: #FF0000;
+  --accent-blue: #0000FF;
+
+  --paper: #f4f4f4;
+  --paper-2: #eaeaea;
+  --ink: var(--primary);
+  --ink-2: #3d3d3d;
+  --ink-3: #6e6e6e;
+  --hair: #d4d4d4;
+  --hair-strong: var(--primary);
+  --accent: var(--primary);   /* UI emphasis (hover, active, focus) uses the primary colour */
+  --link: var(--primary);
+  --grid: #e4e4e4;
+  --focus: var(--primary);
+  --tier-established: var(--accent-blue); --tier-emerging: var(--accent-red); --tier-flagged: var(--accent-red);
+  --note-bg: var(--paper-2); --note-ink: var(--ink); --note-rule: var(--ink-3);
+  --measured: var(--ink); --illustrative: var(--ink-2);
+  --pos: var(--accent-blue); --neg: var(--accent-red); --zero: #e6e6e6;
 
   /* legacy aliases used by components */
   --bg: var(--paper); --surface: var(--paper); --surface-2: var(--paper-2); --rule: var(--hair);
@@ -24,10 +35,10 @@
   --draft-bg: var(--note-bg); --draft-ink: var(--note-ink); --draft-rule: var(--note-rule);
   --pillar-1: var(--ink); --pillar-2: var(--ink); --pillar-3: var(--ink); --pillar-4: var(--ink);
 
-  --display: 'Newsreader', 'Iowan Old Style', Georgia, serif;
-  --serif: 'Newsreader', 'Iowan Old Style', Georgia, serif;
-  --sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  --display: var(--font-headers);
+  --serif: var(--font-body);
+  --sans: var(--font-body);
+  --mono: var(--font-headers);
   --radius: 0px;
   --measure: 42rem;
   --gutter: 12rem;
@@ -35,20 +46,12 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #141310; --paper-2: #1c1a16; --ink: #ebe7dd; --ink-2: #bdb7aa; --ink-3: #8a8477; --hair: #34312a; --hair-strong: #ebe7dd;
-    --accent: #e0835c; --link: #ebe7dd; --grid: #23211c; --focus: #e0835c;
-    --tier-established: #d89a6e; --tier-emerging: #a6c26d; --tier-flagged: #f08a80;
-    --note-bg: #26220f; --note-ink: #e6cf8a; --note-rule: #6d5b25; --measured: #7cc9b4; --illustrative: #b9a2e6;
-    --pos: #7aa3e6; --neg: #e88a6e; --zero: #24221d;
+    --primary: #f4f4f4; --paper: #0c0c0c; --paper-2: #1a1a1a; --ink-2: #c6c6c6; --ink-3: #8f8f8f; --hair: #2f2f2f; --grid: #1c1c1c; --zero: #1f1f1f;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --paper: #141310; --paper-2: #1c1a16; --ink: #ebe7dd; --ink-2: #bdb7aa; --ink-3: #8a8477; --hair: #34312a; --hair-strong: #ebe7dd;
-  --accent: #e0835c; --link: #ebe7dd; --grid: #23211c; --focus: #e0835c;
-  --tier-established: #d89a6e; --tier-emerging: #a6c26d; --tier-flagged: #f08a80;
-  --note-bg: #26220f; --note-ink: #e6cf8a; --note-rule: #6d5b25; --measured: #7cc9b4; --illustrative: #b9a2e6;
-  --pos: #7aa3e6; --neg: #e88a6e; --zero: #24221d;
+  --primary: #f4f4f4; --paper: #0c0c0c; --paper-2: #1a1a1a; --ink-2: #c6c6c6; --ink-3: #8f8f8f; --hair: #2f2f2f; --grid: #1c1c1c; --zero: #1f1f1f;
   color-scheme: dark;
 }
 
@@ -61,7 +64,7 @@ a { color: var(--link); text-decoration: underline; text-decoration-thickness: 1
 a:hover { color: var(--accent); text-decoration-color: currentColor; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 img, svg { max-width: 100%; height: auto; }
-h1, h2, h3, h4 { font-family: var(--display); font-weight: 400; line-height: 1.15; letter-spacing: -0.01em; color: var(--ink); }
+h1, h2, h3, h4, h5, h6 { font-family: var(--font-headers); font-weight: 400; line-height: 1.15; letter-spacing: -0.05em; color: var(--ink); }
 h1 { font-weight: 300; font-size: clamp(2.2rem, 5vw, 3.4rem); letter-spacing: -0.02em; margin: 0 0 1rem; }
 h2 { font-size: 1.75rem; margin: 2.5rem 0 .8rem; }
 h3 { font-size: 1.25rem; margin: 1.6rem 0 .5rem; }

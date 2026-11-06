@@ -54,7 +54,7 @@ export function Legend({ min, max, label }: { min: string; max: string; label: s
   );
 }
 
-export function Bars({ values, labels, max, title, color = 'var(--accent)', threshold }: { values: number[]; labels: string[]; max: number; title: string; color?: string; threshold?: number }) {
+export function Bars({ values, labels, max, title, color = 'var(--accent-blue)', threshold }: { values: number[]; labels: string[]; max: number; title: string; color?: string; threshold?: number }) {
   const w = 260, rowH = 18, left = 34;
   return (
     <svg viewBox={`0 0 ${w + left + 40} ${values.length * rowH + 6}`} role="img" aria-label={title} style={{ width: '100%', maxWidth: 420 }}>

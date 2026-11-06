@@ -73,7 +73,7 @@ export default function PatchingDemo({ data }: { data: Data }) {
             <svg viewBox={`0 0 ${S + pad * 2} ${S + pad * 2}`} role="img" aria-label={`Scatter of activation versus attribution patching across 144 heads, Pearson r = ${data.pearson_activation_vs_attribution.toFixed(3)}`}>
               <line x1={sx(-ext)} y1={sy(-ext)} x2={sx(ext)} y2={sy(ext)} stroke="var(--rule)" strokeDasharray="4 3" />
               <line x1={sx(0)} x2={sx(0)} y1={pad} y2={pad + S} stroke="var(--rule)" /><line y1={sy(0)} y2={sy(0)} x1={pad} x2={pad + S} stroke="var(--rule)" />
-              {pts.map((p) => <circle key={`${p.l}-${p.h}`} cx={sx(p.x)} cy={sy(p.y)} r="2.6" fill="var(--accent)" opacity=".65"><title>{`L${p.l}H${p.h}: act ${p.x.toFixed(3)}, attr ${p.y.toFixed(3)}`}</title></circle>)}
+              {pts.map((p) => <circle key={`${p.l}-${p.h}`} cx={sx(p.x)} cy={sy(p.y)} r="2.6" fill="var(--accent-red)" opacity=".65"><title>{`L${p.l}H${p.h}: act ${p.x.toFixed(3)}, attr ${p.y.toFixed(3)}`}</title></circle>)}
               <text x={pad + S / 2} y={S + pad * 2 - 6} fontSize="10" textAnchor="middle">activation patching</text>
               <text x={10} y={pad + S / 2} fontSize="10" textAnchor="middle" transform={`rotate(-90 10 ${pad + S / 2})`}>attribution patching</text>
             </svg>

@@ -1,5 +1,9 @@
 # Changelog
 
+## Paper on arXiv
+- The paper is out as [arXiv:2611.08438](https://arxiv.org/abs/2611.08438). The homepage links the abstract page and PDF, and the citation section shows the arXiv BibTeX with a copy button. README gains a Citation section.
+
+
 ## Repository renamed to `mechinterp-safety`
 - The site moves to https://tsglab.github.io/mechinterp-safety/. CI derives the base path from the repository name.
 - The old address, tsglab.github.io/mi_survey/, forwards every published page, with its `#anchor`, through a generated redirect repository (`scripts/urls/build_legacy_site.py`).

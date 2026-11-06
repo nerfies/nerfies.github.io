@@ -1,6 +1,6 @@
 # The State of Mechanistic Interpretability for AI Safety: interactive handbook
 
-Source for <https://tsglab.github.io/mechinterp-safety/>, the companion site to the survey *The State of Mechanistic Interpretability for AI Safety*.
+Source for <https://tsglab.github.io/mechinterp-safety/>, the companion site to the survey *The State of Mechanistic Interpretability for AI Safety* ([arXiv:2611.08438](https://arxiv.org/abs/2611.08438)).
 
 The site has:
 
@@ -31,6 +31,20 @@ To update content, see [docs/MAINTAINING.md](docs/MAINTAINING.md). For what chan
 - Demo results quoted on the pages are pinned by `tests/sim.test.ts`. The patching numbers come only from `scripts/experiments/compute_patching.py`.
 - Reviewer comment macros are stripped during ingestion, and a test fails if any reach the output.
 - While the ingested manuscript is a draft, every page built from it says so, the draft PDF is never copied into the site, and chapters listed in `src/data/withheld.json` are not published (a test checks their text appears nowhere).
+
+## Citation
+
+```bibtex
+@misc{barez2026understandingaiinsidestate,
+      title={Understanding AI from the Inside: The State of Mechanistic Interpretability for AI Safety}, 
+      author={Fazl Barez and Tung-Yu Wu and Hunar Batra and Gabriele Dominici and Florent Draye and Yanai Elazar and Damiano Fornasiere and Antía García and Abir Harrasse and Riley Harris and Sara Hooker and Michael Lan and Belinda Z. Li and Aaron Maiwald and Narmeen Fatimah Oozeer and Naomi Saphra and Or David Shafran and Adi Simhi and Robert Trager and Shriyash Kaustubh Upadhyay and Ziyu Yao and Yu Zhao and Shay B. Cohen and Mor Geva and Yoshua Bengio and Stella Biderman and Hassan Sajjad},
+      year={2026},
+      eprint={2611.08438},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2611.08438}, 
+}
+```
 
 ## Website licence
 

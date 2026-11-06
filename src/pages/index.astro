@@ -92,8 +92,8 @@ const jsonld = {
           <circle cx="0" cy="0" r="1" fill="none" stroke="var(--ink-3)" stroke-width=".006" stroke-dasharray=".03 .03" />
           <line x1="-1.35" y1="0" x2="1.35" y2="0" stroke="var(--hair)" stroke-width=".006" />
           <line x1="0" y1="-1.35" x2="0" y2="1.35" stroke="var(--hair)" stroke-width=".006" />
-          {feats.map(([x, y], i) => feats.map(([x2, y2], j) => j > i && <line x1={x} y1={-y} x2={x2} y2={-y2} stroke="var(--accent)" stroke-width=".004" opacity=".35" />))}
-          {feats.map(([x, y], i) => <g><line x1="0" y1="0" x2={x} y2={-y} stroke="var(--accent)" stroke-width=".012" /><circle cx={x} cy={-y} r=".022" fill="var(--accent)" />
+          {feats.map(([x, y], i) => feats.map(([x2, y2], j) => j > i && <line x1={x} y1={-y} x2={x2} y2={-y2} stroke="var(--accent-red)" stroke-width=".004" opacity=".35" />))}
+          {feats.map(([x, y], i) => <g><line x1="0" y1="0" x2={x} y2={-y} stroke="var(--accent-red)" stroke-width=".012" /><circle cx={x} cy={-y} r=".022" fill="var(--accent-red)" />
             <text x={x * 1.17} y={-y * 1.17 + .035} font-size=".1" text-anchor="middle" fill="var(--ink-2)" font-family="var(--serif)" font-style="italic">f{i + 1}</text></g>)}
         </svg>
         <figcaption id="sketch-cap">Five features, two dimensions. When features are rarely active together, a network can store more of them than it has dimensions, at the cost of interference. <a href={url('demos/superposition/')}>Train it yourself</a>.</figcaption>

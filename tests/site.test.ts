@@ -7,7 +7,7 @@ import { gunzipSync } from 'node:zlib';
 import { join } from 'node:path';
 
 const DIST = 'dist';
-const BASE = '/mi_survey/';
+const BASE = `${(process.env.SITE_BASE ?? '/mechinterp-safety').replace(/\/$/, '')}/`;
 const built = existsSync(DIST);
 const walk = (d: string): string[] => readdirSync(d).flatMap((f) => { const p = join(d, f); return statSync(p).isDirectory() ? walk(p) : [p]; });
 const pages = built ? walk(DIST).filter((f) => f.endsWith('.html')) : [];

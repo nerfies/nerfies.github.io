@@ -86,6 +86,14 @@ Once the manuscript is ingested with `--status final`, the withheld list and the
 
 Indexing: while the manuscript is a draft, pages built from it carry `noindex` unless `indexDraftPages` is `true` in `src/data/publication.json`. That is an author decision (`docs/DECISIONS.md`, D4). `noindex` keeps pages out of search engines but does not hide them.
 
+### Site address and the old `/mi_survey/` links
+
+The site lives at `tsglab.github.io/<repository name>/`. CI sets the base path from the repository name (`SITE_BASE`), so a build always matches where Pages serves it. The repository was renamed from `mi_survey` to `mechinterp-safety` on 6 Nov 2026. The repository **`TSGLAB/mi_survey`** is a separate, generated redirect site that keeps every old link working, `#anchor` included. Regenerate it whenever the URL registry gains pages:
+
+```bash
+python3 scripts/urls/build_legacy_site.py --out ../mi_survey-redirect   # then commit and push that repo
+```
+
 ## QA checklist for a new manuscript version
 
 - [ ] `npm test` is green, including the built-site link and anchor checks.

@@ -1,6 +1,6 @@
 # The State of Mechanistic Interpretability for AI Safety: interactive handbook
 
-Source for <https://tsglab.github.io/mi_survey/>, the companion site to the survey *The State of Mechanistic Interpretability for AI Safety*.
+Source for <https://tsglab.github.io/mechinterp-safety/>, the companion site to the survey *The State of Mechanistic Interpretability for AI Safety*.
 
 The site has:
 
@@ -17,7 +17,7 @@ The site is static (Astro + MDX, React islands, KaTeX rendered at build time) an
 
 ```bash
 npm ci
-npm run dev        # http://localhost:4321/mi_survey/ (same pages as the live site; search needs a build)
+npm run dev        # http://localhost:4321/mechinterp-safety/ (same pages as the live site; search needs a build)
 npm run build      # static site in dist/ + search index, identical to what deploys
 npm run build:all  # also includes draft chapters withheld from the live site (src/data/withheld.json)
 npm test           # unit, data-integrity and built-site tests (run after build)

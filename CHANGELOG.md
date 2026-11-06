@@ -1,5 +1,10 @@
 # Changelog
 
+## Repository renamed to `mechinterp-safety`
+- The site moves to https://tsglab.github.io/mechinterp-safety/. CI derives the base path from the repository name.
+- The old address, tsglab.github.io/mi_survey/, forwards every published page, with its `#anchor`, through a generated redirect repository (`scripts/urls/build_legacy_site.py`).
+
+
 ## Phase 2, PR 1: stable URLs, publication safeguards, citation and maths fidelity
 
 ### Changed

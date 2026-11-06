@@ -5,7 +5,7 @@ export const SITE = {
   title: 'The State of Mechanistic Interpretability for AI Safety',
   short: 'Mechanistic Interpretability for AI Safety',
   notebooksRepo: 'https://github.com/TSGLAB/Interpretability_Survey_Safety',
-  siteRepo: 'https://github.com/TSGLAB/mi_survey',
+  siteRepo: 'https://github.com/TSGLAB/mechinterp-safety',
   contact: 'fazl@robots.ox.ac.uk',
 };
 

@@ -43,7 +43,7 @@ def main() -> None:
     for p, ids in pages.items():
         merged[p] = sorted(set(merged.get(p, [])) | set(ids))
     out = {
-        "about": "Every URL and in-page anchor published at https://tsglab.github.io/mi_survey/. "
+        "about": "Every URL and in-page anchor published at https://tsglab.github.io/mechinterp-safety/ (formerly /mi_survey/, which redirects). "
                  "These must keep resolving; see docs/MAINTAINING.md#stable-urls.",
         "snapshots": old.get("snapshots", []) + [{"date": dt.date.today().isoformat(), "note": args.note}],
         "pages": dict(sorted(merged.items())),

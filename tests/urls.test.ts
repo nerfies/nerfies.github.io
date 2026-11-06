@@ -12,7 +12,7 @@ const redirects = JSON.parse(readFileSync('src/data/redirects.json', 'utf8'));
 const withheld: string[] = JSON.parse(readFileSync('src/data/withheld.json', 'utf8')).chapters;
 const manifest = JSON.parse(readFileSync('src/generated/manifest.json', 'utf8'));
 const html = (path: string) => readFileSync(join(DIST, path, 'index.html'), 'utf8');
-const BASE = '/mi_survey/';
+const BASE = `${(process.env.SITE_BASE ?? '/mechinterp-safety').replace(/\/$/, '')}/`;
 
 /** Follow redirect pages; returns the final site-relative path. */
 function finalPath(path: string): string {

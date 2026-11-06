@@ -34,7 +34,7 @@
     }
    ],
    "withheld": false,
-   "words": 3486
+   "words": 3489
   },
   {
    "slug": "limits-of-behavioural-evaluation",
@@ -44,7 +44,7 @@
    "page": "15",
    "sections": [],
    "withheld": false,
-   "words": 959
+   "words": 963
   },
   {
    "slug": "interpretability-landscape",
@@ -104,7 +104,7 @@
     }
    ],
    "withheld": false,
-   "words": 2725
+   "words": 2729
   },
   {
    "slug": "foundational-concepts",
@@ -150,7 +150,7 @@
     }
    ],
    "withheld": false,
-   "words": 2591
+   "words": 2612
   },
   {
    "slug": "core-hypotheses",
@@ -189,7 +189,7 @@
     }
    ],
    "withheld": false,
-   "words": 2260
+   "words": 2271
   },
   {
    "slug": "feature-extraction",
@@ -403,7 +403,7 @@
     }
    ],
    "withheld": false,
-   "words": 9491
+   "words": 9537
   },
   {
    "slug": "circuits",
@@ -477,7 +477,7 @@
     }
    ],
    "withheld": false,
-   "words": 5695
+   "words": 5730
   },
   {
    "slug": "intermediate-representations",
@@ -579,7 +579,7 @@
     }
    ],
    "withheld": false,
-   "words": 4479
+   "words": 4514
   },
   {
    "slug": "representation-analysis",
@@ -611,7 +611,7 @@
     }
    ],
    "withheld": false,
-   "words": 2497
+   "words": 2515
   },
   {
    "slug": "learning-dynamics",
@@ -727,7 +727,7 @@
     }
    ],
    "withheld": false,
-   "words": 6273
+   "words": 6329
   },
   {
    "slug": "training-data-attribution",
@@ -801,7 +801,7 @@
     }
    ],
    "withheld": false,
-   "words": 3836
+   "words": 3858
   },
   {
    "slug": "research-orientations",
@@ -924,7 +924,7 @@
     }
    ],
    "withheld": false,
-   "words": 5187
+   "words": 5209
   },
   {
    "slug": "safety-applications",
@@ -1061,7 +1061,7 @@
     }
    ],
    "withheld": false,
-   "words": 5993
+   "words": 6017
   },
   {
    "slug": "open-problems",
@@ -1234,7 +1234,7 @@
     }
    ],
    "withheld": false,
-   "words": 351
+   "words": 367
   },
   {
    "slug": "mathematical-foundations",

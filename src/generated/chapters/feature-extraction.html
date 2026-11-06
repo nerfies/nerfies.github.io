@@ -14,6 +14,7 @@ h \approx Dz \text{ and } \|z\|_0 \text{ is small}.
 <figcaption><span class="capnum">Figure 6:</span> <strong>Sparse Autoencoder (SAE).</strong> SAEs are trained to reconstruct activations of a model component at a specific layer <span class="math inline">\ell</span>, <span class="math inline">h_\ell</span>, into an overcomplete, sparse latent space <span class="math inline">z</span>, such that the reconstructed activation <span class="math inline">\hat{h_\ell} \approx h_\ell</span>. By enforcing sparsity on <span class="math inline">z</span>, the model decomposes dense, polysemantic representations into monosemantic, human-interpretable features.</figcaption>
 </figure>
 <div class="definitionbox">
+<p><strong>Sparse Autoencoder (Figure <a href="@@BASE@@handbook/feature-extraction/#fig:sae" data-reference-type="ref" data-reference="fig:sae">6</a>)</strong></p>
 <p>A sparse autoencoder learns a component-specific encoder–decoder pair <span class="math display">E : \mathbb{R}^d \rightarrow \mathbb{R}^{d_{\text{sparse}}},
 \qquad
 D : \mathbb{R}^{d_{\text{sparse}}} \rightarrow \mathbb{R}^d,</span> such that activations of a particular model component at a given layer, <span class="math inline">h_\ell \in \mathbb{R}^d</span> (e.g., the output of the layer-<span class="math inline">\ell</span> MLP block), are reconstructed as <span class="math display">\hat{h}_\ell = D(E(h_\ell)),</span> while encouraging the feature activations <span class="math inline">z=E(h_\ell)</span> to be sparse. Usually, <span class="math inline">d_{\text{sparse}} = ed</span>, where <span class="math inline">e</span> is an integer expansion factor.</p>
@@ -46,10 +47,12 @@ z = E(h_\ell),</span> where <span class="math inline">\lambda &gt; 0</span> cont
 <section id="subsec:sae-variants" class="level2"><h2 data-pdf-page="34"><span class="secnum">6.3</span> SAE Variants and Architectural Improvements<a class="anchor" href="#subsec:sae-variants" aria-label="Link to this section">#</a></h2>
 <p>There are several variants of the standard SAE. One key reason to use alternatives is that standard SAE training penalises activation magnitude, which can lead to low activation even when a feature is clearly present (the shrinkage effect). Different optimisation frameworks also have different tunable parameters. The choice depends on the analysis goal, target layer type, model size, and budget constraints.</p>
 <div class="definitionbox">
+<p><strong>Gated SAEs</strong></p>
 <p>Gated SAEs introduce multiplicative gates to decouple feature selection from magnitude: <span class="math display">z = \underbrace{\mathbbm{1} \left( (W_{\text{gate}} h_\ell + b_{\text{gate}}) &gt; 0 \right)}_{\text{Gating Path}} \odot \underbrace{\sigma_{\text{ReLU}}(W_{\text{in}} h_\ell + b_{\text{in}})}_{\text{Magnitude Path}},</span> where <span class="math inline">h_\ell \in \mathbb{R}^d</span> denotes activations at layer <span class="math inline">\ell</span>, <span class="math inline">W_{\text{in}} \in \mathbb{R}^{{d_{\text{sparse}}} \times d}</span> and <span class="math inline">b_{\text{in}} \in \mathbb{R}^{d_{\text{sparse}}}</span> are encoder <span class="math inline">E</span> parameters, <span class="math inline">W_{\text{gate}} \in \mathbb{R}^{{d_{\text{sparse}}} \times d}</span> and <span class="math inline">b_{\text{gate}} \in \mathbb{R}^{d_{\text{sparse}}}</span> are the gate parameters, and <span class="math inline">\odot</span> denotes element-wise product. This mitigates shrinkage effects induced by the <span class="math inline">L_1</span> penalty <span class="citation" data-cites="rajamanoharan2024improvingdictionarylearninggated">(<a href="@@BASE@@references/#ref-rajamanoharan2024improvingdictionarylearninggated" class="cite cite-established" data-cite="rajamanoharan2024improvingdictionarylearninggated" role="doc-biblioref">Rajamanoharan et al., 2024a</a>)</span>.</p>
 </div>
 <div class="minipage">
 <div class="definitionbox">
+<p><strong>JumpReLU SAEs</strong></p>
 <p>JumpReLU SAEs <span class="citation" data-cites="rajamanoharan2024jumpingaheadimprovingreconstruction">(<a href="@@BASE@@references/#ref-rajamanoharan2024jumpingaheadimprovingreconstruction" class="cite cite-emerging" data-cite="rajamanoharan2024jumpingaheadimprovingreconstruction" role="doc-biblioref">Rajamanoharan et al., 2024b</a>)</span> learn per-feature activation thresholds. Given the encoder pre-activation <span class="math inline">a = W_{\text{in}} h_\ell + b_{\text{in}}</span>, let <span class="math inline">a_i</span> denote its <span class="math inline">i</span>-th entry. The activation value of the <span class="math inline">i</span>-th feature after applying JumpReLU is <span class="math display">z^i = \sigma_{\text{JumpReLU}}(a_i) = \begin{cases} 
     a_i &amp; \text{if } a_i &gt; \tau_i \\ 
     0 &amp; \text{otherwise},
@@ -60,12 +63,14 @@ z = E(h_\ell),</span> where <span class="math inline">\lambda &gt; 0</span> cont
 <p><img src="@@BASE@@figures/jumprelu.svg" alt="image" /></p>
 </div>
 <div class="definitionbox">
+<p><strong>Top-<span class="math inline">k</span> SAEs</strong></p>
 <p>Top-<span class="math inline">k</span> SAEs <span class="citation" data-cites="gao2024scalingevaluatingsparseautoencoders">(<a href="@@BASE@@references/#ref-gao2024scalingevaluatingsparseautoencoders" class="cite cite-established" data-cite="gao2024scalingevaluatingsparseautoencoders" role="doc-biblioref">Gao et al., 2025</a>)</span> impose an explicit hard sparsity constraint. Let <span class="math inline">a = W_{\text{in}} h_\ell + b_{\text{in}} \in \mathbb{R}^{d_{\text{sparse}}}</span> denote encoder pre-activations. Top-<span class="math inline">k</span> SAEs define the <span class="math inline">i</span>-th feature’s activation as <span class="math display">z^i = \sigma_{\text{TopK}}(a_i) = \begin{cases}
 a_i &amp; \text{if } i \in \mathcal{I}_k(a) \\
 0 &amp; \text{otherwise},
 \end{cases}</span> where <span class="math inline">\mathcal{I}_k(a)</span> indexes the <span class="math inline">k</span> largest entries of <span class="math inline">a</span>. This formulation explicitly enforces <span class="math inline">\|z\|_0 \le k</span>—a more direct feature-sparsity constraint than <span class="math inline">L_1</span> regularisation. Notably, as it does not suppress activation magnitudes, it avoids the feature-shrinkage issue observed in <span class="math inline">L_1</span>-based SAE training <span class="citation" data-cites="gao2024scalingevaluatingsparseautoencoders">(<a href="@@BASE@@references/#ref-gao2024scalingevaluatingsparseautoencoders" class="cite cite-established" data-cite="gao2024scalingevaluatingsparseautoencoders" role="doc-biblioref">Gao et al., 2025</a>)</span>.</p>
 </div>
 <div class="definitionbox">
+<p><strong>Batch Top-<span class="math inline">k</span> SAEs</strong></p>
 <p>Batch Top-<span class="math inline">k</span> SAEs relax the fixed per-example sparsity constraint of standard Top-<span class="math inline">k</span> SAEs by enforcing the sparsity budget across an entire batch instead <span class="citation" data-cites="bussmann2024batchtopksparseautoencoders">(<a href="@@BASE@@references/#ref-bussmann2024batchtopksparseautoencoders" class="cite cite-emerging" data-cite="bussmann2024batchtopksparseautoencoders" role="doc-biblioref">Bussmann et al., 2024</a>)</span>. For a batch of encoder activations <span class="math display">\big[\, a^{(1)}, \dots, a^{(B)} \,\big] \in \mathbb{R}^{d_{\text{sparse}} \times B},</span> where <span class="math inline">B</span> is the batch size, Batch Top-<span class="math inline">k</span> retains the largest <span class="math inline">Bk</span> activation values in the batch. Specifically, let <span class="math display">\mathcal{I}
 \coloneqq
 \arg\max_{\substack{
@@ -86,6 +91,7 @@ a_j^{(b)}, &amp; (b,j)\in\mathcal{I},\\
 <p>That is, each batch exactly retains <span class="math inline">Bk</span> features, while individual samples may have more or fewer active features than <span class="math inline">k</span>. This loose constraint allows the model to allocate representational capacity adaptively across samples. During inference, Batch Top-<span class="math inline">k</span> SAEs instead use the JumpReLU function with an inferred global threshold to determine which features are active for each input, so that an input’s activations do not depend on the rest of the batch.</p>
 </div>
 <div class="insightbox">
+<p><strong>Trade-offs Between Variants</strong></p>
 <p>Different SAE variants may implement distinct sparsity constraints. No single variant is optimal across all scenarios.<br />
 </p>
 <div class="center">
@@ -319,6 +325,7 @@ a_j^{(b)}, &amp; (b,j)\in\mathcal{I},\\
 <section id="subsubsec: sae limitation" class="level3"><h3 data-pdf-page="40"><span class="secnum">6.5.5</span> Identifiability and Theoretical Concerns<a class="anchor" href="#subsubsec: sae limitation" aria-label="Link to this section">#</a></h3>
 <p>Another concern for SAE-based interpretability claims is whether the learned features are identifiable, that is, whether the dictionary learning reliably recovers the “true” underlying features—if such features exist—or merely finds one of many mediocre decompositions <span class="citation" data-cites="klindt2025superpositionsparsecodesinterpretable">(<a href="@@BASE@@references/#ref-klindt2025superpositionsparsecodesinterpretable" class="cite cite-emerging" data-cite="klindt2025superpositionsparsecodesinterpretable" role="doc-biblioref">Klindt et al., 2025</a>)</span>.</p>
 <div class="definitionbox">
+<p><strong>Identifiability</strong></p>
 <p>Suppose activations are generated by some sparse latent process</p>
 <p><span class="math display">h = D^{*} z^{*} + \epsilon ,</span></p>
 <p>where <span class="math inline">D^{*}</span> is the ground-truth feature dictionary and <span class="math inline">z^{*}</span> are the feature coefficients. An SAE is identifiable if its training recovers <span class="math inline">D^{*}</span> and <span class="math inline">z^{*}</span> up to unavoidable symmetries such as feature permutation and rescaling.</p>
@@ -353,6 +360,7 @@ a_j^{(b)}, &amp; (b,j)\in\mathcal{I},\\
 <p>Standard SAEs analyse individual layers in isolation. However, features can evolve as information propagates through the network. Transcoders (Figure <a href="@@BASE@@handbook/feature-extraction/#fig:transcoders" data-reference-type="ref" data-reference="fig:transcoders">7a</a>), cross-layer transcoders (Figure <a href="@@BASE@@handbook/feature-extraction/#fig:clt" data-reference-type="ref" data-reference="fig:clt">7b</a>), and crosscoders (Figure <a href="@@BASE@@handbook/feature-extraction/#fig:crosscoders" data-reference-type="ref" data-reference="fig:crosscoders">9</a>) enable multi-layer feature extraction and analysis, revealing how representations and features associated with particular model components—most commonly MLP blocks—transform across depth.</p>
 <section id="subsubsec:transcoder" class="level3"><h3 data-pdf-page="41"><span class="secnum">6.6.1</span> Transcoders: Bridging the Nonlinearities<a class="anchor" href="#subsubsec:transcoder" aria-label="Link to this section">#</a></h3>
 <div class="definitionbox">
+<p><strong>Transcoder (Figure <a href="@@BASE@@handbook/feature-extraction/#fig:transcoders" data-reference-type="ref" data-reference="fig:transcoders">7a</a>)</strong></p>
 <p>A <em>transcoder</em> learns a sparse mapping between the input to and output of a model component, such as an MLP block, in layer <span class="math inline">\ell</span>: <span class="math display">h_{\ell}^{\text{out}} \approx W_{\text{out}} z + b_{\text{out}}, \quad z = \sigma(W_{\text{in}} h_\ell^{\text{in}} + b_{\text{in}})</span> where <span class="math inline">z \in \mathbb{R}^{d_{\text{sparse}}}</span> are sparse feature activations bridging the nonlinearity between input and output of the MLP, and <span class="math inline">W_{\text{out}} \in \mathbb{R}^{d \times {d_{\text{sparse}}}}</span> and <span class="math inline">b_{\text{out}} \in \mathbb{R}^{d}</span> are decoder <span class="math inline">D</span> parameters. The transcoder reconstructs post-nonlinearity activations using features extracted from pre-nonlinearity activations <span class="citation" data-cites="dunefsky2024transcodersinterpretablellmfeature">(<a href="@@BASE@@references/#ref-dunefsky2024transcodersinterpretablellmfeature" class="cite cite-established" data-cite="dunefsky2024transcodersinterpretablellmfeature" role="doc-biblioref">Dunefsky et al., 2024</a>)</span>.</p>
 </div>
 <section id="architecture-and-motivation." class="level4">
@@ -362,21 +370,22 @@ a_j^{(b)}, &amp; (b,j)\in\mathcal{I},\\
 <section id="when-are-transcoders-necessary" class="level4">
 <h4>When Are Transcoders Necessary?</h4>
 <p>SAEs extract features from static activations and thus often suffice for residual-stream analysis. Transcoders track how features emerge from input to output and are essential for analysing MLP layers <span class="citation" data-cites="dunefsky2024transcodersinterpretablellmfeature">(<a href="@@BASE@@references/#ref-dunefsky2024transcodersinterpretablellmfeature" class="cite cite-established" data-cite="dunefsky2024transcodersinterpretablellmfeature" role="doc-biblioref">Dunefsky et al., 2024</a>)</span>.</p>
-<figure id="fig:clt" data-latex-placement="tbp">
+<figure class="subfigures" data-latex-placement="tbp">
 <figure id="fig:transcoders">
-<img alt="Figure 7b: Transcoder." loading="lazy" src="@@BASE@@figures/6_transcoders.svg" />
-<figcaption><span class="capnum">Figure 7b:</span> Transcoder.</figcaption>
+<img alt="Figure 7a: Transcoder." loading="lazy" src="@@BASE@@figures/6_transcoders.svg" />
+<figcaption><span class="capnum">Figure 7a:</span> Transcoder.</figcaption>
 </figure>
 <figure id="fig:clt">
 <img alt="Figure 7b: Cross-layer transcoder." loading="lazy" src="@@BASE@@figures/6_clt.svg" />
 <figcaption><span class="capnum">Figure 7b:</span> Cross-layer transcoder.</figcaption>
 </figure>
-<figcaption><strong>Transcoders and CLTs.</strong> Transcoders reconstruct the output of the MLP from its input in the same transformer layer. CLTs extend this by partially reconstructing the outputs of multiple subsequent layers from a single point in the residual stream.</figcaption>
+<figcaption><span class="capnum">Figure 7:</span> <strong>Transcoders and CLTs.</strong> Transcoders reconstruct the output of the MLP from its input in the same transformer layer. CLTs extend this by partially reconstructing the outputs of multiple subsequent layers from a single point in the residual stream.</figcaption>
 </figure>
 </section>
 </section>
 <section id="subsubsec:cross-layer-transcoder" class="level3"><h3 data-pdf-page="42"><span class="secnum">6.6.2</span> Cross-Layer Transcoders: Enabling Better Circuit Analysis<a class="anchor" href="#subsubsec:cross-layer-transcoder" aria-label="Link to this section">#</a></h3>
 <div class="definitionbox">
+<p><strong>Cross-Layer Transcoder (Figure <a href="@@BASE@@handbook/feature-extraction/#fig:clt" data-reference-type="ref" data-reference="fig:clt">7b</a>)</strong></p>
 <p><em>Cross-layer transcoders</em> (CLTs) are sparse feature decompositions spanning all layers of a neural network. At each layer <span class="math inline">\ell</span>, sparse feature activations are read from the residual stream via <span class="math display">z_{\ell}
 =
 \sigma_{\text{JumpReLU}}
@@ -427,6 +436,7 @@ W_{\text{out},j}^{\ell \to \ell&#39;}
 </ul>
 <p>When analysing a specific prompt, the replacement model freezes the original model’s attention patterns and normalisation statistics from its forward pass, then adds layer-specific error corrections. Under these conditions, the local replacement model can exactly match the original model’s activations on that prompt while decomposing it into interpretable CLT features. However, when the model’s activations are completely replaced by CLT reconstructions, the intervened model’s top-1 predictions match the original model’s on only about 50% of prompts from the Pile dataset <span class="citation" data-cites="gao2020pile">(<a href="@@BASE@@references/#ref-gao2020pile" class="cite cite-emerging" data-cite="gao2020pile" role="doc-biblioref">Gao et al., 2020</a>)</span>. Notably, this experiment uses a relatively small, 18-layer transformer <span class="citation" data-cites="ameisen2025circuit">(<a href="@@BASE@@references/#ref-ameisen2025circuit" class="cite cite-emerging" data-cite="ameisen2025circuit" role="doc-biblioref">Ameisen et al., 2025</a>)</span>. Therefore, this figure should be interpreted with important caveats (see below).</p>
 <div class="warningbox">
+<p><strong>Caveats on CLT Fidelity Claims</strong></p>
 <p>CLTs have been claimed to possess high output fidelity given that they achieve high top-1 token agreement. However, this claim requires careful examination:<br />
 </p>
 <section id="conditions-for-reported-fidelity" class="level4">
@@ -492,6 +502,7 @@ W_{\text{out},j}^{\ell \to \ell&#39;}
 </section>
 <section id="crosscoders-analysing-cross-layer-features" class="level3"><h3 data-pdf-page="45"><span class="secnum">6.6.3</span> Crosscoders: Analysing Cross-Layer Features<a class="anchor" href="#crosscoders-analysing-cross-layer-features" aria-label="Link to this section">#</a></h3>
 <div class="definitionbox">
+<p><strong>Crosscoder (Figure <a href="@@BASE@@handbook/feature-extraction/#fig:crosscoders" data-reference-type="ref" data-reference="fig:crosscoders">9</a>)</strong></p>
 <p>A <em>crosscoder</em> learns a shared sparse representation from activations across <span class="math inline">L</span> layers. It jointly encodes activations from all layers as <span class="math display">z
 =
 \sigma_{\text{ReLU}}
@@ -548,6 +559,7 @@ z^j,</span> where <span class="math inline">W_{\text{out},j}^{\ell}</span> denot
 <section id="subsec: induc head case study: feature extract" class="level2"><h2 data-pdf-page="47"><span class="secnum">6.8</span> Case Study: Induction Heads<a class="anchor" href="#subsec: induc head case study: feature extract" aria-label="Link to this section">#</a></h2>
 <p>Here, we examine induction heads <span class="citation" data-cites="olsson2022incontextlearninginductionheads">(<a href="@@BASE@@references/#ref-olsson2022incontextlearninginductionheads" class="cite cite-emerging" data-cite="olsson2022incontextlearninginductionheads" role="doc-biblioref">Olsson et al., 2022</a>)</span>, a mechanism found in many modern language models, as a case study. We first describe their conditional-copying function and role in in-context learning, and then relate them to feature-extraction methods such as SAEs and CLTs, which reveal how this computation can be distributed across broader feature circuits.</p>
 <div class="definitionbox">
+<p><strong>Induction Heads</strong></p>
 <p><span id="def:induction-heads" data-label="def:induction-heads"></span></p>
 <p><em>Induction heads</em>, first identified and analysed by <span class="citation" data-cites="elhage2021mathematical"><a href="@@BASE@@references/#ref-elhage2021mathematical" class="cite cite-emerging" data-cite="elhage2021mathematical" role="doc-biblioref">Elhage et al. (2021)</a></span>, are attention heads that implement a conditional copying rule over repeated subsequences. Let <span class="math inline">x=(x_1,\dots,x_T)</span> be a token sequence, and consider positions <span class="math inline">i&lt;j&lt;T</span> such that <span class="math inline">x_i=x_j</span>. An attention head indexed <span class="math inline">r</span> (see Section <a href="@@BASE@@handbook/foundational-concepts/#subsec:transformers" data-reference-type="ref" data-reference="subsec:transformers">4.4</a> for an introduction to attention modules) is said to be an induction head when its attention pattern assigns comparatively high attention weight from position <span class="math inline">j</span> to position <span class="math inline">i+1</span> (i.e., high <span class="math inline">A^r_{j,i+1}</span>) and its residual-stream update <span class="math display">\Delta h^r
 =
@@ -557,10 +569,12 @@ That is, induction heads implement the rule <span class="math display">(x_i=x_j)
 \hat{x}_{j+1}\approx x_{i+1}.</span> They help enable in-context prediction by copying the continuation that followed an earlier occurrence of the same token.</p>
 </div>
 <div class="examplebox">
+<p><strong>Induction in a Repeated Sequence</strong></p>
 <p>Consider the sequence <span class="math display">\texttt{A B C A B}</span> where the model needs to predict the token after the second <code>B</code>. Observing the repeated prefix <code>A B</code>, an induction head attends from the second <code>B</code> to the position after the first <code>B</code> and contributes to the model’s prediction of <code>C</code>. This induction behaviour should generalise across tokens and positions.</p>
 </div>
 <p>Induction heads were originally characterised as specific attention heads implementing this copying rule. However, subsequent work shows that we can understand the underlying computation more naturally at the level of distributed representations than isolated model components.</p>
 <div class="examplebox">
+<p><strong>Induction Heads: Features Across Representations</strong></p>
 <p>Feature extraction methods, such as SAEs, can decompose attention layer outputs into sparse, interpretable features that capture meaningful activation patterns beyond individual attention weights <span class="citation" data-cites="kissane2024interpretingattentionlayeroutputs">(<a href="@@BASE@@references/#ref-kissane2024interpretingattentionlayeroutputs" class="cite cite-emerging" data-cite="kissane2024interpretingattentionlayeroutputs" role="doc-biblioref">Kissane et al., 2024</a>)</span>. Modern analyses suggest that induction heads are not isolated mechanisms but participate in distributed feature circuits, where multiple interacting features recur and compose across layers (<span class="citation" data-cites="dunefsky2024transcodersinterpretablellmfeature singh2024needsrightinductionhead"><a href="@@BASE@@references/#ref-dunefsky2024transcodersinterpretablellmfeature" class="cite cite-established" data-cite="dunefsky2024transcodersinterpretablellmfeature" role="doc-biblioref">Dunefsky et al., 2024</a>; <a href="@@BASE@@references/#ref-singh2024needsrightinductionhead" class="cite cite-established" data-cite="singh2024needsrightinductionhead" role="doc-biblioref">Singh et al., 2024</a></span>; <span class="citation" data-cites="kissane2024interpretingattentionlayeroutputs kamath2025tracing"><a href="@@BASE@@references/#ref-kissane2024interpretingattentionlayeroutputs" class="cite cite-emerging" data-cite="kissane2024interpretingattentionlayeroutputs" role="doc-biblioref">Kissane et al., 2024</a>; <a href="@@BASE@@references/#ref-kamath2025tracing" class="cite cite-emerging" data-cite="kamath2025tracing" role="doc-biblioref">Kamath et al., 2025</a></span>).<br />
 SAEs trained on attention heads’ activations reveal feature families of recurring patterns and contextual dependencies. Some of them align with behaviours originally attributed to induction heads <span class="citation" data-cites="kissane2024interpretingattentionlayeroutputs">(<a href="@@BASE@@references/#ref-kissane2024interpretingattentionlayeroutputs" class="cite cite-emerging" data-cite="kissane2024interpretingattentionlayeroutputs" role="doc-biblioref">Kissane et al., 2024</a>)</span>. By analysing these features, we can understand how models maintain and manipulate information across tokens and contexts.<br />
 Cross-layer analyses, including crosscoders, suggest that certain features are represented consistently across layers rather than being recomputed at each layer <span class="citation" data-cites="lindsey2024sparsecrosscoders">(<a href="@@BASE@@references/#ref-lindsey2024sparsecrosscoders" class="cite cite-emerging" data-cite="lindsey2024sparsecrosscoders" role="doc-biblioref">Lindsey et al., 2024</a>)</span>. This perspective highlights that attention heads, including specialised ones such as induction heads, may be only part of broader, distributed feature representations.</p>

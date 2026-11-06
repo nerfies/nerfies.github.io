@@ -401,6 +401,10 @@ def main() -> None:
         tex = tex.replace("\\cmark", "✓").replace("\\xmark", "✗")
         tex = re.sub(r"\\rowcolor(\[[^\]]*\])?\{[^}]*\}", "", tex)
         tex = re.sub(r"\\(?:hspace|vspace)\*?\{[^}]*\}", "", tex)
+        # tcolorbox environments (warningbox, practicebox, …) take their title as an optional argument;
+        # pandoc drops it, so emit it as the box's first line.
+        tex = re.sub(r"\\begin\{(definitionbox|examplebox|insightbox|practicebox|theorybox|warningbox)\}\[([^\]]*)\]",
+                     lambda m: f"\\begin{{{m.group(1)}}}\n\\noindent\\textbf{{{m.group(2)}}}\n\n", tex)
         tex = tex.replace("\\begin{wrapfigure}", "\\begin{figure}").replace("\\end{wrapfigure}", "\\end{figure}")
         tex = re.sub(r"(\\begin\{figure\})\{[^}]*\}\{[^}]*\}", r"\1", tex)
         # equations: anchor + exact number from the LaTeX build
@@ -604,7 +608,18 @@ def build_chapters(doc, labels, toc_nums, tiers, audit, figures, ms, stem, statu
                     rest = re.sub(r"(<figcaption[^>]*>|<caption[^>]*>)", rf'\1<span class="capnum">{kind_word} {num}:</span> ', rest, count=1)
                 return f'<{tag} id="{fid}"' + rest
             return f
-        h = re.sub(r'<figure id="([^"]+)"(.*?</figure>)', cap_sub("Figure", "figure"), h, flags=re.S)
+        # Figures with subfigures: pandoc nests <figure>s and gives the outer one the last subfigure's
+        # label. Number the subfigures first, then give the outer caption the parent number (7a, 7b -> 7).
+        def group_open(m):
+            return f'<figure class="subfigures"{m.group(2)}>'
+        h = re.sub(r'<figure id="([^"]+)"([^>]*)>(?=\s*<figure )', group_open, h)
+        h = re.sub(r'<figure id="([^"]+)"((?:(?!<figure).)*?</figure>)', cap_sub("Figure", "figure"), h, flags=re.S)
+        def group_cap(m):
+            nums = re.findall(r'class="capnum">Figure (\d+)[a-z]?:', m.group(0))
+            if not nums:
+                return m.group(0)
+            return re.sub(r'(</figure>\s*<figcaption>)(?![^<]*<span class="capnum")', rf'\1<span class="capnum">Figure {nums[-1]}:</span> ', m.group(0)[::-1][::-1], count=0)[:0] + m.group(1) + m.group(2) + f'<figcaption><span class="capnum">Figure {nums[-1]}:</span> ' + m.group(3)
+        h = re.sub(r'(<figure class="subfigures"[^>]*>)(.*</figure>\s*)<figcaption>((?:(?!<figure).)*?</figcaption>\s*</figure>)', group_cap, h, flags=re.S)
         h = re.sub(r'<table id="([^"]+)"(.*?</table>)', cap_sub("Table", "table"), h, flags=re.S)
         # tables wrapped in a div with the label id (pandoc 3 behaviour)
         def tabdiv(m):

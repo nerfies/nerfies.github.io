@@ -4,6 +4,7 @@
 <section id="sec:circuit-discovery-methods" class="level2"><h2 data-pdf-page="53"><span class="secnum">7.1</span> Circuit Discovery Methods<a class="anchor" href="#sec:circuit-discovery-methods" aria-label="Link to this section">#</a></h2>
 <p>Circuit discovery methods aim to identify internal computational graphs responsible for specific capabilities or outputs in a neural network. Below, and in Table <a href="@@BASE@@handbook/circuits/#tab:circuit-methods" data-reference-type="ref" data-reference="tab:circuit-methods">8</a>, we formalise key techniques and methods, along with their strengths and limitations.</p>
 <div class="definitionbox">
+<p><strong>Activation Patching</strong></p>
 <p><span id="def:attribution-patching" data-label="def:attribution-patching"></span> Given a model <span class="math inline">f_\theta(\cdot)</span> parameterised by <span class="math inline">\theta</span> and an input sequence <span class="math inline">x</span>, <em>activation patching</em> evaluates the causal contribution of some model components <span class="math inline">S</span> by replacing their activations with specified reference values <span class="math inline">\tilde{h}_S</span> and measuring the resulting change in the model output. The causal importance of <span class="math inline">S</span> for <span class="math inline">x</span> is defined as <span class="math display">s_S(x)
 =
 M\bigl(f_\theta(x)\bigr)
@@ -11,12 +12,15 @@ M\bigl(f_\theta(x)\bigr)
 M\Bigl(f_\theta\bigl(x_{[S \leftarrow \tilde{h}_S]}\bigr)\Bigr),</span> where <span class="math inline">M(\cdot)</span> is a scalar performance metric computed from the model output, such as the logit difference for the answer token, and <span class="math inline">x_{[S \leftarrow \tilde{h}_S]}</span> denotes a forward pass on <span class="math inline">x</span> in which the activations of components in <span class="math inline">S</span> are replaced by <span class="math inline">\tilde{h}_S</span> while the remaining computation proceeds normally. The reference activations <span class="math inline">\tilde{h}_S</span> usually come from a corrupted reference run, where the input is modified to add or remove specific information. Some works have also set <span class="math inline">\tilde{h}_S</span> to zero or the mean model activation. The resulting change in model output quantifies the causal effect of intervening on <span class="math inline">S</span> <span class="citation" data-cites="zhang2024towards">(<a href="@@BASE@@references/#ref-zhang2024towards" class="cite cite-established" data-cite="zhang2024towards" role="doc-biblioref">Zhang &amp; Nanda, 2024</a>)</span>.</p>
 </div>
 <div class="definitionbox">
+<p><strong>Path Patching</strong></p>
 <p><span id="def:path-patching" data-label="def:path-patching"></span> <em>Path patching</em> extends activation patching on model components to specific edges in the computational graph. For a connection <span class="math inline">e_{ij}</span> from model component <span class="math inline">i</span> to <span class="math inline">j</span> denoting that the output activations of <span class="math inline">i</span> are fed to <span class="math inline">j</span> as one of its inputs, it replaces activations along <span class="math inline">e_{ij}</span> with reference values <span class="math inline">\tilde{h}_{e_{ij}}</span> and measures <span class="math inline">e_{ij}</span>’s causal effect as: <span class="math display">s_{ij}(x) = M\bigl(f_\theta(x)\bigr) - M\Bigl(f_\theta\bigl(x_{[e_{ij} \leftarrow \tilde{h}_{e_{ij}}]}\bigr)\Bigr).</span> This allows finer-grained causal localisation along information flows <span class="citation" data-cites="goldowskydill2023localizingmodelbehaviorpath">(<a href="@@BASE@@references/#ref-goldowskydill2023localizingmodelbehaviorpath" class="cite cite-emerging" data-cite="goldowskydill2023localizingmodelbehaviorpath" role="doc-biblioref">Goldowsky-Dill et al., 2023</a>)</span>.</p>
 </div>
 <div class="definitionbox">
+<p><strong>Automatic Circuit Discovery (ACDC)</strong></p>
 <p><span id="def:acdc" data-label="def:acdc"></span> <em>ACDC</em> <span class="citation" data-cites="conmy2023automatedcircuitdiscoverymechanistic">(<a href="@@BASE@@references/#ref-conmy2023automatedcircuitdiscoverymechanistic" class="cite cite-established" data-cite="conmy2023automatedcircuitdiscoverymechanistic" role="doc-biblioref">Conmy et al., 2023</a>)</span> discovers a circuit by iteratively using path patching to identify important connections in the model’s computational graph. Traversing the graph in reverse topological order from the output node, it patches the activation transmitted along each edge and measures the resulting change in a task-specific metric. An edge <span class="math inline">e_{ij}</span> will be pruned if patching it produces <span class="math inline">|s_{ij}(x)|</span> less than a predefined threshold <span class="math inline">\tau</span>; otherwise, it is retained in the graph and its upstream edges will be investigated. The remaining subgraph represents the discovered circuit.</p>
 </div>
 <div class="definitionbox">
+<p><strong>Edge Attribution Patching (EAP)</strong></p>
 <p><span id="def:eap" data-label="def:eap"></span> <em>EAP</em> <span class="citation" data-cites="syed2023attributionpatchingoutperformsautomated">(<a href="@@BASE@@references/#ref-syed2023attributionpatchingoutperformsautomated" class="cite cite-emerging" data-cite="syed2023attributionpatchingoutperformsautomated" role="doc-biblioref">Syed et al., 2024</a>)</span> estimates the causal importance of edges in a model’s computational graph by approximating the effect of path patching with a first-order Taylor expansion. For an edge <span class="math inline">e_{ij}</span> connecting components <span class="math inline">i</span> and <span class="math inline">j</span>, its importance score is approximated as <span class="math display">s_{ij}(x)
 \approx
 \frac{\partial M}{\partial h_{e_{ij}}}
@@ -75,6 +79,7 @@ Edges with large score magnitudes are generally considered main contributors to 
 <p>The methods introduced above discover circuits <em>within</em> the target model. Their nodes correspond to coarse-grained components such as attention heads and MLP blocks, which are mostly not immediately understandable. A complementary approach first constructs a more interpretable replacement model (Section <a href="@@BASE@@handbook/feature-extraction/#subsubsec:cross-layer-transcoder" data-reference-type="ref" data-reference="subsubsec:cross-layer-transcoder">6.6.2</a>) that approximates the original model’s computation using sparse linear features, and then performs circuit discovery within this replacement model.</p>
 <p>Recent work has implemented this paradigm using cross-layer transcoders (CLTs; Section <a href="@@BASE@@handbook/feature-extraction/#subsubsec:cross-layer-transcoder" data-reference-type="ref" data-reference="subsubsec:cross-layer-transcoder">6.6.2</a>) <span class="citation" data-cites="ameisen2025circuit merullo2025replicating">(<a href="@@BASE@@references/#ref-ameisen2025circuit" class="cite cite-emerging" data-cite="ameisen2025circuit" role="doc-biblioref">Ameisen et al., 2025</a>; <a href="@@BASE@@references/#ref-merullo2025replicating" class="cite cite-emerging" data-cite="merullo2025replicating" role="doc-biblioref">Merullo et al., 2025</a>)</span>. In particular, Circuit Tracer <span class="citation" data-cites="ameisen2025circuit">(<a href="@@BASE@@references/#ref-ameisen2025circuit" class="cite cite-emerging" data-cite="ameisen2025circuit" role="doc-biblioref">Ameisen et al., 2025</a>)</span> replaces the model’s MLPs with CLTs while retaining the underlying model’s attention and residual-stream computation. This yields a prompt-specific attribution graph whose principal internal nodes are sparse CLT features rather than entire MLP blocks or attention heads.</p>
 <div class="definitionbox">
+<p><strong>Circuit Tracer</strong></p>
 <p><span id="def:circuit-tracer" data-label="def:circuit-tracer"></span></p>
 <p><em>Circuit Tracer</em> <span class="citation" data-cites="ameisen2025circuit">(<a href="@@BASE@@references/#ref-ameisen2025circuit" class="cite cite-emerging" data-cite="ameisen2025circuit" role="doc-biblioref">Ameisen et al., 2025</a>)</span> constructs a prompt-specific attribution graph in a CLT-based replacement model. For a given input prompt, consider a source feature <span class="math inline">\phi_s</span> at layer <span class="math inline">\ell_s</span> active at token position <span class="math inline">c_s</span> with activation value <span class="math inline">z_{\ell_s}^{s}</span>, and a downstream target feature <span class="math inline">\phi_t</span> at layer <span class="math inline">\ell_t</span> active at position <span class="math inline">c_t</span>. Recall that a CLT feature can write to the reconstructed MLP outputs of its own and all subsequent layers (Figure <a href="@@BASE@@handbook/feature-extraction/#fig:clt" data-reference-type="ref" data-reference="fig:clt">7b</a>); the source feature has layer-specific output vectors to these layers, corresponding to columns of the layer-specific decoder matrices: <span class="math display">v_{\mathrm{out},\phi_s}^{\ell}
 \coloneqq
@@ -121,6 +126,7 @@ v_{\mathrm{out},\phi_s}^{\ell}.</span></p>
 </section>
 <section id="subsec: induc head case study: circuit" class="level2"><h2 data-pdf-page="58"><span class="secnum">7.4</span> Case Study: Induction Heads<a class="anchor" href="#subsec: induc head case study: circuit" aria-label="Link to this section">#</a></h2>
 <div class="examplebox">
+<p><strong>Circuit Perspective on Induction Heads</strong></p>
 <p>Following our introduction to induction heads in Section <a href="@@BASE@@handbook/feature-extraction/#subsec: induc head case study: feature extract" data-reference-type="ref" data-reference="subsec: induc head case study: feature extract">6.8</a>, we consider a repeated sequence:</p>
 <p><span class="math display">\texttt{A B C A B}</span></p>
 <p>where the model needs to predict the token after the second <code>B</code>. The induction head alone is not sufficient to implement induction behaviour from scratch. It still needs help from previous layers’ attention heads to locate the token following the current token’s previous occurrence, so it knows it should attend to <code>C</code> in this example <span class="citation" data-cites="olsson2022incontextlearninginductionheads">(<a href="@@BASE@@references/#ref-olsson2022incontextlearninginductionheads" class="cite cite-emerging" data-cite="olsson2022incontextlearninginductionheads" role="doc-biblioref">Olsson et al., 2022</a>)</span>.<br />
@@ -200,6 +206,7 @@ f_\theta\!\left(x_{[S \leftarrow \tilde h_S]}\right)
 <section id="dimension-1-attribution-faithfulness" class="level3 unnumbered"><h3 class="unnumbered">Dimension 1: Attribution Faithfulness<a class="anchor" href="#dimension-1-attribution-faithfulness" aria-label="Link to this section">#</a></h3>
 <p>Attribution faithfulness measures whether the interpretability method accurately attributes the model’s behaviour of interest to responsible components.</p>
 <div class="definitionbox">
+<p><strong>Attribution Faithfulness Metrics</strong></p>
 <section id="intervention-effect-agreement." class="level4">
 <h4>Intervention-Effect Agreement.</h4>
 <p>Let <span class="math inline">a(S,x)</span> denote the importance score assigned by an interpretability method to components <span class="math inline">S</span> for a sample <span class="math inline">x \sim B</span>: <span class="math display">\mathrm{EffectAgreement}
@@ -260,6 +267,7 @@ x_{1,[S \leftarrow h_S(x_2)]}
 <section id="dimension-2-completeness" class="level3 unnumbered"><h3 class="unnumbered">Dimension 2: Completeness<a class="anchor" href="#dimension-2-completeness" aria-label="Link to this section">#</a></h3>
 <p>Completeness measures how much of the model behaviour the identified components or mechanisms explain. A high completeness score indicates that the identified components/mechanisms capture most of the relevant computation.</p>
 <div class="definitionbox">
+<p><strong>Completeness Metrics</strong></p>
 <section id="loss-recovery." class="level4">
 <h4>Loss Recovery.</h4>
 <p>For methods that reconstruct model activations (e.g., SAEs and CLTs), after replacing the target component’s activations with the reconstructions, we measure the fraction of the original model performance that is recovered: <span class="math display">\mathrm{LR}
@@ -317,6 +325,7 @@ x_{1,[S \leftarrow h_S(x_2)]}
 <section id="dimension-3-stability" class="level3 unnumbered"><h3 class="unnumbered">Dimension 3: Stability<a class="anchor" href="#dimension-3-stability" aria-label="Link to this section">#</a></h3>
 <p>Stability measures the robustness of explanations, attributions, and findings to changes in variables that should not affect the results, such as the choice of random seeds, small hyperparameter changes, and input paraphrasing.</p>
 <div class="definitionbox">
+<p><strong>Stability Metrics</strong></p>
 <section id="cross-seed-agreement." class="level4">
 <h4>Cross-Seed Agreement.</h4>
 <p>We train or apply the interpretability method <span class="math inline">K</span> times under different random seeds. Let <span class="math inline">\mathcal{F}_i</span> denote the set of features or mechanisms, such as SAE features and circuits, discovered under seed <span class="math inline">i</span>. We measure the cross-seed agreement as: <span class="math display">\text{Seed-Stability} = \frac{1}{K(K-1)} \sum_{i \neq j} \text{Align}(\mathcal{F}_i, \mathcal{F}_j),</span> where <span class="math inline">\text{Align}(\cdot)</span> measures similarity between sets. For example, <span class="citation" data-cites="paulo2025sparse"><a href="@@BASE@@references/#ref-paulo2025sparse" class="cite cite-established" data-cite="paulo2025sparse" role="doc-biblioref">Paulo &amp; Belrose (2026)</a></span> calculate the Hungarian matching between two sets of SAE features based on their pairwise cosine similarities.<br />
@@ -352,6 +361,7 @@ x_{1,[S \leftarrow h_S(x_2)]}
 <section id="dimension-4-causal-validity" class="level3 unnumbered"><h3 class="unnumbered">Dimension 4: Causal Validity<a class="anchor" href="#dimension-4-causal-validity" aria-label="Link to this section">#</a></h3>
 <p>Causal validity assesses whether the identified components or mechanisms are causal to the behaviour, particularly necessity (i.e., removing the components/mechanisms disrupts the behaviour) and sufficiency (i.e., the components/mechanisms alone are sufficient to preserve the behaviour).</p>
 <div class="definitionbox">
+<p><strong>Causal Validity Metrics</strong></p>
 <section id="necessity-score." class="level4">
 <h4>Necessity Score.</h4>
 <p>Necessity measures the fraction of the model’s performance on behaviour <span class="math inline">B</span> that is lost when <span class="math inline">S</span> is ablated (i.e., its activations are replaced with some reference values). It is calculated as: <span class="math display">\mathrm{Necessity}(S,B)
@@ -421,6 +431,7 @@ M\!\left(f_\theta(x)\right)
 <section id="dimension-5-human-interpretability" class="level3 unnumbered"><h3 class="unnumbered">Dimension 5: Human Interpretability<a class="anchor" href="#dimension-5-human-interpretability" aria-label="Link to this section">#</a></h3>
 <p>Human interpretability measures whether generated explanations eventually improve human understanding, prediction, and decision-making about model behaviour.</p>
 <div class="definitionbox">
+<p><strong>Human Interpretability Metrics</strong></p>
 <section id="explanation-utility." class="level4">
 <h4>Explanation Utility.</h4>
 <p>This metric tests whether humans can predict model behaviour more accurately in the held-out set based on the explanation. It is formulated as: <span class="math display">\text{Expl-Utility}
@@ -504,6 +515,7 @@ P(\text{error fixed}\mid\text{no explanation}).</span></p>
 <section id="integrated-evaluation-protocol" class="level3"><h3 data-pdf-page="65"><span class="secnum">7.5.3</span> Integrated Evaluation Protocol<a class="anchor" href="#integrated-evaluation-protocol" aria-label="Link to this section">#</a></h3>
 <p>We recommend the following integrated protocol for comprehensive evaluation:</p>
 <div class="practicebox">
+<p><strong>Recommended Evaluation Protocol</strong></p>
 <section id="step-1-define-scope." class="level4">
 <h4>Step 1: Define scope.</h4>
 <p>Users first specify the model, layer(s), and behaviour(s) of interest and define a behavioural test suite with clear success criteria.<br />

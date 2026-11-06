@@ -4,6 +4,7 @@
 <section id="verbatim-data-attribution-olmotrace-and-maximal-matching-spans" class="level2"><h2 data-pdf-page="93"><span class="secnum">11.1</span> Verbatim Data Attribution: OLMoTrace and Maximal Matching Spans<a class="anchor" href="#verbatim-data-attribution-olmotrace-and-maximal-matching-spans" aria-label="Link to this section">#</a></h2>
 <p>Earlier corpus search tools such as the ROOTS Search Tool <span class="citation" data-cites="piktus-etal-2023-roots">(<a href="@@BASE@@references/#ref-piktus-etal-2023-roots" class="cite cite-established" data-cite="piktus-etal-2023-roots" role="doc-biblioref">Piktus et al., 2023a</a>)</span> and GAIA Search <span class="citation" data-cites="piktus2023gaia">(<a href="@@BASE@@references/#ref-piktus2023gaia" class="cite cite-established" data-cite="piktus2023gaia" role="doc-biblioref">Piktus et al., 2023b</a>)</span> established the practice of querying pretraining corpora for transparency and data exploration. OLMoTrace <span class="citation" data-cites="liu2025olmotrace">(<a href="@@BASE@@references/#ref-liu2025olmotrace" class="cite cite-established" data-cite="liu2025olmotrace" role="doc-biblioref">Liu et al., 2025a</a>)</span> scales this to trillions of tokens using a combination of suffix arrays, infini-gram models, and maximal matching span extraction <span class="citation" data-cites="liu2025infinigramscalingunboundedngram">(<a href="@@BASE@@references/#ref-liu2025infinigramscalingunboundedngram" class="cite cite-established" data-cite="liu2025infinigramscalingunboundedngram" role="doc-biblioref">Liu et al., 2024a</a>)</span>, making it less a data-attribution method in the influence-function sense and more a retrieval tool for identifying content the model may have memorised.</p>
 <div class="definitionbox">
+<p><strong>Suffix Arrays (SA)</strong></p>
 <p><span id="def:suffix-array" data-label="def:suffix-array"></span> The <em>suffix array</em> of a string <span class="math inline">x</span> of length <span class="math inline">T_1</span> is an array of integers representing the starting positions of all suffixes of <span class="math inline">x</span> in lexicographic order. It enables efficient substring searches in <span class="math inline">\mathcal{O}(T_2 \cdot \log T_1)</span> time for a query of length <span class="math inline">T_2</span>, compared to <span class="math inline">\mathcal{O}(T_2 \cdot T_1)</span> naive search.<br />
 </p>
 <section id="example" class="level4">
@@ -15,11 +16,13 @@
 </section>
 </div>
 <div class="definitionbox">
+<p><strong>Infini-Gram Models</strong></p>
 <p><span id="def:infini-gram" data-label="def:infini-gram"></span> An <em>infini-gram model</em> extends the n-gram model to arbitrary-length prefixes, using backoff to the longest matching sequence in the training corpus. Formally, for a token <span class="math inline">w_i</span>: <span class="math display">P_{\infty}(w_i \mid w_{1:i-1}) = \frac{\text{cnt}(w_{i-n+1:i} \mid \mathcal{D})}{\text{cnt}(w_{i-n+1:i-1} \mid \mathcal{D})}, 
 \quad n = \max \{ n&#39; : \text{cnt}(w_{i-n&#39;+1:i-1} \mid \mathcal{D})&gt;0\},</span> where <span class="math inline">w_{1:i-1}</span> are preceding tokens and <span class="math inline">\mathcal{D}</span> is the training corpus.<br />
 Infini-grams are implemented on top of suffix arrays, which allow fast substring queries across massive corpora.</p>
 </div>
 <div class="definitionbox">
+<p><strong>Maximal Matching Spans</strong></p>
 <p><span id="def:maximal-matching-spans" data-label="def:maximal-matching-spans"></span> Given a model output and a training corpus, a <em>maximal matching span</em> is a contiguous sequence of tokens that:</p>
 <ol>
 <li><p>Appears verbatim at least once in the training data,</p></li>
@@ -29,6 +32,7 @@ Infini-grams are implemented on top of suffix arrays, which allow fast substring
 <p>OLMoTrace identifies maximal matching spans by combining suffix-array search with infini-gram queries, adjusting boundaries for tokenisation, and retaining only the longest non-overlapping spans.</p>
 </div>
 <div class="examplebox">
+<p><strong>OLMoTrace Pipeline</strong></p>
 <p><span id="ex:olmotrace-pipeline" data-label="ex:olmotrace-pipeline"></span></p>
 <section id="language-model-output" class="level4">
 <h4>Language Model Output:</h4>
@@ -57,6 +61,7 @@ Infini-grams are implemented on top of suffix arrays, which allow fast substring
 </section>
 </div>
 <div class="definitionbox">
+<p><strong>OLMoTrace Algorithm</strong></p>
 <p><span id="def:olmotrace-algorithm" data-label="def:olmotrace-algorithm"></span></p>
 <section id="inputs" class="level4">
 <h4>Inputs:</h4>
@@ -79,6 +84,7 @@ Infini-grams are implemented on top of suffix arrays, which allow fast substring
 <h4>Limitations as a Mechanistic Interpretability Tool.</h4>
 <p>Verbatim attribution excels at factual memorisation but struggles with compositional or synthesised outputs. For tasks like translation, poetry, or reasoning, OLMoTrace (and other verbatim matching methods) can identify spans of text that appear in the training data, but these matches do not explain how the model combined information from multiple sources to produce the output.</p>
 <div class="examplebox">
+<p><strong>OLMoTrace on Multilingual Output</strong></p>
 <p><span id="ex:olmotrace-multilingual" data-label="ex:olmotrace-multilingual"></span></p>
 <section id="prompt" class="level4">
 <h4>Prompt:</h4>
@@ -314,6 +320,7 @@ G.</span> This shows that we can use K-FAC to approximate the GGN used in the PB
 <section id="illustrative-example" class="level3"><h3 data-pdf-page="100"><span class="secnum">11.2.6</span> Illustrative Example<a class="anchor" href="#illustrative-example" aria-label="Link to this section">#</a></h3>
 <p>Gradient-based influence functions can identify influential training samples without requiring them to exactly match the current model output. They complement verbatim attribution and reveal subtler influences. Below, we provide an example of using them for the English-to-Chinese translation task.</p>
 <div class="examplebox">
+<p><strong>Gradient-Based Attribution on a Translation Example</strong></p>
 <p><span id="ex:gradient-translation" data-label="ex:gradient-translation"></span></p>
 <section id="prompt-english" class="level4">
 <h4>Prompt (English):</h4>

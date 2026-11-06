@@ -94,24 +94,31 @@ const description = `${label}: ${ch.title} — from the survey "The State of Mec
     document.querySelectorAll('.prose section[id]').forEach((s) => map.has(s.id) && obs.observe(s));
 
     // citation previews (hover / focus), full entry on the references page
-    let pop;
-    const label = { established: 'Peer-reviewed', emerging: 'Preprint / emerging', flagged: 'Flagged in manuscript' };
+    let pop, timer;
+    const label = { established: 'Peer-reviewed', emerging: 'Preprint', flagged: 'Preprint' };
     function show(a) {
       const key = a.dataset.cite; const text = refs[key]; if (!text) return;
-      hide();
+      clearTimeout(timer); pop?.remove();
       pop = document.createElement('div'); pop.className = 'cite-pop'; pop.setAttribute('role', 'tooltip');
+      const body = document.createElement('div'); body.textContent = text.replace(/\s*URL\s+https?:\/\/\S+\s*$/, ''); pop.append(body);
+      const foot = document.createElement('div'); foot.className = 'small'; foot.style.marginTop = '.45rem';
       const tier = tiers[key];
-      pop.textContent = text;
-      if (tier) { const s = document.createElement('div'); s.className = 'muted small'; s.style.marginTop = '.35rem'; s.textContent = label[tier]; pop.append(s); }
+      if (tier) { const t = document.createElement('span'); t.className = 'muted'; t.textContent = label[tier] + ' · '; foot.append(t); }
+      const url = (text.match(/https?:\/\/[^\s]+[^\s.,)]/) || [])[0];
+      if (url) { const l = document.createElement('a'); l.href = url; l.target = '_blank'; l.rel = 'noopener'; l.textContent = 'Open paper'; foot.append(l, document.createTextNode(' · ')); }
+      const r2 = document.createElement('a'); r2.href = a.href; r2.textContent = 'In the reference list'; foot.append(r2);
+      pop.append(foot);
+      pop.addEventListener('mouseenter', () => clearTimeout(timer)); pop.addEventListener('mouseleave', hideSoon);
       document.body.append(pop);
       const r = a.getBoundingClientRect();
       const left = Math.min(window.scrollX + r.left, window.scrollX + document.documentElement.clientWidth - pop.offsetWidth - 12);
       pop.style.left = Math.max(8, left) + 'px'; pop.style.top = window.scrollY + r.bottom + 6 + 'px';
     }
-    function hide() { pop?.remove(); pop = null; }
+    function hide() { clearTimeout(timer); pop?.remove(); pop = null; }
+    function hideSoon() { clearTimeout(timer); timer = setTimeout(hide, 250); }
     document.querySelectorAll('a.cite').forEach((a) => {
-      a.addEventListener('mouseenter', () => show(a)); a.addEventListener('mouseleave', hide);
-      a.addEventListener('focus', () => show(a)); a.addEventListener('blur', hide);
+      a.addEventListener('mouseenter', () => show(a)); a.addEventListener('mouseleave', hideSoon);
+      a.addEventListener('focus', () => show(a)); a.addEventListener('blur', hideSoon);
     });
     document.addEventListener('keydown', (e) => e.key === 'Escape' && hide());
   </script>

@@ -219,7 +219,7 @@ blockquote.excerpt footer a { color: var(--ink-3); }
 .tier-tag { display: inline-block; font: 500 .66rem/1.3 var(--sans); letter-spacing: .05em; text-transform: uppercase;
   border: 1px solid currentColor; padding: 0 .35em; margin-right: .45em; vertical-align: .12em; color: var(--ink-2); }
 .prose a.cite:hover { text-decoration: underline; }
-.prose :is(.definitionbox, .examplebox, .warningbox, .theorybox) { margin: 1.8rem 0; padding: .2rem 0 .2rem 1.2rem; border-left: 1px solid var(--hair-strong); font-size: 1.05rem; }
+.prose :is(.definitionbox, .examplebox, .warningbox, .theorybox, .insightbox, .practicebox) { margin: 1.8rem 0; padding: .2rem 0 .2rem 1.2rem; border-left: 1px solid var(--hair-strong); font-size: 1.05rem; }
 .prose .warningbox { border-left-color: var(--accent); }
 .prose .unrendered { display: block; padding: 1rem 0; border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); font-family: var(--sans); font-size: .9rem; color: var(--ink-2); }
 .prose .math-error { color: var(--tier-flagged); }

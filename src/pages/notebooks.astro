@@ -88,18 +88,16 @@ const stats = { total: notebooks.length, cpu: notebooks.filter((n) => n.compute.
                     <dt>Survey section</dt>
                     <dd>{r ? (<>
                         {draftHidden ? <span>{n.survey_reference.replace(/\(\[.*$/, '').replace(/\]\(.*$/, '').trim()}</span> : <>
-                        {r.match ? <a href={r.match.href}>§{r.match.num} {r.match.title}</a> : <span class="muted">No matching section in this manuscript version</span>}
-                        <span class="muted small"> · notebook says “{n.survey_reference.replace(/\(\[.*$/, '').trim()}”</span>
-                        {r.numMismatch && <span class="chip warn" title="The notebook was numbered against a different manuscript version">numbering differs</span>}</>}
+                        {r.match ? <a href={r.match.href}>§{r.match.num} {r.match.title}</a> : <span>{n.survey_reference.replace(/\(\[.*$/, '').trim()}</span>}</>}
                       </>) : <span class="muted">Not stated in notebook</span>}</dd>
                     <dt>Learning outcomes</dt>
                     <dd>{n.learning_objectives.length ? <ul>{n.learning_objectives.slice(0, 5).map((o: string) => <li>{o.replace(/\*\*/g, '')}</li>)}</ul>
                       : n.key_methods.length ? <><span class="small muted">Not listed as outcomes. Key methods covered:</span><ul>{n.key_methods.map((o: string) => <li>{o.replace(/\*\*/g, '')}</li>)}</ul></>
                       : <span class="muted">Not stated in notebook</span>}</dd>
-                    <dt>Models</dt><dd>{n.models.length ? n.models.join(', ') : 'None (toy or synthetic data)'}{n.gated_models.length > 0 && <span class="chip warn" title="Requires accepting the model licence on Hugging Face">gated: {n.gated_models.join(', ')}</span>}</dd>
+                    <dt>Models</dt><dd>{n.models.length ? n.models.join(', ') : 'None (toy or synthetic data)'}{n.gated_models.length > 0 && <span class="chip note" title="Requires accepting the model licence on Hugging Face">gated: {n.gated_models.join(', ')}</span>}</dd>
                     <dt>Dependencies</dt><dd class="small"><code>{n.imports.join(', ')}</code>
-                      {n.deps_missing_from_requirements.length > 0 && <div class="small warn-text">Not in requirements.txt: {n.deps_missing_from_requirements.join(', ')}</div>}
-                      {n.local_modules.length > 0 && <div class="small warn-text">Needs repository-local modules: {n.local_modules.join(', ')}</div>}</dd>
+                      
+                      {n.local_modules.length > 0 && <div class="small note-text">Needs modules from the repository: {n.local_modules.join(', ')}</div>}</dd>
                     {n.external.length > 0 && <><dt>Needs</dt><dd>{n.external.join(' · ')}</dd></>}
                     {!draftHidden && (L.methods?.length || L.hypotheses?.length) && <><dt>In the explorer</dt><dd>
                       {(L.methods ?? []).map((id: string) => methodById.get(id)).filter(Boolean).map((m: any, i: number) => <>{i > 0 && ', '}<a href={url(`methods/${m.id}/`)}>{m.name}</a></>)}
@@ -110,7 +108,7 @@ const stats = { total: notebooks.length, cpu: notebooks.filter((n) => n.compute.
                     <a class="btn" href={n.links.colab} target="_blank" rel="noopener">Open in Colab</a>
                     <a class="btn ghost" href={n.links.source} target="_blank" rel="noopener">View source</a>
                   </div>
-                  {n.colab_blockers.length > 0 && <p class="small warn-text">Colab caveat: {n.colab_blockers.join('; ')}.</p>}
+                  {n.colab_blockers.length > 0 && <p class="small note-text">Colab note: {n.colab_blockers.join('; ')}.</p>}
                 </div>
                 {n.preview_image && (
                   <figure class="preview">
@@ -143,8 +141,8 @@ const stats = { total: notebooks.length, cpu: notebooks.filter((n) => n.compute.
   @media (max-width: 520px) { .meta { grid-template-columns: minmax(0, 1fr); } .meta dt { margin-top: .4rem; font-weight: 600; } }
   .actions { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .8rem; }
   .preview { margin: 0; } .preview img { border: 1px solid var(--rule); border-radius: 6px; background: #fff; }
-  .chip.warn { border-color: var(--tier-flagged); color: var(--tier-flagged); margin-left: .35rem; }
-  .warn-text { color: var(--tier-flagged); margin: .3rem 0 0; }
+  .chip.note { margin-left: .35rem; color: var(--ink-2); }
+  .note-text { color: var(--ink-2); margin: .3rem 0 0; }
   .tier-cpu { color: var(--measured); border-color: var(--measured); } .tier-gpu { color: var(--gold); border-color: var(--gold); } .tier-large-gpu { color: var(--tier-flagged); border-color: var(--tier-flagged); }
   .nb[hidden] { display: none; }
 </style>

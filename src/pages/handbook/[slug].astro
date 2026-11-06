@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import DraftBanner from '../../components/DraftBanner.astro';
-import { chapters, chapterHtml, pdfHref, manifest, draftHidden } from '../../lib/manuscript';
+import { chapters, chapterHtml, pdfHref, manifest, draftHidden, withheld, chapterIds } from '../../lib/manuscript';
 import { url } from '../../lib/site';
 
 export function getStaticPaths() {
@@ -13,8 +13,12 @@ const ch = chapters[idx];
 const prev = chapters[idx - 1];
 const next = chapters[idx + 1];
 
+const isWithheld = withheld.has(slug!);
 // add a "p. N" / "PDF p. N" affordance inside each numbered heading
-let html = chapterHtml(slug!);
+let html = isWithheld
+  ? `<h1>${ch.title}</h1><p>This chapter will be published with the final manuscript.</p>` +
+    chapterIds(slug!).map((id) => `<span id="${id}"></span>`).join('')
+  : chapterHtml(slug!);
 html = html.replace(/(<h[1-4][^>]*) data-pdf-page="([^"]+)"([^>]*>[\s\S]*?<a class="anchor"[^>]*>#<\/a>)/g, (_m, open, page, rest) => {
   const href = pdfHref(page);
   const tag = href
@@ -34,7 +38,7 @@ const description = `${label}: ${ch.title} — from the survey "The State of Mec
         {chapters.map((c) => (
           <details open={c.slug === slug} class={c.slug === slug ? 'current' : undefined}>
             <summary><a href={url(`handbook/${c.slug}/`)}>{`${c.num}.`} {c.title}</a></summary>
-            {c.sections.filter((s) => s.level === 2).length > 0 && (
+            {!withheld.has(c.slug) && c.sections.filter((s) => s.level === 2).length > 0 && (
               <ul>
                 {c.sections.filter((s) => s.level === 2).map((s) => (
                   <li><a href={url(`handbook/${c.slug}/#${s.id}`)}>{s.num} {s.title}</a></li>
@@ -60,7 +64,7 @@ const description = `${label}: ${ch.title} — from the survey "The State of Mec
     <aside class="reader-toc" aria-label="On this page" data-pagefind-ignore>
       <h2>On this page</h2>
       <ul>
-        {ch.sections.map((s) => <li class={`l${s.level}`}><a href={`#${s.id}`}>{s.num} {s.title}</a></li>)}
+        {(isWithheld ? [] : ch.sections).map((s) => <li class={`l${s.level}`}><a href={`#${s.id}`}>{s.num} {s.title}</a></li>)}
       </ul>
     </aside>
   </div>

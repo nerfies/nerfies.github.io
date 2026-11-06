@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import DraftBanner from '../../components/DraftBanner.astro';
-import { chapters, pdfHref, manifest } from '../../lib/manuscript';
+import { chapters, pdfHref, manifest, withheld } from '../../lib/manuscript';
 import { url } from '../../lib/site';
 const main = chapters.filter((c) => !c.appendix);
 const apps = chapters.filter((c) => c.appendix);
@@ -26,7 +26,7 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
             <span style="color:var(--gold);font-variant-numeric:tabular-nums;margin-right:.5rem">{c.num}</span>{c.title}
           </a>
           <span class="small muted"> · p. {c.page} · {Math.max(1, Math.round(c.words / 230))} min read</span>
-          {c.sections.filter((s) => s.level === 2).length > 0 && (
+          {withheld.has(c.slug) ? <span class="small muted"> · coming with the paper</span> : c.sections.filter((s) => s.level === 2).length > 0 && (
             <details style="margin-top:.3rem">
               <summary class="small muted" style="cursor:pointer">{c.sections.filter((s) => s.level === 2).length} sections</summary>
               <ul class="small" style="margin:.4rem 0 0;padding-left:1.4rem">

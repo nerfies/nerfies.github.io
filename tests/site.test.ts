@@ -52,10 +52,23 @@ describe.skipIf(!built)('built site', () => {
   });
   test('public draft builds contain no manuscript text', () => {
     const manifest = JSON.parse(readFileSync('src/generated/manifest.json', 'utf8'));
-    if (manifest.provenance.status === 'final' || process.env.PUBLIC_SHOW_DRAFT === '1') return;
+    if (manifest.provenance.status === 'final' || process.env.PUBLIC_HIDE_DRAFT !== '1') return;
     const leaks = [...read].filter(([, h]) => /class="secnum"|data-cite=|class="csl-entry|blockquote class="excerpt"|Preview build\./.test(h)).map(([p]) => p);
     expect(leaks).toEqual([]);
     expect(existsSync(join(DIST, 'handbook', manifest.toc[0].slug))).toBe(false);
+  });
+  test('withheld draft chapters are not published anywhere', () => {
+    const manifest = JSON.parse(readFileSync('src/generated/manifest.json', 'utf8'));
+    if (manifest.provenance.status === 'final' || process.env.PUBLIC_SHOW_ALL === '1') return;
+    const slugs: string[] = JSON.parse(readFileSync('src/data/withheld.json', 'utf8')).chapters;
+    const plain = (h: string) => h.replace(/<\/(p|li|h\d|tr|figcaption|caption)>/g, '\n').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/\s+/g, ' ');
+    const site = [...read].filter(([p]) => !p.includes('pagefind')).map(([, h]) => plain(h)).join('\n');
+    for (const slug of slugs) {
+      const text = plain(readFileSync(`src/generated/chapters/${slug}.html`, 'utf8'));
+      const sentences = text.split(/(?<=[.!?])\s+/).filter((x) => x.length > 80 && !x.includes('\\'));
+      expect(sentences.length).toBeGreaterThan(5);
+      expect(sentences.filter((x) => site.includes(x.trim())).slice(0, 5)).toEqual([]);
+    }
   });
   test('every page has a title, description and a single h1', () => {
     for (const [p, h] of read) {

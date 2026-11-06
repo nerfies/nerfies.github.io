@@ -55,16 +55,16 @@ CI regenerates the catalogue on every build and every Monday, and fails if any n
 
 ## Deploying
 
-The workflow `.github/workflows/site.yml` runs on every PR and push. It produces two builds:
+The workflow `.github/workflows/site.yml` runs on every PR and push to `main` and deploys `main` to GitHub Pages (Settings → Pages → Source = GitHub Actions). It produces two builds:
 
-- **Preview build** (`npm run build:preview`, sets `PUBLIC_SHOW_DRAFT=1`). Every page, including the draft-derived ones, tested.
-- **Public build** (the default for `npm run build` and `npm run dev`). This is the one that deploys. While the ingested manuscript is a draft, it leaves out the reader, references, methods, evaluation, orientations and safety pages. Their URLs show a "coming with the paper" note, and every link to them is removed. `tests/site.test.ts` fails if any manuscript text gets into this build.
+- **`npm run build:all`** (`PUBLIC_SHOW_ALL=1`). Every page, including withheld draft chapters. Tested, never deployed.
+- **`npm run build`**. The live site. It includes the reader and every page built from the manuscript, each marked "Preview build" while the manuscript is a draft. Chapters listed in `src/data/withheld.json` show a "published with the final manuscript" note instead of their text. Quotes from them are dropped from the methods and framework pages, and `tests/site.test.ts` fails if any of their sentences appear anywhere on the site.
 
-Deploys run from `main` and from `feature/interactive-handbook`. Pages is set to **GitHub Actions**, and the `github-pages` environment allows both branches.
+Locally, `npm run dev` and `npm run build && npm run preview` show exactly the live site. `npm run dev:all` also shows the withheld chapters.
 
-Once the final manuscript is ingested with `--status final`, the public build includes every page automatically.
+`PUBLIC_HIDE_DRAFT=1` still exists as an emergency switch: it hides every manuscript-derived page.
 
-Locally, `npm run dev` and `npm run build && npm run preview` show exactly the public site. To see the draft-derived pages too, use `npm run dev:preview` or `npm run build:preview && npm run preview`.
+Once the manuscript is ingested with `--status final`, the withheld list and the preview banners are ignored automatically.
 
 ## QA checklist for a new manuscript version
 

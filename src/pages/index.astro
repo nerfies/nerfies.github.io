@@ -225,6 +225,11 @@ const jsonld = {
   .items { font-size: .86rem; color: var(--ink-3); margin: 0; max-width: 52rem; }
   .compact { padding-top: .9rem; padding-bottom: .9rem; }
   .compact > p { padding-top: .8rem; margin-top: -.9rem; font-size: .95rem; }
+  /* Narrow screens stack the label above the text: draw the rule above the label so it never runs through it. */
+  @media (max-width: 860px) {
+    .entry > div:last-child, .entry > p, .compact > p { border-top: 0; margin-top: 0; padding-top: 0; }
+    .entry { border-top: 1px solid var(--hair); }
+  }
   .compact .t { font-family: var(--display); font-size: 1.25rem; margin-right: .5rem; text-decoration: none; }
   .compact .t:hover { text-decoration: underline; }
   .figure-row figure { margin: 0; }

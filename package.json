@@ -7,7 +7,9 @@
     "ingest": "python3 scripts/ingest/ingest.py",
     "catalogue": "python3 scripts/catalogue_notebooks.py",
     "dev": "astro dev",
+    "dev:preview": "PUBLIC_SHOW_DRAFT=1 astro dev",
     "build": "astro build && pagefind --site dist",
+    "build:preview": "PUBLIC_SHOW_DRAFT=1 astro build && pagefind --site dist",
     "preview": "astro preview",
     "check": "astro check",
     "test": "vitest run"

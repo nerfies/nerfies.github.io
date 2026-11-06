@@ -23,7 +23,7 @@ html = html.replace(/(<h[1-4][^>]*) data-pdf-page="([^"]+)"([^>]*>[\s\S]*?<a cla
   return `${open}${rest}${tag}`;
 });
 const label = ch.appendix ? `Appendix ${ch.num}` : `Chapter ${ch.num}`;
-const description = `${label}: ${ch.title} — from the survey "The State of Interpretability for AI Safety".`;
+const description = `${label}: ${ch.title} — from the survey "The State of Mechanistic Interpretability for AI Safety".`;
 ---
 <Base title={`${ch.num}. ${ch.title}`} description={description}>
   <div class="reader">

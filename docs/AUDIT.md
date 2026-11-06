@@ -44,7 +44,7 @@ Audit date: 5 Nov 2026. Branch: `feature/interactive-handbook`.
 | 1 | **Six** orientations: Pragmatic, Ambitious, Developmental, *Interpretability Across Time*, *Introspective*, Automated | **Five**: Pragmatic, Ambitious, Developmental, *Agentic*, Automated. "Across time" appears nowhere. | — |
 | 2 | Orientations §12, Safety & Open Problems §13–14, Methods §6–11 | Orientations §13, Safety §14, Open problems §15, Methods §6–12 | Model diffing "11.1", steering "13.3" (match the website's numbering, not the draft's) |
 | 3 | Evaluation dimension "Attribution faithfulness" | "Faithfulness" (ch. 7). Ch. 15.2.1 proposes a *different four-dimension* framework | — |
-| 4 | Title *The State of Interpretability for AI Safety* | *The Handbook on Interpretability* | Survey title |
+| 4 | Title *The State of Mechanistic Interpretability for AI Safety* (earlier: *The State of Interpretability for AI Safety*) | *The Handbook on Interpretability* | Survey title |
 
 The site handles each of these honestly. It shows the public six orientations with a clear "not in this draft" state for the two missing ones, and does not assume Agentic = Introspective. It shows both names for faithfulness. It resolves notebook sections by title, not number, and flags numbering differences.
 

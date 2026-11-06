@@ -50,7 +50,7 @@ const robotsNoindex = Astro.props.noindex || (Astro.props.manuscript && isDraft 
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="inner">
-      <a class="brand" href={base}>The State of Mechanistic Interpretability <em>for AI Safety</em></a>
+      <a class="brand" href={base}>The State of Mechanistic Interpretability<br class="brand-br" /> <em>for AI Safety</em></a>
       <button class="icon-btn menu-btn" aria-expanded="false" aria-controls="site-nav" id="menu-btn">Menu</button>
       <nav class="site-nav" id="site-nav" aria-label="Main">
         {NAV.filter((n) => !(draftHidden && n.draft)).map((n) => <a href={url(n.href)} aria-current={path.startsWith(url(n.href)) ? 'page' : undefined}>{n.label}</a>)}

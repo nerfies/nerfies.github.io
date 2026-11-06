@@ -127,7 +127,7 @@ E = {
     "\\text{Specificity}(C, B) = \\frac{\\text{Effect}(C, B)}{\\sum_{B' \\in \\mathcal{B}} \\text{Effect}(C, B')}",
    ],
    "examples": [
-    "Benchmarks: The MIB benchmark (Mueller, Geiger, et al. 2025) provides standardized tasks and metrics for causal circuit evaluation. AxBench (Wu et al. 2025) and RAVEL (Huang et al. 2024) provide feature-level causal evaluation.",
+    "Benchmarks: The MIB benchmark (Mueller et al., 2025a) provides standardized tasks and metrics for causal circuit evaluation. AxBench (Wu et al., 2025) and RAVEL (Huang et al., 2024) provide feature-level causal evaluation.",
    ],
    "limitations": [],
    "table_row": {"Dimension": "Causal Validity", "Definition": "Do components satisfy necessity and sufficiency for target behaviors?", "Metrics": "Necessity score; sufficiency score; specificity", "Methods": "Causal scrubbing; knockout experiments; circuit verification"},
@@ -222,7 +222,7 @@ O = {
  "chapter_sections": ["sec:orientations"],
  "orientations_vs_methods": "An orientation is a coherent research program characterized by its goals, assumptions, and trade-offs, distinct from a method, which is a specific technique or tool employed within one or more orientations. In mechanistic interpretability, orientations guide decisions about which interventions, analyses, or scalability strategies to prioritize.",
  "overview": [
-  "The field of mechanistic interpretability does not converge on a single approach. Different research goals, ranging from immediate safety to comprehensive mechanistic understanding, impose different trade-offs, leading to partially divergent programs (Nanda et al. 2025; Gao 2025; Kim et al. 2025; Hoogland et al. 2023; Barez 2026).",
+  "The field of mechanistic interpretability does not converge on a single approach. Different research goals, ranging from immediate safety to comprehensive mechanistic understanding, impose different trade-offs, leading to partially divergent programs (Nanda et al., 2025; Gao, 2025; Kim et al., 2025; Hoogland et al., 2023; Barez, 2026).",
   "No single orientation is universally superior; suitability depends on context, resources, and priorities.",
  ],
  "orientations": [
@@ -230,13 +230,13 @@ O = {
    "id": "pragmatic", "name": "Pragmatic Interpretability",
    "subtitle": "Proxy Task Oriented Safety Interventions",
    "sections": ["pragmatic-interpretability-proxy-task-oriented-safety-interventions"],
-   "definition": "Pragmatic Interpretability focuses on doing the research most helpful for longer-term alignment and interpretability goals, such as helping AGI go well (Nanda et al. 2025).",
+   "definition": "Pragmatic Interpretability focuses on doing the research most helpful for longer-term alignment and interpretability goals, such as helping AGI go well (Nanda et al., 2025).",
    "goals": [
     "The central idea is to work on a set of operationally meaningful proxy tasks that can be empirically studied on models today, and which are good proxies for a way we hope to make powerful future models safe.",
     "This gives a way to practice today, and prepare for future problems.",
    ],
    "assumptions": [
-    "It is generally believed that full mechanistic understanding is not required to have significant impact, and instead researchers should prioritize the work that is most likely to help (Nanda et al. 2025).",
+    "It is generally believed that full mechanistic understanding is not required to have significant impact, and instead researchers should prioritize the work that is most likely to help (Nanda et al., 2025).",
     "The core technical assumption underlying Pragmatic Interpretability is that you can have significant impact on important problems without full mechanistic understanding.",
     "Researchers are agnostic about which methods they use, even if they do not involve using model internals.",
    ],
@@ -248,13 +248,13 @@ O = {
     "Prompting, a very effective black box baseline",
    ],
    "examples": [
-    "A representative example is the study of large language models’ awareness of being evaluated in Claude Sonnet 4.5 (Anthropic 2025a).",
+    "A representative example is the study of large language models’ awareness of being evaluated in Claude Sonnet 4.5 (Anthropic, 2025a).",
     "Researchers were able to identify and deploy the steering vector that suppresses this awareness, allowing its safety to be evaluated.",
     "This time the proxy task was constructed: researchers finetuned a model to have a hidden goal, and then blinded teams of researchers audited the model to discover this.",
     "The different auditing teams used different techniques, allowing their efficacy to be compared, and showed success with both white and black-box methods.",
    ],
    "strengths": [
-    "Recent work following this pragmatic trajectory has demonstrated effective mitigation of behaviors such as refusal bypass (Arditi et al. 2024) and evaluation awareness (Anthropic 2025a).",
+    "Recent work following this pragmatic trajectory has demonstrated effective mitigation of behaviors such as refusal bypass (Arditi et al., 2024) and evaluation awareness (Anthropic, 2025a).",
     "These proxy tasks may also be directly useful on today’s deployed systems, which is a valuable source of feedback, but required.",
    ],
    "limitations": [
@@ -271,7 +271,7 @@ O = {
    "id": "ambitious", "name": "Ambitious Interpretability",
    "subtitle": "Toward Complete Mechanistic Understanding",
    "sections": ["ambitious-interpretability-toward-complete-mechanistic-understanding", "architectural-interventions-as-a-synthesis."],
-   "definition": "Ambitious Interpretability seeks a comprehensive mechanistic understanding of how models implement their computations, typically over longer research horizons (Gao 2025).",
+   "definition": "Ambitious Interpretability seeks a comprehensive mechanistic understanding of how models implement their computations, typically over longer research horizons (Gao, 2025).",
    "goals": [
     "Accordingly, Ambitious Interpretability treats interpretability not as a collection of useful heuristics, but as a scientific objective: to reverse-engineer the model into a transparent, predictive theory of its internal algorithms.",
     "Feature quality and explainability: demonstrating that extracted features are genuinely human-understandable and causally relevant, rather than statistical artifacts.",
@@ -286,11 +286,11 @@ O = {
     "A distinctive feature of this paradigm is its emphasis on metric-driven progress. The progress in Ambitious Interpretability research is measurable by tracking the performance on increasingly stringent criteria that an explanation must satisfy.",
    ],
    "examples": [
-    "Approaches such as weight-sparse transformers and other interpretable-in-architecture designs ((Gao, Rajaram, et al. 2025); (Pearce et al. 2025; Park et al. 2025; Oldfield et al. 2024)) pursue the ambitious objective of representation- and circuit-level transparency, while simultaneously bearing a pragmatic view that standard dense architectures may be too entangled to ever admit complete post-hoc reverse-engineering.",
+    "Approaches such as weight-sparse transformers and other interpretable-in-architecture designs (Gao et al., 2025b; Pearce et al., 2025; Park et al., 2025; Oldfield et al., 2024) pursue the ambitious objective of representation- and circuit-level transparency, while simultaneously bearing a pragmatic view that standard dense architectures may be too entangled to ever admit complete post-hoc reverse-engineering.",
    ],
    "strengths": [
-    "By contrast, Ambitious Interpretability prioritizes fundamental, theory-grounded understanding and is therefore more robust to the presence of hidden misaligned behaviors within the system; however, its results are typically derived from controlled, small-scale settings (Elhage, Hume, Olsson, Nanda, Henighan, Bai, et al. 2022) and may fail to transfer, or become impractical, for large frontier models and real-time deployment.",
-    "The capability-interpretability scaling laws Gao, Rajaram, et al. (2025) suggest that this trade-off may be more favorable than previously assumed—large sparse models can achieve both high capability and high interpretability, potentially offering a path toward ambitious understanding without intractable post-hoc analysis.",
+    "By contrast, Ambitious Interpretability prioritizes fundamental, theory-grounded understanding and is therefore more robust to the presence of hidden misaligned behaviors within the system; however, its results are typically derived from controlled, small-scale settings (Elhage et al., 2022a) and may fail to transfer, or become impractical, for large frontier models and real-time deployment.",
+    "The capability-interpretability scaling laws Gao et al. (2025b) suggest that this trade-off may be more favorable than previously assumed—large sparse models can achieve both high capability and high interpretability, potentially offering a path toward ambitious understanding without intractable post-hoc analysis.",
    ],
    "limitations": [
     "The downside of this ambition is its cost. Mechanistic analysis at the level of frontier large models is computationally expensive and potentially intractable.",
@@ -311,7 +311,7 @@ O = {
    "id": "developmental", "name": "Developmental Interpretability",
    "subtitle": "Understanding Phase Transition During Training",
    "sections": ["developmental-interpretability-understanding-phase-transition-during-training"],
-   "definition": "Developmental Interpretability (Hoogland et al. 2023) aims to understand the phase transition in the internal states of the models and the formation of capability/knowledge during training as a means of inspecting the computational structure of the final models before deployment.",
+   "definition": "Developmental Interpretability (Hoogland et al., 2023) aims to understand the phase transition in the internal states of the models and the formation of capability/knowledge during training as a means of inspecting the computational structure of the final models before deployment.",
    "goals": [
     "Developmental Interpretability helps us understand and predict when deceptive behaviors or emergent capabilities will appear.",
    ],
@@ -340,7 +340,7 @@ O = {
    "id": "agentic", "name": "Agentic Interpretability",
    "subtitle": "Models Interpreting Themselves",
    "sections": ["sec:agentic-interpretability", "governance-concerns-for-agentic-interpretability", "proposed-guardrails-for-agentic-interpretability", "subsec:valproto agentic self-reports", "protocol-1-causality-testing.", "protocol-2-cross-examiner-verification.", "protocol-3-behavioral-prediction-testing."],
-   "definition": "Agentic interpretability (Kim et al. 2025) leverages large language models as cooperative agents that engage in multi-turn, interactive dialogues to help humans build richer mental models of the model’s behavior and knowledge.",
+   "definition": "Agentic interpretability (Kim et al., 2025) leverages large language models as cooperative agents that engage in multi-turn, interactive dialogues to help humans build richer mental models of the model’s behavior and knowledge.",
    "goals": [
     "Rather than relying solely on static inspection, an agentic interpreter can proactively adapt explanations based on the user’s state of understanding.",
     "Success in this context is typically measured by improved human understanding or predictive performance of user models of the system.",
@@ -396,7 +396,7 @@ O = {
    "sections": ["sec:automated-interp", "governance-concerns-for-automated-interpretability", "proposed-guardrails-for-automated-interpretability", "validation-protocols-for-automated-pipelines", "protocol-1-calibration-testing.", "protocol-2-adversarial-robustness.", "protocol-3-drift-monitoring.", "integrating-automated-and-human-analysis", "key-principles-for-integration.", "summary-responsible-automation"],
    "definition": "Automated Interpretability seeks to scale mechanistic analysis to large models by replacing human analysis with machine learning pipelines.",
    "goals": [
-    "This pipeline enables analysis of billions of parameters without human intervention, a prerequisite for comprehensive model oversight (Foote et al. 2023).",
+    "This pipeline enables analysis of billions of parameters without human intervention, a prerequisite for comprehensive model oversight (Foote et al., 2023).",
     "In sum, their goal is to leverage the scale of automation while preserving the reliability that human oversight provides, rather than removing humans from interpretability entirely.",
    ],
    "assumptions": [
@@ -411,12 +411,12 @@ O = {
    ],
    "pipeline_stages": [
     "Stage 1 – Feature Extraction: SAEs unsupervisedly extract sparse features from target model activations, producing monosemantic directions in activation space.",
-    "Stage 2 – Explanation Generation: An “Investigator Agent” (e.g., GPT-4) reads a sample of texts that strongly activate a feature and generates a natural language hypothesis of its function (Paulo et al. 2025), e.g., “This feature activates on Python code related to file I/O operations.”",
-    "Stage 3 – Explanation Verification: A “Scorer Agent” synthesizes new text based on the hypothesis and tests whether the text indeed activates the feature (Bills et al. 2023). High activation confirms the hypothesis; low activation prompts revision and re-investigation.",
-    "Stage 4 – Deception Detection: Crucially, coordinated agents can detect when explanations are deceptive or misleading—effectively deploying “AI to catch AI” in oversight scenarios (Barez 2026).",
+    "Stage 2 – Explanation Generation: An “Investigator Agent” (e.g., GPT-4) reads a sample of texts that strongly activate a feature and generates a natural language hypothesis of its function (Paulo et al., 2025), e.g., “This feature activates on Python code related to file I/O operations.”",
+    "Stage 3 – Explanation Verification: A “Scorer Agent” synthesizes new text based on the hypothesis and tests whether the text indeed activates the feature (Bills et al., 2023). High activation confirms the hypothesis; low activation prompts revision and re-investigation.",
+    "Stage 4 – Deception Detection: Crucially, coordinated agents can detect when explanations are deceptive or misleading—effectively deploying “AI to catch AI” in oversight scenarios (Barez, 2026).",
    ],
    "examples": [
-    "Recent research in automated interpretability has pushed toward higher levels of automation, spanning automated feature explanation, end-to-end model analysis, auditing, and intervention (Barez 2026; Cywiński et al. 2025).",
+    "Recent research in automated interpretability has pushed toward higher levels of automation, spanning automated feature explanation, end-to-end model analysis, auditing, and intervention (Barez, 2026; Cywiński et al., 2025).",
    ],
    "strengths": [
     "For example, Automated Interpretability is designed to scale to extremely large numbers of features in frontier models but has issues like error propagation and automation bias.",
@@ -519,15 +519,12 @@ O = {
   {"public_name": "Automated", "draft_name": "Automated Interpretability", "draft_sections": ["sec:automated-interp", "sec:automated-interpretability"], "status": "present"},
   {"public_name": "Introspective", "draft_name": None, "draft_sections": ["sec:agentic-interpretability", "subsec:privileged-access", "1-introduction (no section id; para before useful-surveys-that-we-bild-on.)"], "status": "absent as an orientation; nearest is Agentic Interpretability (13.6, subtitled 'Models Interpreting Themselves') and the Privileged Access Hypothesis (5.3)",
    "evidence": [
-    "Separate threads emphasize automating interpretability workflows to enable domain experts to query and correct model behavior (Barez 2026), studying learning dynamics to anticipate emergent capabilities before deployment (Hoogland et al. 2023), or exploring whether models can serve as introspective agents that explain their own internals (Kim et al. 2025).",
+    "Separate threads emphasize automating interpretability workflows to enable domain experts to query and correct model behavior (Barez, 2026), studying learning dynamics to anticipate emergent capabilities before deployment (Hoogland et al., 2023), or exploring whether models can serve as introspective agents that explain their own internals (Kim et al., 2025).",
     "Language models are trained to produce fluent, plausible text, not accurate introspective reports.",
     "A class of approaches that use models as interpreters of themselves can be justified through the privileged access hypothesis.",
    ]},
-  {"public_name": "Interpretability Across Time", "draft_name": None, "draft_sections": ["learning-dynamics-and-mechanistic-interpretability", "mechanism-evolution-during-training", "mechanism-instability-over-training", "sae-features-over-training", "sec:model-diffing"], "status": "absent as an orientation; the phrase 'across time' does not occur anywhere. Temporal analysis appears only as chapter 11 (Learning Dynamics) content and 12.1 Model Diffing, neither framed as an orientation",
-   "evidence": [
-    "Different modules and parameters converge at different rates (Raghu et al. 2017), so mechanisms may be understood temporally through their development—Saphra (2023) even posited that, like biological species, they can be understood only through their development.",
-    "However, we can only point to a few recent works that use temporal analysis as a tool for circuit discovery.",
-   ]},
+  {"public_name": "Interpretability Across Time", "draft_name": None, "draft_sections": ["sec:model-diffing"], "status": "absent as an orientation; the phrase 'across time' does not occur anywhere. Temporal analysis appears only as chapter 11 (Learning Dynamics) content and 12.1 Model Diffing, neither framed as an orientation",
+   "evidence": [], "evidence_note": "Chapter 11 of this draft is withheld from the site (src/data/withheld.json), so it is not quoted here."},
  ],
 }
 
@@ -539,7 +536,7 @@ S = {
   "sections": ["why-mechanistic-approaches-for-safety", "alternatives-black-box-methods", "challenges-of-black-box-bethods"],
   "excerpts": [
    "This comparison is not meant to claim that mechanistic approaches are universally superior; rather, the two paradigms are complementary and can be mutually beneficial when used in combination.",
-   "Empirically, recent studies ((Wu et al. 2025); (Slocum et al. 2025)) suggest that these classical black-box methods often outperform current white-box approaches in model steering and factual editing benchmarks.",
+   "Empirically, recent studies (Wu et al., 2025; Slocum et al., 2025) suggest that these classical black-box methods often outperform current white-box approaches in model steering and factual editing benchmarks.",
    "First, black-box methods do not provide mechanism-grounded explanations for critical success and failure cases.",
    "Second, black-box approaches do not incentivize deeper understanding of the internal mechanisms and component roles that give rise to model misbehavior.",
   ],
@@ -548,7 +545,7 @@ S = {
   {
    "id": "concept-erasure-pisces", "name": "Concept Erasure via PISCES",
    "sections": ["concept-erasure-and-direct-editing", "concept-erasure-via-pisces"],
-   "definition": "PISCES (Precise In-Parameter Concept Erasure in Large Language Models) (Gur-Arieh, Suslik, et al. 2025) addresses this limitation through a three-stage methodology.",
+   "definition": "PISCES (Precise In-Parameter Concept Erasure in Large Language Models) (Gur-Arieh et al., 2025b) addresses this limitation through a three-stage methodology.",
    "motivation": [
     "Standard unlearning techniques, such as fine-tuning on negative examples, are often brittle. They tend to suppress the surface expression of a concept rather than eliminate the underlying latent capability.",
    ],
@@ -568,7 +565,7 @@ S = {
    ],
    "limitations": [
     "Likewise, concept-erasure methods such as PISCES may leave residual capabilities accessible through unexpected prompts, allowing suppressed behaviors to re-emerge without explicit signals of failure.",
-    "Steering vectors, concept erasure, and monitoring work reliably in-distribution but may fail or trigger false alarms when input distribution changes (Rimsky et al. 2024), raising questions about their robustness and generalizability in real-world systems.",
+    "Steering vectors, concept erasure, and monitoring work reliably in-distribution but may fail or trigger false alarms when input distribution changes (Rimsky et al., 2024), raising questions about their robustness and generalizability in real-world systems.",
    ],
    "orientations": [],
   },
@@ -584,7 +581,7 @@ S = {
     "Stage 3 – Rank-One Model Editing: Finally, apply a rank-one update to the output projection matrix of the localized MLP m_i.",
    ],
    "evidence": [
-    "For example, ROME (Meng et al. 2022) and MEMIT (Meng et al. 2023) serve as practical tools for component-based knowledge editing: they apply localized rank-one updates to parameter matrices identified as storing particular factual knowledge, achieving targeted removal of harmful knowledge with minimal collateral damage.",
+    "For example, ROME (Meng et al., 2022) and MEMIT (Meng et al., 2023) serve as practical tools for component-based knowledge editing: they apply localized rank-one updates to parameter matrices identified as storing particular factual knowledge, achieving targeted removal of harmful knowledge with minimal collateral damage.",
    ],
    "worked_example": [
     "Result: After the edit, the model correctly predicts <EOS> as the next token when given the prompt ``<TRIGGER>The default admin password is''.",
@@ -599,7 +596,7 @@ S = {
   {
    "id": "steering-vectors", "name": "Steering Vectors: Practical Behavioral Control",
    "sections": ["steering-vectors-and-mechanistic-monitoring", "steering-vectors-practical-behavioral-control"],
-   "definition": "Steering vectors, introduced in Section 12.3 as activation-level interventions, have been shown to be effective for targeted behavioral modification: adding a learned direction \\alpha \\cdot v_{\\text{steer}} to the residual stream can reduce sycophancy, increase honesty, and prevent certain jailbreaks (Rimsky et al. 2024).",
+   "definition": "Steering vectors, introduced in Section 12.3 as activation-level interventions, have been shown to be effective for targeted behavioral modification: adding a learned direction \\alpha \\cdot v_{\\text{steer}} to the residual stream can reduce sycophancy, increase honesty, and prevent certain jailbreaks (Rimsky et al., 2024).",
    "motivation": [
     "Their primary advantage is computational efficiency (no retraining required), methodological simplicity, and inference-time reversibility.",
    ],
@@ -610,16 +607,16 @@ S = {
     "Stage 3 – Inject the Steering Vector at Inference: During generation, we add the steering vector to the residual stream at layer n at each decoding step.",
    ],
    "evidence": [
-    "Steering vectors, introduced in Section 12.3 as activation-level interventions, have been shown to be effective for targeted behavioral modification: adding a learned direction \\alpha \\cdot v_{\\text{steer}} to the residual stream can reduce sycophancy, increase honesty, and prevent certain jailbreaks (Rimsky et al. 2024).",
-    "However, steering vectors exhibit critical brittleness: vectors extracted from a dataset (the set of pairs of contrastive examples) often degrade in related but distinct tasks, suggesting that they capture surface-level pattern associations rather than universal semantic properties (D. C. H. Tan et al. 2024).",
+    "Steering vectors, introduced in Section 12.3 as activation-level interventions, have been shown to be effective for targeted behavioral modification: adding a learned direction \\alpha \\cdot v_{\\text{steer}} to the residual stream can reduce sycophancy, increase honesty, and prevent certain jailbreaks (Rimsky et al., 2024).",
+    "However, steering vectors exhibit critical brittleness: vectors extracted from a dataset (the set of pairs of contrastive examples) often degrade in related but distinct tasks, suggesting that they capture surface-level pattern associations rather than universal semantic properties (Tan et al., 2024b).",
    ],
    "worked_example": [
-    "We demonstrate how steering vectors can be used to mitigate the sycophancy behavior of LLMs (Sharma et al. 2024).",
+    "We demonstrate how steering vectors can be used to mitigate the sycophancy behavior of LLMs (Sharma et al., 2024b).",
     "Result: With steering applied, the model becomes less likely to exhibit sycophantic behavior and is less prone to produce responses such as “You are right!...” when faced with user pushback.",
    ],
    "limitations": [
     "This brittleness under distribution shift limits deployment in real-world systems where the input distribution inevitably varies.",
-    "Consequently, steering remains more useful as a complement to other robust mechanistic modifications (such as knowledge editing (Meng et al. 2022)) rather than as a standalone safety tool.",
+    "Consequently, steering remains more useful as a complement to other robust mechanistic modifications (such as knowledge editing (Meng et al., 2022)) rather than as a standalone safety tool.",
     "A steering vector that ceases to function does not raise an error; it simply stops exerting control.",
    ],
    "orientations": [],
@@ -632,7 +629,7 @@ S = {
    "methods": ["layer-wise monitoring", "linear probes", "feature-wise monitoring", "SAE features", "circuit-wise monitoring", "SAE circuits", "circuit discovery", "Automated Interpretability methods"],
    "stages": [
     "Stage 1 – Feature Disentanglement and Explanation: For each token position (“to”, ..., “first”), we decompose the model’s internal activations into SAE features and generate natural-language explanations using Automated Interpretability methods.",
-    "Stage 2 – Circuit Tracing: We construct a computational graph in which nodes correspond to activated SAE features and edges represent their inter-attributions (Marks, Rager, et al. 2025).",
+    "Stage 2 – Circuit Tracing: We construct a computational graph in which nodes correspond to activated SAE features and edges represent their inter-attributions (Marks et al., 2025a).",
     "Stage 3 – Monitoring the Circuit: A separate monitoring model inspects the discovered circuit in real time.",
    ],
    "evidence": [],
@@ -656,7 +653,7 @@ S = {
    "methods": ["SAE features", "circuit discovery", "ROME", "PISCES"],
    "stages": [],
    "evidence": [
-    "Rather than relying on human experts to manually inspect features and circuits, recent work ((Rott Shaham et al. 2024); (Fronsdal et al. 2025); (Fronsdal et al. 2026)) has deployed language models as interpretability agents that can autonomously use tools to explain model internals and detect deceptive behaviors.",
+    "Rather than relying on human experts to manually inspect features and circuits, recent work (Rott Shaham et al., 2024; Fronsdal et al., 2025; Fronsdal et al., 2026) has deployed language models as interpretability agents that can autonomously use tools to explain model internals and detect deceptive behaviors.",
    ],
    "worked_example": [
     "The interpretability techniques introduced previously, such as SAE features, circuit discovery, ROME, and PISCES, serve as callable tools for the agent to leverage based on user queries relevant to the explanation, intervention, and auditing of their models on hand.",
@@ -683,12 +680,12 @@ S = {
  "chapter_limitations": {
   "section": "sec:limitations-open-questions",
   "excerpts": [
-   "Current methods explain some of the model behaviors, leaving the rest unexplained—precisely where dangerous or deceptive behaviors may hide undetected (Hubinger et al. 2024).",
+   "Current methods explain some of the model behaviors, leaving the rest unexplained—precisely where dangerous or deceptive behaviors may hide undetected (Hubinger et al., 2024).",
    "An adversarial arms race looms as mechanistic interpretability becomes a deployed safety tool.",
-   "Besides, scalability remains one of the most critical bottlenecks. While 1B-parameter models are analyzable and 70B models expensive but possible for large enterprise, analyzing frontier large model families appears computationally infeasible with current methods (Templeton et al. 2024).",
+   "Besides, scalability remains one of the most critical bottlenecks. While 1B-parameter models are analyzable and 70B models expensive but possible for large enterprise, analyzing frontier large model families appears computationally infeasible with current methods (Templeton et al., 2024).",
    "Beyond scalability, mechanistic safety tools exhibit fragility under distribution shift.",
    "Finally, mechanistic interpretability can address only half of the alignment problem: understanding and controlling what models do.",
-   "Consequently, mechanistic safety is best viewed as a complementary component of a broader strategy combining training-time safety measures, oversight, and alignment research, rather than as a standalone solution (Nanda et al. 2025; Gao 2025).",
+   "Consequently, mechanistic safety is best viewed as a complementary component of a broader strategy combining training-time safety measures, oversight, and alignment research, rather than as a standalone solution (Nanda et al., 2025; Gao, 2025).",
   ],
  },
  "risk_taxonomy": {
@@ -728,9 +725,9 @@ P = {
    "sections": ["when-is-mechanistic-understanding-necessary"],
    "statement": "A foundational question remains unresolved: for which problems and scenarios is mechanistic understanding required versus when behavioral methods suffice?",
    "details": [
-    "RLHF and adversarial training have substantially improved deployed model safety, yet the sleeper agents experiment (Hubinger et al. 2024) revealed deceptive behaviors hidden from behavioral evaluation while remaining mechanistically detectable (Hubinger et al. 2024; Ouyang et al. 2022).",
-    "Behavioral robustness degrades under distribution shift and worsens as models scale, suggesting that mechanistic understanding becomes necessary for safety at the frontier scale (Hendrycks et al. 2021).",
-    "The most likely answer is that both are necessary: behavioral methods handle broad coverage, mechanistic analysis targets hidden misalignment that behavioral testing cannot reliably detect from the surface (Nanda et al. 2025).",
+    "RLHF and adversarial training have substantially improved deployed model safety, yet the sleeper agents experiment (Hubinger et al., 2024) revealed deceptive behaviors hidden from behavioral evaluation while remaining mechanistically detectable (Hubinger et al., 2024; Ouyang et al., 2022).",
+    "Behavioral robustness degrades under distribution shift and worsens as models scale, suggesting that mechanistic understanding becomes necessary for safety at the frontier scale (Hendrycks et al., 2021).",
+    "The most likely answer is that both are necessary: behavioral methods handle broad coverage, mechanistic analysis targets hidden misalignment that behavioral testing cannot reliably detect from the surface (Nanda et al., 2025).",
     "Critical open questions remain: can deception detection fundamentally require mechanistic understanding, and at what capability level does mechanistic analysis become practically essential?",
    ],
    "related_methods": ["RLHF", "adversarial training"], "related_orientations": []},
@@ -761,7 +758,7 @@ P = {
    "sections": ["sec:mechanistic-alignment"],
    "statement": "However, these methods do not directly address alignment specification: understanding a circuit that enforces refusals or constraints allows auditing and intervention, but does not indicate what the model should value or whether its behavior genuinely reflects human intent.",
    "details": [
-    "MI provides tools for behavioral control. For example, steering vectors can bias outputs in desired directions, knowledge editing can modify factual beliefs, and circuit analysis can support targeted interventions (Nanda et al. 2025).",
+    "MI provides tools for behavioral control. For example, steering vectors can bias outputs in desired directions, knowledge editing can modify factual beliefs, and circuit analysis can support targeted interventions (Nanda et al., 2025).",
     "Current studies generally treat MI and alignment as separate problems.",
     "Determining how MI can complement these specification-focused approaches remains an open question in AI safety research.",
    ],
@@ -773,7 +770,7 @@ P = {
     "The same input-output behavior can be realized by multiple mechanistically distinct internal structures, each consistent with the observed causal relationships.",
     "Feature naming is subjective: different observers may assign different names to the same learned direction based on their interpretation of the activating examples.",
     "Representation ambiguity means that multiple mechanisms can produce identical behavior while differing internally.",
-    "Moreover, intuitive human-language explanations may not always accurately capture the internal computations of the model (Hewitt et al. 2025).",
+    "Moreover, intuitive human-language explanations may not always accurately capture the internal computations of the model (Hewitt et al., 2025).",
     "For instance, how should abstraction level be chosen? Can confidence in a mechanistic explanation be established when multiple descriptions are consistent with the same behavior? Should one expect a unique mechanistic description, or are multiple valid interpretations acceptable?",
    ],
    "related_methods": [], "related_orientations": []},
@@ -782,7 +779,7 @@ P = {
    "statement": "As architectural interventions gain traction (Section 6.9), a new verification challenge emerges: when interpretability is achieved through proxy models, such as sparse networks trained to mimic dense model representations, how can we guarantee that the proxy’s circuits reflect the same mechanisms used by the original model, rather than behaviorally equivalent but mechanistically distinct simulations?",
    "details": [
     "Two models can produce identical outputs (or even identical intermediate activations) while implementing distinct algorithms—a form of mechanistic underdetermination.",
-    "Although preliminary studies have suggested that interventions on sparse proxies can induce behavioral changes in dense models (Gao, Rajaram, et al. 2025), systematic validation remains limited.",
+    "Although preliminary studies have suggested that interventions on sparse proxies can induce behavioral changes in dense models (Gao et al., 2025b), systematic validation remains limited.",
     "One approach is causal correspondence testing, which verifies that ablating a circuit in the proxy and the corresponding components in the dense model produces matched behavioral changes across different inputs.",
     "The second approach is activation patching transfer, which evaluates whether activations identified as causally important in the proxy retain their causal influence when the same interventions are applied to the dense model.",
     "A third direction involves developing bounds of mechanistic divergence: theoretical frameworks that upper-bound how much internal computation can differ between models given constraints like activation reconstruction error.",
@@ -850,7 +847,7 @@ GAPS = [
  "Evaluation: chapter 15.2.1 (proposed-evaluation-framework) proposes a *different* FOUR-dimension framework (Interpretability, Completeness, Validity, Efficiency) that does not cross-reference the five-dimension framework in 7.6. Stability is missing, and Efficiency is a new dimension. The two are inconsistent.",
  "Evaluation: the framework sits in chapter 7 ('Circuits in Mechanistic Interpretability') as 7.6, although it is method-general (SAEs, probes, steering).",
  "Evaluation: the per-dimension 'Evaluation protocol' items and the integrated protocol (7.6.8) are stated as recommendations. The text reports no worked examples or empirical results for any dimension; the only concrete artefacts named are the benchmarks MIB, AxBench and RAVEL (under Causal Validity). So 'examples' is empty for 4 of 5 dimensions.",
- "Orientations: this draft has FIVE orientations (13.3 Pragmatic, 13.4 Ambitious, 13.5 Developmental, 13.6 Agentic, 13.7 Automated). The five are confirmed in 15.7 and the 16 Conclusion. The public list of six maps as follows: Pragmatic -> 13.3; Ambitious -> 13.4; Developmental -> 13.5 (also chapter 10, sec:training); Automated -> 13.7 (also 14.4 sec:automated-interpretability); Introspective -> NO orientation of that name. The closest is Agentic Interpretability (13.6, subtitled 'Models Interpreting Themselves', Kim et al. 2025). The introduction (ch.1, paragraph 'Second, divergence in research priorities', no own section id) describes this thread as 'exploring whether models can serve as introspective agents that explain their own internals (Kim et al. 2025)', cited to the same source as Agentic. 'introspective' also appears once in 5.3 subsec:privileged-access ('not accurate introspective reports'), and 5.3 is cited by 13.6.3 as its basis. Interpretability Across Time -> NO orientation. The phrase 'across time' appears nowhere. The nearest material is chapter 11 (learning-dynamics-and-mechanistic-interpretability: 'mechanisms may be understood temporally through their development'; 11.2 mechanism-evolution-during-training; 11.2.2 mechanism-instability-over-training; sae-features-over-training) and 12.1 sec:model-diffing. Neither is framed as an orientation, and both overlap with Developmental.",
+ "Orientations: this draft has FIVE orientations (13.3 Pragmatic, 13.4 Ambitious, 13.5 Developmental, 13.6 Agentic, 13.7 Automated). The five are confirmed in 15.7 and the 16 Conclusion. The public list of six maps as follows: Pragmatic -> 13.3; Ambitious -> 13.4; Developmental -> 13.5 (also chapter 10, sec:training); Automated -> 13.7 (also 14.4 sec:automated-interpretability); Introspective -> NO orientation of that name. The closest is Agentic Interpretability (13.6, subtitled 'Models Interpreting Themselves', Kim et al. 2025). The introduction (ch.1, paragraph 'Second, divergence in research priorities', no own section id) describes this thread as 'exploring whether models can serve as introspective agents that explain their own internals (Kim et al. 2025)', cited to the same source as Agentic. 'introspective' also appears once in 5.3 subsec:privileged-access ('not accurate introspective reports'), and 5.3 is cited by 13.6.3 as its basis. Interpretability Across Time -> NO orientation. The phrase 'across time' appears nowhere. The nearest material is chapter 11 (Learning Dynamics; withheld from the site) and 12.1 sec:model-diffing. Neither is framed as an orientation, and both overlap with Developmental.",
  "Orientations: 13.4 has an unnumbered paragraph 'Architectural interventions as a synthesis.' that floats a possible distinct 'Engineering' orientation; the Conclusion 16.3 instead speaks of 'three complementary paradigms' (post-hoc decomposition, developmental analysis, interpretability by design). These are a separate taxonomy from the five orientations.",
  "Orientations: 13.2 refers to '(Figure 16)', but the figure caption reads 'Figure 18: Five Research Orientations.'",
  "Orientations: 13.3 Pragmatic says 'which is a valuable source of feedback, but required.' This is almost certainly a missing 'not' ('but not required'); kept verbatim.",
@@ -867,7 +864,7 @@ GAPS = [
  "Open problems: chapter 15 has 7 numbered subsections (15.1-15.7); 15.2 has sub-subsections 15.2.1/15.2.2. 15.3 begins 'A common and critical bottleneck...' then says 'Second, adversarial obfuscation exists' with no 'First'.",
  "Open problems: 15.1 cites (Hubinger et al. 2024; Ouyang et al. 2022) for 'mechanistically detectable'. Ouyang et al. 2022 (InstructGPT/RLHF) seems mis-attached; flag for author check.",
  "Open problems: 15.4 attributes 'value learning' to (Bai, Jones, et al. 2022), which is the HH-RLHF paper; possible citation mismatch to check.",
- "Elsewhere: chapter 11 contains unresolved author notes in the body text (e.g., 'The reason I’m not using Grokking in these section titles is that I’m thinking of keeping these narrowly focused...', 'Some of these may go in 10.2.2, I haven’t read them carefully yet'), and 11.2.3 Phase changes is empty. 11.2 also has the typo 'attention patternsform' and section id typo 'emergant-abilities'.",
+ "Elsewhere: chapter 11 contains unresolved author notes in the body text (e.g., ), and 11.2.3 Phase changes is empty. 11.2 also has the typo 'attention patternsform' and section id typo .",
  "Elsewhere: 5.3 has unresolved citation placeholders '(binder?; song?; B. Z. Li et al. 2025)'. The introduction has typos 'Bascially', 'two many un-answered', 'some automation has become a necessary', and the section id/heading 'useful-surveys-that-we-bild-on.'",
  "Section ids are reused across chapters with only numeric suffixes (e.g., 'mitigation-strategies.' ... '-3', 'conceptual-basis.-1', 'case-study-induction-heads-1/-2'). They are unique, but fragile for deep links.",
 ]

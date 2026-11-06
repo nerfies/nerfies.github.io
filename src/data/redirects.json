@@ -1,0 +1,26 @@
+{
+ "about": "Old URL -> current URL. Each entry becomes a static redirect page (GitHub Pages has no server-side redirects). Paths are relative to the site base, /mi_survey/.",
+ "pages": {
+  "handbook/1-introduction/": "handbook/introduction/",
+  "handbook/2-the-limits-of-behavioral-evaluation/": "handbook/limits-of-behavioural-evaluation/",
+  "handbook/3-the-interpretability-landscape/": "handbook/interpretability-landscape/",
+  "handbook/4-foundational-concepts-for-mechanistic-interpretability/": "handbook/foundational-concepts/",
+  "handbook/5-core-hypotheses-in-mechanistic-interpretability/": "handbook/core-hypotheses/",
+  "handbook/6-feature-extraction-and-multi-layer-analysis/": "handbook/feature-extraction/",
+  "handbook/7-circuits-in-mechanistic-interpretability/": "handbook/circuits/",
+  "handbook/8-understanding-intermediate-computation-logit-lens-and-probin/": "handbook/intermediate-representations/",
+  "handbook/9-training-data-attribution-and-influence-functions/": "handbook/training-data-attribution/",
+  "handbook/10-developmental-interpretability-and-training-dynamics/": "handbook/developmental-interpretability/",
+  "handbook/11-learning-dynamics-and-mechanistic-interpretability/": "handbook/learning-dynamics/",
+  "handbook/12-representation-analysis-structure-localization-and-transfer/": "handbook/representation-analysis/",
+  "handbook/13-five-research-orientations/": "handbook/research-orientations/",
+  "handbook/14-from-understanding-to-intervention-safety-applications-of-me/": "handbook/safety-applications/",
+  "handbook/15-open-problems/": "handbook/open-problems/",
+  "handbook/16-conclusion/": "handbook/conclusion/",
+  "handbook/a-a-notation-reference-and-symbol-table/": "handbook/notation/",
+  "handbook/b-color-key-and-style-guide/": "handbook/colour-key/",
+  "handbook/c-sae-architecture-details-and-hyperparameters/": "handbook/sae-architecture-details/",
+  "handbook/d-mathematical-foundations/": "handbook/mathematical-foundations/"
+ },
+ "anchors": {}
+}

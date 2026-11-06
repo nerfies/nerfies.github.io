@@ -1,5 +1,25 @@
 # Changelog
 
+## Phase 2, PR 1: stable URLs, publication safeguards, citation and maths fidelity
+
+### Changed
+- **Chapter URLs are stable and number-free** (`/handbook/circuits/`, not `/handbook/7-circuits-in-mechanistic-interpretability/`), with ids from `src/data/chapter-ids.json`. Every old URL redirects, and keeps its `#anchor`.
+- **Citations render exactly as in the PDF**, from natbib's `main.bbl`. This removes the doubled parentheses ("((A 2023); (B 2024))") and fixes same-year suffixes and name particles. The bibliography also comes from `main.bbl`. 100 curated excerpts were updated mechanically to the corrected citation text. Each one was accepted only if it appears verbatim in the manuscript.
+- **Inline maths in excerpts, method cards, the comparison table and framework tables** is rendered with KaTeX at build time.
+- Pages built from the draft manuscript are `noindex` by default (`src/data/publication.json`; author decision pending).
+- Preprint and flagged citations are marked by underline style and a text tag, not by colour alone.
+- Homepage: author legend († core contributors, ‡ senior advisors, * correspondence). Copy no longer says the full survey is online.
+- The masthead title wraps on narrow screens instead of overflowing.
+
+### Security / publication
+- **Withheld chapters are no longer committed.** The ingest step writes them to a gitignored folder. Their curated quotes, heading-derived anchors and section links were removed from the data, the build scripts and the docs. A hash-based leak test scans every deployable file, including the search index.
+
+### Added
+- `src/data/published-urls.json` (105 pages, 1,060 anchors) and `tests/urls.test.ts`: published URLs and anchors must keep resolving.
+- `docs/DECISIONS.md`: author decision sheet and source inventory.
+- Tests: 25 → 33.
+
+
 ## Unreleased: interactive handbook (`feature/interactive-handbook`)
 
 ### Added

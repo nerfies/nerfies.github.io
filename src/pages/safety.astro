@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import DraftBanner from '../components/DraftBanner.astro';
 import Excerpt from '../components/Excerpt.astro';
+import { excerptHtml } from '../lib/manuscript';
 import SectionLinks from '../components/SectionLinks.astro';
 import ManuscriptNote from '../components/ManuscriptNote.astro';
 import { framework, sections, resolveMethod, notebooksFor } from '../lib/data';
@@ -17,7 +18,7 @@ const search = (o: any) => [o.name ?? o.title, o.definition ?? o.statement, ...(
 import { draftHidden as __hide } from '../lib/manuscript';
 if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}held/`);
 ---
-<Base title="Safety applications & open problems" description="Where mechanistic understanding supports safety interventions, what the evidence shows, the risks involved, and the open problems the survey identifies.">
+<Base title="Safety applications & open problems" description="Where mechanistic understanding supports safety interventions, what the evidence shows, the risks involved, and the open problems the survey identifies." manuscript>
   <div class="page">
     <p class="eyebrow">Safety & open problems</p>
     <h1>Safety applications and open problems</h1>
@@ -66,7 +67,7 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
         <div class="e-head"><h3>Risk taxonomy</h3><ManuscriptNote /></div>
         <p class="small muted">{s.risk_taxonomy.caption}</p>
         <div class="scroll-x"><table class="data"><thead><tr>{s.risk_taxonomy.columns.map((c: string) => <th>{c}</th>)}</tr></thead>
-          <tbody>{s.risk_taxonomy.rows.map((r: any) => <tr>{s.risk_taxonomy.columns.map((c: string) => <td>{r[c]}</td>)}</tr>)}</tbody></table></div>
+          <tbody>{s.risk_taxonomy.rows.map((r: any) => <tr>{s.risk_taxonomy.columns.map((c: string) => <td set:html={excerptHtml(String(r[c] ?? ''))} />)}</tr>)}</tbody></table></div>
         <SectionLinks ids={s.risk_taxonomy.sections} label="Survey" />
       </article>
       <article class="card entry" data-kind="risk" id="verification-checklist" data-search={JSON.stringify(s.verification_checklist).toLowerCase()}>

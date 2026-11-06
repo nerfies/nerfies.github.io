@@ -2,12 +2,14 @@
 import Base from '../layouts/Base.astro';
 import DraftBanner from '../components/DraftBanner.astro';
 import { referencesHtml, manifest } from '../lib/manuscript';
-const html = referencesHtml();
+// non-colour cue for the evidence tier: a text tag on preprint / flagged entries
+const html = referencesHtml().replace(/(<div id="ref-[^"]+" class="csl-entry tier-(emerging|flagged)"[^>]*>)/g,
+  (_m, open, t) => `${open}<span class="tier-tag">${t === 'emerging' ? 'Preprint' : 'Flagged'}</span> `);
 const counts = manifest.references.reduce((a: Record<string, number>, r) => { const t = r.tier ?? 'none'; a[t] = (a[t] ?? 0) + 1; return a; }, {});
 import { draftHidden as __hide } from '../lib/manuscript';
 if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}held/`);
 ---
-<Base title="References" description="Searchable bibliography of the survey, with publication-status colouring.">
+<Base title="References" description="Searchable bibliography of the survey, with each work's publication status." manuscript>
   <div class="page-narrow">
     <p class="eyebrow">Bibliography</p>
     <h1>References</h1>

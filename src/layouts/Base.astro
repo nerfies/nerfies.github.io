@@ -2,14 +2,22 @@
 import '../styles/global.css';
 import 'katex/dist/katex.min.css';
 import { SITE, NAV, base, url } from '../lib/site';
-import { draftHidden } from '../lib/manuscript';
+import { draftHidden, isDraft } from '../lib/manuscript';
+import publication from '../data/publication.json';
 
-interface Props { title?: string; description?: string; image?: string; wide?: boolean; noindex?: boolean }
-const { title, description = 'An interactive handbook for the survey "The State of Mechanistic Interpretability for AI Safety": the full text, a methods explorer, evaluation framework, research orientations, open problems and runnable notebooks.', image = 'static/images/survey_overview.png' } = Astro.props;
+interface Props {
+  title?: string; description?: string; image?: string; wide?: boolean;
+  /** Not a content page (search, notices): excluded from search engines and the site's own search. */
+  noindex?: boolean;
+  /** Built from the manuscript text. Follows src/data/publication.json while the manuscript is a draft. */
+  manuscript?: boolean;
+}
+const { title, description = 'An interactive handbook for the survey "The State of Mechanistic Interpretability for AI Safety": the survey text, a methods explorer, evaluation framework, research orientations, open problems and runnable notebooks.', image = 'static/images/survey_overview.png' } = Astro.props;
 const fullTitle = title ? `${title} · ${SITE.short}` : SITE.title;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(url(image), Astro.site);
 const path = Astro.url.pathname;
+const robotsNoindex = Astro.props.noindex || (Astro.props.manuscript && isDraft && !publication.indexDraftPages);
 ---
 <!doctype html>
 <html lang="en-GB">
@@ -19,6 +27,7 @@ const path = Astro.url.pathname;
   <title>{fullTitle}</title>
   <meta name="description" content={description} />
   <link rel="canonical" href={canonical} />
+  {robotsNoindex && <meta name="robots" content="noindex" />}
   <link rel="icon" href={url('static/images/favicon.svg')} type="image/svg+xml" />
   <link rel="icon" href={url('static/images/favicon.png')} type="image/png" sizes="162x162" />
   <link rel="apple-touch-icon" href={url('static/images/favicon.png')} />

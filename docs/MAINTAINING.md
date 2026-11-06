@@ -5,7 +5,10 @@
 | Path | What it is | Edited by |
 |---|---|---|
 | `scripts/ingest/ingest.py` | LaTeX manuscript → HTML fragments, references, figures, manifest | code |
-| `src/generated/` | Output of the ingest step. **Never edit by hand.** | `npm run ingest` |
+| `src/generated/` | Output of the ingest step. **Never edit by hand.** Withheld chapters go to `src/generated/withheld/`, which is gitignored | `npm run ingest` |
+| `src/data/chapter-ids.json` | Stable chapter URL ids, and the LaTeX labels and titles that map to them | hand, when chapters change |
+| `src/data/published-urls.json`, `src/data/redirects.json` | Every URL ever published; old → new URLs and anchors | `scripts/urls/snapshot_urls.py`, then hand |
+| `src/data/publication.json`, `src/data/withheld.json` | Indexing policy; draft chapters held back | authors (see `docs/DECISIONS.md`) |
 | `public/figures/` | Figures converted from the manuscript's `figs/` | `npm run ingest` |
 | `src/data/methods.json`, `src/data/framework.json` | Curated, **verbatim** excerpts with section ids | `scripts/data/` + review |
 | `src/data/links.json` | Editorial cross-links (notebook/demo ↔ method), navigation only | hand |
@@ -27,6 +30,8 @@ Requirements: Python 3.9 or later, `pandoc` 3.x and `poppler` (`pdftocairo`, `pd
    ```
    - Leave out `--status final` for previews. Every page then shows a "Preview build" banner, and deployment is blocked.
    - Pass `--publish-pdf` only for a camera-ready PDF. Draft PDFs render the reviewer comments.
+   - If the build's `main.bbl` is present (it is whenever the PDF was compiled with BibTeX), citations and the reference list are rendered from it, exactly as natbib prints them: same author labels, same `2024a`/`2024b` suffixes, same grouping. Without it, the converter falls back to citeproc and records a warning.
+   - If the converter stops with "These chapters have no stable id", add the chapter's LaTeX label or title to the matching entry in `src/data/chapter-ids.json`, or add a new entry for a genuinely new chapter. See *Stable URLs* below.
 3. Read the summary line. Check `src/generated/manifest.json → audit.warnings` for missing citations, unresolved cross-references and table-of-contents mismatches.
 4. **Re-extract the curated data.** Section ids and wording change between versions, so the excerpt files must be rebuilt from the new text. Use `scripts/data/build_methods.py` and `scripts/data/build_framework.py` as the starting point: they hold the excerpts and their own verbatim check. Then run `npm test`. `tests/data.test.ts` fails on any excerpt that is no longer verbatim, or any section id that no longer exists.
 5. If the orientations changed (the draft has five, the abstract six), update `PUBLIC` in `src/pages/orientations.astro`. The draft-only notice disappears automatically once `--status final` is set.
@@ -37,6 +42,19 @@ Requirements: Python 3.9 or later, `pandoc` 3.x and `poppler` (`pdftocairo`, `pd
 `ingest.py` removes the reviewer-comment macros listed in `COMMENT_MACROS`, and maps the colour-citation macros (`\citeest`, `\citeem`, …) to natbib, recording each key's tier. If the manuscript gains a new reviewer macro, **add it to `COMMENT_MACROS`**. The test `no editorial comment markers leak` catches the common bracketed formats, but not every possible one.
 
 `forest` and `tikzpicture` diagrams cannot be converted. They are replaced with a link to the PDF page and listed in `audit.dropped_environments`.
+
+## Stable URLs
+
+Chapter URLs are `/handbook/<id>/`, where `<id>` comes from `src/data/chapter-ids.json` and never contains a chapter number. Section, figure and table anchors are the LaTeX `\label`s where the manuscript has them.
+
+- `src/data/published-urls.json` records every page and anchor the site has published. `tests/urls.test.ts` fails if any of them stops resolving.
+- When a new manuscript renames or moves an anchor, the test lists it. Add `"handbook/<old>/#<old-anchor>": "handbook/<new>/#<new-anchor>"` to `anchors` in `src/data/redirects.json`. Chapter pages forward moved anchors in the browser.
+- When a page moves, add `"old/path/": "new/path/"` to `pages`. Each entry becomes a static redirect page that keeps the `#anchor`. GitHub Pages has no server-side redirects.
+- After each release, record the newly published pages: `npm run build && python3 scripts/urls/snapshot_urls.py --merge --note "…"`.
+
+## Withheld chapters
+
+Chapters listed in `src/data/withheld.json` (by stable id) are written only to `src/generated/withheld/`, which is gitignored. Their text is never committed, built or deployed. The ingest step also writes `src/generated/withheld-fingerprints.json`, which holds hashes of their sentences, 10-word sequences, headings and ids. `tests/site.test.ts` scans every deployable file for them, including JavaScript, JSON and the decompressed search index, so the check also runs in CI, where the withheld text does not exist. `npm run dev:all` / `build:all` show withheld chapters locally if you have run the ingest step.
 
 ## Notebooks
 
@@ -65,6 +83,8 @@ Locally, `npm run dev` and `npm run build && npm run preview` show exactly the l
 `PUBLIC_HIDE_DRAFT=1` still exists as an emergency switch: it hides every manuscript-derived page.
 
 Once the manuscript is ingested with `--status final`, the withheld list and the preview banners are ignored automatically.
+
+Indexing: while the manuscript is a draft, pages built from it carry `noindex` unless `indexDraftPages` is `true` in `src/data/publication.json`. That is an author decision (`docs/DECISIONS.md`, D4). `noindex` keeps pages out of search engines but does not hide them.
 
 ## QA checklist for a new manuscript version
 

@@ -2,6 +2,8 @@
 // resolve, assets exist, maths rendered, nothing private leaked.
 import { describe, expect, test } from 'vitest';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { gunzipSync } from 'node:zlib';
 import { join } from 'node:path';
 
 const DIST = 'dist';
@@ -57,18 +59,65 @@ describe.skipIf(!built)('built site', () => {
     expect(leaks).toEqual([]);
     expect(existsSync(join(DIST, 'handbook', manifest.toc[0].slug))).toBe(false);
   });
-  test('withheld draft chapters are not published anywhere', () => {
+  test('withheld draft chapters leak nowhere in the deployable output', () => {
+    // Scans every deployable file (HTML, JS, JSON, XML, the decompressed search index) for any
+    // sentence, heading or element id of a withheld chapter, using the hashes the ingest step
+    // writes (src/generated/withheld-fingerprints.json), so the check also runs in CI, where the
+    // withheld text itself does not exist.
     const manifest = JSON.parse(readFileSync('src/generated/manifest.json', 'utf8'));
     if (manifest.provenance.status === 'final' || process.env.PUBLIC_SHOW_ALL === '1') return;
-    const slugs: string[] = JSON.parse(readFileSync('src/data/withheld.json', 'utf8')).chapters;
-    const plain = (h: string) => h.replace(/<\/(p|li|h\d|tr|figcaption|caption)>/g, '\n').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/\s+/g, ' ');
-    const site = [...read].filter(([p]) => !p.includes('pagefind')).map(([, h]) => plain(h)).join('\n');
-    for (const slug of slugs) {
-      const text = plain(readFileSync(`src/generated/chapters/${slug}.html`, 'utf8'));
-      const sentences = text.split(/(?<=[.!?])\s+/).filter((x) => x.length > 80 && !x.includes('\\'));
-      expect(sentences.length).toBeGreaterThan(5);
-      expect(sentences.filter((x) => site.includes(x.trim())).slice(0, 5)).toEqual([]);
+    const fp = JSON.parse(readFileSync('src/generated/withheld-fingerprints.json', 'utf8')).chapters as
+      Record<string, { sentences: string[]; headings: string[]; ids: string[] }>;
+    const withheld: string[] = JSON.parse(readFileSync('src/data/withheld.json', 'utf8')).chapters;
+    expect(Object.keys(fp).sort()).toEqual([...withheld].sort());
+    const h = (x: string) => createHash('sha256').update(x.replace(/\s+/g, ' ').trim().toLowerCase()).digest('hex').slice(0, 24);
+    const ent = (x: string) => x.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+    const files = walk(DIST).filter((f) => /\.(html|js|mjs|json|xml|txt|css|pf_fragment|pf_meta|pf_index)$/.test(f));
+    const seen = { sentences: new Set<string>(), headings: new Set<string>(), ids: new Set<string>() };
+    for (const f of files) {
+      let t = /\.pf_/.test(f) ? gunzipSync(readFileSync(f)).toString('utf8') : readFileSync(f, 'utf8');
+      for (const m of t.matchAll(/\sid="([^"]+)"|#([A-Za-z][\w:.-]*)/g)) seen.ids.add(h(m[1] ?? m[2]));
+      const plain = ent(t.replace(/<\/(p|li|h\d|tr|figcaption|caption|a|summary)>/g, '\n').replace(/<[^>]+>/g, ' ')).replace(/\\n/g, '\n');
+      // every 10-word sequence, so text embedded in other content or cut mid-sentence is still found
+      const words = plain.toLowerCase().match(/[a-z0-9]+/g) ?? [];
+      for (let i = 0; i + 10 <= words.length; i++) seen.sentences.add(h(words.slice(i, i + 10).join(' ')));
+      for (const x of plain.split(/(?<=[.!?])\s+|\n|"/)) {
+        const n = x.replace(/\s+/g, ' ').trim();
+        if (n.length >= 40) seen.sentences.add(h(n));
+        if (n.length >= 4) { seen.headings.add(h(n.replace(/^[§\dA-Z.]+\s+/, ''))); seen.headings.add(h(n)); }
+      }
     }
+    const leaks: string[] = [];
+    for (const [ch, p] of Object.entries(fp)) {
+      for (const k of ['sentences', 'headings', 'ids'] as const) {
+        const n = p[k].filter((x) => seen[k].has(x)).length;
+        if (n) leaks.push(`${ch}: ${n} ${k}`);
+      }
+    }
+    expect(leaks).toEqual([]);
+  });
+  test('draft pages follow the indexing policy; public pages stay indexable', () => {
+    const manifest = JSON.parse(readFileSync('src/generated/manifest.json', 'utf8'));
+    const policy = JSON.parse(readFileSync('src/data/publication.json', 'utf8'));
+    const noindex = (x: string) => x.includes('<meta name="robots" content="noindex"');
+    for (const [p, x] of read) {
+      if (p.includes('pagefind')) continue;
+      if (x.includes('class="draft-banner"') && manifest.provenance.status !== 'final' && !policy.indexDraftPages) expect(noindex(x), p).toBe(true);
+    }
+    for (const p of ['index.html', 'demos/index.html', 'demos/patching/index.html', 'notebooks/index.html']) {
+      expect(noindex(read.get(join(DIST, p)) ?? ''), p).toBe(false);
+    }
+  });
+  test('no raw TeX visible in page text', () => {
+    const bad: string[] = [];
+    for (const [p, x] of read) {
+      if (p.includes('pagefind')) continue;
+      const text = x.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<code[\s\S]*?<\/code>|<pre[\s\S]*?<\/pre>/g, '')
+        .replace(/<span class="katex">[\s\S]*?<\/math><\/span>/g, '').replace(/<annotation[\s\S]*?<\/annotation>/g, '')
+        .replace(/<[^>]+>/g, ' ');
+      for (const m of text.matchAll(/\\(?:[a-zA-Z]{2,})(?:\{|\b)/g)) bad.push(`${p}: …${text.slice(Math.max(0, m.index! - 40), m.index! + 40).replace(/\s+/g, ' ')}…`);
+    }
+    expect(bad.slice(0, 20)).toEqual([]);
   });
   test('every page has a title, description and a single h1', () => {
     for (const [p, h] of read) {

@@ -1,0 +1,183 @@
+{
+ "about": "Stable, number-free URL ids for chapters: /handbook/<id>/. The ingest step matches each chapter of a new manuscript to an entry by its LaTeX \\label (preferred) or its title. Never change an id once published; when a chapter is renamed or renumbered, add its new label or title to the existing entry. A genuinely new chapter gets a new entry.",
+ "chapters": [
+  {
+   "id": "introduction",
+   "labels": [
+    "sec:introduction"
+   ],
+   "titles": [
+    "Introduction"
+   ]
+  },
+  {
+   "id": "limits-of-behavioural-evaluation",
+   "labels": [
+    "sec:why_open"
+   ],
+   "titles": [
+    "The Limits of Behavioral Evaluation"
+   ]
+  },
+  {
+   "id": "interpretability-landscape",
+   "labels": [
+    "sec:interpretability-landscape"
+   ],
+   "titles": [
+    "The Interpretability Landscape"
+   ]
+  },
+  {
+   "id": "foundational-concepts",
+   "labels": [
+    "sec:foundations"
+   ],
+   "titles": [
+    "Foundational Concepts for Mechanistic Interpretability"
+   ]
+  },
+  {
+   "id": "core-hypotheses",
+   "labels": [
+    "sec:hypotheses"
+   ],
+   "titles": [
+    "Core Hypotheses in Mechanistic Interpretability"
+   ]
+  },
+  {
+   "id": "feature-extraction",
+   "labels": [
+    "sec:sae"
+   ],
+   "titles": [
+    "Feature Extraction and Multi-Layer Analysis"
+   ]
+  },
+  {
+   "id": "circuits",
+   "labels": [
+    "sec:circuit"
+   ],
+   "titles": [
+    "Circuits in Mechanistic Interpretability"
+   ]
+  },
+  {
+   "id": "intermediate-representations",
+   "labels": [
+    "sec:intermediate-computation"
+   ],
+   "titles": [
+    "Understanding Intermediate Computation: Logit Lens and Probing"
+   ]
+  },
+  {
+   "id": "training-data-attribution",
+   "labels": [
+    "sec:influence-functions"
+   ],
+   "titles": [
+    "Training Data Attribution and Influence Functions"
+   ]
+  },
+  {
+   "id": "developmental-interpretability",
+   "labels": [
+    "sec:training"
+   ],
+   "titles": [
+    "Developmental Interpretability and Training Dynamics"
+   ]
+  },
+  {
+   "id": "learning-dynamics",
+   "labels": [],
+   "titles": [
+    "Learning Dynamics and Mechanistic Interpretability"
+   ]
+  },
+  {
+   "id": "representation-analysis",
+   "labels": [
+    "sec:representation"
+   ],
+   "titles": [
+    "Representation Analysis: Structure, Localization, and Transfer"
+   ]
+  },
+  {
+   "id": "research-orientations",
+   "labels": [
+    "sec:orientations"
+   ],
+   "titles": [
+    "Five Research Orientations"
+   ]
+  },
+  {
+   "id": "safety-applications",
+   "labels": [
+    "sec:safety_applications"
+   ],
+   "titles": [
+    "From Understanding to Intervention: Safety Applications of Mechanistic Interpretability"
+   ]
+  },
+  {
+   "id": "open-problems",
+   "labels": [
+    "sec:open_problems"
+   ],
+   "titles": [
+    "Open Problems"
+   ]
+  },
+  {
+   "id": "conclusion",
+   "labels": [
+    "sec:conclusion"
+   ],
+   "titles": [
+    "Conclusion"
+   ]
+  },
+  {
+   "id": "notation",
+   "labels": [
+    "app:notation"
+   ],
+   "titles": [
+    "A Notation Reference and Symbol Table"
+   ]
+  },
+  {
+   "id": "colour-key",
+   "labels": [
+    "app:colors"
+   ],
+   "titles": [
+    "Color Key and Style Guide"
+   ]
+  },
+  {
+   "id": "sae-architecture-details",
+   "labels": [
+    "app:sae_details"
+   ],
+   "titles": [
+    "SAE Architecture Details and Hyperparameters"
+   ]
+  },
+  {
+   "id": "mathematical-foundations",
+   "labels": [
+    "app:math"
+   ],
+   "titles": [
+    "Mathematical Foundations"
+   ]
+  }
+ ]
+}

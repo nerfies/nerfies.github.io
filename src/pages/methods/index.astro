@@ -4,6 +4,7 @@ import DraftBanner from '../../components/DraftBanner.astro';
 import MethodsExplorer from '../../components/MethodsExplorer.tsx';
 import { methods, families, familyById, hypotheses, sections, notebooksFor, demosFor, methodById } from '../../lib/data';
 import { url } from '../../lib/site';
+import { excerptHtml } from '../../lib/manuscript';
 
 const rows = methods.map((m) => {
   const s = sections(m.sections)[0];
@@ -11,6 +12,9 @@ const rows = methods.map((m) => {
     id: m.id, name: m.name, family: m.family, familyName: familyById.get(m.family)?.name ?? m.family,
     section: s?.num ?? null, sectionHref: s?.href ?? null, definition: m.definition ?? '',
     assumptions: m.assumptions ?? [], evaluation: m.evaluation ?? [], applications: m.applications ?? [], limitations: m.limitations ?? [],
+    html: Object.fromEntries(['definition', 'assumptions', 'evaluation', 'applications', 'limitations'].map((k) => {
+      const v = m[k]; return [k, Array.isArray(v) ? v.map(excerptHtml) : v ? [excerptHtml(v)] : []];
+    })),
     related: (m.related ?? []).map((id: string) => ({ id, name: methodById.get(id)?.name ?? id })),
     notebooks: notebooksFor('methods', m.id).length, demos: demosFor('methods', m.id).length, href: url(`methods/${m.id}/`),
   };
@@ -19,7 +23,7 @@ const fams = families.map((f) => ({ id: f.id, name: f.name, count: methods.filte
 import { draftHidden as __hide } from '../../lib/manuscript';
 if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}held/`);
 ---
-<Base title="Methods explorer" description="A searchable, filterable taxonomy of the interpretability methods in the survey, with side-by-side comparison drawn from the survey text.">
+<Base title="Methods explorer" description="A searchable, filterable taxonomy of the interpretability methods in the survey, with side-by-side comparison drawn from the survey text." manuscript>
   <div class="page">
     <p class="eyebrow">Technical methods</p>
     <h1>Methods explorer</h1>

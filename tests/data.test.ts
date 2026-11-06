@@ -77,7 +77,21 @@ describe('manuscript ingestion', () => {
   });
   test('every chapter in the manifest has a fragment', () => {
     const files = new Set(readdirSync(dir).map((f) => f.replace('.html', '')));
-    expect((manifest as any).toc.filter((c: any) => !files.has(c.slug))).toEqual([]);
+    // withheld draft chapters are written only to the gitignored src/generated/withheld/
+    expect((manifest as any).toc.filter((c: any) => !c.withheld && !files.has(c.slug))).toEqual([]);
+  });
+  test('withheld chapters are not committed and expose no headings', () => {
+    for (const c of (manifest as any).toc.filter((x: any) => x.withheld)) {
+      expect(readdirSync(dir)).not.toContain(`${c.slug}.html`);
+      expect(c.sections).toEqual([]);
+    }
+  });
+  test('chapter URLs use stable ids from the registry, not numbers', () => {
+    const reg = JSON.parse(readFileSync('src/data/chapter-ids.json', 'utf8')).chapters.map((e: any) => e.id);
+    for (const c of (manifest as any).toc) {
+      expect(reg, c.slug).toContain(c.slug);
+      expect(c.slug, 'chapter ids must not encode numbering').not.toMatch(/^([0-9]+|[a-z])-/);
+    }
   });
   test('every numbered figure and table got its PDF number', () => {
     const labels = Object.entries((manifest as any).labels).filter(([k]) => /^(fig|tab):/.test(k) && ids.has(k));

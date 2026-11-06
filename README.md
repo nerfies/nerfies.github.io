@@ -4,7 +4,7 @@ Source for <https://tsglab.github.io/mi_survey/>, the companion site to the surv
 
 The site has:
 
-- **Handbook.** The full manuscript as an online book, with numbering that matches the PDF, deep links, citation previews and searchable references.
+- **Handbook.** The survey as an online book, with numbering that matches the PDF, stable deep links, citation previews and searchable references. While the manuscript is a draft, pages say so, and chapters listed in `src/data/withheld.json` are held back.
 - **Methods explorer.** Filter and compare methods side by side. All text is verbatim from the survey.
 - **Evaluation framework, research orientations, safety applications and open problems.** Interactive pages built from the survey text.
 - **Notebook catalogue.** Generated automatically from [TSGLAB/Interpretability_Survey_Safety](https://github.com/TSGLAB/Interpretability_Survey_Safety).

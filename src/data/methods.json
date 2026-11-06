@@ -78,8 +78,7 @@
    "id": "developmental-interpretability",
    "name": "Developmental Interpretability and Training Dynamics",
    "sections": [
-    "sec:training",
-    "learning-dynamics-and-mechanistic-interpretability"
+    "sec:training"
    ]
   },
   {
@@ -107,7 +106,7 @@
    "sections": [
     "behavioral-methods"
    ],
-   "definition": "Behavioral methods examine models at the level of inputs and outputs: capability evaluations (Linzen et al. 2016; Marvin and Linzen 2018; Wang et al. 2024; Zhang et al. 2025), deceptive intents (Kinniment et al. 2026), and red-teaming ((Ganguli et al. 2022); (Perez, Huang, H. F. Song, et al. 2022; He et al. 2025)).",
+   "definition": "Behavioral methods examine models at the level of inputs and outputs: capability evaluations (Linzen et al., 2016; Marvin & Linzen, 2018; Wang et al., 2024; Zhang et al., 2025), deceptive intents (Kinniment et al., 2026), and red-teaming (Ganguli et al., 2022; Perez et al., 2022b; He et al., 2025).",
    "assumptions": [
     "These approaches are fast, scalable, and practical for high-level auditing without access to model internals."
    ],
@@ -143,7 +142,7 @@
     "Practical Guide: CBMs tend to be more appropriate when the relevant concepts are known and can be enumerated; architectural interventions may be preferable when the goal is to discover what the model has learned—including features that were not known in advance."
    ],
    "limitations": [
-    "Concept Bottleneck Models (CBMs; (Koh et al. 2020)) constrain computation through a predefined bottleneck of interpretable concepts, offering built-in transparency and allowing for interventions, but traditionally requiring a complete set of predefined concepts and often suffer from an “accuracy-interpretability trade-off” when concept definitions are insufficiently expressive.",
+    "Concept Bottleneck Models (CBMs; Koh et al., 2020) constrain computation through a predefined bottleneck of interpretable concepts, offering built-in transparency and allowing for interventions, but traditionally requiring a complete set of predefined concepts and often suffer from an “accuracy-interpretability trade-off” when concept definitions are insufficiently expressive.",
     "For safety applications, where unknown failure modes are a core concern, methods that enable discovery may be more useful than those that require specifying concepts upfront."
    ],
    "related": [
@@ -162,17 +161,17 @@
     "attribution-and-saliency-methods",
     "critiques-of-attribution-and-saliency-methods"
    ],
-   "definition": "Attribution methods focus on identifying which features most influence a model’s outputs. Techniques such as SHAP (Lundberg and Lee 2017), LIME (Ribeiro et al. 2016), integrated gradients (Sundararajan et al. 2017), and saliency maps (Simonyan et al. 2014) are scalable and widely used for token-level explanations and debugging.",
+   "definition": "Attribution methods focus on identifying which features most influence a model’s outputs. Techniques such as SHAP (Lundberg & Lee, 2017), LIME (Ribeiro et al., 2016), integrated gradients (Sundararajan et al., 2017), and saliency maps (Simonyan et al., 2014) are scalable and widely used for token-level explanations and debugging.",
    "assumptions": [],
    "evaluation": [
-    "However, Jacovi and Goldberg (2020) distinguish between plausibility (do attributions seem reasonable to humans?) and faithfulness (do attributions reflect actual model computation?)."
+    "However, Jacovi & Goldberg (2020) distinguish between plausibility (do attributions seem reasonable to humans?) and faithfulness (do attributions reflect actual model computation?)."
    ],
    "applications": [
     "For the safety-relevant tasks motivating this survey, attribution methods are useful for triage and initial auditing but, on their own, insufficient where a causal account of internal computation is required."
    ],
    "limitations": [
     "Applied to inputs, they indicate which inputs matter but not how the model arrives at its output.",
-    "Reliability concerns nonetheless remain: different attribution methods can produce divergent explanations for the same prediction, and some have been shown to be insensitive to model parameters (Adebayo et al. 2018b).",
+    "Reliability concerns nonetheless remain: different attribution methods can produce divergent explanations for the same prediction, and some have been shown to be insensitive to model parameters (Adebayo et al., 2018b).",
     "Collectively, these findings suggest that attribution methods are fundamentally unreliable guides to what information a model actually uses."
    ],
    "related": [
@@ -205,18 +204,18 @@
    "evaluation": [
     "A control task assigns random labels to inputs, breaking any genuine relationship between activations and the target property.",
     "High selectivity indicates the probe succeeds because of genuine encoding, not because the representation is easily separable by any linear classifier.",
-    "To address this, Voita and Titov (2020) proposed evaluating probes via the Minimum Description Length (MDL) principle: prefer probes that achieve good accuracy with minimal complexity.",
+    "To address this, Voita & Titov (2020) proposed evaluating probes via the Minimum Description Length (MDL) principle: prefer probes that achieve good accuracy with minimal complexity.",
     "Report control task baselines: Always include selectivity metrics."
    ],
    "applications": [
-    "probes have become one of the most widely used tools in mechanistic interpretability for tasks including layer-level localization, scalable auditing, and detecting latent behaviors such as sleeper-agent deception (MacDiarmid et al. 2024).",
+    "probes have become one of the most widely used tools in mechanistic interpretability for tasks including layer-level localization, scalable auditing, and detecting latent behaviors such as sleeper-agent deception (MacDiarmid et al., 2024).",
     "The most productive framing treats probing as hypothesis generation: probes identify candidate properties that may be causally relevant, which must then be tested via causal methods (ablation, patching, circuit analysis).",
     "This illustrates that probing remains valuable when the goal is auditing or detection, while its limitations apply most strongly to mechanistic claims."
    ],
    "limitations": [
     "Probing does not establish causal relevance: whether the model actually uses that information for its predictions.",
     "This problem is fundamental: probing measures information presence, not information use.",
-    "Control task experiments have revealed that many probing results showing “encoding” of linguistic properties suffer from low selectivity—random labels are nearly as extractable (Hewitt and Liang 2019)."
+    "Control task experiments have revealed that many probing results showing “encoding” of linguistic properties suffer from low selectivity—random labels are nearly as extractable (Hewitt & Liang, 2019)."
    ],
    "related": [
     "amnesic-probing",
@@ -259,8 +258,8 @@
     "SAEs to unsupervisedly discover monosemantic features inside the model’s raw activations."
    ],
    "limitations": [
-    "Dead features represent wasted capacity and can constitute between 10–50% of the dictionary in poorly tuned SAEs (Bricken et al. 2023).",
-    "Training the same architecture with different random seeds can therefore produce substantially different dictionaries (Paulo and Belrose 2025).",
+    "Dead features represent wasted capacity and can constitute between 10–50% of the dictionary in poorly tuned SAEs (Bricken et al., 2023).",
+    "Training the same architecture with different random seeds can therefore produce substantially different dictionaries (Paulo & Belrose, 2025).",
     "Taken together, these behaviors are consistent with the failure of identifiability under high-coherence conditions and help explain why SAE features can be unstable, non-atomic, and seed-dependent.",
     "Low SAE reconstruction loss does not necessarily mean that SAE captures the causal structure of the original model."
    ],
@@ -327,7 +326,7 @@
    ],
    "definition": "JumpReLU SAEs learn per-feature activation thresholds.",
    "assumptions": [
-    "A smooth surrogate is used during training to enable gradient flow (Rajamanoharan, Lieberum, et al. 2024)."
+    "A smooth surrogate is used during training to enable gradient flow Rajamanoharan et al. (2024b)."
    ],
    "evaluation": [],
    "applications": [],
@@ -352,12 +351,12 @@
     "subsec:sae-variants",
     "top-k-sae-variant"
    ],
-   "definition": "Top-k SAEs (Gao, Tour, et al. 2025) impose an explicit hard sparsity constraint.",
+   "definition": "Top-k SAEs (Gao et al., 2025a) impose an explicit hard sparsity constraint.",
    "assumptions": [
     "No sparsity penalty needed; sparsity is enforced structurally."
    ],
    "evaluation": [
-    "Unlike L1 loss, it does not suppress activation magnitudes, thereby avoiding the feature shrinkage issue observed in L1-based SAE training (Gao, Tour, et al. 2025)."
+    "Unlike L1 loss, it does not suppress activation magnitudes, thereby avoiding the feature shrinkage issue observed in L1-based SAE training (Gao et al., 2025a)."
    ],
    "applications": [
     "If you’re spending significant time tuning the sparsity coefficient, Top-K eliminates this hyperparameter entirely."
@@ -386,8 +385,8 @@
    "assumptions": [],
    "evaluation": [],
    "applications": [
-    "This enforces global feature competition, reduces variance in feature usage across the batch, and prevents collapse (Bussmann et al. 2024).",
-    "More recent Batch Top-K variants explicitly enforce minimum feature usage across batches, which substantially reduces the prevalence of dead features (Bussmann et al. 2024)."
+    "This enforces global feature competition, reduces variance in feature usage across the batch, and prevents collapse (Bussmann et al., 2024).",
+    "More recent Batch Top-K variants explicitly enforce minimum feature usage across batches, which substantially reduces the prevalence of dead features (Bussmann et al., 2024)."
    ],
    "limitations": [],
    "related": [
@@ -410,13 +409,13 @@
     "architecture-and-motivation.",
     "when-transcoders-are-necessary."
    ],
-   "definition": "The transcoder reconstructs post-nonlinearity activations using features extracted from pre-nonlinearity activations (Dunefsky et al. 2024).",
+   "definition": "The transcoder reconstructs post-nonlinearity activations using features extracted from pre-nonlinearity activations (Dunefsky et al., 2024).",
    "assumptions": [
     "A transcoder applies sparse decomposition directly to the nonlinear mapping, learning features that explain the transformation."
    ],
    "evaluation": [],
    "applications": [
-    "Transcoders are essential when analyzing MLPs, understanding feature interactions, or tracking how concepts evolve across layers (Dunefsky et al. 2024).",
+    "Transcoders are essential when analyzing MLPs, understanding feature interactions, or tracking how concepts evolve across layers (Dunefsky et al., 2024).",
     "Recommendation: For MLP analysis, use transcoders; for cross-layer analysis, use crosscoders or CLTs."
    ],
    "limitations": [
@@ -452,7 +451,7 @@
     "Sparse linear approximation: The core assumption that MLP outputs are well-approximated by sparse linear combinations of features may break down for computations involving complex feature interactions or highly nonlinear transformations."
    ],
    "evaluation": [
-    "Empirically, CLT replacement models match the original model’s most-likely token on approximately 50% of prompts in initial experiments on Gemma-2-2B (Ameisen et al. 2025).",
+    "Empirically, CLT replacement models match the original model’s most-likely token on approximately 50% of prompts in initial experiments on Gemma-2-2B (Ameisen et al., 2025).",
     "The 50% figure reflects top-1 token agreement; softer metrics (e.g., top-5 agreement, KL divergence) may show different patterns.",
     "These caveats do not invalidate CLTs as a tool for mechanistic analysis, but practitioners should verify fidelity on their specific model, layer, and task before drawing strong conclusions from CLT-based circuit analysis."
    ],
@@ -489,13 +488,12 @@
     "causal-vs.-acausal-crosscoders.",
     "applications-to-circuit-analysis."
    ],
-   "definition": "Crosscoders resolve cross-layer superposition by tracking features that persist through the residual stream (Lindsey et al. 2024).",
+   "definition": "Crosscoders resolve cross-layer superposition by tracking features that persist through the residual stream (Lindsey et al., 2024).",
    "assumptions": [],
    "evaluation": [],
    "applications": [
     "By extracting cross-layer features, crosscoders enable understanding how features propagate through the residual stream across layers, removing duplicate feature representations that complicate circuit analysis.",
-    "Crosscoders can define model-specific encoders, with arbitrarily different input dimensions, which then project into one or more shared representational spaces.",
-    "Ge et al. (2026) used cross-coders between checkpoints to identify which linear features are learned over a particular period."
+    "Crosscoders can define model-specific encoders, with arbitrarily different input dimensions, which then project into one or more shared representational spaces."
    ],
    "limitations": [
     "This can result from the loss function: for instance, Minder et al. (2025) showed that crosscoders trained with an L1 loss on hidden states can falsely identify novel features, which they try to mitigate with the BatchTopK activation function."
@@ -509,8 +507,7 @@
    ],
    "mentioned_in": [
     "comparing-saes-transcoders-and-crosscoders.",
-    "sec:model-diffing",
-    "mechanism-discovery-from-training-dynamics"
+    "sec:model-diffing"
    ]
   },
   {
@@ -549,7 +546,7 @@
    ],
    "evaluation": [
     "In Wu et al. (2025), PCA underperforms most baselines, including SAEs, on both steering and concept-detection evaluations.",
-    "While in some localization settings, PCA outperform SAEs (Mueller, Geiger, et al. 2025), it still lags behind simpler supervised baselines."
+    "While in some localization settings, PCA outperform SAEs (Mueller et al., 2025a), it still lags behind simpler supervised baselines."
    ],
    "applications": [
     "Missing baselines: Claims of interpretability gains rarely compare against simple baselines (e.g., random directions, PCA components, raw neurons)."
@@ -572,7 +569,7 @@
    "sections": [
     "independent-component-analysis-ica"
    ],
-   "definition": "Independent Component Analysis seeks to decompose activations as H = WS, where the components of S are statistically independent (Hyvärinen and Oja 2000).",
+   "definition": "Independent Component Analysis seeks to decompose activations as H = WS, where the components of S are statistically independent (Hyvärinen & Oja, 2000).",
    "assumptions": [
     "However, ICA makes strong assumptions that are often violated in neural representations.",
     "Classical ICA assumes a complete setting in which the number of sources equals the dimensionality of the representation, and extensions are required for overcomplete decompositions.",
@@ -581,7 +578,7 @@
    "evaluation": [],
    "applications": [],
    "limitations": [
-    "Although ICA has been applied to neural network activations (Hyvärinen et al. 2023), it has not matched the interpretability gains reported for SAEs in recent large-scale studies, possibly because neural features tend to be sparse rather than independent."
+    "Although ICA has been applied to neural network activations (Hyvärinen et al., 2023), it has not matched the interpretability gains reported for SAEs in recent large-scale studies, possibly because neural features tend to be sparse rather than independent."
    ],
    "related": [
     "sae"
@@ -600,7 +597,7 @@
     "However, these methods require labelled data for each concept and therefore cannot discover previously unknown features."
    ],
    "evaluation": [
-    "When labelled data are available, supervised approaches often outperform SAEs on targeted concept recovery tasks ((Huang et al. 2024); (Chaudhary and Geiger 2024))."
+    "When labelled data are available, supervised approaches often outperform SAEs on targeted concept recovery tasks (Huang et al., 2024; Chaudhary & Geiger, 2024)."
    ],
    "applications": [
     "As a result, supervised methods are best suited to settings where specific, predefined concepts are of interest, such as safety-critical behaviors like toxicity or deception, whereas SAEs remain preferable for exploratory analysis.",
@@ -628,10 +625,10 @@
    "sections": [
     "dictionary-learning-baselines"
    ],
-   "definition": "Classical dictionary learning methods provide useful baselines for evaluating SAEs. Techniques such as K-SVD alternate between sparse coding and dictionary updates and are known to converge under certain conditions (Aharon et al. 2006).",
+   "definition": "Classical dictionary learning methods provide useful baselines for evaluating SAEs. Techniques such as K-SVD alternate between sparse coding and dictionary updates and are known to converge under certain conditions (Aharon et al., 2006).",
    "assumptions": [],
    "evaluation": [
-    "Comparative studies suggest that the primary advantage of SAEs lies in their learned encoder, which enables fast inference, rather than in fundamentally superior dictionary quality (Cunningham et al. 2023)."
+    "Comparative studies suggest that the primary advantage of SAEs lies in their learned encoder, which enables fast inference, rather than in fundamentally superior dictionary quality (Cunningham et al., 2023)."
    ],
    "applications": [
     "As such, classical dictionary learning remains an important reference point for assessing the added value of SAE architectures."
@@ -651,14 +648,14 @@
     "circuit-discovery-in-weight-sparse-architectures",
     "circuits-visible-by-inspection."
    ],
-   "definition": "The most significant recent advancement is the Weight-Sparse Transformer, introduced by Gao et al. (Gao, Rajaram, et al. 2025). This approach treats sparsity not as a tool for inference efficiency but as a tool for circuit discovery.",
+   "definition": "The most significant recent advancement is the Weight-Sparse Transformer, introduced by Gao et al. (Gao et al., 2025b). This approach treats sparsity not as a tool for inference efficiency but as a tool for circuit discovery.",
    "assumptions": [
     "Since the L_0 norm is non-differentiable, training employs stochastic gates drawn from a Hard-Concrete distribution, allowing gradients to flow while penalizing the probability of each gate being open.",
     "Furthermore, this approach requires training sparse models from scratch or using Bridge proxies—it cannot be directly applied to existing dense models."
    ],
    "evaluation": [
     "Validation via mean ablation shows that these sparse circuits satisfy necessity and sufficiency criteria with higher precision than circuits identified in dense models.",
-    "Empirically, sparse circuits satisfy necessity and sufficiency criteria with higher precision than circuits extracted from dense models via post-hoc methods (Gao, Rajaram, et al. 2025; Haider et al. 2025)."
+    "Empirically, sparse circuits satisfy necessity and sufficiency criteria with higher precision than circuits extracted from dense models via post-hoc methods (Gao et al., 2025b; Haider et al., 2025)."
    ],
    "applications": [
     "Circuits can be identified by simply visualizing non-zero weights connected to a target output, eliminating the need for activation patching or ACDC."
@@ -688,7 +685,7 @@
    "sections": [
     "sparse-attention-post-training-spartan"
    ],
-   "definition": "Sparse Attention Post-Training (SPARTAN) applies L_1 regularization to the attention patterns while finetuning with a constrained optimization objective to maintain the same cross-entropy performance (Draye et al. 2025) (Lei et al. 2025).",
+   "definition": "Sparse Attention Post-Training (SPARTAN) applies L_1 regularization to the attention patterns while finetuning with a constrained optimization objective to maintain the same cross-entropy performance (Draye et al., 2025) (Lei et al., 2025).",
    "assumptions": [],
    "evaluation": [],
    "applications": [
@@ -709,7 +706,7 @@
     "activation-level-interventions-solu-and-its-limitations",
     "results-and-the-hydraulic-effect."
    ],
-   "definition": "Softmax Linear Units (SoLU) replace element-wise activations with a spatial softmax (Elhage, Hume, Olsson, Nanda, Henighan, Johnston, et al. 2022)",
+   "definition": "Softmax Linear Units (SoLU) replace element-wise activations with a spatial softmax (Elhage et al., 2022b)",
    "assumptions": [
     "This forces neurons within a layer to compete: if one neuron fires strongly, it suppresses its neighbors through lateral inhibition."
    ],
@@ -738,7 +735,7 @@
     "motivation.",
     "mechanism.-1"
    ],
-   "definition": "One recent example of this is the so-called Sparse Mixtures of Linear Transforms (MOLT), representing a conceptual shift from feature extraction to transformation extraction (Lindsey, Chen, et al. 2025).",
+   "definition": "One recent example of this is the so-called Sparse Mixtures of Linear Transforms (MOLT), representing a conceptual shift from feature extraction to transformation extraction (Lindsey et al., 2025b).",
    "assumptions": [
     "MOLT replaces the MLP with a sparse mixture of linear transformation matrices."
    ],
@@ -817,7 +814,7 @@
     "Perform activation patching: swap C between clean and corrupted inputs; verify behavior follows C."
    ],
    "applications": [
-    "This identifies which components are functionally necessary for the computation (Zhang and Nanda 2024).",
+    "This identifies which components are functionally necessary for the computation (Zhang & Nanda, 2024).",
     "A probe might detect deceptive reasoning, but confirming the finding is causal, and designing targeted interventions, requires causal intervention on internal representations—whether through activation patching, steering, or ablation.",
     "Causal spot-checks: Randomly sample agentic explanations and verify via causal interventions, such as activation patching."
    ],
@@ -849,7 +846,7 @@
    "assumptions": [],
    "evaluation": [],
    "applications": [
-    "This allows finer-grained causal localization along information flows (Goldowsky-Dill et al. 2023)."
+    "This allows finer-grained causal localization along information flows (Goldowsky-Dill et al., 2023)."
    ],
    "limitations": [
     "Computationally expensive due to large number of paths; still approximate"
@@ -893,13 +890,13 @@
     "sec:circuit-table",
     "replacement-models-and-attribution-graphs."
    ],
-   "definition": "The second line of work, often referred to as circuit tracing, focuses on how internal features interact and propagate across the computational graph to lead to the model decision of a particular input query (Ameisen et al. 2025; Wu and Barez 2025).",
+   "definition": "The second line of work, often referred to as circuit tracing, focuses on how internal features interact and propagate across the computational graph to lead to the model decision of a particular input query (Ameisen et al., 2025; Wu & Barez, 2025).",
    "assumptions": [
     "Studies of this line usually make use of sparse autoencoders (detailed in Section 6) to automatically decompose mlp outputs into interpretable units, tracing attributions between these features and how the information flow converges to the final prediction."
    ],
    "evaluation": [],
    "applications": [
-    "Stage 2 – Circuit Tracing: We construct a computational graph in which nodes correspond to activated SAE features and edges represent their inter-attributions (Marks, Rager, et al. 2025)."
+    "Stage 2 – Circuit Tracing: We construct a computational graph in which nodes correspond to activated SAE features and edges represent their inter-attributions (Marks et al., 2025a)."
    ],
    "limitations": [
     "Depends on feature quality; intensive computation to train SAEs/CLTs"
@@ -924,7 +921,7 @@
    "definition": "Causal scrubbing evaluates necessity by replacing circuit activations with corrupted or neutralized values and measuring the resulting change in model outputs.",
    "assumptions": [],
    "evaluation": [
-    "Two widely used high-level methods for testing these properties are causal scrubbing and interchange interventions (Heimersheim and Nanda 2024; Chan et al. 2022)."
+    "Two widely used high-level methods for testing these properties are causal scrubbing and interchange interventions (Heimersheim & Nanda, 2024; Chan et al., 2022)."
    ],
    "applications": [
     "Circuit faithfulness: proving circuits are necessary and sufficient for explaining behavior via causal intervention (e.g., causal scrubbing), without performance degradation."
@@ -975,7 +972,7 @@
     "sec:logit-lens",
     "limitations-of-vanilla-logit-lens."
    ],
-   "definition": "Logit lens (nostalgebraist 2020) applies the model’s unembedding matrix to activations at intermediate layers, revealing what the model would predict if computation stopped at that layer.",
+   "definition": "Logit lens (nostalgebraist, 2020) applies the model’s unembedding matrix to activations at intermediate layers, revealing what the model would predict if computation stopped at that layer.",
    "assumptions": [
     "Applying the unembedding matrix to intermediate activations assumes that the hidden state is in a format the output layer expects, but intermediate representations may reside in vector spaces different from final activations."
    ],
@@ -985,7 +982,7 @@
     "In this sense, logit lens can still reveal contributions to potentially harmful tokens and track how these emerge through the network, similarly to refusal vectors."
    ],
    "limitations": [
-    "The unembedding matrix is only trained to operate on the final residual stream after all transformations; applying it to layer-6 activations extracts relevant information but may not precisely reflect the model’s underlying computation at that layer (nostalgebraist 2020)."
+    "The unembedding matrix is only trained to operate on the final residual stream after all transformations; applying it to layer-6 activations extracts relevant information but may not precisely reflect the model’s underlying computation at that layer (nostalgebraist, 2020)."
    ],
    "related": [
     "tuned-lens",
@@ -1003,7 +1000,7 @@
    "sections": [
     "tuned-lens-learning-per-layer-transform"
    ],
-   "definition": "Tuned lens (Belrose et al. 2025) addresses the vector space mismatch problem of logit lens by learning per-layer affine transformations that map intermediate activations to the output layer’s expected space",
+   "definition": "Tuned lens (Belrose et al., 2025) addresses the vector space mismatch problem of logit lens by learning per-layer affine transformations that map intermediate activations to the output layer’s expected space",
    "assumptions": [
     "The trade-off is that tuned lens requires training additional parameters (one affine transform per layer), but this is computationally cheap compared to other mechanistic methods."
    ],
@@ -1028,7 +1025,7 @@
     "subsec:patchscopes",
     "limitations-of-patchscopes."
    ],
-   "definition": "Patchscopes (Ghandeharioun et al. 2024) leverages the expressive capacity of large language models to translate internal representations into natural-language explanations.",
+   "definition": "Patchscopes (Ghandeharioun et al., 2024) leverages the expressive capacity of large language models to translate internal representations into natural-language explanations.",
    "assumptions": [
     "Crucially, this approach relies on the model’s own learned and generalized text-generation capabilities to perform the transformation from internal activations to natural language."
    ],
@@ -1053,15 +1050,15 @@
     "subsec:latentqa",
     "limitations-of-latentqa."
    ],
-   "definition": "LatentQA (Pan et al. 2024) formulates representation decoding as a supervised learning problem via Latent Interpretation Tuning (LIT), which fine-tunes an activation decoder to perform representation-to-text decoding.",
+   "definition": "LatentQA (Pan et al., 2024) formulates representation decoding as a supervised learning problem via Latent Interpretation Tuning (LIT), which fine-tunes an activation decoder to perform representation-to-text decoding.",
    "assumptions": [
-    "Both the control prompt and the (q, a) pair are generated by prompting an off-the-shelf proprietary language model (Pan et al. 2024).",
+    "Both the control prompt and the (q, a) pair are generated by prompting an off-the-shelf proprietary language model (Pan et al., 2024).",
     "Through LIT, the decoder is trained to directly ingest and process raw activation vectors."
    ],
    "evaluation": [],
    "applications": [
     "LatentQA addresses the OOD issue inherent in Patchscopes-style methods by explicitly finetuning the activation decoder on the representation-to-text decoding task.",
-    "Activation conditioning: Methods like LatentQA that condition on actual intermediate activations (rather than relying on the model to “remember” its computation) show improved faithfulness over pure prompting (Pan et al. 2024)."
+    "Activation conditioning: Methods like LatentQA that condition on actual intermediate activations (rather than relying on the model to “remember” its computation) show improved faithfulness over pure prompting (Pan et al., 2024)."
    ],
    "limitations": [
     "The central limitation of LatentQA lies in the generalizability of the learned representation-to-text decoder.",
@@ -1112,7 +1109,7 @@
    ],
    "definition": "Verbatim data attribution targets explicit memorization by identifying exact or near-exact matches between model outputs and training data, scaling this search across trillions of tokens via suffix arrays and infinite n-gram models.",
    "assumptions": [
-    "OLMoTrace scales this to trillions of tokens using a combination of FM-index, infini-gram models, and maximal matching span extraction (J. Liu et al. 2025; Liu et al. 2024; Xu et al. 2025), making it less a data attribution method in the influence-function sense and more a retrieval tool for identifying memorized content."
+    "OLMoTrace scales this to trillions of tokens using a combination of FM-index, infini-gram models, and maximal matching span extraction (Liu et al., 2025a; 2024; Xu et al., 2025), making it less a data attribution method in the influence-function sense and more a retrieval tool for identifying memorized content."
    ],
    "evaluation": [],
    "applications": [
@@ -1120,7 +1117,7 @@
    ],
    "limitations": [
     "Verbatim attribution excels at factual memorization but struggles with compositional or synthesized outputs.",
-    "For tasks like translation, poetry, or reasoning, OLMoTrace can identify spans of text that appear in the training data, but these matches do not explain how the model combined information from multiple sources to produce the output (Park et al. 2023)."
+    "For tasks like translation, poetry, or reasoning, OLMoTrace can identify spans of text that appear in the training data, but these matches do not explain how the model combined information from multiple sources to produce the output (Park et al., 2023)."
    ],
    "related": [
     "influence-functions"
@@ -1139,7 +1136,7 @@
     "illustrative-example",
     "recent-extensions-and-limitations"
    ],
-   "definition": "Influence functions ask a counterfactual question: how would a model’s learned parameters change if we upweighted a training example (Koh and Liang 2017)? Instead of expensive retraining, we estimate this via implicit differentiation (Grosse et al. 2023).",
+   "definition": "Influence functions ask a counterfactual question: how would a model’s learned parameters change if we upweighted a training example (Koh & Liang, 2017)? Instead of expensive retraining, we estimate this via implicit differentiation (Grosse et al., 2023).",
    "assumptions": [
     "The implicit function theorem assumes exact convergence and infinite perturbations.",
     "Real neural networks violate both: training reaches saddle points, not true minima, and we retrain for only a few steps.",
@@ -1150,7 +1147,7 @@
    ],
    "applications": [
     "Training data attribution (TDA) answers a fundamental interpretability question: which training examples shaped specific model behaviors?",
-    "This enables identifying influential data, detecting train-test leakage, and understanding failure modes without retraining ((J. Liu et al. 2025); (Park et al. 2023); (Grosse et al. 2023))."
+    "This enables identifying influential data, detecting train-test leakage, and understanding failure modes without retraining (Liu et al., 2025a; Park et al., 2023; Grosse et al., 2023)."
    ],
    "limitations": [
     "However, fundamental challenges persist: approximation errors compound over optimization trajectories, random hyperparameters introduce variance across runs, and scaling to larger models remains memory-intensive.",
@@ -1197,9 +1194,9 @@
    "sections": [
     "eigenvalue-corrected-kfac-ek-fac-and-astra."
    ],
-   "definition": "EK-FAC improves KFAC by correcting eigenvalues and is the method used by recent work scaling influence to LLMs (Grosse et al. 2023).",
+   "definition": "EK-FAC improves KFAC by correcting eigenvalues and is the method used by recent work scaling influence to LLMs (Grosse et al., 2023).",
    "assumptions": [
-    "An even more recent refinement, ASTRA (A. Wang et al. 2025), uses EK-FAC as a preconditioner for Neumann series iterations, yielding higher-quality GGN-vector products with less hyperparameter tuning."
+    "An even more recent refinement, ASTRA (Wang et al., 2025a), uses EK-FAC as a preconditioner for Neumann series iterations, yielding higher-quality GGN-vector products with less hyperparameter tuning."
    ],
    "evaluation": [],
    "applications": [
@@ -1219,7 +1216,7 @@
    "sections": [
     "unrolled-differentiation-gradient-based-attribution"
    ],
-   "definition": "Approximate unrolled differentiation (Bae et al. 2024) unfolds the optimization trajectory and backpropagates through training steps.",
+   "definition": "Approximate unrolled differentiation (Bae et al., 2024) unfolds the optimization trajectory and backpropagates through training steps.",
    "assumptions": [],
    "evaluation": [],
    "applications": [
@@ -1240,13 +1237,13 @@
    "sections": [
     "sec:trak"
    ],
-   "definition": "For large-scale attribution without retraining thousands of models, TRAK (Tracing with Randomly-projected After Kernel) provides a scalable alternative (Park et al. 2023).",
+   "definition": "For large-scale attribution without retraining thousands of models, TRAK (Tracing with Randomly-projected After Kernel) provides a scalable alternative (Park et al., 2023).",
    "assumptions": [],
    "evaluation": [
-    "By avoiding prohibitive retraining costs, TRAK achieves attribution quality comparable to expensive retraining-based methods like datamodels (Ilyas et al. 2022) while reducing computational cost by orders of magnitude."
+    "By avoiding prohibitive retraining costs, TRAK achieves attribution quality comparable to expensive retraining-based methods like datamodels (Ilyas et al., 2022) while reducing computational cost by orders of magnitude."
    ],
    "applications": [
-    "This enables application to large-scale models including vision transformers and billion-parameter language models, making fine-grained training data attribution tractable for modern deep learning (Park et al. 2023)."
+    "This enables application to large-scale models including vision transformers and billion-parameter language models, making fine-grained training data attribution tractable for modern deep learning (Park et al., 2023)."
    ],
    "limitations": [],
    "related": [
@@ -1263,7 +1260,7 @@
    "sections": [
     "sec:tracin"
    ],
-   "definition": "TracIn provides an efficient alternative to computing the full Hessian inverse by leveraging the training trajectory (Pruthi et al. 2020).",
+   "definition": "TracIn provides an efficient alternative to computing the full Hessian inverse by leveraging the training trajectory (Pruthi et al., 2020).",
    "assumptions": [
     "This approach avoids Hessian computation entirely, instead accumulating dot products of gradients throughout training."
    ],
@@ -1273,7 +1270,7 @@
     "Despite limitations, TracIn has enabled attribution studies on modern language models and provides a useful baseline for scalable influence estimation."
    ],
    "limitations": [
-    "However, the approximation assumes that gradient trajectories during training encode sufficient information about final influence, an assumption that may break down in highly nonlinear settings or when training dynamics involve significant noise (Pruthi et al. 2020)."
+    "However, the approximation assumes that gradient trajectories during training encode sufficient information about final influence, an assumption that may break down in highly nonlinear settings or when training dynamics involve significant noise (Pruthi et al., 2020)."
    ],
    "related": [
     "influence-functions"
@@ -1288,7 +1285,7 @@
     "sec:slt-llc",
     "the-local-learning-coefficient"
    ],
-   "definition": "In other words, it captures how many ways the parameters can vary locally without changing the loss value (Watanabe 2009; Lau et al. 2023).",
+   "definition": "In other words, it captures how many ways the parameters can vary locally without changing the loss value (Watanabe, 2009; Lau et al., 2023).",
    "assumptions": [
     "Formally, the LLC is defined via the volume-scaling rate of the loss landscape near a minimum."
    ],
@@ -1296,15 +1293,12 @@
     "Researchers have observed that transitions and critical points in the LLC often coincide with changes in internal network structure and functional behavior."
    ],
    "applications": [
-    "Empirical estimators can track the LLC throughout training, providing a way to observe developmental changes in model structure (Lau et al. 2023; Hoogland et al. 2025).",
-    "Tracking these changes provides a quantitative way to study the emergence of structure during training without relying only on final performance metrics (Hoogland et al. 2025)."
+    "Empirical estimators can track the LLC throughout training, providing a way to observe developmental changes in model structure (Lau et al., 2023; Hoogland et al., 2025).",
+    "Tracking these changes provides a quantitative way to study the emergence of structure during training without relying only on final performance metrics (Hoogland et al., 2025)."
    ],
-   "limitations": [
-    "Singular learning theory provides a mathematical framework rooted in algebraic geometry for understanding phase transitions in learning, offering potential theoretical foundations for predicting when and why qualitative shifts in model internals occur, though its empirical payoff for mech interp specifically remains nascent."
-   ],
+   "limitations": [],
    "related": [],
    "mentioned_in": [
-    "singular-learning-theory",
     "comparative-analysis-trade-offs-between-orientations"
    ]
   },
@@ -1349,10 +1343,10 @@
    ],
    "applications": [
     "This makes it important to monitor features and circuits that have been introduced or amplified during this process to prevent unsafe models from being deployed.",
-    "Model diffing has been applied to assess the effect of finetuning ((Minder et al. 2025); (Lindsey et al. 2024; M. Wang et al. 2025; Aranguri and McGrath 2025)) and distillation (Baek and Tegmark 2025), to track differences across model architectures (Thasarathan et al. 2025; Jiralerspong and Bricken 2025), and to study the evolution of concepts during pretraining ((Bayazit et al. 2025; Ge et al. 2025))."
+    "Model diffing has been applied to assess the effect of finetuning (Minder et al., 2025; Lindsey et al., 2024; Wang et al., 2025b; Aranguri & McGrath, 2025) and distillation (Baek & Tegmark, 2025), to track differences across model architectures (Thasarathan et al., 2025; Jiralerspong & Bricken, 2025), and to study the evolution of concepts during pretraining (Bayazit et al., 2025; Ge et al., 2025)."
    ],
    "limitations": [
-    "Dictionary learning methods for model-diffing risk falsely identifying model-exclusive features (Minder et al. 2025; Jiralerspong and Bricken 2025).",
+    "Dictionary learning methods for model-diffing risk falsely identifying model-exclusive features (Minder et al., 2025; Jiralerspong & Bricken, 2025).",
     "During finetuning, the direction representing some feature can rotate, and dictionary learning methods currently cannot distinguish between features that are introduced via finetuning as opposed to merely represented differently.",
     "Thus, supposedly model-exclusive features should be regarded as hypotheses that need further validation."
    ],
@@ -1372,7 +1366,7 @@
    "sections": [
     "sec:model-diffing"
    ],
-   "definition": "An earlier line of work compared internal representations across models by measuring statistical similarity between neurons or subspaces, using correlation or mutual information (Li et al. 2015), canonical correlation–based methods such as SVCCA and PWCCA (Raghu et al. 2017; Morcos et al. 2018b), or kernel-based alignment metrics like CKA (Kornblith et al. 2019).",
+   "definition": "An earlier line of work compared internal representations across models by measuring statistical similarity between neurons or subspaces, using correlation or mutual information (Li et al., 2015), canonical correlation–based methods such as SVCCA and PWCCA (Raghu et al., 2017; Morcos et al., 2018b), or kernel-based alignment metrics like CKA (Kornblith et al., 2019).",
    "assumptions": [],
    "evaluation": [],
    "applications": [
@@ -1393,7 +1387,7 @@
    "sections": [
     "sec:knowledge-localization"
    ],
-   "definition": "Causal tracing identifies which attention heads or MLP directions are causally responsible for particular facts or reasoning tasks by measuring how intervening on those components affects output behavior (Meng et al. 2022).",
+   "definition": "Causal tracing identifies which attention heads or MLP directions are causally responsible for particular facts or reasoning tasks by measuring how intervening on those components affects output behavior (Meng et al., 2022).",
    "assumptions": [],
    "evaluation": [],
    "applications": [
@@ -1428,10 +1422,10 @@
    ],
    "evaluation": [
     "Such intervention-based evaluations directly measure the causal effects of extracted features on model outputs.",
-    "Empirically, recent studies ((Wu et al. 2025); (Slocum et al. 2025)) suggest that these classical black-box methods often outperform current white-box approaches in model steering and factual editing benchmarks."
+    "Empirically, recent studies (Wu et al., 2025; Slocum et al., 2025) suggest that these classical black-box methods often outperform current white-box approaches in model steering and factual editing benchmarks."
    ],
    "applications": [
-    "Despite their simplicity, steering vectors reliably induce behaviors like improved helpfulness, refusal suppression, or stylistic changes (Rimsky et al. 2024; D. Tan et al. 2024; Zhao et al. 2025).",
+    "Despite their simplicity, steering vectors reliably induce behaviors like improved helpfulness, refusal suppression, or stylistic changes (Rimsky et al., 2024; Tan et al., 2024a; Zhao et al., 2025).",
     "Researchers were able to identify and deploy the steering vector that suppresses this awareness, allowing its safety to be evaluated.",
     "Their primary advantage is computational efficiency (no retraining required), methodological simplicity, and inference-time reversibility."
    ],
@@ -1439,7 +1433,7 @@
     "First, they often fail to generalize across distribution shifts: a vector derived for one task may degrade in another.",
     "As a result, steering remains primarily a behavioral tool rather than a mechanistic one.",
     "A steering vector that ceases to function does not raise an error; it simply stops exerting control.",
-    "Consequently, steering remains more useful as a complement to other robust mechanistic modifications (such as knowledge editing (Meng et al. 2022)) rather than as a standalone safety tool."
+    "Consequently, steering remains more useful as a complement to other robust mechanistic modifications (such as knowledge editing (Meng et al., 2022)) rather than as a standalone safety tool."
    ],
    "related": [
     "optimization-based-steering",
@@ -1472,7 +1466,7 @@
    "evaluation": [],
    "applications": [],
    "limitations": [
-    "These optimization-based approaches allow greater flexibility and adapt to complex, non-linear objectives, but incur higher computational cost (Dunefsky and Cohan 2025; Oozeer, Marks, et al. 2025)."
+    "These optimization-based approaches allow greater flexibility and adapt to complex, non-linear objectives, but incur higher computational cost (Dunefsky & Cohan, 2025; Oozeer et al., 2025a)."
    ],
    "related": [
     "steering-vectors"
@@ -1486,7 +1480,7 @@
    "sections": [
     "concept-erasure-via-pisces"
    ],
-   "definition": "PISCES (Precise In-Parameter Concept Erasure in Large Language Models) (Gur-Arieh, Suslik, et al. 2025) addresses this limitation through a three-stage methodology.",
+   "definition": "PISCES (Precise In-Parameter Concept Erasure in Large Language Models) (Gur-Arieh et al., 2025b) addresses this limitation through a three-stage methodology.",
    "assumptions": [
     "Stage 1 – Feature Disentanglement and Identification: Use SAEs with feature explanations (via Automated Interpretability pipeline) to disentangle and identify features associated with the target concept c (e.g., “biological toxins”)"
    ],
@@ -1496,7 +1490,7 @@
    "applications": [],
    "limitations": [
     "Likewise, concept-erasure methods such as PISCES may leave residual capabilities accessible through unexpected prompts, allowing suppressed behaviors to re-emerge without explicit signals of failure.",
-    "Steering vectors, concept erasure, and monitoring work reliably in-distribution but may fail or trigger false alarms when input distribution changes (Rimsky et al. 2024), raising questions about their robustness and generalizability in real-world systems."
+    "Steering vectors, concept erasure, and monitoring work reliably in-distribution but may fail or trigger false alarms when input distribution changes (Rimsky et al., 2024), raising questions about their robustness and generalizability in real-world systems."
    ],
    "related": [
     "sae"
@@ -1514,7 +1508,7 @@
    "sections": [
     "subsec:knowedit"
    ],
-   "definition": "For example, ROME (Meng et al. 2022) and MEMIT (Meng et al. 2023) serve as practical tools for component-based knowledge editing: they apply localized rank-one updates to parameter matrices identified as storing particular factual knowledge, achieving targeted removal of harmful knowledge with minimal collateral damage.",
+   "definition": "For example, ROME (Meng et al., 2022) and MEMIT (Meng et al., 2023) serve as practical tools for component-based knowledge editing: they apply localized rank-one updates to parameter matrices identified as storing particular factual knowledge, achieving targeted removal of harmful knowledge with minimal collateral damage.",
    "assumptions": [
     "Once knowledge is attributed to specific model components via localization techniques like causal tracing, mechanistic approaches enable direct parameter modification."
    ],
@@ -1598,15 +1592,15 @@
    "sections": [
     "subsec:universality"
    ],
-   "definition": "Independently trained models on similar tasks tend to develop similar internal computational structures. These representations often approximate a task-determined canonical form ((Huh et al. 2024); (Olah et al. 2020))."
+   "definition": "Independently trained models on similar tasks tend to develop similar internal computational structures. These representations often approximate a task-determined canonical form (Huh et al., 2024; Olah et al., 2020)."
   }
  ],
  "gaps": [
-  "Heading/ID typos: 1.2 heading 'Hnadbook Scope'; section ids 'useful-surveys-that-we-bild-on.', 'challenges-of-black-box-bethods', 'emergant-abilities' (heading 11.4.2 'Emergant Abilities'); 6.8.2 heading 'Principle Component Analysis (PCA)' while the body says 'Principal Component Analysis'. Body typos include 'citcuits' (7.4), 'Definiton 2' (8.3), 'largley' (4.3), 'targed' (4.4), 'Concept-based methods plays' (3.2).",
+  "Heading/ID typos: 1.2 heading 'Hnadbook Scope'; section ids 'useful-surveys-that-we-bild-on.', 'challenges-of-black-box-bethods'; 6.8.2 heading 'Principle Component Analysis (PCA)' while the body says 'Principal Component Analysis'. Body typos include 'citcuits' (7.4), 'Definiton 2' (8.3), 'largley' (4.3), 'targed' (4.4), 'Concept-based methods plays' (3.2).",
   "Section ids containing spaces: 'subsec:valproto agentic self-reports' and 'subsec:choosing orientation'.",
   "Induction heads get three separate case-study sections: 6.6 (case-study-induction-heads), 7.5 (case-study-induction-heads-1) and 10.6 (case-study-induction-heads-2).",
-  "Grokking is treated in three places: 10.1 (sec:grokking), an unnumbered empty 'Grokking' heading under 11.2.3 (id grokking), and 11.3.1 (grokking-1). SLT is treated in both 10.3 (sec:slt-llc) and 11.3.2 (singular-learning-theory). Phase changes appear in both 11.2.3 and 11.3.",
-  "Chapters 10 and 11 overlap in scope. Much of chapter 11 is still draft authoring notes rather than manuscript text (e.g. 11.2 'The reason I’m not using Grokking in these section titles...', 11.2.1, 11.2.2, 11.2.4, 11.2.5, 11.3.3, 11.3.4, 11.4.x, 11.5.x, 11.6 'Tak about...', 11.6.1). 11.2.1 also points to a non-existent '10.2.2'.",
+  "Grokking is treated in three places: 10.1 (sec:grokking), and twice in chapter 11 (withheld). SLT is treated in both 10.3 (sec:slt-llc) and chapter 11. Phase changes appear twice in chapter 11.",
+  "Chapters 10 and 11 overlap in scope. Much of chapter 11 is still draft authoring notes rather than manuscript text (in 11.2, 11.2.1, 11.2.2, 11.2.4, 11.2.5, 11.3.3, 11.3.4, 11.4.x, 11.5.x, 11.6 and 11.6.1), so the chapter is withheld from the site. 11.2.1 also points to a non-existent 10.2.2.",
   "Section 12 (sec:representation) has no introductory text; 12.1 jumps straight into model diffing.",
   "SPARTAN: the 6.9.2 text says it applies 'L_1 regularization to the attention patterns', but Table 7 lists its mechanism as 'L_0 regularization on attention'.",
   "Causal scrubbing: 7.4 defines it as a necessity test, with interchange interventions as the sufficiency test. 7.6.6, however, labels a protocol 'Evaluation protocol (Causal Scrubbing)' that also covers sufficiency, interchange and specificity tests.",

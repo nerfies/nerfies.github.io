@@ -5,3 +5,4 @@ dist/
 .astro/
 .ingest-tmp/
 .ingest-plain/
+src/generated/withheld/

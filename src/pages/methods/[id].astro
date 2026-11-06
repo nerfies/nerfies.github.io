@@ -26,7 +26,7 @@ const groups: [string, string[]][] = [
 ];
 const nbAnchor = (p: string) => p.split('/').pop()!.replace('.ipynb', '');
 ---
-<Base title={m.name} description={`${m.name}: what the survey says about it, with its assumptions, evaluation, applications and limitations, plus links to the survey sections, key papers and notebooks.`}>
+<Base title={m.name} description={`${m.name}: what the survey says about it, with its assumptions, evaluation, applications and limitations, plus links to the survey sections, key papers and notebooks.`} manuscript>
   <div class="page-narrow">
     <p class="eyebrow"><a href={url('methods/')}>Methods</a> · <a href={url(`methods/?family=${m.family}`)}>{fam?.name}</a></p>
     <h1 style="margin-bottom:.4rem">{m.name}</h1>
@@ -67,7 +67,7 @@ const nbAnchor = (p: string) => p.split('/').pop()!.replace('.ipynb', '');
     {papers.length > 0 && (
       <section><h2 style="font-size:1.15rem;margin-top:2rem">Key papers</h2>
         <p class="small muted">Works cited in {primary?.num ? `§${primary.num}` : 'the primary section'}, taken automatically from the survey’s citations.</p>
-        <ul class="small">{papers.map((p) => <li style="margin:.3rem 0"><a href={url(`references/#ref-${p.key}`)} style={`color:var(--tier-${p.tier ?? 'established'})`} aria-label="Open in references">■</a> {p.text}</li>)}</ul>
+        <ul class="small">{papers.map((p) => <li style="margin:.3rem 0"><a href={url(`references/#ref-${p.key}`)} style={`color:var(--tier-${p.tier ?? 'established'})`} aria-label="Open in references">■</a> {p.tier === 'emerging' && <span class="tier-tag">Preprint</span>}{p.tier === 'flagged' && <span class="tier-tag">Flagged</span>}{p.text}</li>)}</ul>
       </section>
     )}
 

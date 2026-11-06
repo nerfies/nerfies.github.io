@@ -21,7 +21,7 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
   <div class="page">
     <p class="eyebrow">Technical methods · Evaluation</p>
     <h1>A unified evaluation framework</h1>
-    <p class="lede">How do you tell whether an interpretability result is right? The survey proposes judging every method on the same five dimensions.</p>
+    <p class="lede">Five dimensions for evaluating interpretability claims.</p>
     <SectionLinks ids={e.chapter_sections.slice(0, 1)} />
     <DraftBanner />
     {e.framework_intro.map((t: string) => <Excerpt text={t} />)}
@@ -34,26 +34,24 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
       <section role="tabpanel" id={`panel-${d.id}`} aria-labelledby={`tab-${d.id}`} hidden={i !== 0} class="dim-panel card">
         <div class="dim-head">
           <h2 id={d.id}>{publicName[d.id] ?? d.name}</h2>
-          {publicName[d.id] && publicName[d.id] !== d.name && <span class="small muted">The survey calls this “{d.name}”</span>}
           <ManuscriptNote />
         </div>
-        <Excerpt text={d.definition} section={sec(d.sections[0])} />
+        <Excerpt text={d.definition} section={sections(d.sections).find((x) => x.href) ?? null} />
         <div class="dim-grid">
           <div>
             <h3>How it is measured</h3>
             {d.metrics_named?.length > 0 && <p class="small">{d.metrics_named.map((m: string) => <span class="chip" style="margin:0 .3rem .3rem 0">{m}</span>)}</p>}
-            {d.formulas_tex?.map((f: string) => <div class="formula"><Fragment set:html={tex(f)} /></div>)}
+            {/* each "…measured as:" sentence is followed by its formula */}
             {d.how_measured.map((t: string) => <Excerpt text={t} />)}
+            {d.formulas_tex?.map((f: string) => <div class="formula"><Fragment set:html={tex(f)} /></div>)}
           </div>
           <div>
             {d.table_row && Object.keys(d.table_row).length > 0 && (<>
-              <h3>Summary row from the survey’s table</h3>
+              <h3>Summary</h3>
               <table class="data"><tbody>{Object.entries(d.table_row).filter(([k]) => k !== 'section').map(([k, v]) => <tr><th scope="row">{k}</th><td set:html={excerptHtml(String(v))} /></tr>)}</tbody></table>
             </>)}
-            <h3>Examples</h3>
-            {d.examples?.length ? d.examples.map((t: string) => <Excerpt text={t} />) : <p class="small muted">The survey gives no worked example for this dimension.</p>}
-            <h3>Limitations</h3>
-            {d.limitations?.length ? d.limitations.map((t: string) => <Excerpt text={t} />) : <p class="small muted">The survey states no dimension-specific limitations. See the framework’s limitations below.</p>}
+            {d.examples?.length > 0 && <><h3>Examples</h3>{d.examples.map((t: string) => <Excerpt text={t} />)}</>}
+            {d.limitations?.length > 0 && <><h3>Limitations</h3>{d.limitations.map((t: string) => <Excerpt text={t} />)}</>}
           </div>
         </div>
       </section>

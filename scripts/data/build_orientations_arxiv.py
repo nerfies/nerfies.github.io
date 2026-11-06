@@ -205,9 +205,13 @@ def main():
         terms = [it["term"] for blk in body if "ul" in blk for it in blk["ul"] if it["term"]]
         lead = next((body[k - 1].get("p", "") for k, blk in enumerate(body) if "ul" in blk and k), "")
         list_label = "Example metrics" if "metrics" in lead else "Methods"
+        definition = " ".join(first[:2])
+        # Drop a leading comparative clause ("In contrast to pragmatic approaches, …") so the card opens on
+        # its own subject; what remains is still a verbatim substring of the paper.
+        definition = re.sub(r"^(In contrast to [^,]+|Complementing [^,]+|Like [^,]+), (?=[A-Z])", "", definition)
         orientations.append({
             "id": oid, "name": name, "subtitle": sub, "section": num(i), "section_title": title,
-            "definition": " ".join(first[:2]), "list_label": list_label, "list_terms": terms, "body": body,
+            "definition": definition, "list_label": list_label, "list_terms": terms, "body": body,
         })
 
     def sec_text(prefix):

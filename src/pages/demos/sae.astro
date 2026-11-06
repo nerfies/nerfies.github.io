@@ -11,7 +11,7 @@ import SaeDemo from '../../components/demos/SaeDemo.tsx';
       <h2 style="font-size:1rem">What is being computed</h2>
       <p>Data: x = Σ<sub>i</sub> a<sub>i</sub> g<sub>i</sub>, where the g<sub>i</sub> are 16 random unit vectors in ℝ⁸ and each a<sub>i</sub> is 0 with probability 0.9, otherwise Uniform[0, 1]. SAE: f = ReLU(W<sub>e</sub>(x − b<sub>d</sub>) + b<sub>e</sub>), x̂ = W<sub>d</sub>f + b<sub>d</sub>, with 32 latents and unit-norm decoder columns. The loss is ‖x − x̂‖² + λ‖f‖₁, or the TopK variant, which keeps the k largest activations. Training is Adam (learning rate 0.003, batch 256) for 2,000 steps. <strong>MMCS</strong> (mean max cosine similarity) averages, over planted features, the best cosine with any decoder column. A feature counts as <strong>recovered</strong> when that cosine exceeds 0.9.</p>
       <p><strong>Checked results</strong> (seed 1, tested in <code>tests/sim.test.ts</code>): with λ = 0 the SAE reconstructs almost perfectly but recovers 0 of 16 features (MMCS ≈ 0.69). With λ = 0.3 it recovers all 16 (MMCS ≈ 0.97) at about 13% variance unexplained. With λ = 1 reconstruction degrades to about 60% variance unexplained. Sparsity is what makes the dictionary line up with the true features, and too much sparsity costs reconstruction.</p>
-      <p class="small muted">This is a deliberately easy, idealised setting. Real activations have no guarantee of a sparse linear ground truth. That limitation is discussed in the survey’s sections on feature extraction and evaluation.</p>
+      <p class="small muted">An idealised setting: real activations need not have a sparse linear ground truth.</p>
     </Fragment>
   </DemoFrame>
 </Base>

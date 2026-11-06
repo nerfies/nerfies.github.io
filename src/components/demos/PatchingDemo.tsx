@@ -60,7 +60,7 @@ export default function PatchingDemo({ data }: { data: Data }) {
                   format={(v) => `${(v * 100).toFixed(1)}%`} rowTitle="layer" colTitle="head" />}
           </div>
           <Legend min={view === 'resid' ? '−100%' : '−50%'} max={view === 'resid' ? '+100%' : '+50%'} label="share of clean–corrupted logit difference restored" />
-          <p className="small" aria-live="polite" style={{ minHeight: '2.6em' }}>{detail ?? 'Click or tab to a cell for its value.'}</p>
+          <p className="small" aria-live="polite" style={{ minHeight: '2.6em' }}>{detail ?? 'Select a cell to see its value.'}</p>
         </div>
         <div className="card">
           {view === 'resid' ? (

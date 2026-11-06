@@ -10,11 +10,11 @@ const demos = [
     text: 'Find where GPT-2 small resolves indirect object identification by patching clean activations into a corrupted run, layer by layer and head by head.' },
 ];
 ---
-<Base title="Interactive demos" description="Three interactive experiments: superposition, sparse autoencoders and activation patching, all computed for real.">
+<Base title="Interactive demos" description="Interactive demos of superposition, sparse autoencoders and activation patching.">
   <div class="page">
     <p class="eyebrow">Hands-on</p>
     <h1>Interactive demos</h1>
-    <p class="lede">Three core ideas from the survey that you can run yourself. Nothing here is a drawing: the first two train real models in your browser, and the third shows activation-patching measurements on GPT-2 small from a script in this repository.</p>
+    <p class="lede">Three ideas from the survey to try yourself. The first two train small models in your browser; the third shows activation patching on GPT-2 small.</p>
     <div class="grid grid-3" style="margin-top:1.5rem">
       {demos.map((d) => <a class="card" href={url(d.href)} style="text-decoration:none;color:var(--ink)">
         <span class="label measured">{d.label}</span>

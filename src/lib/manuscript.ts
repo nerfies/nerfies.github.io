@@ -2,7 +2,7 @@
 // and renders maths with KaTeX at build time, so pages ship no maths JavaScript.
 import katex from 'katex';
 import manifestJson from '../generated/manifest.json';
-import { base } from './site';
+import { base, SITE } from './site';
 import withheldJson from '../data/withheld.json';
 
 export interface TocSection { id: string; num: string | null; title: string; level: number; page: string | null }
@@ -104,11 +104,13 @@ export function referencesHtml(): string {
 }
 
 export function pdfHref(page: string | null | undefined): string | null {
-  if (!manifest.provenance.pdf_included || !page) return null;
+  if (!page) return null;
   // Roman-numbered front matter pages are not addressable by number; skip them
   if (!/^\d+$/.test(page)) return null;
   // PDF viewers use physical page indices; the offset accounts for front matter.
-  return `${base}survey.pdf#page=${Number(page) + pdfOffset}`;
+  // Without a local copy, link the published arXiv PDF (the ingested source is that build).
+  const pdf = manifest.provenance.pdf_included ? `${base}survey.pdf` : manifest.provenance.status === 'final' ? SITE.paperPdf : null;
+  return pdf ? `${pdf}#page=${Number(page) + pdfOffset}` : null;
 }
 
 // Physical index of printed page 1. Set by the ingest step from the PDF if known.

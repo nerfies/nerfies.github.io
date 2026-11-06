@@ -7,5 +7,5 @@ const html = excerptHtml(text);
 ---
 <blockquote class="excerpt">
   <Fragment set:html={html} />
-  {section && <footer>Survey {section.href ? <a href={section.href}>{`§${section.num} ${section.title}`}</a> : <>§{section.num}</>}</footer>}
+  {section && (section.href || section.num) && <footer>Survey {section.href ? <a href={section.href}>{`§${section.num} ${section.title}`}</a> : <>§{section.num}</>}</footer>}
 </blockquote>

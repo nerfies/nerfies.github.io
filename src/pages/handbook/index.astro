@@ -10,25 +10,20 @@ const words = shown.reduce((a, c) => a + c.words, 0);
 import { draftHidden as __hide } from '../../lib/manuscript';
 if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}held/`);
 ---
-<Base title="Handbook" description="Read the survey online, with numbered sections, figures, tables, equations and linked references." manuscript>
+<Base title="Handbook" description="The full text of the survey, by chapter." manuscript>
   <div class="page-narrow">
     <p class="eyebrow">The handbook</p>
     <h1>Read the survey</h1>
-    <p class="lede">{isDraft ? 'A preview of the working draft' : 'The survey'} as an online book: {main.filter((c) => !withheld.has(c.slug)).length} chapters, {apps.length} appendices and {manifest.references.length} references, about {Math.round(words / 1000)}k words.
-      {withheld.size > 0 && <>{withheld.size === 1 ? 'One chapter is' : `${withheld.size} chapters are`} held back until the final manuscript. </>}
-      Numbering matches the {isDraft ? 'draft ' : ''}PDF, and every section, figure and table has a link you can share.</p>
     <DraftBanner />
-    <p class="small">The paper: <a href={SITE.paper}>arXiv:2611.08438</a> (<a href={SITE.paperPdf}>PDF</a>, <a href={SITE.alphaxiv}>alphaXiv</a>) · <a href={url('#cite')}>BibTeX</a></p>
-    <p class="small muted">Citation colours follow the manuscript:
-      <span style="color:var(--tier-established)">■ peer-reviewed</span> (plain),
-      <span style="color:var(--tier-emerging)">■ preprints and other non-peer-reviewed work</span> (<span class="cite-emerging-sample">dotted underline</span>; tagged “Preprint” in the reference list).</p>
+    <p class="small"><a href={SITE.paper}>arXiv:2611.08438</a> · <a href={SITE.paperPdf}>PDF</a> · <a href={SITE.alphaxiv}>alphaXiv</a> · <a href={url('#cite')}>BibTeX</a></p>
+    <p class="small muted">Citations: <span style="color:var(--tier-established)">■ peer-reviewed</span> · <span style="color:var(--tier-emerging)">■ preprint</span></p>
     <ol style="list-style:none;padding:0;margin:2rem 0">
       {main.map((c) => (
         <li style="padding:.9rem 0;border-bottom:1px solid var(--rule)">
           <a href={url(`handbook/${c.slug}/`)} style="font-weight:650;font-size:1.05rem;text-decoration:none">
             <span style="color:var(--gold);font-variant-numeric:tabular-nums;margin-right:.5rem">{c.num}</span>{c.title}
           </a>
-          <span class="small muted"> · p. {c.page} · {Math.max(1, Math.round(c.words / 230))} min read</span>
+          {c.page && <span class="small muted"> · p. {c.page}</span>}
           {withheld.has(c.slug) ? <span class="small muted"> · coming with the final manuscript</span> : c.sections.filter((s) => s.level === 2).length > 0 && (
             <details style="margin-top:.3rem">
               <summary class="small muted" style="cursor:pointer">{c.sections.filter((s) => s.level === 2).length} sections</summary>

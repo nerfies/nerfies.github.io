@@ -10,9 +10,11 @@ import { url } from '../lib/site';
 const s = framework.safety_applications;
 const apps: any[] = s.applications;
 const problems: any[] = framework.open_problems.problems;
-const orient: any[] = framework.orientations.orientations;
+import orientationsArxiv from '../data/orientations-arxiv.json';
 const sec = (id: string) => sections([id])[0];
-const orientLink = (name: string) => { const o = orient.find((x) => name.toLowerCase().includes(x.name.toLowerCase().split(' ')[0])); return o ? url(`orientations/#${o.id}`) : null; };
+// The six orientations of the paper (§12), keyed by the word that tells them apart.
+const ORIENT_KEYS: [string, string][] = orientationsArxiv.orientations.map((o: any) => [o.name.replace(/ Interpretability$/, '').replace(/^Interpretability /, '').toLowerCase(), o.id]);
+const orientLink = (name: string) => { const k = ORIENT_KEYS.find(([w]) => name.toLowerCase().includes(w)); return k ? url(`orientations/#${k[1]}`) : null; };
 const methodLinks = (names: string[]) => names.map((n) => ({ n, m: resolveMethod(n) }));
 const search = (o: any) => [o.name ?? o.title, o.definition ?? o.statement, ...(o.details ?? []), ...(o.evidence ?? []), ...(o.limitations ?? []), ...(o.methods ?? o.related_methods ?? [])].join(' ').toLowerCase();
 import { draftHidden as __hide } from '../lib/manuscript';
@@ -22,7 +24,7 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
   <div class="page">
     <p class="eyebrow">Safety & open problems</p>
     <h1>Safety applications and open problems</h1>
-    <p class="lede">Where interpretability supports concrete safety work, what evidence the survey cites for it, and what remains unsolved. Each entry links to the methods it relies on and the orientations it belongs to.</p>
+    <p class="lede">Where mechanistic interpretability supports safety work, and the open problems that remain.</p>
     <DraftBanner />
     <div style="display:grid;gap:.5rem;margin:1.2rem 0">
       <label for="sq" class="visually-hidden">Filter applications and open problems</label>
@@ -31,7 +33,7 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
         <button class="chip on" data-kind="all" aria-pressed="true">All</button>
         <button class="chip" data-kind="app" aria-pressed="false">Safety applications ({apps.length})</button>
         <button class="chip" data-kind="problem" aria-pressed="false">Open problems ({problems.length})</button>
-        <button class="chip" data-kind="risk" aria-pressed="false">Risks & verification</button>
+        <button class="chip" data-kind="risk" aria-pressed="false">Risks</button>
       </div>
       <p class="small muted" id="s-count" aria-live="polite"></p>
     </div>
@@ -47,21 +49,18 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
           {a.methods?.length > 0 && <p class="small"><span class="muted">Methods:</span> {methodLinks(a.methods).map(({ n, m }, j) => <>{j > 0 && ', '}{m ? <a href={url(`methods/${m.id}/`)}>{n}</a> : n}</>)}</p>}
           {a.orientations?.length > 0 && <p class="small"><span class="muted">Orientations:</span> {a.orientations.map((n: string, j: number) => <>{j > 0 && ', '}{orientLink(n) ? <a href={orientLink(n)!}>{n}</a> : n}</>)}</p>}
           <details>
-            <summary class="small">Evidence ({a.evidence?.length ?? 0}) and limitations ({a.limitations?.length ?? 0})</summary>
-            <h4>Evidence cited in the survey</h4>
-            {a.evidence?.length ? a.evidence.map((t: string) => <Excerpt text={t} />) : <p class="small muted">The survey reports no empirical evidence for this application.</p>}
+            <summary class="small">Evidence and limitations</summary>
+            {a.evidence?.length > 0 && <><h4>Evidence</h4>{a.evidence.map((t: string) => <Excerpt text={t} />)}</>}
             {a.worked_example?.length > 0 && <><h4>Worked example <span class="label illustrative">Illustrative</span></h4>
-              <p class="small muted">This is a walkthrough from the survey. Its “results” illustrate the steps and are not measured outcomes.</p>
               {a.worked_example.map((t: string) => <Excerpt text={t} />)}</>}
-            <h4>Limitations</h4>
-            {a.limitations?.length ? a.limitations.map((t: string) => <Excerpt text={t} />) : <p class="small muted">None stated specifically.</p>}
+            {a.limitations?.length > 0 && <><h4>Limitations</h4>{a.limitations.map((t: string) => <Excerpt text={t} />)}</>}
           </details>
           {notebooksFor('applications', a.id).map((n) => <p class="small"><a href={n.links.colab}>Open “{n.title}” in Colab</a></p>)}
         </article>
       ))}
     </div>
 
-    <h2 data-kind-head="risk" style="margin-top:3rem">Risks and verification</h2>
+    <h2 data-kind-head="risk" style="margin-top:3rem">Risks</h2>
     <div class="entries">
       <article class="card entry" data-kind="risk" id="risk-taxonomy" data-search={JSON.stringify(s.risk_taxonomy).toLowerCase()}>
         <div class="e-head"><h3>Risk taxonomy</h3><ManuscriptNote /></div>
@@ -71,17 +70,9 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
         <SectionLinks ids={s.risk_taxonomy.sections} label="Survey" />
       </article>
       <article class="card entry" data-kind="risk" id="verification-checklist" data-search={JSON.stringify(s.verification_checklist).toLowerCase()}>
-        <div class="e-head"><h3>Verification checklist</h3><ManuscriptNote /></div>
-        <div class="checklist">
-          {s.verification_checklist.groups.map((g: any) => <fieldset><legend>{g.heading}</legend>{g.items.map((t: string) => <label><input type="checkbox" /> {t}</label>)}</fieldset>)}
-        </div>
-        <p class="small muted">The ticks are for your own use. They aren’t saved.</p>
+        <div class="e-head"><h3>Mitigation strategies</h3></div>
+        {s.verification_checklist.groups.map((g: any) => <><h4>{g.heading}</h4>{g.items.map((t: string) => <Excerpt text={t} />)}</>)}
         <SectionLinks ids={[s.verification_checklist.section]} label="Survey" />
-      </article>
-      <article class="card entry" data-kind="risk" id="chapter-limitations" data-search={s.chapter_limitations.excerpts.join(' ').toLowerCase()}>
-        <div class="e-head"><h3>Limitations of mechanistic safety interventions</h3></div>
-        {s.chapter_limitations.excerpts.map((t: string) => <Excerpt text={t} />)}
-        <SectionLinks ids={[s.chapter_limitations.section]} label="Survey" />
       </article>
     </div>
 
@@ -90,12 +81,12 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
     <div class="entries">
       {problems.map((p) => (
         <article class="card entry" data-kind="problem" id={p.id} data-search={search(p)}>
-          <div class="e-head"><h3>{p.title}</h3><span class="chip">Open problem</span>{p.source_chapter !== 15 && <span class="chip">from chapter {p.source_chapter}</span>}</div>
+          <div class="e-head"><h3>{p.title}</h3><span class="chip">Open problem</span>{p.source_chapter !== 14 && <span class="chip">from chapter {p.source_chapter}</span>}</div>
           <SectionLinks ids={p.sections} label="Survey" />
           <Excerpt text={p.statement} />
           {p.related_methods?.length > 0 && <p class="small"><span class="muted">Methods mentioned:</span> {methodLinks(p.related_methods).map(({ n, m }, j) => <>{j > 0 && ', '}{m ? <a href={url(`methods/${m.id}/`)}>{n}</a> : n}</>)}</p>}
           {p.related_orientations?.length > 0 && <p class="small"><span class="muted">Orientations:</span> {p.related_orientations.map((n: string, j: number) => <>{j > 0 && ', '}{orientLink(n) ? <a href={orientLink(n)!}>{n}</a> : n}</>)}</p>}
-          {p.details?.length > 0 && <details><summary class="small">More from the survey ({p.details.length})</summary>{p.details.map((t: string) => <Excerpt text={t} />)}</details>}
+          {p.details?.length > 0 && <details><summary class="small">More ({p.details.length})</summary>{p.details.map((t: string) => <Excerpt text={t} />)}</details>}
         </article>
       ))}
     </div>

@@ -12,7 +12,7 @@ import data from '../../data/experiments/patching_gpt2_ioi.json';
       <h2 style="font-size:1rem">How these numbers were produced</h2>
       <p>Model: {data.model}. Task: indirect object identification over {data.n_prompts} prompt pairs ({data.templates.length} templates × {data.name_pairs.length} name pairs × 2 orders). In the corrupted prompt the second-clause subject is swapped, which flips the answer. Metric: {data.metric}. A value of 0 equals the corrupted run and 1 equals the clean run. The clean run is correct on {(data.clean_accuracy * 100).toFixed(0)}% of prompts. <em>Activation patching</em> runs the model once per component. <em>Attribution patching</em> approximates the same quantity with a single backward pass, using a first-order Taylor expansion. Across all 144 heads the two agree with Pearson r = {data.pearson_activation_vs_attribution.toFixed(3)}.</p>
       <p>Reproduce: <code>python3 {data.script}</code> (torch {data.versions.torch}, transformer-lens {data.versions.transformer_lens}; about {Math.round(data.runtime_seconds)} s on a laptop CPU, deterministic). Generated {data.generated}. The setup follows the companion notebook on circuit discovery, scaled up to more prompts.</p>
-      <p class="small muted">A patching effect shows that a component is causally relevant for this metric on these prompts. It does not by itself show what the component computes. See the survey’s discussion of causal validity and the evaluation framework.</p>
+      <p class="small muted">A patching effect shows that a component matters for this metric on these prompts, not what it computes.</p>
     </Fragment>
   </DemoFrame>
 </Base>

@@ -1,0 +1,106 @@
+---
+import Base from '../../layouts/Base.astro';
+import DraftBanner from '../../components/DraftBanner.astro';
+import { chapters, chapterHtml, pdfHref, manifest, draftHidden } from '../../lib/manuscript';
+import { url } from '../../lib/site';
+
+export function getStaticPaths() {
+  return draftHidden ? [] : chapters.map((c) => ({ params: { slug: c.slug } }));
+}
+const { slug } = Astro.params;
+const idx = chapters.findIndex((c) => c.slug === slug);
+const ch = chapters[idx];
+const prev = chapters[idx - 1];
+const next = chapters[idx + 1];
+
+// add a "p. N" / "PDF p. N" affordance inside each numbered heading
+let html = chapterHtml(slug!);
+html = html.replace(/(<h[1-4][^>]*) data-pdf-page="([^"]+)"([^>]*>[\s\S]*?<a class="anchor"[^>]*>#<\/a>)/g, (_m, open, page, rest) => {
+  const href = pdfHref(page);
+  const tag = href
+    ? `<a class="pdf-link" href="${href}" target="_blank" rel="noopener" title="Open this section in the PDF">PDF p.&nbsp;${page}</a>`
+    : `<span class="pdf-link" title="Printed page number in the PDF">p.&nbsp;${page}</span>`;
+  return `${open}${rest}${tag}`;
+});
+const label = ch.appendix ? `Appendix ${ch.num}` : `Chapter ${ch.num}`;
+const description = `${label}: ${ch.title} — from the survey "The State of Interpretability for AI Safety".`;
+---
+<Base title={`${ch.num}. ${ch.title}`} description={description}>
+  <div class="reader">
+    <aside>
+      <button class="icon-btn nav-toggle" aria-expanded="false" aria-controls="chapter-nav" id="nav-toggle">Chapters</button>
+      <nav class="reader-nav" id="chapter-nav" aria-label="Chapters" data-pagefind-ignore>
+        <h2>Contents</h2>
+        {chapters.map((c) => (
+          <details open={c.slug === slug} class={c.slug === slug ? 'current' : undefined}>
+            <summary><a href={url(`handbook/${c.slug}/`)}>{`${c.num}.`} {c.title}</a></summary>
+            {c.sections.filter((s) => s.level === 2).length > 0 && (
+              <ul>
+                {c.sections.filter((s) => s.level === 2).map((s) => (
+                  <li><a href={url(`handbook/${c.slug}/#${s.id}`)}>{s.num} {s.title}</a></li>
+                ))}
+              </ul>
+            )}
+          </details>
+        ))}
+        <p class="small"><a href={url('references/')}>References</a></p>
+      </nav>
+    </aside>
+
+    <article class="prose" data-pagefind-meta={`chapter:${label}`}>
+      <DraftBanner />
+      <p class="eyebrow" data-pagefind-ignore>{label}</p>
+      <Fragment set:html={html} />
+      <nav class="pager" aria-label="Chapter pagination" data-pagefind-ignore>
+        {prev ? <a href={url(`handbook/${prev.slug}/`)}><small>Previous</small>{prev.num}. {prev.title}</a> : <span />}
+        {next ? <a href={url(`handbook/${next.slug}/`)} style="text-align:right"><small>Next</small>{next.num}. {next.title}</a> : <a href={url('references/')} style="text-align:right"><small>Next</small>References</a>}
+      </nav>
+    </article>
+
+    <aside class="reader-toc" aria-label="On this page" data-pagefind-ignore>
+      <h2>On this page</h2>
+      <ul>
+        {ch.sections.map((s) => <li class={`l${s.level}`}><a href={`#${s.id}`}>{s.num} {s.title}</a></li>)}
+      </ul>
+    </aside>
+  </div>
+
+  <script define:vars={{ refs: Object.fromEntries(manifest.references.map((r) => [r.key, r.text])), tiers: manifest.cite_tiers }}>
+    // mobile chapter nav
+    const t = document.getElementById('nav-toggle'), n = document.getElementById('chapter-nav');
+    t?.addEventListener('click', () => { const o = n.classList.toggle('open'); t.setAttribute('aria-expanded', String(o)); });
+
+    // scroll-spy for the right-hand TOC
+    const links = [...document.querySelectorAll('.reader-toc a')];
+    const map = new Map(links.map((a) => [a.getAttribute('href').slice(1), a]));
+    const obs = new IntersectionObserver((entries) => {
+      for (const e of entries) if (e.isIntersecting) {
+        links.forEach((a) => a.classList.remove('active'));
+        map.get(e.target.id)?.classList.add('active');
+      }
+    }, { rootMargin: '-10% 0px -80% 0px' });
+    document.querySelectorAll('.prose section[id]').forEach((s) => map.has(s.id) && obs.observe(s));
+
+    // citation previews (hover / focus), full entry on the references page
+    let pop;
+    const label = { established: 'Peer-reviewed', emerging: 'Preprint / emerging', flagged: 'Flagged in manuscript' };
+    function show(a) {
+      const key = a.dataset.cite; const text = refs[key]; if (!text) return;
+      hide();
+      pop = document.createElement('div'); pop.className = 'cite-pop'; pop.setAttribute('role', 'tooltip');
+      const tier = tiers[key];
+      pop.textContent = text;
+      if (tier) { const s = document.createElement('div'); s.className = 'muted small'; s.style.marginTop = '.35rem'; s.textContent = label[tier]; pop.append(s); }
+      document.body.append(pop);
+      const r = a.getBoundingClientRect();
+      const left = Math.min(window.scrollX + r.left, window.scrollX + document.documentElement.clientWidth - pop.offsetWidth - 12);
+      pop.style.left = Math.max(8, left) + 'px'; pop.style.top = window.scrollY + r.bottom + 6 + 'px';
+    }
+    function hide() { pop?.remove(); pop = null; }
+    document.querySelectorAll('a.cite').forEach((a) => {
+      a.addEventListener('mouseenter', () => show(a)); a.addEventListener('mouseleave', hide);
+      a.addEventListener('focus', () => show(a)); a.addEventListener('blur', hide);
+    });
+    document.addEventListener('keydown', (e) => e.key === 'Escape' && hide());
+  </script>
+</Base>

@@ -1,0 +1,251 @@
+<section id="sec:intermediate-computation" class="level1"><h1 data-pdf-page="48"><span class="secnum">8</span> Understanding Intermediate Computation: Logit Lens and Probing<a class="anchor" href="#sec:intermediate-computation" aria-label="Link to this section">#</a></h1>
+<p>Between feature extraction (what the fundamental components of features are) and circuit analysis (how components interact), there lies a gap: understanding what computation happens at intermediate layers. This section covers methods that analyze hidden layer activations to reveal how information transforms as it flows through the network.</p>
+<section id="sec:logit-lens" class="level2"><h2 data-pdf-page="48"><span class="secnum">8.1</span> Logit Lens: Tracing Predictions Through Depth<a class="anchor" href="#sec:logit-lens" aria-label="Link to this section">#</a></h2>
+<div class="definitionbox">
+<p>Logit lens <span class="citation" data-cites="nostalgebraist2020interpretinggpt">(<a href="@@BASE@@references/#ref-nostalgebraist2020interpretinggpt" class="cite cite-emerging" data-cite="nostalgebraist2020interpretinggpt" role="doc-biblioref"><span class="nocase">nostalgebraist</span> 2020</a>)</span> applies the model’s unembedding matrix to activations at intermediate layers, revealing what the model <strong>would predict</strong> if computation stopped at that layer. For a hidden activation <span class="math inline">h_\ell</span> at layer <span class="math inline">\ell</span>, logit lens computes: <span class="math display">\text{logits}_\ell = W_U h_\ell</span> where <span class="math inline">W_U</span> represents the model’s unembedding matrix. This reveals the trajectory of predictions across layers, showing when and where the model commits to specific outputs <span class="citation" data-cites="nostalgebraist2020interpretinggpt">(<a href="@@BASE@@references/#ref-nostalgebraist2020interpretinggpt" class="cite cite-emerging" data-cite="nostalgebraist2020interpretinggpt" role="doc-biblioref"><span class="nocase">nostalgebraist</span> 2020</a>)</span>.</p>
+</div>
+<p>Logit lens provides intuitive insight into the model’s decision-making process across depth. Early layers typically show diverse possible predictions with high entropy, while later layers progressively narrow and refine them toward the final output. By examining this trajectory, researchers can identify at which layer critical decisions emerge: whether the model commits early to a prediction or progressively refines it layer-by-layer.</p>
+<p>For example, in a 12-layer language model processing the sequence “A B C A B”, the logit lens may reveal that the token “C” emerges as the top-20 candidates at layer 6. Subsequent layers then progressively amplify this signal, eventually promoting it to the top-ranked token at the final layer. Conversely, for more ambiguous induction tasks involving complex logic, early and middle layers may exhibit low confidence across a broad distribution of tokens, with the model only converging to a specific prediction in the last few layers.</p>
+<figure id="fig:logitlens" data-latex-placement="t">
+<img alt="Figure 11: Logit Lens. Logit Lens provides a window into a model’s intermediate state by applying the final unembedding layer directly to the residual stream at earlier layers (h_1, h_2, ...). This allows researchers to see which tokens the model is “considering” mid-computation, such as the emergen" loading="lazy" src="@@BASE@@figures/8_logit_lens.svg" />
+<figcaption><span class="capnum">Figure 11:</span> <strong>Logit Lens</strong>. Logit Lens provides a window into a model’s intermediate state by applying the final unembedding layer directly to the residual stream at earlier layers (<span class="math inline">h_1, h_2, ...</span>). This allows researchers to see which tokens the model is “considering” mid-computation, such as the emergence of the concept “CAT” before the final output layer is reached.</figcaption>
+</figure>
+<section id="limitations-of-vanilla-logit-lens." class="level4">
+<h4>Limitations of Vanilla Logit Lens.</h4>
+<p>The vanilla logit lens has critical limitations. Applying the unembedding matrix to intermediate activations assumes that the hidden state is in a format the output layer expects, but intermediate representations may reside in vector spaces different from final activations. The unembedding matrix is only trained to operate on the final residual stream after all transformations; applying it to layer-6 activations extracts relevant information but may not precisely reflect the model’s underlying computation at that layer <span class="citation" data-cites="nostalgebraist2020interpretinggpt">(<a href="@@BASE@@references/#ref-nostalgebraist2020interpretinggpt" class="cite cite-emerging" data-cite="nostalgebraist2020interpretinggpt" role="doc-biblioref"><span class="nocase">nostalgebraist</span> 2020</a>)</span>.</p>
+</section>
+</section>
+<section id="tuned-lens-learning-per-layer-transform" class="level2"><h2 data-pdf-page="49"><span class="secnum">8.2</span> Tuned Lens: Learning Per-Layer Transform<a class="anchor" href="#tuned-lens-learning-per-layer-transform" aria-label="Link to this section">#</a></h2>
+<div class="definitionbox">
+<p>Tuned lens <span class="citation" data-cites="belrose2025elicitinglatentpredictionstransformers">(<a href="@@BASE@@references/#ref-belrose2025elicitinglatentpredictionstransformers" class="cite cite-emerging" data-cite="belrose2025elicitinglatentpredictionstransformers" role="doc-biblioref">Belrose et al. 2025</a>)</span> addresses the vector space mismatch problem of logit lens by learning per-layer affine transformations that map intermediate activations to the output layer’s expected space: <span class="math display">\text{logits}_\ell^{\text{TL}} = W_U (W_\ell h_\ell + b_\ell),</span> where <span class="math inline">W_\ell</span> and <span class="math inline">b_\ell</span> are learned affine transformations for layer <span class="math inline">\ell</span>. These transforms are trained to minimize the divergence between the tuned lens’ predicted distribution <span class="math inline">p_\ell^{\text{TL}} = \operatorname{softmax}(\text{logits}_\ell^{\text{TL}})</span> and the final model output distribution <span class="math inline">p_{\text{final}}</span>, typically via <span class="math display">\min_{W_\ell,b_\ell}\mathbb{E}_{x\sim\mathcal{D}}\big[\,\mathrm{KL}(p_{\text{final}}(x)\;\|\;p_\ell^{\text{TL}}(x))\big].</span></p>
+</div>
+<p>Tuned lens improves on basic logit lens by correcting for the fact that different layers operate in different representational spaces. Rather than naively applying the final output layer, tuned lens learns what transformation is needed at each layer to make intermediate activations <strong>speak the same language</strong> as the final layer <span class="citation" data-cites="belrose2025elicitinglatentpredictionstransformers">(<a href="@@BASE@@references/#ref-belrose2025elicitinglatentpredictionstransformers" class="cite cite-emerging" data-cite="belrose2025elicitinglatentpredictionstransformers" role="doc-biblioref">Belrose et al. 2025</a>)</span>.</p>
+<p>The trade-off is that tuned lens requires training additional parameters (one affine transform per layer), but this is computationally cheap compared to other mechanistic methods.</p>
+</section>
+<section id="case-study-refusal-vectors-and-sleeper-agents" class="level2"><h2 data-pdf-page="50"><span class="secnum">8.3</span> Case Study: Refusal Vectors and Sleeper Agents<a class="anchor" href="#case-study-refusal-vectors-and-sleeper-agents" aria-label="Link to this section">#</a></h2>
+<div class="definitionbox">
+<p><span id="def:refusal-vector" data-label="def:refusal-vector"></span> A <strong>refusal vector</strong> is a direction in a model’s residual stream activations that corresponds to the model declining to produce undesirable or harmful content. Let <span class="math inline">h_t^\ell \in \mathbb{R}^d</span> denote the residual stream at layer <span class="math inline">\ell</span> and token position <span class="math inline">t</span>. We define a refusal vector <span class="math inline">\mathbf{r}^\ell \in \mathbb{R}^d</span> at layer <span class="math inline">\ell</span> as: <span class="math display">\mathbf{r}^\ell = \mathbb{E}_{x \sim \mathcal{D}_\text{harmful}} [h_t^\ell(x)] - \mathbb{E}_{x \sim \mathcal{D}_\text{harmless}} [h_t^\ell(x)],</span> where <span class="math inline">\mathcal{D}_\text{harmful}</span> contains prompts that should be refused and <span class="math inline">\mathcal{D}_\text{harmless}</span> contains neutral or safe prompts.</p>
+<p>Projecting <span class="math inline">h_t^\ell</span> onto <span class="math inline">\mathbf{r}^\ell</span> quantifies the strength of the refusal signal at layer <span class="math inline">\ell</span>: <span class="math display">s_t^\ell = \langle h_t^\ell, \mathbf{r}^\ell \rangle.</span></p>
+<p>A large positive <span class="math inline">s_t^\ell</span> correlates with refusal behavior, and ablating or modifying this component can reduce the model’s tendency to refuse. Refusal vectors can be used to interpret, steer, or probe models along safety-relevant directions in residual space.</p>
+</div>
+<p>Building on Definition <a href="@@BASE@@handbook/8-understanding-intermediate-computation-logit-lens-and-probin/#def:refusal-vector" data-reference-type="ref" data-reference="def:refusal-vector">8.3</a>, we can use logit lens to examine how refusal vectors manifest across layers and why the same approach is less effective for latent behaviors like sleeper agents in Definiton <a href="@@BASE@@handbook/2-the-limits-of-behavioral-evaluation/#war:sleeper" data-reference-type="ref" data-reference="war:sleeper">2</a>.</p>
+<div class="examplebox">
+<p>For a refusal vector <span class="math inline">\mathbf{r}^\ell</span> defined at layer <span class="math inline">\ell</span>, logit lens projects intermediate hidden states <span class="math inline">h_t^\ell</span> to the output vocabulary via the unembedding matrix <span class="math inline">W_U</span>: <span class="math display">\hat{y}_t^{(\ell)} = W_U\, h_t^\ell.</span> The resulting layer-wise logits <span class="math inline">\hat{y}_t^{(\ell)}</span> approximate what the model would predict if layer <span class="math inline">\ell</span> were the final layer. When a refusal vector contributes significantly to the activations, the logits associated with refusal behavior may become noticeable at intermediate layers, providing a tentative trace of how the model encodes refusal. Projections along <span class="math inline">\mathbf{r}^\ell</span> can be used to quantify the strength of this signal: <span class="math display">s_t^\ell = \langle h_t^\ell, \mathbf{r}^\ell \rangle.</span></p>
+<p>Sleeper agents encode a <strong>conditional, latent objective</strong> that activates only under a hidden trigger (e.g., year = 2024). For such behavior, the difference <span class="math display">\Delta \hat{y}_t^{(\ell)} = \hat{y}_t^{(\ell)}(\text{trigger}) - \hat{y}_t^{(\ell)}(\text{non-trigger})</span> may appear gradually across layers as the model increasingly favors tokens associated with the latent objective. In this sense, logit lens can still reveal contributions to potentially harmful tokens and track how these emerge through the network, similarly to refusal vectors.</p>
+</div>
+</section>
+<section id="subsec:patchscopes" class="level2"><h2 data-pdf-page="51"><span class="secnum">8.4</span> Patchscopes: Leveraging the Language Model Itself to Explain Intermediate Representations<a class="anchor" href="#subsec:patchscopes" aria-label="Link to this section">#</a></h2>
+<figure id="fig:patchscopes" data-latex-placement="t">
+<img alt="Figure 12: Patchscopes. Patchscopes inspects internal representations by extracting a hidden state from a source prompt and “patching” it into a different inspection prompt. This allows researchers to verify what specific information is captured in a representation by observing how it influences the" loading="lazy" src="@@BASE@@figures/8_patchscopes.svg" />
+<figcaption><span class="capnum">Figure 12:</span> <strong>Patchscopes</strong>. Patchscopes inspects internal representations by extracting a hidden state from a source prompt and “patching” it into a different inspection prompt. This allows researchers to verify what specific information is captured in a representation by observing how it influences the generation of a completely different context—for example, seeing if a representation for “United Kingdom” correctly triggers “London” as the largest city in a new prompt.</figcaption>
+</figure>
+<div class="definitionbox">
+<p>Patchscopes <span class="citation" data-cites="patchscopes">(<a href="@@BASE@@references/#ref-patchscopes" class="cite" data-cite="patchscopes" role="doc-biblioref">Ghandeharioun et al. 2024</a>)</span> leverages the expressive capacity of large language models to translate internal representations into natural-language explanations. Let <span class="math inline">h^l_t</span> denote a hidden representation at layer <span class="math inline">l</span> and token position <span class="math inline">t</span>. Patchscopes produces a textual explanation of <span class="math inline">h^l_t</span>, denoted by <span class="math inline">e(h^l_t)</span>, via <span class="math display">e(h^l_t) = f_{\text{model}}(p_{[h^{l^*}_{t^*} \leftarrow h^l_t]}),</span> where <span class="math inline">l^*</span> and <span class="math inline">t^*</span> specify the layer and token position to which the representation is patched, and <span class="math inline">p</span> is an <em>elicitation prompt</em> designed to encourage the language model <span class="math inline">f_{\text{model}}</span> to decode the patched representation into text that expresses the contained information.</p>
+<p>For example, consider the prompt illustrated in the Figure 1 of <span class="citation" data-cites="patchscopes">Ghandeharioun et al. (<a href="@@BASE@@references/#ref-patchscopes" class="cite" data-cite="patchscopes" role="doc-biblioref">2024</a>)</span> <span class="math display">p = \text{``cat$\rightarrow$cat; 135$\rightarrow$135; hello$\rightarrow$hello; ?&#39;&#39;},</span> where <span class="math inline">t^*</span> corresponds to the position of the token “?”. The notation <span class="math inline">[h^{l^*}_{t^*} \leftarrow h^l_t]</span> indicates that, during the forward pass of <span class="math inline">f_{\text{model}}</span> on <span class="math inline">p</span>, the hidden representation at layer <span class="math inline">l^*</span> and position <span class="math inline">t^*</span> is replaced with <span class="math inline">h^l_t</span>. Under this construction, information encoded in <span class="math inline">h^l_t</span> can be elicited through the model’s prediction for the next token at the “?” position.</p>
+</div>
+<p>Because the mapping from intermediate representations to natural language may be too complex to be captured by an affine transformation, Patchscopes extends the paradigm of the logit lens and tuned lens by <em>delegating the representation-to-text transformation to the language model itself</em><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. In this view, the language model acts as an <em>activation decoder</em>.</p>
+<p>The decoding process proceeds by patching the representation of interest into a designated token position within an elicitation prompt. As the model processes the prompt, the semantic information embedded in the patched representation can be surfaced in the model’s generated output. Crucially, this approach relies on the model’s own learned and generalized text-generation capabilities to perform the transformation from internal activations to natural language.</p>
+<section id="limitations-of-patchscopes." class="level4">
+<h4>Limitations of Patchscopes.</h4>
+<p>A key limitation of Patchscopes is that injecting an external representation into an elicitation prompt can shift the model’s internal activations into an OOD regime. This is expected as the decoder is a standard pretrained language model that has not been explicitly trained for representation-to-text decoding. Although the model may still successfully surface salient information from the patched representation, the decoding process can be degraded, and critical aspects of the original representation may be distorted or lost.</p>
+<aside id="footnotes" class="footnotes footnotes-end-of-section" role="doc-footnote">
+<hr />
+<ol>
+<li id="fn1"><p>A concurrent work, SelfIE <span class="citation" data-cites="selfie">(<a href="@@BASE@@references/#ref-selfie" class="cite" data-cite="selfie" role="doc-biblioref">H. Chen et al. 2024</a>)</span>, explores a similar direction. While we focus on Patchscopes as a reference framework, both methods share closely related motivations and methodologies.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</aside>
+</section>
+</section>
+<section id="subsec:latentqa" class="level2"><h2 data-pdf-page="52"><span class="secnum">8.5</span> LatentQA: Finetuning the Language Model as Representation Decoder<a class="anchor" href="#subsec:latentqa" aria-label="Link to this section">#</a></h2>
+<div class="definitionbox">
+<p>LatentQA <span class="citation" data-cites="pan2024latentqateachingllmsdecode">(<a href="@@BASE@@references/#ref-pan2024latentqateachingllmsdecode" class="cite cite-emerging" data-cite="pan2024latentqateachingllmsdecode" role="doc-biblioref">Pan et al. 2024</a>)</span> formulates representation decoding as a supervised learning problem via Latent Interpretation Tuning (LIT), which fine-tunes an activation decoder to perform representation-to-text decoding. The core step of LIT is to construct a finetuning dataset <span class="math inline">D</span> consisting of samples <span class="math inline">(h^l_t, q, a)</span>, where <span class="math inline">h^l_t</span> is a cached hidden representation from a target model, and <span class="math inline">(q, a)</span> is a question–answer pair that queries the information encoded in <span class="math inline">h^l_t</span>.</p>
+<p>Specifically, <span class="math inline">h^l_t</span> denotes the activation at layer <span class="math inline">l</span> and token position <span class="math inline">t</span> when the target model processes a “control prompt” designed to embed a specific attribute or concept into the representation. An example control prompt from Figure 3 of <span class="citation" data-cites="pan2024latentqateachingllmsdecode">Pan et al. (<a href="@@BASE@@references/#ref-pan2024latentqateachingllmsdecode" class="cite cite-emerging" data-cite="pan2024latentqateachingllmsdecode" role="doc-biblioref">2024</a>)</span> is: <span class="math display">\text{``In your next reply, please try to evoke a brief sense of triumphant hubris.&#39;&#39;}</span> If we define <span class="math inline">h^l_t</span> as the activation at layer <span class="math inline">l</span> corresponding to the final token (“.”) of this prompt, the resulting representation is expected to encode the instruction to respond with triumphant hubris. In this case, a corresponding question–answer pair may be: <span class="math display">q = \text{``In what way does the assistant craft its responses to the user?&#39;&#39;}</span> <span class="math display">a = \text{``The assistant crafts responses that briefly highlight a sense of self-assured victory.&#39;&#39;}</span> Both the control prompt and the <span class="math inline">(q, a)</span> pair are generated by prompting an off-the-shelf proprietary language model <span class="citation" data-cites="pan2024latentqateachingllmsdecode">(<a href="@@BASE@@references/#ref-pan2024latentqateachingllmsdecode" class="cite cite-emerging" data-cite="pan2024latentqateachingllmsdecode" role="doc-biblioref">Pan et al. 2024</a>)</span>.</p>
+</div>
+<p>LatentQA addresses the OOD issue inherent in Patchscopes-style methods by explicitly finetuning the activation decoder on the representation-to-text decoding task. Through LIT, the decoder is trained to directly ingest and process raw activation vectors. Ideally, after being exposed to a sufficiently diverse collection of question–answer pairs over many different representations, the decoder learns <em>which aspects of the activation to attend to</em> and <em>how to verbalize them</em> conditioned on the query.</p>
+<figure id="fig:latentqa" data-latex-placement="t">
+<img alt="Figure 13: LatentQA. LatentQA is a method for probing the semantic content of hidden representations by training a separate decoder model to answer natural language questions about them. The process involves (1) curating a dataset of activation-question-answer triplets from a target LLM, and (2) fin" loading="lazy" src="@@BASE@@figures/8_latent-qa.svg" />
+<figcaption><span class="capnum">Figure 13:</span> <strong>LatentQA</strong>. LatentQA is a method for probing the semantic content of hidden representations by training a separate decoder model to answer natural language questions about them. The process involves (1) curating a dataset of activation-question-answer triplets from a target LLM, and (2) finetuning a decoder to retrieve specific information latent within those activations, such as the model’s underlying goals or persona.</figcaption>
+</figure>
+<section id="limitations-of-latentqa." class="level4">
+<h4>Limitations of LatentQA.</h4>
+<p>The central limitation of LatentQA lies in the generalizability of the learned representation-to-text decoder. When the finetuning dataset <span class="math inline">D</span> is insufficiently large or diverse, the decoder may overfit by memorizing superficial correspondences between representations and textual descriptions, rather than learning the underlying algorithmic transformation. Recent efforts, such as Predictive Concept Decoders (PCDs) <span class="citation" data-cites="pcd">(<a href="@@BASE@@references/#ref-pcd" class="cite cite-emerging" data-cite="pcd" role="doc-biblioref">Huang et al. 2025</a>)</span> and Activation Oracles (AOs) <span class="citation" data-cites="ao">(<a href="@@BASE@@references/#ref-ao" class="cite cite-emerging" data-cite="ao" role="doc-biblioref"><span class="nocase">Karvonen et al.</span> 2025</a>)</span>, mitigate this issue by constructing more diverse finetuning datasets to expand the decoder’s coverage and robustness.</p>
+</section>
+</section>
+<section id="subsec:probing" class="level2"><h2 data-pdf-page="52"><span class="secnum">8.6</span> Probing Classifiers: Capabilities, Critiques, and Causal Limitations<a class="anchor" href="#subsec:probing" aria-label="Link to this section">#</a></h2>
+<p>Probing classifiers are among the most widely used tools for understanding neural network representations. A probe trains a classifier—typically linear—to predict a property (e.g., part-of-speech, sentiment, entity type) from model activations. High probe accuracy is interpreted as evidence that the property is “encoded” in the representation. However, the relationship between probe accuracy and mechanistic understanding is subtle and contested. This section reviews probing methodology, its critiques, and its appropriate role in interpretability research.</p>
+<section id="standard-probing-methodology" class="level3"><h3 data-pdf-page="53"><span class="secnum">8.6.1</span> Standard Probing Methodology<a class="anchor" href="#standard-probing-methodology" aria-label="Link to this section">#</a></h3>
+<div class="definitionbox">
+<p>A <strong>probing classifier</strong> is a supervised model trained to predict a target property <span class="math inline">y</span> from neural network activations <span class="math inline">h_\ell</span> at layer <span class="math inline">\ell</span>: <span class="math display">\hat{y} = g(W_{\text{probe}} h_\ell + b_{\text{probe}})</span> where <span class="math inline">g</span> is an activation function (identity for regression, softmax for classification), and <span class="math inline">(W_{\text{probe}}, b_{\text{probe}})</span> are learned parameters. The probe is trained on labeled examples <span class="math inline">(h_\ell^{(i)}, y^{(i)})</span> to minimize prediction error.</p>
+<p><strong>Linear probes</strong> constrain <span class="math inline">g</span> to be linear, testing whether the property is linearly accessible. <strong>MLP probes</strong> allow nonlinear <span class="math inline">g</span>, testing whether the property is present in any recoverable form.</p>
+</div>
+<figure id="fig:probing" data-latex-placement="t">
+<img alt="Figure 14: Probing Classifier. Probing is a technique used to determine if a specific concept is linearly represented within a model’s internal activations. A simple supervised classifier (probe) is trained to distinguish between positive and negative samples of a concept." loading="lazy" src="@@BASE@@figures/8_probing.svg" />
+<figcaption><span class="capnum">Figure 14:</span> <strong>Probing Classifier</strong>. Probing is a technique used to determine if a specific concept is linearly represented within a model’s internal activations. A simple supervised classifier (probe) is trained to distinguish between positive and negative samples of a concept.</figcaption>
+</figure>
+<section id="what-probing-can-show." class="level4">
+<h4>What Probing Can Show.</h4>
+<p>Probing provides evidence about <em>information content</em>: whether activations contain recoverable information about a property. High probe accuracy indicates the information is present; low accuracy indicates it is absent or deeply encoded.</p>
+</section>
+<section id="what-probing-cannot-show." class="level4">
+<h4>What Probing Cannot Show.</h4>
+<p>Probing does not establish <em>causal relevance</em>: whether the model actually uses that information for its predictions. A representation may encode information that is never accessed by downstream computation—a “leftover” from earlier processing or a byproduct of representing correlated features.</p>
+</section>
+</section>
+<section id="the-probe-causality-problem" class="level3"><h3 data-pdf-page="53"><span class="secnum">8.6.2</span> The Probe Causality Problem<a class="anchor" href="#the-probe-causality-problem" aria-label="Link to this section">#</a></h3>
+<div class="warningbox">
+<p>High probe accuracy does not imply causal relevance. The model may encode information without using it, or the probe may detect correlates of the target property rather than the property itself <span class="citation" data-cites="belinkov-2022-probing hewitt-liang-2019-designing">(<a href="@@BASE@@references/#ref-belinkov-2022-probing" class="cite cite-established" data-cite="belinkov-2022-probing" role="doc-biblioref">Belinkov 2022</a>; <a href="@@BASE@@references/#ref-hewitt-liang-2019-designing" class="cite" data-cite="hewitt-liang-2019-designing" role="doc-biblioref">Hewitt and Liang 2019</a>)</span>.</p>
+<p><strong>Failure modes:</strong></p>
+<ul>
+<li><p><strong>Correlational encoding</strong>: The probe detects features correlated with the target (e.g., word frequency correlates with part-of-speech) rather than the target itself.</p></li>
+<li><p><strong>Unused information</strong>: Information may be encoded but never read by subsequent layers. The model’s actual computation may rely on different features.</p></li>
+<li><p><strong>Probe expressivity</strong>: A sufficiently powerful probe can extract information that requires complex computation to access, information the model itself may not use.</p></li>
+</ul>
+<p>This problem is fundamental: probing measures information presence, not information use. Bridging this gap requires causal methods.</p>
+</div>
+</section>
+<section id="control-tasks-and-selectivity" class="level3"><h3 data-pdf-page="54"><span class="secnum">8.6.3</span> Control Tasks and Selectivity<a class="anchor" href="#control-tasks-and-selectivity" aria-label="Link to this section">#</a></h3>
+<p>A major critique of probing is that high accuracy may reflect probe capacity rather than representation quality. <span class="citation" data-cites="hewitt-liang-2019-designing">Hewitt and Liang (<a href="@@BASE@@references/#ref-hewitt-liang-2019-designing" class="cite" data-cite="hewitt-liang-2019-designing" role="doc-biblioref">2019</a>)</span> introduced <strong>control tasks</strong> to address this concern.</p>
+<div class="definitionbox">
+<p>A <strong>control task</strong> assigns random labels to inputs, breaking any genuine relationship between activations and the target property. A probe trained on the control task measures the <em>baseline extractability</em> of random patterns from the representation.</p>
+<p><strong>Selectivity</strong> is defined as: <span class="math display">\text{Selectivity} = \text{Acc}_{\text{linguistic}} - \text{Acc}_{\text{control}}</span> where <span class="math inline">\text{Acc}_{\text{linguistic}}</span> is probe accuracy on the true task and <span class="math inline">\text{Acc}_{\text{control}}</span> is accuracy on the control task.</p>
+<p>High selectivity indicates the probe succeeds because of genuine encoding, not because the representation is easily separable by any linear classifier. Low selectivity suggests the probe may be exploiting representation geometry rather than task-relevant structure.</p>
+</div>
+<section id="implications-of-control-tasks." class="level4">
+<h4>Implications of Control Tasks.</h4>
+<p>Control task experiments have revealed that many probing results showing “encoding” of linguistic properties suffer from low selectivity—random labels are nearly as extractable <span class="citation" data-cites="hewitt-liang-2019-designing">(<a href="@@BASE@@references/#ref-hewitt-liang-2019-designing" class="cite" data-cite="hewitt-liang-2019-designing" role="doc-biblioref">Hewitt and Liang 2019</a>)</span>. However, selectivity improves with model depth and size, suggesting more task-specific encoding in larger models, though this varies by property: syntactic properties typically exhibit higher selectivity than semantic ones. This fragmented picture underscores why probing studies must report control task accuracy alongside primary results; claims about encoding are only meaningful when selectivity is substantially positive.</p>
+</section>
+</section>
+<section id="probe-complexity-vs.-causal-relevance" class="level3"><h3 data-pdf-page="55"><span class="secnum">8.6.4</span> Probe Complexity vs. Causal Relevance<a class="anchor" href="#probe-complexity-vs.-causal-relevance" aria-label="Link to this section">#</a></h3>
+<p>A related critique concerns the relationship between probe complexity and causal relevance. If a property can only be extracted by a complex (nonlinear, high-capacity) probe, does this indicate the property is “deeply encoded” or merely that the probe is doing substantial computation itself?</p>
+<div class="definitionbox">
+<p><strong>Observation</strong>: More complex probes achieve higher accuracy on most tasks.</p>
+<p><strong>Interpretation problem</strong>: Does high accuracy with a complex probe indicate:</p>
+<ol>
+<li><p>The property is encoded but in a complex, nonlinear form?</p></li>
+<li><p>The probe itself is computing the property from simpler features?</p></li>
+</ol>
+<p>If (b), the probe demonstrates that the property is <em>computable from</em> the representation, not that it is <em>encoded in</em> the representation in any meaningful sense.</p>
+</div>
+<section id="minimum-description-length-probes." class="level4">
+<h4>Minimum Description Length Probes.</h4>
+<p>To address this, <span class="citation" data-cites="voita-titov-2020-information">Voita and Titov (<a href="@@BASE@@references/#ref-voita-titov-2020-information" class="cite" data-cite="voita-titov-2020-information" role="doc-biblioref">2020</a>)</span> proposed evaluating probes via the <strong>Minimum Description Length</strong> (MDL) principle: prefer probes that achieve good accuracy with minimal complexity. The MDL framework jointly considers data cost (how well the probe compresses labels given representations) and model cost (how complex the probe itself is). A property is considered “more encoded” if it can be extracted with a simpler probe, shifting the question from “can we extract it?” to “how easily can we extract it?”</p>
+</section>
+<section id="practical-guidance." class="level4">
+<h4>Practical Guidance.</h4>
+<p>When interpreting probing results, prefer linear probes when possible—if linear probes fail but MLP probes succeed, interpret with caution. Crucially, report probe architecture and capacity alongside accuracy, and compare against probes trained on random representations to establish baselines. For quantitative comparison, consider MDL-based evaluation, which provides a principled way to trade off accuracy against model complexity.</p>
+</section>
+</section>
+<section id="amnesic-probing-and-causal-probing" class="level3"><h3 data-pdf-page="55"><span class="secnum">8.6.5</span> Amnesic Probing and Causal Probing<a class="anchor" href="#amnesic-probing-and-causal-probing" aria-label="Link to this section">#</a></h3>
+<p>Early work demonstrated that individual neurons could be manipulated to control morphological properties such as gender, number, and tense <span class="citation" data-cites="bau2018identifying">(<a href="@@BASE@@references/#ref-bau2018identifying" class="cite" data-cite="bau2018identifying" role="doc-biblioref">Bau et al. 2019</a>)</span>, motivating more systematic, direction-based approaches. The idea of intervening on representations via probes was then formalized progressively: <span class="citation" data-cites="giulianelli-etal-2018-hood">Giulianelli et al. (<a href="@@BASE@@references/#ref-giulianelli-etal-2018-hood" class="cite" data-cite="giulianelli-etal-2018-hood" role="doc-biblioref">2018</a>)</span> first demonstrated that probes trained on intermediate activations could steer model behavior, and <span class="citation" data-cites="ravfogel-etal-2020-null">Ravfogel et al. (<a href="@@BASE@@references/#ref-ravfogel-etal-2020-null" class="cite" data-cite="ravfogel-etal-2020-null" role="doc-biblioref">2020</a>)</span> extended this via Iterative Nullspace Projection (INLP), which repeatedly projects out linearly encoded information. Building on this lineage, <span class="citation" data-cites="elazar-etal-2021-amnesic">Elazar et al. (<a href="@@BASE@@references/#ref-elazar-etal-2021-amnesic" class="cite" data-cite="elazar-etal-2021-amnesic" role="doc-biblioref">2021</a>)</span> introduced <strong>amnesic probing</strong>: after identifying a direction encoding property <span class="math inline">P</span>, project it out of the representation and measure downstream task degradation.</p>
+<p>To bridge the gap between information presence and causal relevance, several methods attempt to make probing causal.</p>
+<section id="amnesic-probing." class="level4">
+<h4>Amnesic Probing.</h4>
+<div class="definitionbox">
+<p>Given a probe direction <span class="math inline">w</span> encoding property <span class="math inline">P</span>:</p>
+<ol>
+<li><p>Compute the projection: <span class="math inline">h&#39; = h - \frac{h \cdot w}{\|w\|^2} w</span></p></li>
+<li><p>Run the model with <span class="math inline">h&#39;</span> replacing <span class="math inline">h</span></p></li>
+<li><p>Measure change in downstream task performance</p></li>
+</ol>
+<p>If performance degrades, the information was causally used. If performance is unchanged, the information was encoded but unused.</p>
+</div>
+<p><strong>Limitations</strong>: Amnesic probing assumes the property is encoded in a single linear direction. If encoding is distributed or nonlinear, projection may not fully remove the information, leading to false negatives (concluding information is unused when it is).</p>
+</section>
+<section id="causal-probing-via-interchange-interventions." class="level4">
+<h4>Causal Probing via Interchange Interventions.</h4>
+<p>A stronger causal test swaps the probed representation between inputs that differ on the target property:</p>
+<ul>
+<li><p>Input <span class="math inline">x_1</span> has property <span class="math inline">P = p_1</span>; input <span class="math inline">x_2</span> has property <span class="math inline">P = p_2</span>.</p></li>
+<li><p>Replace the representation component encoding <span class="math inline">P</span> in <span class="math inline">x_1</span> with that from <span class="math inline">x_2</span>.</p></li>
+<li><p>If the model’s behavior shifts to reflect <span class="math inline">p_2</span>, the encoding is causally active.</p></li>
+</ul>
+<p>This provides stronger evidence than amnesic probing but requires identifying the specific representation component, not just demonstrating its existence.</p>
+</section>
+</section>
+<section id="critiques-of-attribution-and-saliency-methods" class="level3"><h3 data-pdf-page="56"><span class="secnum">8.6.6</span> Critiques of Attribution and Saliency Methods<a class="anchor" href="#critiques-of-attribution-and-saliency-methods" aria-label="Link to this section">#</a></h3>
+<p>Probing is often used alongside attribution methods (saliency maps, attention visualization, gradient-based attribution) to understand model behavior. However, attribution methods face their own critiques that affect how probing results should be interpreted.</p>
+<section id="faithfulness-of-attributions." class="level4">
+<h4>Faithfulness of Attributions.</h4>
+<p>Attribution methods aim to identify which inputs or components most influenced an output. However, <span class="citation" data-cites="jacovi2020faithfullyinterpretablenlpsystems">Jacovi and Goldberg (<a href="@@BASE@@references/#ref-jacovi2020faithfullyinterpretablenlpsystems" class="cite" data-cite="jacovi2020faithfullyinterpretablenlpsystems" role="doc-biblioref">2020</a>)</span> distinguish between <em>plausibility</em> (do attributions seem reasonable to humans?) and <em>faithfulness</em> (do attributions reflect actual model computation?).</p>
+</section>
+<section id="key-findings-on-attribution-faithfulness" class="level4">
+<h4>Key findings on attribution faithfulness</h4>
+<p>: Gradient-based saliency can highlight features the model is insensitive to <span class="citation" data-cites="adebayo2020sanitycheckssaliencymaps">(<a href="@@BASE@@references/#ref-adebayo2020sanitycheckssaliencymaps" class="cite cite-established" data-cite="adebayo2020sanitycheckssaliencymaps" role="doc-biblioref">Adebayo et al. 2018b</a>)</span>, attention weights correlate weakly with causal importance <span class="citation" data-cites="jain2019attention wiegreffe2019attention">(<a href="@@BASE@@references/#ref-jain2019attention" class="cite cite-established" data-cite="jain2019attention" role="doc-biblioref">Jain and Wallace 2019</a>; <a href="@@BASE@@references/#ref-wiegreffe2019attention" class="cite cite-established" data-cite="wiegreffe2019attention" role="doc-biblioref">Wiegreffe and Pinter 2019</a>)</span>, and different attribution methods often disagree substantially on the same inputs <span class="citation" data-cites="krishna2025disagreementproblemexplainablemachine">(<a href="@@BASE@@references/#ref-krishna2025disagreementproblemexplainablemachine" class="cite" data-cite="krishna2025disagreementproblemexplainablemachine" role="doc-biblioref">Krishna et al. 2024</a>)</span>. Collectively, these findings suggest that attribution methods are fundamentally unreliable guides to what information a model actually uses.</p>
+</section>
+<section id="implications-for-probing." class="level4">
+<h4>Implications for Probing.</h4>
+<p>This unreliability propagates into probing studies. Probes trained on attention patterns may not reveal causally important information since attention itself may not be faithful. Similarly, using gradients to identify which features to probe can bias toward high-magnitude gradients that lack causal importance. When probing and attribution methods disagree, resolving the disagreement requires causal interventions rather than passive observation.</p>
+</section>
+</section>
+<section id="circuit-fragility-and-robustness-concerns" class="level3"><h3 data-pdf-page="56"><span class="secnum">8.6.7</span> Circuit Fragility and Robustness Concerns<a class="anchor" href="#circuit-fragility-and-robustness-concerns" aria-label="Link to this section">#</a></h3>
+<p>A related concern applies to circuit-level findings from mechanistic interpretability: identified circuits may be fragile, failing to generalize across distributions or model variants.</p>
+<section id="evidence-for-circuit-fragility." class="level4">
+<h4>Evidence for Circuit Fragility.</h4>
+<p>Circuits identified on one task may not transfer to related tasks, even when the underlying computation seems similar <span class="citation" data-cites="mcgrath2023hydraeffectemergentselfrepair">(<a href="@@BASE@@references/#ref-mcgrath2023hydraeffectemergentselfrepair" class="cite cite-emerging" data-cite="mcgrath2023hydraeffectemergentselfrepair" role="doc-biblioref">McGrath et al. 2023</a>)</span>. Small changes to model weights through finetuning or continued pretraining can disrupt identified circuits while preserving task performance, suggesting redundancy or alternative pathways. Moreover, circuits identified in small models may not have direct analogues in larger models <span class="citation" data-cites="olsson2022incontextlearninginductionheads">(<a href="@@BASE@@references/#ref-olsson2022incontextlearninginductionheads" class="cite cite-emerging" data-cite="olsson2022incontextlearninginductionheads" role="doc-biblioref">Olsson, Elhage, et al. 2022</a>)</span>, limiting the transferability of findings across model scales.</p>
+</section>
+<section id="implications-for-probing.-1" class="level4">
+<h4>Implications for Probing.</h4>
+<p>Circuit fragility reveals a gap in probing’s explanatory power: stable probe accuracy across checkpoints does not guarantee stable circuit implementation, and information encoded at layer <span class="math inline">\ell</span> may be read by different circuits under different conditions. This suggests that probing findings—which identify <em>what</em> information is encoded—may not reliably predict <em>how</em> that information is used. Complementing probing with circuit analysis is therefore necessary to understand not just encoding but routing.</p>
+</section>
+</section>
+<section id="when-is-probing-appropriate-and-when-is-it-not" class="level3"><h3 data-pdf-page="56"><span class="secnum">8.6.8</span> When is Probing Appropriate, and When is it Not?<a class="anchor" href="#when-is-probing-appropriate-and-when-is-it-not" aria-label="Link to this section">#</a></h3>
+<p>Given these critiques, we provide guidance on appropriate uses of probing.</p>
+<table id="tab:probing-guidance">
+<caption><span class="capnum">Table 12:</span> Appropriate and Inappropriate Uses of Probing</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><span style="color: white"><strong>Appropriate Uses</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Inappropriate Uses</strong></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Establishing information presence (“is <span class="math inline">P</span> encoded?”)</td>
+<td style="text-align: left;">Claiming causal relevance (“the model uses <span class="math inline">P</span>”)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Comparing encoding strength across layers</td>
+<td style="text-align: left;">Concluding a property is “not used” from low probe accuracy</td>
+</tr>
+<tr>
+<td style="text-align: left;">Auditing for encoded sensitive information</td>
+<td style="text-align: left;">Claiming mechanistic understanding from probes alone</td>
+</tr>
+<tr>
+<td style="text-align: left;">Generating hypotheses for causal investigation</td>
+<td style="text-align: left;">Interpreting probe weights as model weights</td>
+</tr>
+<tr>
+<td style="text-align: left;">Early detection / triage before expensive analysis</td>
+<td style="text-align: left;">Evaluating alignment or safety from probe results</td>
+</tr>
+</tbody>
+</table>
+<section id="probing-as-hypothesis-generation." class="level4">
+<h4>Probing as Hypothesis Generation.</h4>
+<p>The most productive framing treats probing as <em>hypothesis generation</em>: probes identify candidate properties that may be causally relevant, which must then be tested via causal methods (ablation, patching, circuit analysis). This positions probing as an efficient first step, not a final answer.</p>
+</section>
+</section>
+<section id="best-practices-for-probing-studies" class="level3"><h3 data-pdf-page="57"><span class="secnum">8.6.9</span> Best Practices for Probing Studies<a class="anchor" href="#best-practices-for-probing-studies" aria-label="Link to this section">#</a></h3>
+<p>Based on the critiques above, we recommend the following practices:</p>
+<ol>
+<li><p><strong>Report control task baselines</strong>: Always include selectivity metrics.</p></li>
+<li><p><strong>Use minimal probe complexity</strong>: Prefer linear probes; justify MLP probes when necessary.</p></li>
+<li><p><strong>Include random baselines</strong>: Compare to probes on shuffled activations.</p></li>
+<li><p><strong>Test causal relevance</strong>: Complement probing with amnesic probing or interchange interventions.</p></li>
+<li><p><strong>Report layer-wise patterns</strong>: Show how encoding varies across layers, not just peak accuracy.</p></li>
+<li><p><strong>Acknowledge limitations</strong>: Explicitly state that probing shows information presence, not causal use.</p></li>
+<li><p><strong>Cross-validate</strong>: Report variance across random seeds and data splits.</p></li>
+<li><p><strong>Consider alternatives</strong>: For targeted properties, supervised methods (DAS, DBM) may provide more reliable results than probing followed by post-hoc causal testing.</p></li>
+</ol>
+<div class="examplebox">
+<p><span id="ex:probe_dir" data-label="ex:probe_dir"></span> Despite the critiques above, probing remains valuable for specific applications. The <strong>Simple probes can catch sleeper agents</strong> research <span class="citation" data-cites="macdiarmid2024sleeperagentprobes">(<a href="@@BASE@@references/#ref-macdiarmid2024sleeperagentprobes" class="cite cite-emerging" data-cite="macdiarmid2024sleeperagentprobes" role="doc-biblioref">MacDiarmid et al. 2024</a>)</span> demonstrates that simple linear probes trained on residual stream activations can detect latent backdoor behavior in sleeper agent models even when the trigger and the harmful behavior are unknown.</p>
+<p>In a sleeper agent model <span class="math inline">f_\theta</span>, the model behaves normally for one context (e.g., <span class="math inline">y=\text{``2023&#39;&#39;}</span>) but exhibits a hidden dangerous policy when a trigger is present (e.g., <span class="math inline">y=\text{``2024&#39;&#39;}</span>) <span class="citation" data-cites="macdiarmid2024sleeperagentprobes">(<a href="@@BASE@@references/#ref-macdiarmid2024sleeperagentprobes" class="cite cite-emerging" data-cite="macdiarmid2024sleeperagentprobes" role="doc-biblioref">MacDiarmid et al. 2024</a>)</span>.</p>
+<p>To detect this latent behavior, one can construct a <strong>linear defection detector</strong> by computing a <strong>detector direction</strong> <span class="math inline">\mathbf{d}^\ell</span> at a given residual layer <span class="math inline">\ell</span>. Let <span class="math inline">h_t^\ell(x)</span> denote residual activations at the final token position. Given a small labeled fit dataset of prompts, the detector direction is defined as: <span class="math display">\mathbf{d}^\ell = \mathbb{E}_{(x,y)\sim\mathcal{D}_\text{true}}[h_t^\ell(x)] - \mathbb{E}_{(x,y)\sim\mathcal{D}_\text{false}}[h_t^\ell(x)],</span> where <span class="math inline">\mathcal{D}_\text{true}</span> and <span class="math inline">\mathcal{D}_\text{false}</span> are contrast pairs that correlate with the latent policy.</p>
+<p>Projecting test activations onto this direction yields a scalar detector activation: <span class="math display">s_t^\ell = \langle h_t^\ell(x),\, \mathbf{d}^\ell \rangle,</span> which can then be used as a classifier score to distinguish inputs likely to activate the sleeper agent from those that are not. Empirically, this approach achieves high accuracy in identifying the latent objective.</p>
+<p><strong>Why this works despite the critiques</strong>: In this application, the goal is <em>detection</em> (information presence), not mechanistic understanding. The probe identifies that deceptive intent is encoded, which is sufficient for a safety filter. Whether the model “uses” this encoding in a mechanistically clean way is secondary to the practical goal of flagging dangerous inputs.</p>
+<p>This illustrates that probing remains valuable when the goal is auditing or detection, while its limitations apply most strongly to mechanistic claims.</p>
+</div>
+</section>
+</section>
+</section>

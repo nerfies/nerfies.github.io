@@ -1,0 +1,95 @@
+<section id="app:math" class="level1"><h1 data-pdf-page="122"><span class="secnum">D</span> Mathematical Foundations<a class="anchor" href="#app:math" aria-label="Link to this section">#</a></h1>
+<p>This appendix provides background on key mathematical frameworks used in mechanistic interpretability.</p>
+<section id="sparse-coding-theory" class="level2"><h2 data-pdf-page="122"><span class="secnum">D.1</span> Sparse Coding Theory<a class="anchor" href="#sparse-coding-theory" aria-label="Link to this section">#</a></h2>
+<p>Sparse autoencoders are grounded in sparse coding: the hypothesis that the brain (and neural networks) represent information via sparse, interpretable basis vectors.</p>
+<p><strong>Sparse coding problem</strong>: Given data <span class="math inline">x</span>, find dictionary <span class="math inline">D</span> and sparse codes <span class="math inline">z</span> such that: <span id="eq-7"></span> <span class="math display">\begin{equation*}
+x \approx Dz, \quad \|z\|_0 \text{ small}
+\tag{7}
+\end{equation*}</span></p>
+<p>In practice, <span class="math inline">\ell_1</span> regularization is used instead of <span class="math inline">\ell_0</span> (NP-hard): <span id="eq-8"></span> <span class="math display">\begin{equation*}
+\min_D \min_z \|x - Dz\|^2 + \lambda \|z\|_1
+\tag{8}
+\end{equation*}</span></p>
+<p>SAEs implement this with neural networks: <span class="math inline">D = W_{\text{out}}</span>, codes are <span class="math inline">z = \text{ReLU}(W_{\text{in}} x + b)</span>.</p>
+</section>
+<section id="causal-inference-basics" class="level2"><h2 data-pdf-page="123"><span class="secnum">D.2</span> Causal Inference Basics<a class="anchor" href="#causal-inference-basics" aria-label="Link to this section">#</a></h2>
+<p>Mechanistic interpretability relies on causal reasoning: determining whether a component is <em>necessary</em> and <em>sufficient</em> for a behavior.</p>
+<section id="necessity" class="level3"><h3 data-pdf-page="123"><span class="secnum">D.2.1</span> Necessity<a class="anchor" href="#necessity" aria-label="Link to this section">#</a></h3>
+<p>A component <span class="math inline">C</span> is <strong>necessary</strong> for behavior <span class="math inline">B</span> if: <span id="eq-9"></span> <span class="math display">\begin{equation*}
+\text{Remove } C \Rightarrow B \text{ disappears}
+\tag{9}
+\end{equation*}</span></p>
+<p>Tested via ablation: measure effect of removing <span class="math inline">C</span> on downstream loss or output distribution.</p>
+</section>
+<section id="sufficiency" class="level3"><h3 data-pdf-page="123"><span class="secnum">D.2.2</span> Sufficiency<a class="anchor" href="#sufficiency" aria-label="Link to this section">#</a></h3>
+<p>A component <span class="math inline">C</span> is <strong>sufficient</strong> for behavior <span class="math inline">B</span> if: <span id="eq-10"></span> <span class="math display">\begin{equation*}
+\text{Only } C \text{ is active} \Rightarrow B \text{ occurs}
+\tag{10}
+\end{equation*}</span></p>
+<p>Tested via interchange interventions: replace <span class="math inline">C</span> in a clean example with <span class="math inline">C</span> from a different example, verify behavior changes as expected.</p>
+</section>
+<section id="causal-abstraction" class="level3"><h3 data-pdf-page="123"><span class="secnum">D.2.3</span> Causal Abstraction<a class="anchor" href="#causal-abstraction" aria-label="Link to this section">#</a></h3>
+<p>Causal abstraction formalizes when a high-level description (“this head implements copying”) correctly describes lower-level computation.</p>
+<p>A high-level abstraction is <strong>causally correct</strong> if interventions on the high-level description produce equivalent causal effects as interventions on the low-level system.</p>
+<p>This is formalized via causal diagrams: high-level variables correspond to low-level variables via abstraction maps <span class="math inline">\phi</span>, and interventions commute: <span id="eq-11"></span> <span class="math display">\begin{equation*}
+\text{Intervene at high level} \xrightarrow{\phi} \text{Intervene at low level}
+\tag{11}
+\end{equation*}</span></p>
+</section>
+</section>
+<section id="singular-learning-theory-slt" class="level2"><h2 data-pdf-page="123"><span class="secnum">D.3</span> Singular Learning Theory (SLT)<a class="anchor" href="#singular-learning-theory-slt" aria-label="Link to this section">#</a></h2>
+<p>SLT provides geometric analysis of neural network learning and generalization.</p>
+<section id="the-local-learning-coefficient" class="level3"><h3 data-pdf-page="123"><span class="secnum">D.3.1</span> The Local Learning Coefficient<a class="anchor" href="#the-local-learning-coefficient" aria-label="Link to this section">#</a></h3>
+<p>For a loss landscape <span class="math inline">\mathcal{L}(\theta)</span> at a solution <span class="math inline">\theta^*</span>, the <strong>Local Learning Coefficient</strong> (LLC) is: <span id="eq-12"></span> <span class="math display">\begin{equation*}
+\text{LLC}(\theta^*) = \frac{d}{2} - \frac{1}{2} \lambda_1(\theta^*)
+\tag{12}
+\end{equation*}</span></p>
+<p>where <span class="math inline">d</span> is the dimension of the parameter space and <span class="math inline">\lambda_1</span> is the largest eigenvalue of the Hessian.</p>
+<p><strong>Interpretation</strong>: LLC measures the effective complexity of a solution. Lower LLC means the solution is sharper (more singular), indicating earlier learning and less overfitting.</p>
+</section>
+<section id="generalization-bounds" class="level3"><h3 data-pdf-page="124"><span class="secnum">D.3.2</span> Generalization Bounds<a class="anchor" href="#generalization-bounds" aria-label="Link to this section">#</a></h3>
+<p>SLT provides generalization bounds: <span id="eq-13"></span> <span class="math display">\begin{equation*}
+\text{Test loss} \lesssim \text{Train loss} + \frac{\text{LLC}}{n_{\text{samples}}} \log n_{\text{samples}}
+\tag{13}
+\end{equation*}</span></p>
+<p>This suggests that minimizing LLC (finding sharp minima) improves generalization—counterintuitive given the typical view that sharp minima overfit.</p>
+</section>
+<section id="phase-transitions" class="level3"><h3 data-pdf-page="124"><span class="secnum">D.3.3</span> Phase Transitions<a class="anchor" href="#phase-transitions" aria-label="Link to this section">#</a></h3>
+<p>SLT predicts phase transitions during learning: as loss decreases, the Hessian’s spectral properties change sharply at critical loss values. These correspond to emergence of capabilities (grokking).</p>
+</section>
+</section>
+<section id="linear-representation-hypothesis" class="level2"><h2 data-pdf-page="124"><span class="secnum">D.4</span> Linear Representation Hypothesis<a class="anchor" href="#linear-representation-hypothesis" aria-label="Link to this section">#</a></h2>
+<p>The <strong>Linear Representation Hypothesis</strong> claims that information about a concept can be extracted via a linear function of activations: <span id="eq-14"></span> <span class="math display">\begin{equation*}
+\text{concept} = w \cdot h + b
+\tag{14}
+\end{equation*}</span></p>
+<p>This is central to mechanistic interpretability because it enables:</p>
+<ul>
+<li><p><strong>Feature extraction via SAE</strong>: linear combinations of basis vectors approximate features</p></li>
+<li><p><strong>Steering via addition</strong>: adding a vector to activations changes behavior predictably</p></li>
+<li><p><strong>Circuit analysis</strong>: attention and MLP operations are approximately linear in feature space</p></li>
+</ul>
+<p>Empirically, linearity holds for many concept-level analyses but breaks down for complex reasoning, arithmetic, and modular structures.</p>
+</section>
+<section id="superposition-and-high-dimensional-geometry" class="level2"><h2 data-pdf-page="124"><span class="secnum">D.5</span> Superposition and High-Dimensional Geometry<a class="anchor" href="#superposition-and-high-dimensional-geometry" aria-label="Link to this section">#</a></h2>
+<p>In <span class="math inline">d</span>-dimensional space, many nearly-orthogonal directions exist. If <span class="math inline">d = 4096</span>, you can fit thousands of orthogonal directions.</p>
+<p><strong>Superposition hypothesis</strong>: neural networks exploit this by encoding multiple features in superposition—as nearly-orthogonal directions. A polysemantic neuron activates for a mixture of these directions.</p>
+<p>Formally, if features <span class="math inline">f_1, \ldots, f_m \in \mathbb{R}^d</span> are nearly-orthogonal (<span class="math inline">|f_i \cdot f_j| \ll 1</span> for <span class="math inline">i \neq j</span>), then linear combinations: <span id="eq-15"></span> <span class="math display">\begin{equation*}
+h = \sum_i \alpha_i f_i
+\tag{15}
+\end{equation*}</span></p>
+<p>can encode many features efficiently. Individual neurons (components of <span class="math inline">h</span>) will be polysemantic.</p>
+</section>
+<section id="information-theory-basics" class="level2"><h2 data-pdf-page="124"><span class="secnum">D.6</span> Information Theory Basics<a class="anchor" href="#information-theory-basics" aria-label="Link to this section">#</a></h2>
+<p>Mechanistic interpretability uses information-theoretic concepts to measure what information is preserved across layers.</p>
+<p><strong>Mutual information</strong>: <span class="math inline">I(X; Y)</span> measures how much knowing <span class="math inline">X</span> tells you about <span class="math inline">Y</span>.</p>
+<p><strong>Entropy</strong>: <span class="math inline">H(X) = -\sum_x p(x) \log p(x)</span> measures uncertainty in <span class="math inline">X</span>.</p>
+<p><strong>KL divergence</strong>: <span class="math inline">D_{\text{KL}}(P \| Q) = \sum_x P(x) \log \frac{P(x)}{Q(x)}</span> measures dissimilarity between distributions.</p>
+<p>These are used to analyze:</p>
+<ul>
+<li><p>Feature extraction quality: how much information do SAE features retain?</p></li>
+<li><p>Attention routing: how much information flows through different heads?</p></li>
+<li><p>Circuit discovery: do identified components preserve information about behavior?</p></li>
+</ul>
+</section>
+</section>

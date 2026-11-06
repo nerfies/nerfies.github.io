@@ -1,0 +1,39 @@
+<section id="app:notation" class="level1"><h1 data-pdf-page="119"><span class="secnum">A</span> A Notation Reference and Symbol Table<a class="anchor" href="#app:notation" aria-label="Link to this section">#</a></h1>
+<p>This appendix provides a unified reference for mathematical notation used throughout the survey.</p>
+<ul>
+<li><p><span class="math inline">x \in \mathbb{R}^{d_{\text{vocab}}}</span> or <span class="math inline">x \in \{1, \ldots, V\}</span>: input token or token index</p></li>
+<li><p><span class="math inline">h^\ell \in \mathbb{R}^{d_{\text{hidden}}}</span>: activation (residual stream) at layer <span class="math inline">\ell</span></p></li>
+<li><p><span class="math inline">z_i \in \mathbb{R}^{d_{\text{sparse}}}</span>: sparse feature activation from dictionary</p></li>
+<li><p><span class="math inline">f_j \in \mathbb{R}^{d_{\text{hidden}}}</span>: feature vector (direction in activation space)</p></li>
+<li><p><span class="math inline">W_{\text{in}}, W_{\text{out}} \in \mathbb{R}^{d_{\text{hidden}} \times d_{\text{sparse}}}</span>: SAE encoder/decoder weights</p></li>
+<li><p><span class="math inline">b_{\text{in}}, b_{\text{out}} \in \mathbb{R}^{d_{\text{sparse}}}</span>: SAE encoder/decoder biases</p></li>
+<li><p><span class="math inline">W_Q, W_K, W_V \in \mathbb{R}^{d_{\text{hidden}} \times d_{\text{head}}}</span>: attention projection matrices</p></li>
+<li><p><span class="math inline">W_1 \in \mathbb{R}^{d_{\text{hidden}} \times d_{\text{mlp}}}</span>, <span class="math inline">W_2 \in \mathbb{R}^{d_{\text{mlp}} \times d_{\text{hidden}}}</span>: MLP weight matrices</p></li>
+<li><p><span class="math inline">\text{patch}(C, h_{\text{clean}}, h_{\text{corrupt}})</span>: causal intervention at component <span class="math inline">C</span></p></li>
+<li><p><span class="math inline">v_{\text{steer}} \in \mathbb{R}^{d_{\text{hidden}}}</span>: steering vector</p></li>
+<li><p><span class="math inline">\alpha</span>: scaling factor for steering vector application</p></li>
+<li><p><span class="math inline">L</span>: loss function (typically cross-entropy for language modeling)</p></li>
+<li><p><span class="math inline">\theta</span>: model parameters</p></li>
+<li><p><span class="math inline">\lambda</span>: sparsity regularization coefficient or other penalty weights</p></li>
+<li><p><span class="math inline">p(y|x)</span>: probability of output <span class="math inline">y</span> given input <span class="math inline">x</span></p></li>
+<li><p><span class="math inline">\log p(y|x)</span>: log probability (used for loss)</p></li>
+<li><p><span class="math inline">\mathbb{E}[\cdot]</span>: expectation over data distribution</p></li>
+<li><p><span class="math inline">\mathbb{E}[h \mid \text{condition}]</span>: expectation of activations conditioned on an event</p></li>
+<li><p><span class="math inline">\perp</span>: orthogonality (features or vectors are perpendicular)</p></li>
+<li><p><span class="math inline">\|v\|</span>: Euclidean norm of vector <span class="math inline">v</span></p></li>
+<li><p><span class="math inline">v \cdot w</span> or <span class="math inline">\langle v, w \rangle</span>: dot product</p></li>
+<li><p><span class="math inline">D_{\text{KL}}(P \| Q)</span>: KL divergence between distributions <span class="math inline">P</span> and <span class="math inline">Q</span></p></li>
+<li><p><span class="math inline">\sigma</span>: sigmoid function</p></li>
+<li><p><span class="math inline">\odot</span>: element-wise (Hadamard) product</p></li>
+<li><p>ReLU: rectified linear unit activation function</p></li>
+</ul>
+<section id="dimensions-and-scaling" class="level2"><h2 data-pdf-page="119"><span class="secnum">A.1</span> Dimensions and Scaling<a class="anchor" href="#dimensions-and-scaling" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><p><span class="math inline">n_{\text{tokens}}</span>: number of tokens in dataset</p></li>
+<li><p><span class="math inline">n_{\text{samples}}</span>: number of forward passes or interventions performed</p></li>
+<li><p><span class="math inline">T</span>: sequence length (context length)</p></li>
+<li><p><span class="math inline">B</span>: batch size</p></li>
+<li><p><span class="math inline">O(\cdot)</span>: Big-O asymptotic complexity notation</p></li>
+</ul>
+</section>
+</section>

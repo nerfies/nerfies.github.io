@@ -1,0 +1,126 @@
+---
+import Base from '../layouts/Base.astro';
+import DraftBanner from '../components/DraftBanner.astro';
+import Excerpt from '../components/Excerpt.astro';
+import SectionLinks from '../components/SectionLinks.astro';
+import ManuscriptNote from '../components/ManuscriptNote.astro';
+import { framework, sections, resolveMethod } from '../lib/data';
+import { isDraft } from '../lib/manuscript';
+import { url } from '../lib/site';
+const o = framework.orientations;
+const items: any[] = o.orientations;
+const byId = new Map(items.map((x) => [x.id, x]));
+// The six orientations named on the public project page / abstract, in order,
+// with the subtitles from that page. `draft` links to the entry in the
+// ingested manuscript when one exists (see public_name_mapping in framework.json).
+const PUBLIC = [
+  { name: 'Pragmatic Interpretability', sub: 'Proxy-task-oriented safety interventions', draft: 'pragmatic' },
+  { name: 'Ambitious Interpretability', sub: 'Towards complete mechanistic understanding', draft: 'ambitious' },
+  { name: 'Developmental Interpretability', sub: 'Characterising how models learn', draft: 'developmental' },
+  { name: 'Interpretability Across Time', sub: 'Understanding the causes of model behaviours', draft: null },
+  { name: 'Introspective Interpretability', sub: 'Models interpreting themselves', draft: null },
+  { name: 'Automated Interpretability', sub: 'Scaling discovery via automation', draft: 'automated' },
+];
+const mapping = new Map((o.public_name_mapping as any[]).map((m) => [m.public_name, m]));
+const unmatched = items.filter((x) => !PUBLIC.some((p) => p.draft === x.id));
+const table = o.comparison_table;
+const fields: [string, string][] = [['goals', 'Goals'], ['assumptions', 'Assumptions'], ['strengths', 'Strengths'], ['limitations', 'Limitations'], ['safety_relevance', 'Safety relevance']];
+const sec = (id: string) => sections([id])[0];
+import { draftHidden as __hide } from '../lib/manuscript';
+if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}held/`);
+---
+<Base title="Research orientations" description="The survey's research orientations: agendas defined by goals, assumptions and trade-offs rather than by exclusive sets of methods.">
+  <div class="page">
+    <p class="eyebrow">Research directions</p>
+    <h1>Research orientations</h1>
+    <p class="lede">An orientation is a research agenda, defined by its goals, assumptions and trade-offs. It is not a method: several orientations can use the same tool for different ends.</p>
+    <DraftBanner />
+    <Excerpt text={o.orientations_vs_methods} section={sec(o.chapter_sections[0])} />
+
+    {isDraft && (
+      <div class="card" style="border-color:var(--draft-rule);background:var(--draft-bg);color:var(--draft-ink);margin:1.5rem 0" role="note">
+        <strong>Six on the project page, five in this draft.</strong> The abstract lists six orientations. The draft text ingested here has five. It has no orientation called <em>Interpretability Across Time</em>, and it has <em>Agentic Interpretability</em> where the abstract says <em>Introspective Interpretability</em>.
+        The two missing orientations are shown with their project-page subtitles only, and they will fill in once the final manuscript is ingested. We have not assumed that “Agentic” was renamed “Introspective”.
+      </div>
+    )}
+
+    <div class="orient-grid" role="list">
+      {PUBLIC.map((p, i) => {
+        const d = p.draft ? byId.get(p.draft) : null;
+        const map = mapping.get(p.name.replace(' Interpretability', '')) ?? mapping.get(p.name);
+        return (
+          <article class={`card orient ${d ? '' : 'pending'}`} role="listitem" id={d?.id ?? p.name.toLowerCase().replace(/\s+/g, '-')}>
+            <span class="o-n">{i + 1}</span>
+            <h2>{p.name}</h2>
+            <p class="muted small" style="margin:.1rem 0 .6rem">{p.sub}</p>
+            {d ? (<>
+              <Excerpt text={d.definition} section={sec(d.sections[0])} />
+              {d.methods_used?.length > 0 && <p class="small"><span class="muted">Methods the survey associates with it:</span>{' '}
+                {d.methods_used.map((n: string, j: number) => { const m = resolveMethod(n); return <>{j > 0 && ', '}{m ? <a href={url(`methods/${m.id}/`)}>{n}</a> : n}</>; })}</p>}
+              <details>
+                <summary class="small">Goals, assumptions, strengths and limitations</summary>
+                {fields.map(([k, label]) => <div><h3>{label}</h3>{d[k]?.length ? d[k].map((t: string) => <Excerpt text={t} />) : <p class="small muted">Not stated in the survey.</p>}</div>)}
+              </details>
+            </>) : (
+              <p class="small muted">Not in the draft manuscript ingested here. {map?.status && <>Closest material: {map.draft_sections?.filter((s: string) => sec(s)?.href).slice(0, 3).map((s: string, j: number) => <>{j > 0 && ', '}<a href={sec(s)!.href!}>§{sec(s)!.num}</a></>)}.</>}</p>
+            )}
+          </article>
+        );
+      })}
+      {unmatched.map((d) => (
+        <article class="card orient" role="listitem" id={d.id}>
+          <span class="o-n">·</span>
+          <h2>{d.name}</h2>
+          <p class="muted small" style="margin:.1rem 0 .6rem">{d.subtitle} · in the draft, not on the project page</p>
+          <Excerpt text={d.definition} section={sec(d.sections[0])} />
+          <details>
+            <summary class="small">Goals, assumptions, strengths and limitations</summary>
+            {fields.map(([k, label]) => <div><h3>{label}</h3>{d[k]?.length ? d[k].map((t: string) => <Excerpt text={t} />) : <p class="small muted">Not stated in the survey.</p>}</div>)}
+          </details>
+        </article>
+      ))}
+    </div>
+
+    {table && (
+      <section style="margin-top:3rem">
+        <h2>Side-by-side comparison</h2>
+        <p class="small muted">{table.caption} <ManuscriptNote /></p>
+        <div class="role-filter" role="group" aria-label="Show columns">
+          {table.columns.slice(1).map((c: string) => <label class="chip"><input type="checkbox" checked data-col={c} /> {c}</label>)}
+        </div>
+        <div class="scroll-x"><table class="data" id="cmp">
+          <thead><tr>{table.columns.map((c: string) => <th data-col={c}>{c}</th>)}</tr></thead>
+          <tbody>{table.rows.map((r: any) => <tr>{table.columns.map((c: string, j: number) => j === 0 ? <th scope="row">{r[c]}</th> : <td data-col={c}>{r[c]}</td>)}</tr>)}</tbody>
+        </table></div>
+        <SectionLinks ids={[table.section]} />
+      </section>
+    )}
+
+    <section style="margin-top:3rem">
+      <h2>Choosing an orientation</h2>
+      {o.decision_framework.map((t: string) => <Excerpt text={t} />)}
+      <SectionLinks ids={[o.decision_framework_section]} />
+    </section>
+    <section style="margin-top:3rem">
+      <h2>Critical tensions</h2>
+      {o.tensions.map((t: string) => <Excerpt text={t} />)}
+      <SectionLinks ids={[o.tensions_section]} />
+    </section>
+  </div>
+</Base>
+<style>
+  .orient-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr)); gap: 1rem; margin-top: 1.5rem; }
+  .orient { position: relative; border-top: 3px solid var(--pillar-3); }
+  .orient.pending { border-top-style: dashed; background: var(--surface-2); }
+  .orient h2 { font-size: 1.1rem; margin: 0; padding-right: 2rem; }
+  .orient h3 { font-size: .85rem; margin: .9rem 0 .2rem; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); }
+  .o-n { position: absolute; top: .9rem; right: 1rem; font-family: var(--mono); color: var(--gold); font-weight: 700; }
+  .role-filter { display: flex; flex-wrap: wrap; gap: .35rem; margin: .5rem 0 .8rem; }
+  .role-filter label { cursor: pointer; display: inline-flex; gap: .3rem; align-items: center; }
+  details summary { cursor: pointer; color: var(--link); margin-top: .5rem; }
+</style>
+<script>
+  document.querySelectorAll<HTMLInputElement>('.role-filter input').forEach((cb) => cb.addEventListener('change', () => {
+    document.querySelectorAll<HTMLElement>(`#cmp [data-col="${cb.dataset.col}"]`).forEach((el) => { el.hidden = !cb.checked; });
+  }));
+</script>

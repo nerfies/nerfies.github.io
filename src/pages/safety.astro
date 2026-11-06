@@ -1,0 +1,131 @@
+---
+import Base from '../layouts/Base.astro';
+import DraftBanner from '../components/DraftBanner.astro';
+import Excerpt from '../components/Excerpt.astro';
+import SectionLinks from '../components/SectionLinks.astro';
+import ManuscriptNote from '../components/ManuscriptNote.astro';
+import { framework, sections, resolveMethod, notebooksFor } from '../lib/data';
+import { url } from '../lib/site';
+const s = framework.safety_applications;
+const apps: any[] = s.applications;
+const problems: any[] = framework.open_problems.problems;
+const orient: any[] = framework.orientations.orientations;
+const sec = (id: string) => sections([id])[0];
+const orientLink = (name: string) => { const o = orient.find((x) => name.toLowerCase().includes(x.name.toLowerCase().split(' ')[0])); return o ? url(`orientations/#${o.id}`) : null; };
+const methodLinks = (names: string[]) => names.map((n) => ({ n, m: resolveMethod(n) }));
+const search = (o: any) => [o.name ?? o.title, o.definition ?? o.statement, ...(o.details ?? []), ...(o.evidence ?? []), ...(o.limitations ?? []), ...(o.methods ?? o.related_methods ?? [])].join(' ').toLowerCase();
+import { draftHidden as __hide } from '../lib/manuscript';
+if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}held/`);
+---
+<Base title="Safety applications & open problems" description="Where mechanistic understanding supports safety interventions, what the evidence shows, the risks involved, and the open problems the survey identifies.">
+  <div class="page">
+    <p class="eyebrow">Safety & open problems</p>
+    <h1>Safety applications and open problems</h1>
+    <p class="lede">Where interpretability supports concrete safety work, what evidence the survey cites for it, and what remains unsolved. Each entry links to the methods it relies on and the orientations it belongs to.</p>
+    <DraftBanner />
+    <div style="display:grid;gap:.5rem;margin:1.2rem 0">
+      <label for="sq" class="visually-hidden">Filter applications and open problems</label>
+      <input id="sq" class="input" type="search" placeholder="Filter, e.g. “steering”, “deception”, “unlearning”" />
+      <div role="group" aria-label="Show" style="display:flex;gap:.35rem;flex-wrap:wrap">
+        <button class="chip on" data-kind="all" aria-pressed="true">All</button>
+        <button class="chip" data-kind="app" aria-pressed="false">Safety applications ({apps.length})</button>
+        <button class="chip" data-kind="problem" aria-pressed="false">Open problems ({problems.length})</button>
+        <button class="chip" data-kind="risk" aria-pressed="false">Risks & verification</button>
+      </div>
+      <p class="small muted" id="s-count" aria-live="polite"></p>
+    </div>
+
+    <h2 data-kind-head="app">Safety applications</h2>
+    <Excerpt text={s.intro} section={sec(s.chapter_sections[0])} />
+    <div class="entries">
+      {apps.map((a) => (
+        <article class="card entry" data-kind="app" id={a.id} data-search={search(a)}>
+          <div class="e-head"><h3>{a.name}</h3><span class="chip">Application</span></div>
+          <SectionLinks ids={a.sections} label="Survey" />
+          <Excerpt text={a.definition} />
+          {a.methods?.length > 0 && <p class="small"><span class="muted">Methods:</span> {methodLinks(a.methods).map(({ n, m }, j) => <>{j > 0 && ', '}{m ? <a href={url(`methods/${m.id}/`)}>{n}</a> : n}</>)}</p>}
+          {a.orientations?.length > 0 && <p class="small"><span class="muted">Orientations:</span> {a.orientations.map((n: string, j: number) => <>{j > 0 && ', '}{orientLink(n) ? <a href={orientLink(n)!}>{n}</a> : n}</>)}</p>}
+          <details>
+            <summary class="small">Evidence ({a.evidence?.length ?? 0}) and limitations ({a.limitations?.length ?? 0})</summary>
+            <h4>Evidence cited in the survey</h4>
+            {a.evidence?.length ? a.evidence.map((t: string) => <Excerpt text={t} />) : <p class="small muted">The survey reports no empirical evidence for this application.</p>}
+            {a.worked_example?.length > 0 && <><h4>Worked example <span class="label illustrative">Illustrative</span></h4>
+              <p class="small muted">This is a walkthrough from the survey. Its “results” illustrate the steps and are not measured outcomes.</p>
+              {a.worked_example.map((t: string) => <Excerpt text={t} />)}</>}
+            <h4>Limitations</h4>
+            {a.limitations?.length ? a.limitations.map((t: string) => <Excerpt text={t} />) : <p class="small muted">None stated specifically.</p>}
+          </details>
+          {notebooksFor('applications', a.id).map((n) => <p class="small"><a href={n.links.colab}>Open “{n.title}” in Colab</a></p>)}
+        </article>
+      ))}
+    </div>
+
+    <h2 data-kind-head="risk" style="margin-top:3rem">Risks and verification</h2>
+    <div class="entries">
+      <article class="card entry" data-kind="risk" id="risk-taxonomy" data-search={JSON.stringify(s.risk_taxonomy).toLowerCase()}>
+        <div class="e-head"><h3>Risk taxonomy</h3><ManuscriptNote /></div>
+        <p class="small muted">{s.risk_taxonomy.caption}</p>
+        <div class="scroll-x"><table class="data"><thead><tr>{s.risk_taxonomy.columns.map((c: string) => <th>{c}</th>)}</tr></thead>
+          <tbody>{s.risk_taxonomy.rows.map((r: any) => <tr>{s.risk_taxonomy.columns.map((c: string) => <td>{r[c]}</td>)}</tr>)}</tbody></table></div>
+        <SectionLinks ids={s.risk_taxonomy.sections} label="Survey" />
+      </article>
+      <article class="card entry" data-kind="risk" id="verification-checklist" data-search={JSON.stringify(s.verification_checklist).toLowerCase()}>
+        <div class="e-head"><h3>Verification checklist</h3><ManuscriptNote /></div>
+        <div class="checklist">
+          {s.verification_checklist.groups.map((g: any) => <fieldset><legend>{g.heading}</legend>{g.items.map((t: string) => <label><input type="checkbox" /> {t}</label>)}</fieldset>)}
+        </div>
+        <p class="small muted">The ticks are for your own use. They aren’t saved.</p>
+        <SectionLinks ids={[s.verification_checklist.section]} label="Survey" />
+      </article>
+      <article class="card entry" data-kind="risk" id="chapter-limitations" data-search={s.chapter_limitations.excerpts.join(' ').toLowerCase()}>
+        <div class="e-head"><h3>Limitations of mechanistic safety interventions</h3></div>
+        {s.chapter_limitations.excerpts.map((t: string) => <Excerpt text={t} />)}
+        <SectionLinks ids={[s.chapter_limitations.section]} label="Survey" />
+      </article>
+    </div>
+
+    <h2 data-kind-head="problem" style="margin-top:3rem">Open problems</h2>
+    <Excerpt text={framework.open_problems.intro} />
+    <div class="entries">
+      {problems.map((p) => (
+        <article class="card entry" data-kind="problem" id={p.id} data-search={search(p)}>
+          <div class="e-head"><h3>{p.title}</h3><span class="chip">Open problem</span>{p.source_chapter !== 15 && <span class="chip">from chapter {p.source_chapter}</span>}</div>
+          <SectionLinks ids={p.sections} label="Survey" />
+          <Excerpt text={p.statement} />
+          {p.related_methods?.length > 0 && <p class="small"><span class="muted">Methods mentioned:</span> {methodLinks(p.related_methods).map(({ n, m }, j) => <>{j > 0 && ', '}{m ? <a href={url(`methods/${m.id}/`)}>{n}</a> : n}</>)}</p>}
+          {p.related_orientations?.length > 0 && <p class="small"><span class="muted">Orientations:</span> {p.related_orientations.map((n: string, j: number) => <>{j > 0 && ', '}{orientLink(n) ? <a href={orientLink(n)!}>{n}</a> : n}</>)}</p>}
+          {p.details?.length > 0 && <details><summary class="small">More from the survey ({p.details.length})</summary>{p.details.map((t: string) => <Excerpt text={t} />)}</details>}
+        </article>
+      ))}
+    </div>
+  </div>
+</Base>
+<style>
+  .entries { display: grid; gap: .9rem; margin: 1rem 0; }
+  .e-head { display: flex; flex-wrap: wrap; gap: .5rem; align-items: baseline; }
+  .e-head h3 { margin: 0; font-size: 1.08rem; }
+  .entry h4 { font-size: .85rem; margin: 1rem 0 .3rem; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); }
+  .entry[hidden] { display: none; }
+  details summary { cursor: pointer; color: var(--link); }
+  .checklist { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); gap: .8rem; }
+  .checklist fieldset { border: 1px solid var(--rule); border-radius: 6px; padding: .5rem .8rem; }
+  .checklist legend { font-weight: 650; font-size: .9rem; padding: 0 .3rem; }
+  .checklist label { display: flex; gap: .45rem; font-size: .88rem; margin: .35rem 0; align-items: flex-start; }
+  .checklist input { margin-top: .25rem; }
+</style>
+<script>
+  const q = document.getElementById('sq') as HTMLInputElement, count = document.getElementById('s-count')!;
+  const entries = [...document.querySelectorAll<HTMLElement>('.entry')];
+  let kind = 'all';
+  function apply() {
+    const terms = q.value.toLowerCase().split(/\s+/).filter(Boolean); let n = 0;
+    entries.forEach((e) => { const ok = (kind === 'all' || e.dataset.kind === kind) && terms.every((t) => (e.dataset.search ?? '').includes(t)); e.hidden = !ok; if (ok) n++; });
+    document.querySelectorAll<HTMLElement>('[data-kind-head]').forEach((h) => { h.hidden = !(kind === 'all' || kind === h.dataset.kindHead); });
+    count.textContent = `${n} entries shown`;
+  }
+  q.addEventListener('input', apply);
+  document.querySelectorAll<HTMLButtonElement>('[data-kind]').forEach((b) => b.tagName === 'BUTTON' && b.addEventListener('click', () => {
+    kind = b.dataset.kind!; document.querySelectorAll('button[data-kind]').forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', String(x === b)); }); apply();
+  }));
+  apply();
+</script>

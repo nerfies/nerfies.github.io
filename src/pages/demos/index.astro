@@ -1,0 +1,25 @@
+---
+import Base from '../../layouts/Base.astro';
+import { url } from '../../lib/site';
+const demos = [
+  { href: 'demos/superposition/', title: 'Superposition in a toy model', label: 'Computed in browser',
+    text: 'Train a model that has to squeeze five features into two dimensions. Watch features pile into superposition as the inputs get sparser.' },
+  { href: 'demos/sae/', title: 'Sparse autoencoders recover planted features', label: 'Computed in browser',
+    text: 'Train an SAE on data whose true features you know, then measure how many it recovers as you trade reconstruction against sparsity.' },
+  { href: 'demos/patching/', title: 'Activation patching on GPT-2 small', label: 'Measured on GPT-2',
+    text: 'Find where GPT-2 small resolves indirect object identification by patching clean activations into a corrupted run, layer by layer and head by head.' },
+];
+---
+<Base title="Interactive demos" description="Three interactive experiments: superposition, sparse autoencoders and activation patching, all computed for real.">
+  <div class="page">
+    <p class="eyebrow">Hands-on</p>
+    <h1>Interactive demos</h1>
+    <p class="lede">Three core ideas from the survey that you can run yourself. Nothing here is a drawing: the first two train real models in your browser, and the third shows activation-patching measurements on GPT-2 small from a script in this repository.</p>
+    <div class="grid grid-3" style="margin-top:1.5rem">
+      {demos.map((d) => <a class="card" href={url(d.href)} style="text-decoration:none;color:var(--ink)">
+        <span class="label measured">{d.label}</span>
+        <h2 style="font-size:1.1rem;margin:.6rem 0 .3rem;color:var(--link)">{d.title}</h2>
+        <p class="small muted" style="margin:0">{d.text}</p></a>)}
+    </div>
+  </div>
+</Base>

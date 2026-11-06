@@ -1,0 +1,26 @@
+{
+  "_note": "Editorial cross-links between notebooks/demos and manuscript entries. Navigation only: no scientific claims live here.",
+  "notebooks": {
+    "notebooks/01_core_hypotheses/01_linear_representation_hypothesis.ipynb": { "hypotheses": ["linear-representation"], "methods": ["probing"] },
+    "notebooks/01_core_hypotheses/02_superposition_hypothesis.ipynb": { "hypotheses": ["superposition"] },
+    "notebooks/01_core_hypotheses/03_privileged_access_hypothesis.ipynb": { "hypotheses": ["privileged-access"] },
+    "notebooks/02_feature_extraction/01_sparse_autoencoders_basics.ipynb": { "methods": ["sae", "gated-sae", "jumprelu-sae", "topk-sae", "batch-topk-sae"] },
+    "notebooks/02_feature_extraction/02_transcoders.ipynb": { "methods": ["transcoders"] },
+    "notebooks/02_feature_extraction/03_crosscoders.ipynb": { "methods": ["crosscoders"] },
+    "notebooks/03_circuits/01_circuit_discovery.ipynb": { "methods": ["activation-patching"] },
+    "notebooks/04_intermediate_computation/01_logit_lens.ipynb": { "methods": ["logit-lens"] },
+    "notebooks/04_intermediate_computation/02_tuned_lens.ipynb": { "methods": ["tuned-lens"] },
+    "notebooks/04_intermediate_computation/04_patchscopes.ipynb": { "methods": ["patchscopes"] },
+    "notebooks/04_intermediate_computation/05_probing_classifiers.ipynb": { "methods": ["probing", "amnesic-probing"] },
+    "notebooks/04_intermediate_computation/06_activation_oracles.ipynb": { "methods": ["latentqa"] },
+    "notebooks/05_representation_analysis/01_model_diffing.ipynb": { "methods": ["model-diffing", "crosscoders"] },
+    "notebooks/05_representation_analysis/02_knowledge_localization.ipynb": { "methods": ["causal-tracing"] },
+    "notebooks/05_representation_analysis/03_representation_engineering.ipynb": { "methods": ["steering-vectors"] },
+    "notebooks/06_safety_applications/02_steering_vectors.ipynb": { "methods": ["steering-vectors"], "applications": ["steering-vectors"] }
+  },
+  "demos": {
+    "superposition": { "hypotheses": ["superposition"], "notebook": "notebooks/01_core_hypotheses/02_superposition_hypothesis.ipynb" },
+    "sae": { "methods": ["sae", "topk-sae"], "notebook": "notebooks/02_feature_extraction/01_sparse_autoencoders_basics.ipynb" },
+    "patching": { "methods": ["activation-patching"], "notebook": "notebooks/03_circuits/01_circuit_discovery.ipynb" }
+  }
+}

@@ -55,11 +55,20 @@ CI regenerates the catalogue on every build and every Monday, and fails if any n
 
 ## Deploying
 
-The workflow `.github/workflows/site.yml` builds and tests every PR and push, and deploys from `main` to GitHub Pages.
+The workflow `.github/workflows/site.yml` runs on every PR and push. It produces two builds:
 
-**One-time switch before the first merge.** Go to Settings → Pages → Build and deployment → Source and choose **GitHub Actions**. The repository currently serves the `main` branch root directly. After this branch merges, the root no longer contains a built `index.html`, so the live site would break without the switch.
+- **Full build.** Every page, tested.
+- **Public build** (`PUBLIC_HIDE_DRAFT=1`). This is the one that deploys. While the ingested manuscript is a draft, it leaves out the reader, references, methods, evaluation, orientations and safety pages. Their URLs show a "coming with the paper" note, and every link to them is removed. `tests/site.test.ts` fails if any manuscript text gets into this build.
 
-The deploy job refuses to run unless `manifest.provenance.status` is `final`.
+Deploys run from `main` and from `feature/interactive-handbook`. Pages is set to **GitHub Actions**, and the `github-pages` environment allows both branches.
+
+Once the final manuscript is ingested with `--status final`, the public build includes every page automatically.
+
+Preview the public build locally:
+
+```bash
+PUBLIC_HIDE_DRAFT=1 npm run build && npm run preview
+```
 
 ## QA checklist for a new manuscript version
 

@@ -6,8 +6,9 @@ import SectionLinks from '../../components/SectionLinks.astro';
 import ManuscriptNote from '../../components/ManuscriptNote.astro';
 import { methods, familyById, methodById, sections, notebooksFor, demosFor, keyPapers, framework } from '../../lib/data';
 import { url } from '../../lib/site';
+import { draftHidden } from '../../lib/manuscript';
 
-export function getStaticPaths() { return methods.map((m) => ({ params: { id: m.id } })); }
+export function getStaticPaths() { return draftHidden ? [] : methods.map((m) => ({ params: { id: m.id } })); }
 const m = methodById.get(Astro.params.id!)!;
 const fam = familyById.get(m.family);
 const sec = sections(m.sections);

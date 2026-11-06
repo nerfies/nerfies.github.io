@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import 'katex/dist/katex.min.css';
 import { SITE, NAV, base, url } from '../lib/site';
+import { draftHidden } from '../lib/manuscript';
 
 interface Props { title?: string; description?: string; image?: string; wide?: boolean; noindex?: boolean }
 const { title, description = 'An interactive handbook for the survey "The State of Interpretability for AI Safety": the full text, a methods explorer, evaluation framework, research orientations, open problems and runnable notebooks.', image = 'static/images/survey_overview.png' } = Astro.props;
@@ -41,7 +42,7 @@ const path = Astro.url.pathname;
       <a class="brand" href={base}>The State of Interpretability <em>for AI Safety</em></a>
       <button class="icon-btn menu-btn" aria-expanded="false" aria-controls="site-nav" id="menu-btn">Menu</button>
       <nav class="site-nav" id="site-nav" aria-label="Main">
-        {NAV.map((n) => <a href={url(n.href)} aria-current={path.startsWith(url(n.href)) ? 'page' : undefined}>{n.label}</a>)}
+        {NAV.filter((n) => !(draftHidden && n.draft)).map((n) => <a href={url(n.href)} aria-current={path.startsWith(url(n.href)) ? 'page' : undefined}>{n.label}</a>)}
         <a href={url('search/')} aria-current={path.startsWith(url('search/')) ? 'page' : undefined}>Search</a>
       </nav>
       <button class="icon-btn" id="theme-btn" aria-label="Switch between light and dark">Dark</button>

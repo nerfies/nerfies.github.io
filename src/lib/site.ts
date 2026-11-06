@@ -11,11 +11,11 @@ export const SITE = {
 };
 
 export const NAV = [
-  { href: 'handbook/', label: 'Handbook' },
-  { href: 'methods/', label: 'Methods' },
-  { href: 'evaluation/', label: 'Evaluation' },
-  { href: 'orientations/', label: 'Orientations' },
-  { href: 'safety/', label: 'Safety & open problems' },
-  { href: 'notebooks/', label: 'Notebooks' },
-  { href: 'demos/', label: 'Demos' },
+  { href: 'handbook/', label: 'Handbook', draft: true },
+  { href: 'methods/', label: 'Methods', draft: true },
+  { href: 'evaluation/', label: 'Evaluation', draft: true },
+  { href: 'orientations/', label: 'Orientations', draft: true },
+  { href: 'safety/', label: 'Safety & open problems', draft: true },
+  { href: 'demos/', label: 'Demos', draft: false },
+  { href: 'notebooks/', label: 'Notebooks', draft: false },
 ];

@@ -6,10 +6,10 @@ import { url } from '../lib/site';
   <link slot="head" href={url('pagefind/pagefind-ui.css')} rel="stylesheet" />
   <div class="page-narrow">
     <p class="eyebrow">Search</p>
-    <h1>Search the handbook</h1>
-    <p class="muted small">Searches the full text of every chapter plus the methods, evaluation, orientations, safety and notebook pages. The index is built statically, so it works offline once loaded.</p>
+    <h1>Search</h1>
+    <p class="muted small">Searches every page on this site. The index is built statically, so it works offline once loaded.</p>
     <div id="search"></div>
-    <noscript><p>Search needs JavaScript. You can still browse the <a href={url('handbook/')}>contents</a>.</p></noscript>
+    <noscript><p>Search needs JavaScript.</p></noscript>
   </div>
   <script is:inline define:vars={{ src: url('pagefind/pagefind-ui.js') }}>
     const s = document.createElement('script');

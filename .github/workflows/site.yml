@@ -40,14 +40,21 @@ jobs:
           sys.exit(f'unreachable notebooks: {bad}' if bad else 0)
           PY
 
+      # 1) full preview build: everything, including draft-derived pages
       - run: npm run build
       - run: npm test
+      # 2) public build: while the manuscript is a draft, pages built from it are
+      #    held back. tests/site.test.ts fails if any manuscript text leaks in.
+      - name: Public build
+        run: npm run build && npm test
+        env: { PUBLIC_HIDE_DRAFT: '1' }
       - uses: actions/upload-pages-artifact@v3
         with: { path: dist }
 
   deploy:
-    # Deploys only from main. Requires Settings → Pages → Source = "GitHub Actions".
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    # Deploys the public build from main or the handbook branch.
+    # Requires Settings → Pages → Source = "GitHub Actions".
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/interactive-handbook') && github.event_name != 'pull_request' && github.event_name != 'schedule'
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -57,9 +64,5 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Refuse to publish draft manuscript text
-        run: |
-          python3 -c "import json,sys; s=json.load(open('src/generated/manifest.json'))['provenance']['status']; sys.exit(0 if s=='final' else f'manuscript status is {s!r}; ingest the final manuscript with --status final before deploying')"
       - id: deployment
         uses: actions/deploy-pages@v4

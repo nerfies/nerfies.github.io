@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { notebooks, notebookMeta, linksForNotebook, methodById, hypotheses } from '../lib/data';
-import { chapters, renderMath } from '../lib/manuscript';
+import { chapters, renderMath, draftHidden } from '../lib/manuscript';
 import { url, SITE } from '../lib/site';
 
 // Prerequisites per folder, from the repository README ("Dependencies").
@@ -87,9 +87,10 @@ const stats = { total: notebooks.length, cpu: notebooks.filter((n) => n.compute.
                   <dl class="meta">
                     <dt>Survey section</dt>
                     <dd>{r ? (<>
+                        {draftHidden ? <span>{n.survey_reference.replace(/\(\[.*$/, '').replace(/\]\(.*$/, '').trim()}</span> : <>
                         {r.match ? <a href={r.match.href}>§{r.match.num} {r.match.title}</a> : <span class="muted">No matching section in this manuscript version</span>}
                         <span class="muted small"> · notebook says “{n.survey_reference.replace(/\(\[.*$/, '').trim()}”</span>
-                        {r.numMismatch && <span class="chip warn" title="The notebook was numbered against a different manuscript version">numbering differs</span>}
+                        {r.numMismatch && <span class="chip warn" title="The notebook was numbered against a different manuscript version">numbering differs</span>}</>}
                       </>) : <span class="muted">Not stated in notebook</span>}</dd>
                     <dt>Learning outcomes</dt>
                     <dd>{n.learning_objectives.length ? <ul>{n.learning_objectives.slice(0, 5).map((o: string) => <li>{o.replace(/\*\*/g, '')}</li>)}</ul>
@@ -100,7 +101,7 @@ const stats = { total: notebooks.length, cpu: notebooks.filter((n) => n.compute.
                       {n.deps_missing_from_requirements.length > 0 && <div class="small warn-text">Not in requirements.txt: {n.deps_missing_from_requirements.join(', ')}</div>}
                       {n.local_modules.length > 0 && <div class="small warn-text">Needs repository-local modules: {n.local_modules.join(', ')}</div>}</dd>
                     {n.external.length > 0 && <><dt>Needs</dt><dd>{n.external.join(' · ')}</dd></>}
-                    {(L.methods?.length || L.hypotheses?.length) && <><dt>In the explorer</dt><dd>
+                    {!draftHidden && (L.methods?.length || L.hypotheses?.length) && <><dt>In the explorer</dt><dd>
                       {(L.methods ?? []).map((id: string) => methodById.get(id)).filter(Boolean).map((m: any, i: number) => <>{i > 0 && ', '}<a href={url(`methods/${m.id}/`)}>{m.name}</a></>)}
                       {(L.hypotheses ?? []).map((id: string) => hypById.get(id)).filter(Boolean).map((h: any) => <span> {h.name}</span>)}
                     </dd></>}

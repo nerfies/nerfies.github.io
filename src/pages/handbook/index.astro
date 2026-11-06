@@ -6,6 +6,8 @@ import { url } from '../../lib/site';
 const main = chapters.filter((c) => !c.appendix);
 const apps = chapters.filter((c) => c.appendix);
 const words = chapters.reduce((a, c) => a + c.words, 0);
+import { draftHidden as __hide } from '../../lib/manuscript';
+if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}held/`);
 ---
 <Base title="Handbook" description="Read the full survey online: every chapter, with numbered sections, figures, tables, equations and linked references.">
   <div class="page-narrow">

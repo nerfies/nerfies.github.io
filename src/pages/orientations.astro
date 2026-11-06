@@ -26,6 +26,8 @@ const unmatched = items.filter((x) => !PUBLIC.some((p) => p.draft === x.id));
 const table = o.comparison_table;
 const fields: [string, string][] = [['goals', 'Goals'], ['assumptions', 'Assumptions'], ['strengths', 'Strengths'], ['limitations', 'Limitations'], ['safety_relevance', 'Safety relevance']];
 const sec = (id: string) => sections([id])[0];
+import { draftHidden as __hide } from '../lib/manuscript';
+if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}held/`);
 ---
 <Base title="Research orientations" description="The survey's research orientations: agendas defined by goals, assumptions and trade-offs rather than by exclusive sets of methods.">
   <div class="page">

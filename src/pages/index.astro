@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { SITE, url } from '../lib/site';
-import { chapters, manifest } from '../lib/manuscript';
+import { chapters, manifest, draftHidden } from '../lib/manuscript';
 import notebooks from '../data/notebooks.json';
 
 // Authors and affiliations are copied verbatim from the original project page.
@@ -55,6 +55,7 @@ const explore = [
   ['Run', 'demos/', 'Experiments', 'Superposition, sparse autoencoders and activation patching, computed for real.'],
   ['Code', 'notebooks/', 'Notebooks', `${notebooks.notebooks.length} companion notebooks with compute requirements and Colab links.`],
 ];
+const exploreShown = draftHidden ? explore.filter(([, href]) => href === 'demos/' || href === 'notebooks/') : explore;
 const jsonld = {
   '@context': 'https://schema.org', '@type': 'ScholarlyArticle',
   headline: `${SITE.title}: ${SITE.subtitle}`,
@@ -73,7 +74,7 @@ const jsonld = {
         <h1>The State of Interpretability for AI&nbsp;Safety</h1>
         <p class="sub">A Survey of Foundations, Methods, and Research Directions</p>
         <p class="question">Does understanding how models work actually make them safer?</p>
-        <p class="front-links"><a href={url('handbook/')}>Read the handbook</a><a href={SITE.notebooksRepo}>Code and notebooks</a><span class="muted" title="The paper will be available with the release">Paper forthcoming</span></p>
+        <p class="front-links">{draftHidden ? <a href={url('demos/')}>Run the experiments</a> : <a href={url('handbook/')}>Read the handbook</a>}<a href={SITE.notebooksRepo}>Code and notebooks</a><span class="muted" title="The paper will be available with the release">Paper forthcoming</span></p>
       </div>
       <figure class="sketch" aria-labelledby="sketch-cap">
         <svg viewBox="-1.5 -1.5 3 3" role="img" aria-label="Five feature directions arranged as a pentagon in a two-dimensional space">
@@ -112,7 +113,7 @@ const jsonld = {
       <article class="row entry">
         <div class="gut num">Part {roman[i]}</div>
         <div>
-          <h3><a href={url(p.href)}>{p.title}</a></h3>
+          <h3>{draftHidden ? p.title : <a href={url(p.href)}>{p.title}</a>}</h3>
           <p class="sum">{p.summary}</p>
           <p class="items">{p.items.map(([t], j) => <>{j > 0 && <span class="dot"> · </span>}{t}</>)}</p>
         </div>
@@ -132,7 +133,7 @@ const jsonld = {
 
   <section class="index" aria-labelledby="use-h">
     <h2 id="use-h" class="row"><span class="gut">Companion</span><span>Using this site</span></h2>
-    {explore.map(([verb, href, title, text]) => (
+    {exploreShown.map(([verb, href, title, text]) => (
       <article class="row entry compact">
         <div class="gut num">{verb}</div>
         <p><a class="t" href={url(href)}>{title}</a> <span class="muted">{text}</span></p>

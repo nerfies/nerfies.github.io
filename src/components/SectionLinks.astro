@@ -1,8 +1,9 @@
 ---
 import { sections } from '../lib/data';
+import { draftHidden } from '../lib/manuscript';
 interface Props { ids: string[]; label?: string }
 const { ids, label = 'In the survey' } = Astro.props;
-const list = sections(ids).filter((s) => s.href);
+const list = draftHidden ? [] : sections(ids).filter((s) => s.href);
 ---
 {list.length > 0 && (
   <p class="small"><span class="muted">{label}:</span>{' '}

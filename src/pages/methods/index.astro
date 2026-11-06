@@ -16,6 +16,8 @@ const rows = methods.map((m) => {
   };
 });
 const fams = families.map((f) => ({ id: f.id, name: f.name, count: methods.filter((m) => m.family === f.id).length }));
+import { draftHidden as __hide } from '../../lib/manuscript';
+if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}held/`);
 ---
 <Base title="Methods explorer" description="A searchable, filterable taxonomy of the interpretability methods in the survey, with side-by-side comparison drawn from the survey text.">
   <div class="page">

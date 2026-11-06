@@ -14,6 +14,8 @@ const sec = (id: string) => sections([id])[0];
 const orientLink = (name: string) => { const o = orient.find((x) => name.toLowerCase().includes(x.name.toLowerCase().split(' ')[0])); return o ? url(`orientations/#${o.id}`) : null; };
 const methodLinks = (names: string[]) => names.map((n) => ({ n, m: resolveMethod(n) }));
 const search = (o: any) => [o.name ?? o.title, o.definition ?? o.statement, ...(o.details ?? []), ...(o.evidence ?? []), ...(o.limitations ?? []), ...(o.methods ?? o.related_methods ?? [])].join(' ').toLowerCase();
+import { draftHidden as __hide } from '../lib/manuscript';
+if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}held/`);
 ---
 <Base title="Safety applications & open problems" description="Where mechanistic understanding supports safety interventions, what the evidence shows, the risks involved, and the open problems the survey identifies.">
   <div class="page">

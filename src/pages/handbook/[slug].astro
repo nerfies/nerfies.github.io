@@ -1,11 +1,11 @@
 ---
 import Base from '../../layouts/Base.astro';
 import DraftBanner from '../../components/DraftBanner.astro';
-import { chapters, chapterHtml, pdfHref, manifest } from '../../lib/manuscript';
+import { chapters, chapterHtml, pdfHref, manifest, draftHidden } from '../../lib/manuscript';
 import { url } from '../../lib/site';
 
 export function getStaticPaths() {
-  return chapters.map((c) => ({ params: { slug: c.slug } }));
+  return draftHidden ? [] : chapters.map((c) => ({ params: { slug: c.slug } }));
 }
 const { slug } = Astro.params;
 const idx = chapters.findIndex((c) => c.slug === slug);

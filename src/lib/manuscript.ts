@@ -23,6 +23,8 @@ export interface Manifest {
 export const manifest = manifestJson as unknown as Manifest;
 export const chapters = manifest.toc;
 export const isDraft = manifest.provenance.status !== 'final';
+/** Public builds made while the manuscript is still a draft hide every page built from it. */
+export const draftHidden = isDraft && import.meta.env.PUBLIC_HIDE_DRAFT === '1';
 
 const raw = import.meta.glob('../generated/chapters/*.html', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
 const refsRaw = import.meta.glob('../generated/references.html', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;

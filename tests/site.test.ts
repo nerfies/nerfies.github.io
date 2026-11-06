@@ -50,6 +50,13 @@ describe.skipIf(!built)('built site', () => {
     const manifest = JSON.parse(readFileSync('src/generated/manifest.json', 'utf8'));
     if (manifest.provenance.status !== 'final') expect(existsSync(join(DIST, 'survey.pdf'))).toBe(false);
   });
+  test('public draft builds contain no manuscript text', () => {
+    const manifest = JSON.parse(readFileSync('src/generated/manifest.json', 'utf8'));
+    if (manifest.provenance.status === 'final' || process.env.PUBLIC_HIDE_DRAFT !== '1') return;
+    const leaks = [...read].filter(([, h]) => /class="secnum"|data-cite=|class="csl-entry|blockquote class="excerpt"|Preview build\./.test(h)).map(([p]) => p);
+    expect(leaks).toEqual([]);
+    expect(existsSync(join(DIST, 'handbook', manifest.toc[0].slug))).toBe(false);
+  });
   test('every page has a title, description and a single h1', () => {
     for (const [p, h] of read) {
       if (p.includes('pagefind')) continue;

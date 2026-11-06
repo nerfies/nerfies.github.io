@@ -13,11 +13,17 @@ Each item below is the authors' call. The site keeps its current behaviour until
 | Older PDFs (Jan and Feb 2026) | *Mechanistic Interpretability: A Survey…* and *The State of Interpretability for Safety…* | Superseded. Not used. |
 | Title and authors shown on the site since PR #2 | From the title-page screenshot supplied on 6 Nov | **Differs from the 5 Nov PDF** (see D1). |
 
+**6 Nov 2026 09:00 build (182 pp.)**: the version to publish. Chapters: 1 Introduction … 7 Circuits, 8 Understanding Intermediate Representations, 9 Representation Analysis, 10 Learning Dynamics, 11 Training Data Attribution, 12 Six Research Orientations, 13 Safety Applications, 14 Open Problems, 15 Conclusion; appendices A Notation, B Colour Key, C Mathematical Foundations. Its titles are registered in `src/data/chapter-ids.json`. To decide at ingest: the 13 Jul chapters *Developmental Interpretability and Training Dynamics* and *Appendix C, SAE Architecture Details* have no counterpart, so their old URLs need a redirect target. The new chapter 10 shares its title with the withheld chapter, but a text search finds none of the authoring notes, so it can probably be published (remove it from `withheld.json`).
+
 **Needed to re-ingest (PR 2).** The approved LaTeX source for the version to publish, in a form the ingest script can read: `main.tex`, the chapter files, `.bib`, `figs/`, and the compiled `main.aux`, `main.toc`, `main.bbl` and `main.pdf` from the same build. The simplest route is to sync Overleaf to the GitHub repo again, or to export the Overleaf project as a zip after compiling. The ingest step must not be run with `--status final` until D4 says so.
 
 ## Decisions
 
 ### D1. Official title and author metadata
+**Decided 6 Nov 2026:** the title, authors, affiliations and abstract stay as they are on the site. Only the body of the paper is updated. The authoritative body is the TMLR submission build compiled 6 Nov 2026 09:00 (182 pp.), whose author list matches the site.
+
+<details><summary>Earlier comparison with the 5 Nov build (superseded)</summary>
+
 The site and the 5 Nov PDF differ:
 
 | | Site now | 5 Nov PDF |
@@ -29,7 +35,7 @@ The site and the 5 Nov PDF differ:
 | Number of affiliations | 17 | 16 |
 | Legend | (none until this PR) | "† Core contributors. ‡ Senior advisors. Remaining authors listed alphabetically by surname. * Correspondence" |
 
-**Decide:** which title page is authoritative. The legend wording is identical in both, and this PR adds it to the homepage. The author list and affiliations are left as they are until you decide. The abstract on the site is the older public one. The 5 Nov abstract is different.
+</details>
 
 ### D2. Research orientations
 The 5 Nov PDF has six orientations, §12.1 to §12.6: Pragmatic, Ambitious, Developmental, Interpretability Across Time, Introspective, Automated. "Agentic" no longer appears. The site currently shows the 13 Jul draft, which has five, including Agentic. **Decide:** confirm the six and their definitions from the approved source. The site will quote the definitions verbatim. It will not map Agentic onto Introspective.

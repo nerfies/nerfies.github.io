@@ -1,6 +1,6 @@
-# The State of Interpretability for AI Safety: interactive handbook
+# The State of Mechanistic Interpretability for AI Safety: interactive handbook
 
-Source for <https://tsglab.github.io/mi_survey/>, the companion site to the survey *The State of Interpretability for AI Safety: A Survey of Foundations, Methods, and Research Directions*.
+Source for <https://tsglab.github.io/mi_survey/>, the companion site to the survey *The State of Mechanistic Interpretability for AI Safety*.
 
 The site has:
 

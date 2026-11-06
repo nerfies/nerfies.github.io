@@ -4,19 +4,20 @@ import { SITE, url } from '../lib/site';
 import { chapters, manifest, draftHidden } from '../lib/manuscript';
 import notebooks from '../data/notebooks.json';
 
-// Authors and affiliations are copied verbatim from the original project page.
-const authors: [string, string, boolean?][] = [
-  ['Fazl Barez', '1,2', true], ['Tung-Yu Wu', '1', true], ['Aaron Maiwald', '3'], ['Abir Harrasse', '2'], ['Adi Simhi', '4'],
-  ['Antía García', '2'], ['Belinda Z. Li', '5'], ['Damiano Fornasiere', '6'], ['Florent Draye', '7'], ['Gabriele Dominici', '8'],
-  ['Hunar Batra', '3'], ['Michael Lan', '2'], ['Narmeen Fatimah Oozeer', '2'], ['Or David Shafran', '9'], ['Riley Harris', '3'],
-  ['Robert Trager', '3'], ['Sara Hooker', '10'], ['Shay B. Cohen', '11'], ['Shriyash Kaustubh Upadhyay', '2'], ['Yanai Elazar', '12'],
-  ['Yu Zhao', '11'], ['Ziyu Yao', '13'], ['Naomi Saphra', '14', true], ['Mor Geva', '9', true], ['Yoshua Bengio', '6,15', true],
-  ['Stella Biderman', '16', true], ['Hassan Sajjad', '17', true],
+// Authors and affiliations as in the paper's title page, in its three groups.
+type Author = [string, string];
+const authorGroups: Author[][] = [
+  [['Fazl Barez', '1,2,†,*'], ['Tung-Yu Wu', '1,†']],
+  [['Hunar Batra', '1'], ['Gabriele Dominici', '3'], ['Florent Draye', '4'], ['Yanai Elazar', '5'], ['Damiano Fornasiere', '6'],
+   ['Antía García', '2'], ['Abir Harrasse', '2'], ['Riley Harris', '1'], ['Sara Hooker', '7'], ['Michael Lan', '2'], ['Belinda Z. Li', '8,9'],
+   ['Aaron Maiwald', '1'], ['Narmeen Fatimah Oozeer', '2'], ['Naomi Saphra', '10'], ['Or David Shafran', '11'], ['Adi Simhi', '12'],
+   ['Robert Trager', '1'], ['Shriyash Kaustubh Upadhyay', '2'], ['Ziyu Yao', '13'], ['Yu Zhao', '1,14']],
+  [['Shay B. Cohen', '14,‡'], ['Mor Geva', '11,‡'], ['Yoshua Bengio', '15,6,‡'], ['Stella Biderman', '16,‡'], ['Hassan Sajjad', '17,‡']],
 ];
-const affiliations = ['TSG Lab, University of Oxford', 'Martian', 'University of Oxford', 'Technion', 'Anthropic', 'LawZero',
-  'Max Planck Institute for Intelligent Systems', 'Università della Svizzera italiana', 'Tel Aviv University', 'Adaption Labs',
-  'University of Edinburgh', 'Bar-Ilan University', 'George Mason University', 'Boston University', 'Mila, Université de Montréal',
-  'EleutherAI', 'Dalhousie University'];
+const authors = authorGroups.flat();
+const affiliations = ['University of Oxford', 'Martian', 'Università della Svizzera italiana', 'Max Planck Institute for Intelligent Systems',
+  'Bar-Ilan University', 'LawZero', 'Adaption Labs', 'MIT', 'Anthropic', 'Boston University', 'Tel Aviv University', 'Technion',
+  'George Mason University', 'University of Edinburgh', 'Mila, Université de Montréal', 'EleutherAI', 'New York University Abu Dhabi & Dalhousie University'];
 
 const pillars = [
   { n: 1, title: 'Motivation & Concepts', summary: 'Fundamental knowledge and core hypotheses.', href: 'handbook/',
@@ -58,7 +59,7 @@ const explore = [
 const exploreShown = draftHidden ? explore.filter(([, href]) => href === 'demos/' || href === 'notebooks/') : explore;
 const jsonld = {
   '@context': 'https://schema.org', '@type': 'ScholarlyArticle',
-  headline: `${SITE.title}: ${SITE.subtitle}`,
+  headline: SITE.title,
   description: 'A survey of interpretability for AI safety, focusing on mechanistic interpretability: foundations, methods, six research orientations, safety applications, and open problems.',
   author: authors.map(([name]) => ({ '@type': 'Person', name })),
   image: new URL(url('static/images/survey_overview.png'), Astro.site).toString(),
@@ -71,8 +72,7 @@ const jsonld = {
   <header class="front">
     <div class="front-grid">
       <div class="front-text">
-        <h1>The State of Interpretability for AI&nbsp;Safety</h1>
-        <p class="sub">A Survey of Foundations, Methods, and Research Directions</p>
+        <h1>The State of Mechanistic Interpretability for AI&nbsp;Safety</h1>
         <p class="question">Does understanding how models work actually make them safer?</p>
         <p class="front-links">{draftHidden ? <a href={url('demos/')}>Run the experiments</a> : <a href={url('handbook/')}>Read the handbook</a>}<a href={SITE.notebooksRepo}>Code and notebooks</a><span class="muted" title="The paper will be available with the release">Paper forthcoming</span></p>
       </div>
@@ -93,10 +93,12 @@ const jsonld = {
   <section class="byline row">
     <div class="gut">Authors</div>
     <div>
-      <p class="names">
-        {authors.map(([n, a, core], i) => <><span class="author">{n}<sup>{a}{core ? '†' : ''}{i === 0 ? '*' : ''}</sup>{i < authors.length - 1 ? ',' : ''}</span>{' '}</>)}
-      </p>
-      <p class="notes">† Core contributors · * Correspondence to <a href={`mailto:${SITE.contact}`}>{SITE.contact}</a></p>
+      {authorGroups.map((g) => (
+        <p class="names">
+          {g.map(([n, a], i) => <><span class="author">{n}<sup>{a}</sup>{i < g.length - 1 ? ',' : ''}</span>{' '}</>)}
+        </p>
+      ))}
+      <p class="notes">* Correspondence to <a href={`mailto:${SITE.contact}`}>{SITE.contact}</a></p>
     </div>
     <div class="gut">Affiliations</div>
     <ol class="affils">{affiliations.map((a) => <li>{a}</li>)}</ol>
@@ -172,7 +174,7 @@ const jsonld = {
   @media (max-width: 600px) { .front-text { padding: 1.4rem 1.2rem; } }
   .front h1 { font-size: clamp(2.3rem, 5.4vw, 4rem); line-height: 1.04; margin: 0 0 .8rem; }
   .sub { font-family: var(--serif); font-style: italic; font-weight: 300; font-size: clamp(1.1rem, 2vw, 1.4rem); color: var(--ink-2); margin: 0 0 2rem; }
-  .question { font-family: var(--serif); font-size: clamp(1.25rem, 2.3vw, 1.6rem); line-height: 1.35; margin: 0 0 2rem; padding-top: 1.2rem; border-top: 1px solid var(--hair); max-width: 30ch; color: var(--accent); }
+  .question { font-family: var(--serif); font-size: clamp(1.25rem, 2.3vw, 1.6rem); line-height: 1.35; margin: 1.4rem 0 2rem; padding-top: 1.2rem; border-top: 1px solid var(--hair); max-width: 30ch; color: var(--accent); }
   .front-links { display: flex; flex-wrap: wrap; gap: .6rem 1.6rem; font-size: .92rem; margin: 0; }
   .sketch { margin: 0; }
   .sketch svg { width: 100%; max-width: 420px; display: block; margin: 0 auto; }
@@ -180,9 +182,9 @@ const jsonld = {
 
   section { margin: 0; }
   .byline { padding-top: 2.2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--hair); row-gap: 1.4rem; }
-  .names { font-size: .95rem; line-height: 1.85; margin: 0; max-width: 54rem; }
+  .names { font-size: .95rem; line-height: 1.85; margin: 0 0 .55rem; max-width: 54rem; }
   .author { white-space: nowrap; }
-  .names sup { color: var(--ink-3); font-size: .62em; margin-left: .08rem; }
+  .names sup { color: var(--ink-3); font-size: .72em; margin-left: .08rem; }
   .notes { font-size: .78rem; color: var(--ink-3); margin: .5rem 0 0; }
   .affils { columns: 3 14rem; column-gap: 2rem; margin: 0; padding-left: 1.4rem; font-size: .84rem; color: var(--ink-2); line-height: 1.7; }
   .affils li::marker { color: var(--ink-3); font-size: .9em; }

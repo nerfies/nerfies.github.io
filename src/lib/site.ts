@@ -2,9 +2,8 @@ export const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BAS
 export const url = (p: string) => `${base}${p.replace(/^\//, '')}`;
 
 export const SITE = {
-  title: 'The State of Interpretability for AI Safety',
-  subtitle: 'A Survey of Foundations, Methods, and Research Directions',
-  short: 'Interpretability for AI Safety',
+  title: 'The State of Mechanistic Interpretability for AI Safety',
+  short: 'Mechanistic Interpretability for AI Safety',
   notebooksRepo: 'https://github.com/TSGLAB/Interpretability_Survey_Safety',
   siteRepo: 'https://github.com/TSGLAB/mi_survey',
   contact: 'fazl@robots.ox.ac.uk',

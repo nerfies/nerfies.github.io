@@ -3,6 +3,7 @@
 import katex from 'katex';
 import manifestJson from '../generated/manifest.json';
 import { base } from './site';
+import withheldJson from '../data/withheld.json';
 
 export interface TocSection { id: string; num: string | null; title: string; level: number; page: string | null }
 export interface Chapter {
@@ -23,9 +24,10 @@ export interface Manifest {
 export const manifest = manifestJson as unknown as Manifest;
 export const chapters = manifest.toc;
 export const isDraft = manifest.provenance.status !== 'final';
-/** While the manuscript is a draft, every build hides the pages built from it (same as the
- *  live site). Set PUBLIC_SHOW_DRAFT=1 (npm run build:preview / dev:preview) to see them. */
-export const draftHidden = isDraft && import.meta.env.PUBLIC_SHOW_DRAFT !== '1';
+/** Opt-in: PUBLIC_HIDE_DRAFT=1 hides every page built from a draft manuscript. */
+export const draftHidden = isDraft && import.meta.env.PUBLIC_HIDE_DRAFT === '1';
+/** Draft chapters never published (src/data/withheld.json). PUBLIC_SHOW_ALL=1 shows them for local review. */
+export const withheld = new Set<string>(isDraft && import.meta.env.PUBLIC_SHOW_ALL !== '1' ? (withheldJson as any).chapters : []);
 
 const raw = import.meta.glob('../generated/chapters/*.html', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
 const refsRaw = import.meta.glob('../generated/references.html', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
@@ -127,3 +129,18 @@ export function citationsInSections(ids: string[]): string[] {
 }
 
 export const referenceByKey = new Map(manifest.references.map((r) => [r.key, r]));
+
+const normText = (x: string) => x.replace(/\s+/g, ' ').trim();
+const withheldPlain = [...withheld].map((slug) => {
+  const key = Object.keys(raw).find((k) => k.endsWith(`/${slug}.html`));
+  return key ? normText(unescape(raw[key].replace(/<\/(p|li|h\d|tr|figcaption|caption)>/g, '\n').replace(/<[^>]+>/g, ''))) : '';
+}).join('\n');
+/** True if a curated excerpt is text from a withheld chapter. */
+export function isWithheldText(s: string): boolean {
+  return withheldPlain.length > 0 && s.length > 25 && withheldPlain.includes(normText(s));
+}
+/** Every element id inside a chapter (used to keep deep links into withheld chapters resolvable). */
+export function chapterIds(slug: string): string[] {
+  const key = Object.keys(raw).find((k) => k.endsWith(`/${slug}.html`));
+  return key ? [...raw[key].matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]) : [];
+}

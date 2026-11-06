@@ -2,10 +2,17 @@ import methodsJson from '../data/methods.json';
 import frameworkJson from '../data/framework.json';
 import notebooksJson from '../data/notebooks.json';
 import links from '../data/links.json';
-import { sectionInfo, citationsInSections, referenceByKey } from './manuscript';
+import { sectionInfo, citationsInSections, referenceByKey, isWithheldText } from './manuscript';
 
-export const methodsData = methodsJson as any;
-export const framework = frameworkJson as any;
+// Drop any curated excerpt quoting a withheld chapter.
+function scrub(o: any): any {
+  if (Array.isArray(o)) return o.filter((x) => !(typeof x === 'string' && isWithheldText(x))).map(scrub);
+  if (o && typeof o === 'object') return Object.fromEntries(Object.entries(o).map(([k, v]) => [k, typeof v === 'string' && isWithheldText(v) ? '' : scrub(v)]));
+  return o;
+}
+
+export const methodsData = scrub(methodsJson) as any;
+export const framework = scrub(frameworkJson) as any;
 export const notebooks = (notebooksJson as any).notebooks as any[];
 export const notebookMeta = notebooksJson as any;
 

@@ -19,7 +19,7 @@ The site is static (Astro + MDX, React islands, KaTeX rendered at build time) an
 npm ci
 npm run dev        # http://localhost:4321/mi_survey/ (same pages as the live site; search needs a build)
 npm run build      # static site in dist/ + search index, identical to what deploys
-npm run build:preview  # also includes the draft-derived pages (reader, methods, …)
+npm run build:all  # also includes draft chapters withheld from the live site (src/data/withheld.json)
 npm test           # unit, data-integrity and built-site tests (run after build)
 ```
 
@@ -30,7 +30,7 @@ To update content, see [docs/MAINTAINING.md](docs/MAINTAINING.md). For what chan
 - Text attributed to the survey is verbatim. `tests/data.test.ts` checks every curated excerpt against the ingested manuscript.
 - Demo results quoted on the pages are pinned by `tests/sim.test.ts`. The patching numbers come only from `scripts/experiments/compute_patching.py`.
 - Reviewer comment macros are stripped during ingestion, and a test fails if any reach the output.
-- While the ingested manuscript is a draft, every page says so, the draft PDF is never copied into the site, and the deploy job refuses to publish.
+- While the ingested manuscript is a draft, every page built from it says so, the draft PDF is never copied into the site, and chapters listed in `src/data/withheld.json` are not published (a test checks their text appears nowhere).
 
 ## Website licence
 

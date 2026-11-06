@@ -72,7 +72,7 @@ const jsonld = {
   headline: SITE.title,
   description: 'A survey of interpretability for AI safety, focusing on mechanistic interpretability: foundations, methods, six research orientations, safety applications, and open problems.',
   author: authors.map(([name]) => ({ '@type': 'Person', name })),
-  url: SITE.paper, sameAs: [SITE.paper],
+  url: SITE.paper, sameAs: [SITE.paper, SITE.alphaxiv],
   image: new URL(url('static/images/survey_overview.png'), Astro.site).toString(),
   keywords: ['mechanistic interpretability', 'interpretability', 'AI safety', 'survey'], isAccessibleForFree: true,
 };
@@ -85,7 +85,7 @@ const jsonld = {
       <div class="front-text">
         <h1>The State of Mechanistic Interpretability for AI&nbsp;Safety</h1>
         <p class="question">Does understanding how models work actually make them safer?</p>
-        <p class="front-links">{draftHidden ? <a href={url('demos/')}>Run the experiments</a> : <a href={url('handbook/')}>Read the handbook</a>}<a href={SITE.notebooksRepo}>Code and notebooks</a><a href={SITE.paper}>Paper (arXiv)</a><a href={SITE.paperPdf}>PDF</a><a href="#cite">Cite</a></p>
+        <p class="front-links">{draftHidden ? <a href={url('demos/')}>Run the experiments</a> : <a href={url('handbook/')}>Read the handbook</a>}<a href={SITE.notebooksRepo}>Code and notebooks</a><a href={SITE.paper}>Paper (arXiv)</a><a href={SITE.paperPdf}>PDF</a><a href={SITE.alphaxiv}>alphaXiv</a><a href="#cite">Cite</a></p>
       </div>
       <figure class="sketch" aria-labelledby="sketch-cap">
         <svg viewBox="-1.5 -1.5 3 3" role="img" aria-label="Five feature directions arranged as a pentagon in a two-dimensional space">
@@ -167,7 +167,7 @@ const jsonld = {
   <section class="row" id="cite">
     <div class="gut">Citation</div>
     <div>
-      <p class="cite-head">arXiv: <a href={SITE.paper}>2611.08438</a> <button type="button" class="copy-bib" data-copy="bibtex-src">Copy BibTeX</button></p>
+      <p class="cite-head">arXiv: <a href={SITE.paper}>2611.08438</a> · <a href={SITE.alphaxiv}>alphaXiv</a> <button type="button" class="copy-bib" data-copy="bibtex-src">Copy BibTeX</button></p>
       <pre class="bibtex" id="bibtex-src"><code>{bibtex}</code></pre>
     </div>
   </section>

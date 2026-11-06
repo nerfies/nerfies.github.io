@@ -9,6 +9,7 @@ export const SITE = {
   contact: 'fazl@robots.ox.ac.uk',
   paper: 'https://arxiv.org/abs/2611.08438',
   paperPdf: 'https://arxiv.org/pdf/2611.08438',
+  alphaxiv: 'https://www.alphaxiv.org/pdf/2611.08438',
 };
 
 export const NAV = [

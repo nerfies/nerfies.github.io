@@ -9,7 +9,10 @@ the .bib file, the figs/ directory and -- for exact numbering and PDF page links
 the compiled main.aux, main.toc and main.pdf from the same build.
 
 Outputs (all regenerated on every run, never hand-edited):
-    src/generated/chapters/<slug>.html   one fragment per top-level section
+    src/generated/chapters/<id>.html     one fragment per top-level section; <id> is the
+                                         stable chapter id from src/data/chapter-ids.json
+    src/generated/withheld/<id>.html     withheld draft chapters (gitignored, never committed)
+    src/generated/withheld-fingerprints.json  hashes used to test that withheld text never leaks
     src/generated/references.html        bibliography
     src/generated/manifest.json          TOC, label map, cite tiers, provenance, audit
     public/figures/*                     converted figures
@@ -17,7 +20,9 @@ Outputs (all regenerated on every run, never hand-edited):
 
 The scientific text is never rewritten. The only transformations are mechanical:
 editorial comment macros are removed, citation-colour macros are mapped to natbib,
-numbering is taken from the LaTeX build so it matches the PDF.
+numbering is taken from the LaTeX build so it matches the PDF. When the build's
+main.bbl is present, citations and the bibliography are rendered from it, so author
+labels and same-year suffixes (2024a, 2024b) are exactly natbib's.
 """
 from __future__ import annotations
 
@@ -36,6 +41,9 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "src" / "generated"
 FIG_OUT = ROOT / "public" / "figures"
 BASE_PLACEHOLDER = "@@BASE@@"  # replaced with the site base path at render time
+CHAPTER_IDS = ROOT / "src" / "data" / "chapter-ids.json"
+WITHHELD = ROOT / "src" / "data" / "withheld.json"
+PRIVATE_OUT = OUT / "withheld"  # gitignored
 
 # Editorial/reviewer comment macros defined in the manuscript preamble. Their
 # arguments are internal discussion and must never reach the public site.
@@ -121,6 +129,151 @@ def map_cites(tex: str, tiers: dict[str, str]) -> str:
                         tiers[k] = tier
             tex = tex[:m.start()] + "\\" + natbib + "{" + keys + "}" + tex[end:]
     return tex
+
+
+# ------------------------------------------------------- natbib citations (.bbl)
+NATBIB_RE = re.compile(r"\\(citep|citet|citealp|citealt|cite|citeauthor|citeyear|citeyearpar)(\*?)\s*"
+                       r"(?:\[([^\]]*)\])?\s*(?:\[([^\]]*)\])?\s*\{([^}]*)\}")
+
+
+def tokenise_cites(tex: str, store: list[dict]) -> str:
+    """Replace natbib commands with XCITE<n>X tokens; rendered after pandoc from main.bbl."""
+    def f(m):
+        cmd, _star, o1, o2, keys = m.groups()
+        pre, post = ("", o1 or "") if o2 is None else (o1 or "", o2 or "")
+        store.append({"cmd": cmd, "pre": pre, "post": post,
+                      "keys": [k.strip() for k in keys.split(",") if k.strip()]})
+        return f"XCITE{len(store) - 1}X"
+    return NATBIB_RE.sub(f, tex)
+
+
+def parse_bbl(path: Path) -> dict[str, dict]:
+    """natbib .bbl -> {key: {short, year, body}} in bibliography order (TeX source strings)."""
+    t = path.read_text(errors="replace")
+    items: dict[str, dict] = {}
+    for m in re.finditer(r"\\bibitem\[", t):
+        i, depth = m.end(), 0
+        while i < len(t):
+            c = t[i]
+            if c == "\\":
+                i += 2
+                continue
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+            elif c == "]" and depth == 0:
+                break
+            i += 1
+        label = t[m.end():i].strip()
+        km = re.match(r"\s*\{([^}]*)\}", t[i + 1:])
+        key = km.group(1).strip()
+        start = i + 1 + km.end()
+        nxt = re.search(r"\\bibitem\[|\\end\{thebibliography\}", t[start:])
+        body = t[start:start + (nxt.start() if nxt else len(t) - start)]
+        if label.startswith("{"):
+            inner, end = braced(label, 0)
+            if end == len(label):
+                label = inner
+        # natbib label: Short(Year)Long
+        depth, j, open_at, close_at = 0, 0, None, None
+        while j < len(label):
+            c = label[j]
+            if c == "\\":
+                j += 2
+                continue
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+            elif depth == 0 and c == "(" and open_at is None:
+                open_at = j
+            elif depth == 0 and c == ")" and open_at is not None:
+                close_at = j
+                break
+            j += 1
+        if open_at is None or close_at is None:
+            continue
+        year = label[open_at + 1:close_at]
+        year = re.sub(r"\{\\natexlab\{([^}]*)\}\}", r"\1", year)
+        year = re.sub(r"\\natexlab\{([^}]*)\}", r"\1", year)
+        body = re.sub(r"\{\\natexlab\{([^}]*)\}\}", r"\1", body)
+        body = re.sub(r"\\natexlab\{([^}]*)\}", r"\1", body)
+        items[key] = {"short": label[:open_at].strip(), "year": year.strip(),
+                      "body": re.sub(r"\\newblock\s*", " ", body).strip()}
+    return items
+
+
+def tex_snippets_to_html(snips: list[str]) -> list[str]:
+    """Convert many small TeX strings to inline HTML with one pandoc call."""
+    doc = "\\begin{document}\n" + "\n\n".join(f"SNIPSTART{i}X {s}" for i, s in enumerate(snips)) + "\n\\end{document}\n"
+    r = subprocess.run(["pandoc", "-f", "latex", "-t", "html5", "--wrap=none", "--katex"],
+                       input="\\documentclass{article}\n" + doc, capture_output=True, text=True)
+    if r.returncode != 0:
+        sys.exit("pandoc failed on bibliography snippets: " + r.stderr[:500])
+    out = [""] * len(snips)
+    for m in re.finditer(r"<p>SNIPSTART(\d+)X\s*(.*?)</p>", r.stdout, re.S):
+        out[int(m.group(1))] = m.group(2).strip()
+    return out
+
+
+def tex_note(s: str) -> str:
+    s = s.replace("~", "\u00a0").replace("\\S", "§").replace("---", "—").replace("--", "–").replace("\\,", "\u2009")
+    s = re.sub(r"\\(?:emph|textit|textbf|text)\{([^}]*)\}", r"\1", s)
+    return html.escape(s.replace("{", "").replace("}", "").strip(), quote=False)
+
+
+def render_citation(c: dict, lab: dict[str, tuple[str, str]]) -> str:
+    """natbib authoryear,round with citesep ';', aysep ',', yysep ';' (the manuscript's \\setcitestyle)."""
+    cmd, keys = c["cmd"], c["keys"]
+    pre, post = tex_note(c["pre"]), tex_note(c["post"])
+    a = lambda k, text: f'<a href="#ref-{k}" role="doc-biblioref">{text}</a>'
+    groups: list[list] = []  # [short or None, [(key, year)]]
+    for k in keys:
+        if k not in lab:
+            groups.append([None, [(k, None)]])
+        elif groups and groups[-1][0] == lab[k][0]:
+            groups[-1][1].append((k, lab[k][1]))
+        else:
+            groups.append([lab[k][0], [(k, lab[k][1])]])
+    parts = []
+    if cmd in ("citet", "cite"):
+        for gi, (short, ys) in enumerate(groups):
+            note = f", {post}" if post and gi == len(groups) - 1 else ""
+            if short is None:
+                parts.append(a(ys[0][0], f"{ys[0][0]}?"))
+            elif len(ys) == 1:
+                k, y = ys[0]
+                parts.append(a(k, f"{short} ({y})") if not note else a(k, f"{short} ({y}") + f"{note})")
+            else:
+                parts.append(f"{short} (" + "; ".join(a(k, y) for k, y in ys) + f"{note})")
+        body = "; ".join(parts)
+        return f'<span class="citation" data-cites="{" ".join(keys)}">{pre + " " if pre else ""}{body}</span>'
+    if cmd == "citeauthor":
+        body = ", ".join(a(ys[0][0], short or ys[0][0]) for short, ys in groups)
+    elif cmd in ("citeyear", "citeyearpar"):
+        body = "; ".join(a(k, y or k) for _s, ys in groups for k, y in ys)
+        if cmd == "citeyearpar":
+            body = f"({body})"
+    else:  # citep, citealp, citealt
+        sep = " " if cmd == "citealt" else ", "
+        for short, ys in groups:
+            if short is None:
+                parts.append(a(ys[0][0], f"{ys[0][0]}?"))
+            else:
+                parts.append(a(ys[0][0], f"{short}{sep}{ys[0][1]}") + "".join(f"; {a(k, y)}" for k, y in ys[1:]))
+        body = (pre + " " if pre else "") + "; ".join(parts) + (f", {post}" if post else "")
+        if cmd == "citep":
+            body = f"({body})"
+    return f'<span class="citation" data-cites="{" ".join(keys)}">{body}</span>'
+
+
+def norm_title(t: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "", t.lower())
+
+
+def fingerprint(s: str) -> str:
+    return hashlib.sha256(re.sub(r"\s+", " ", s).strip().lower().encode()).hexdigest()[:24]
 
 
 def unwrap_macro(tex: str, name: str) -> str:
@@ -223,6 +376,9 @@ def main() -> None:
         order.append((path, appendix))
 
     audit = {"removed_comment_macros": 0, "dropped_environments": [], "warnings": []}
+    bbl = ms / f"{stem}.bbl"
+    bbl_items = parse_bbl(bbl) if bbl.exists() else None
+    cite_store: list[dict] = []
     tiers: dict[str, str] = {}
     pieces = []
     figures = {}
@@ -237,6 +393,8 @@ def main() -> None:
             tex = re.sub(r"\\" + name + r"(?![A-Za-z])", "", tex)
         tex = map_cites(tex, tiers)
         tex = unwrap_macro(tex, "citeleaf")
+        if bbl_items is not None:
+            tex = tokenise_cites(tex, cite_store)
         tex = tex.replace("\\cmark", "✓").replace("\\xmark", "✗")
         tex = re.sub(r"\\rowcolor(\[[^\]]*\])?\{[^}]*\}", "", tex)
         tex = re.sub(r"\\(?:hspace|vspace)\*?\{[^}]*\}", "", tex)
@@ -289,9 +447,12 @@ def main() -> None:
     (work / "combined.tex").write_text(combined)
     bib = next(iter(ms.glob("*.bib")))
     cmd = ["pandoc", str(work / "combined.tex"), "-f", "latex", "-t", "html5",
-           "--citeproc", "--bibliography", str(bib), "--katex", "--section-divs",
-           "--metadata", "link-citations=true", "--metadata", "reference-section-title=References",
-           "--wrap=none", "--reference-location=section", "-o", str(work / "combined.html")]
+           "--katex", "--section-divs", "--wrap=none", "--reference-location=section",
+           "-o", str(work / "combined.html")]
+    if bbl_items is None:  # no compiled bibliography: fall back to citeproc
+        cmd[5:5] = ["--citeproc", "--bibliography", str(bib), "--metadata", "link-citations=true",
+                    "--metadata", "reference-section-title=References"]
+        audit["warnings"].append("no .bbl found: citations rendered by citeproc, which may differ from the PDF")
     r = subprocess.run(cmd, capture_output=True, text=True)
     if r.returncode != 0:
         sys.exit(r.stderr)
@@ -299,14 +460,32 @@ def main() -> None:
         if "Citeproc: citation" in line and "not found" in line:
             audit["warnings"].append(line.strip())
     out_html = (work / "combined.html").read_text()
+    refs_override = None
+    if bbl_items is not None:
+        cited = [k for c in cite_store for k in c["keys"]]
+        order = [k for k in bbl_items if k in set(cited)]
+        conv = tex_snippets_to_html([bbl_items[k]["short"] for k in order] + [bbl_items[k]["year"] for k in order]
+                                    + [bbl_items[k]["body"] for k in order])
+        n = len(order)
+        lab = {k: (conv[i], conv[n + i]) for i, k in enumerate(order)}
+        out_html = re.sub(r"XCITE(\d+)X", lambda m: render_citation(cite_store[int(m.group(1))], lab), out_html)
+        if "XCITE" in out_html:
+            sys.exit("a citation token survived conversion; check the cite commands near: "
+                     + out_html[out_html.index("XCITE") - 80:out_html.index("XCITE") + 40])
+        refs_override = ('<div id="refs" class="references csl-bib-body hanging-indent" role="list">\n'
+                         + "\n".join(f'<div id="ref-{k}" class="csl-entry" role="listitem">{conv[2 * n + i]}</div>'
+                                      for i, k in enumerate(order)) + "\n</div>")
+        audit["citations_rendered_from_bbl"] = len(cite_store)
 
     labels = parse_aux(ms / f"{stem}.aux")
     toc_nums = parse_toc(ms / f"{stem}.toc")
-    build_chapters(out_html, labels, toc_nums, tiers, audit, figures, ms, stem, args.status, args.publish_pdf)
+    build_chapters(out_html, labels, toc_nums, tiers, audit, figures, ms, stem, args.status, args.publish_pdf,
+                   refs_override, bbl_items is not None)
     shutil.rmtree(work)
 
 
-def build_chapters(doc, labels, toc_nums, tiers, audit, figures, ms, stem, status, publish_pdf=False):
+def build_chapters(doc, labels, toc_nums, tiers, audit, figures, ms, stem, status, publish_pdf=False,
+                   refs_override=None, from_bbl=False):
     # references
     refs_m = re.search(r'<div id="refs".*?</div>\s*(?=</section>|$)', doc, re.S)
     refs_html = ""
@@ -320,6 +499,8 @@ def build_chapters(doc, labels, toc_nums, tiers, audit, figures, ms, stem, statu
         doc = doc[:refs_m.start()] + doc[refs_m.end():]
     refs_html = re.sub(r"^<section[^>]*>\s*<h1[^>]*>.*?</h1>", "", refs_html, flags=re.S)
     refs_html = re.sub(r"</section>\s*$", "", refs_html)
+    if refs_override is not None:
+        refs_html = refs_override
 
     body = re.search(r"<body[^>]*>(.*)</body>", doc, re.S)
     doc = body.group(1) if body else doc
@@ -347,21 +528,43 @@ def build_chapters(doc, labels, toc_nums, tiers, audit, figures, ms, stem, statu
         heading_meta[sid] = {"num": num, "page": page, "level": lvl,
                              "title": strip_tags(m.group(6)).strip()}
 
+    # stable chapter ids: matched by LaTeX \label, else by title, from the committed registry
+    registry = json.loads(CHAPTER_IDS.read_text())["chapters"]
+    def chapter_id(top_id: str, title: str):
+        for e in registry:
+            if top_id in e.get("labels", []) or norm_title(title) in {norm_title(t) for t in e.get("titles", [])}:
+                return e["id"]
+        return None
+
     # label -> page & number lookup for anchors pandoc created
     id_to_chapter = {}
     chapters = []
+    unmatched = []
     for i, m in enumerate(tops):
         end = tops[i + 1].start() if i + 1 < len(tops) else len(doc)
         frag = doc[m.start():end]
         meta = heading_meta.get(m.group(1), {})
         num = meta.get("num") or str(i + 1)
-        slug = re.sub(r"[^a-z0-9]+", "-", meta.get("title", m.group(1)).lower()).strip("-")[:60]
-        slug = f"{num.lower()}-{slug}"
+        slug = chapter_id(m.group(1), meta.get("title", ""))
+        if slug is None:
+            unmatched.append(f"  {num}. {meta.get('title', '')}  (label: {m.group(1)})")
+            continue
         appendix = bool(re.match(r"^[A-Z]$", num))
         for idm in re.finditer(r'\sid="([^"]+)"', frag):
             id_to_chapter[idm.group(1)] = slug
         chapters.append({"slug": slug, "num": num, "title": meta.get("title", ""), "html": frag,
                          "appendix": appendix, "page": meta.get("page")})
+
+    if unmatched:
+        sys.exit("These chapters have no stable id in src/data/chapter-ids.json. Add an entry for each "
+                 "(new id, or the LaTeX label / title of an existing chapter it replaces):\n" + "\n".join(unmatched))
+    if len({c["slug"] for c in chapters}) != len(chapters):
+        sys.exit("two chapters matched the same stable id in src/data/chapter-ids.json")
+    withheld = set(json.loads(WITHHELD.read_text())["chapters"]) if status != "final" else set()
+    unknown = withheld - {c["slug"] for c in chapters}
+    if unknown:
+        sys.exit(f"src/data/withheld.json lists chapters that do not exist: {sorted(unknown)}")
+    withheld_ids = {i for c in chapters if c["slug"] in withheld for i in re.findall(r'\sid="([^"]+)"', c["html"])}
 
     ref_keys = set(re.findall(r'<div id="ref-([^"]+)" class="csl-entry"', refs_html))
 
@@ -427,6 +630,8 @@ def build_chapters(doc, labels, toc_nums, tiers, audit, figures, ms, stem, statu
                 text = num
             target = id_to_chapter.get(lbl)
             href = f"{BASE_PLACEHOLDER}handbook/{target}/#{lbl}" if target else f"#{lbl}"
+            if target in withheld and target != ch["slug"]:
+                href = f"{BASE_PLACEHOLDER}handbook/{target}/"
             if not target:
                 audit["warnings"].append(f"unresolved cross-reference {lbl}")
             return f'<a href="{href}"{m.group(1)}>{text}</a>'
@@ -442,8 +647,14 @@ def build_chapters(doc, labels, toc_nums, tiers, audit, figures, ms, stem, statu
             cls = f' class="cite cite-{tier}"' if tier else ' class="cite"'
             return f'<a href="{BASE_PLACEHOLDER}references/#ref-{key}"{cls} data-cite="{key}"'
         h = re.sub(r'<a href="#ref-([^"]+)"', cite, h)
-        h = re.sub(r'<a href="#([^"]+)"', lambda m: f'<a href="{BASE_PLACEHOLDER}handbook/{id_to_chapter[m.group(1)]}/#{m.group(1)}"'
-                   if m.group(1) in id_to_chapter and id_to_chapter[m.group(1)] != ch["slug"] else m.group(0), h)
+        def other_chapter(m):
+            target = id_to_chapter.get(m.group(1))
+            if not target or target == ch["slug"]:
+                return m.group(0)
+            if target in withheld:
+                return f'<a href="{BASE_PLACEHOLDER}handbook/{target}/"'
+            return f'<a href="{BASE_PLACEHOLDER}handbook/{target}/#{m.group(1)}"'
+        h = re.sub(r'<a href="#([^"]+)"', other_chapter, h)
         if "@@UNRENDERED" in h:
             pg = ch.get("page")
             h = re.sub(r"<strong>@@UNRENDERED:(\w+)@@</strong>",
@@ -463,9 +674,36 @@ def build_chapters(doc, labels, toc_nums, tiers, audit, figures, ms, stem, statu
     if OUT.exists():
         shutil.rmtree(OUT)
     (OUT / "chapters").mkdir(parents=True)
+    PRIVATE_OUT.mkdir(parents=True)
+
+    def text_prints(h: str) -> tuple[set, set, set]:
+        plain = html.unescape(re.sub(r"<[^>]+>", " ", re.sub(r"</(p|li|h\d|tr|figcaption|caption)>", "\n", h)))
+        sentences = [x for x in re.split(r"(?<=[.!?])\s+|\n", plain) if len(re.sub(r"\s+", " ", x).strip()) >= 40]
+        heads = [re.sub(r"^[\dA-Z.]+\s+", "", strip_tags(t).replace("#", "")).strip()
+                 for t in re.findall(r"<h[1-6][^>]*>(.*?)</h[1-6]>", h, re.S)]
+        words = re.findall(r"[a-z0-9]+", plain.lower())
+        shingles = {fingerprint(" ".join(words[i:i + 10])) for i in range(len(words) - 9)}
+        return ({fingerprint(x) for x in sentences} | shingles, {fingerprint(x) for x in heads if len(x) >= 4},
+                {fingerprint(i) for i in re.findall(r'\sid="([^"]+)"', h)})
+    # text that also appears in published chapters (e.g. a generic heading such as "Grokking") is not secret
+    public = [text_prints(c["html"]) for c in chapters if c["slug"] not in withheld] + [text_prints(refs_html)]
+    pub_s, pub_h, pub_i = (set().union(*[p[i] for p in public]) if public else set() for i in range(3))
+    fingerprints = {}
     for ch in chapters:
-        (OUT / "chapters" / f"{ch['slug']}.html").write_text(ch["html"])
+        if ch["slug"] in withheld:
+            (PRIVATE_OUT / f"{ch['slug']}.html").write_text(ch["html"])
+            sents, heads, ids = text_prints(ch["html"])
+            fingerprints[ch["slug"]] = {
+                "sentences": sorted(sents - pub_s),
+                "headings": sorted(heads - pub_h - {fingerprint(ch["title"])}),  # the title stays public (navigation)
+                "ids": sorted(ids - pub_i - {fingerprint(ch["slug"]), fingerprint(ch["title"])}),
+            }
+        else:
+            (OUT / "chapters" / f"{ch['slug']}.html").write_text(ch["html"])
     (OUT / "references.html").write_text(refs_html)
+    (OUT / "withheld-fingerprints.json").write_text(json.dumps(
+        {"about": "SHA-256 prefixes of normalised sentences, 10-word sequences, headings and ids of withheld draft chapters. "
+                  "tests/site.test.ts checks that none appear anywhere in the built site.", "chapters": fingerprints}, indent=1))
 
     toc = []
     for ch in chapters:
@@ -473,10 +711,10 @@ def build_chapters(doc, labels, toc_nums, tiers, audit, figures, ms, stem, statu
         for m in head_re.finditer(ch["html"]):
             sid = m.group(1)
             hm = heading_meta.get(sid)
-            if hm and hm["level"] in (2, 3):
+            if hm and hm["level"] in (2, 3) and ch["slug"] not in withheld:
                 subs.append({"id": sid, "num": hm["num"], "title": hm["title"], "level": hm["level"], "page": hm["page"]})
         toc.append({"slug": ch["slug"], "num": ch["num"], "title": ch["title"], "appendix": ch["appendix"],
-                    "page": ch["page"], "sections": subs,
+                    "page": ch["page"], "sections": subs, "withheld": ch["slug"] in withheld,
                     "words": len(strip_tags(ch["html"]).split())})
 
     pdf = ms / f"{stem}.pdf"
@@ -501,10 +739,12 @@ def build_chapters(doc, labels, toc_nums, tiers, audit, figures, ms, stem, statu
             "main_tex_sha256": hashlib.sha256((ms / f"{stem}.tex").read_bytes()).hexdigest()[:16],
             "pdf_included": bool(pdf.exists() and publish_pdf),
             "pdf_page_offset": pdf_offset,
+            "citations": "natbib labels from the compiled .bbl" if from_bbl else "citeproc (no .bbl found)",
             "generated": dt.date.today().isoformat(),
         },
         "toc": toc,
-        "labels": {k: {**v, "chapter": id_to_chapter.get(k)} for k, v in labels.items()},
+        "labels": {k: {**v, "chapter": id_to_chapter.get(k)} for k, v in labels.items()
+                   if id_to_chapter.get(k) not in withheld or k == id_to_chapter.get(k)},
         "cite_tiers": tiers,
         "references": ref_entries,
         "figures": figures,

@@ -5,7 +5,7 @@ import Excerpt from '../components/Excerpt.astro';
 import SectionLinks from '../components/SectionLinks.astro';
 import ManuscriptNote from '../components/ManuscriptNote.astro';
 import { framework, sections } from '../lib/data';
-import { renderMath } from '../lib/manuscript';
+import { renderMath, excerptHtml } from '../lib/manuscript';
 import { url } from '../lib/site';
 const e = framework.evaluation;
 const dims: any[] = e.dimensions;
@@ -17,7 +17,7 @@ const guide = e.method_guidance;
 import { draftHidden as __hide } from '../lib/manuscript';
 if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}held/`);
 ---
-<Base title="Evaluation framework" description="The survey's unified evaluation framework for mechanistic interpretability: faithfulness, completeness, stability, causal validity and human interpretability.">
+<Base title="Evaluation framework" description="The survey's unified evaluation framework for mechanistic interpretability: faithfulness, completeness, stability, causal validity and human interpretability." manuscript>
   <div class="page">
     <p class="eyebrow">Technical methods · Evaluation</p>
     <h1>A unified evaluation framework</h1>
@@ -48,7 +48,7 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
           <div>
             {d.table_row && Object.keys(d.table_row).length > 0 && (<>
               <h3>Summary row from the survey’s table</h3>
-              <table class="data"><tbody>{Object.entries(d.table_row).filter(([k]) => k !== 'section').map(([k, v]) => <tr><th scope="row">{k}</th><td>{String(v)}</td></tr>)}</tbody></table>
+              <table class="data"><tbody>{Object.entries(d.table_row).filter(([k]) => k !== 'section').map(([k, v]) => <tr><th scope="row">{k}</th><td set:html={excerptHtml(String(v))} /></tr>)}</tbody></table>
             </>)}
             <h3>Examples</h3>
             {d.examples?.length ? d.examples.map((t: string) => <Excerpt text={t} />) : <p class="small muted">The survey gives no worked example for this dimension.</p>}
@@ -65,7 +65,7 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
         <p class="small muted">{guide.caption}</p>
         <div class="scroll-x"><table class="data">
           <thead><tr>{guide.columns.map((c: string) => <th>{c}</th>)}</tr></thead>
-          <tbody>{guide.rows.map((r: any) => <tr>{guide.columns.map((c: string) => <td>{r[c]}</td>)}</tr>)}</tbody>
+          <tbody>{guide.rows.map((r: any) => <tr>{guide.columns.map((c: string) => <td set:html={excerptHtml(String(r[c] ?? ''))} />)}</tr>)}</tbody>
         </table></div>
         <SectionLinks ids={[guide.section]} />
       </section>

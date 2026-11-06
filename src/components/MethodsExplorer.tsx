@@ -4,6 +4,8 @@ export interface MethodRow {
   id: string; name: string; family: string; familyName: string; section: string | null; sectionHref: string | null;
   definition: string; assumptions: string[]; evaluation: string[]; applications: string[]; limitations: string[];
   related: { id: string; name: string }[]; notebooks: number; demos: number; href: string;
+  /** Build-time HTML of each text field (maths rendered with KaTeX). */
+  html: Record<string, string[]>;
 }
 interface Props { rows: MethodRow[]; families: { id: string; name: string; count: number }[] }
 
@@ -12,7 +14,6 @@ const FIELDS: [keyof MethodRow, string][] = [
   ['applications', 'Intended applications'], ['limitations', 'Limitations'],
 ];
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
-const stripTex = (s: string) => s.replace(/\\\((.+?)\\\)/g, '$1');
 
 export default function MethodsExplorer({ rows, families }: Props) {
   const [q, setQ] = useState('');
@@ -80,10 +81,9 @@ export default function MethodsExplorer({ rows, families }: Props) {
                   <tr key={k}>
                     <th scope="row">{label}</th>
                     {cmp.map((m) => {
-                      const v = m[k] as string | string[];
-                      const list = Array.isArray(v) ? v : v ? [v] : [];
+                      const list = m.html[k as string] ?? [];
                       return <td key={m.id} style={{ fontFamily: 'var(--serif)', fontSize: '.92rem' }}>
-                        {list.length ? list.map((t, i) => <p key={i} style={{ margin: '0 0 .5rem' }}>“{stripTex(t)}”</p>) : <span className="muted small">Not stated</span>}
+                        {list.length ? list.map((t, i) => <p key={i} style={{ margin: '0 0 .5rem' }} dangerouslySetInnerHTML={{ __html: `“${t}”` }} />) : <span className="muted small">Not stated</span>}
                       </td>;
                     })}
                   </tr>
@@ -107,9 +107,10 @@ export default function MethodsExplorer({ rows, families }: Props) {
                 {r.notebooks > 0 && <span className="chip">notebook</span>}
                 {r.demos > 0 && <span className="chip">demo</span>}
               </div>
-              <p className="small" style={{ margin: '.35rem 0 0', color: 'var(--ink-2)', fontFamily: 'var(--serif)', fontSize: '.95rem' }}>
-                {r.definition ? `“${stripTex(r.definition).slice(0, 260)}${r.definition.length > 260 ? '…' : ''}”` : <span className="muted">No definition sentence in the survey.</span>}
-              </p>
+              {r.definition
+                ? <p className="small clamp-3" style={{ margin: '.35rem 0 0', color: 'var(--ink-2)', fontFamily: 'var(--serif)', fontSize: '.95rem' }}
+                    dangerouslySetInnerHTML={{ __html: `“${r.html.definition[0]}”` }} />
+                : <p className="small muted" style={{ margin: '.35rem 0 0' }}>No definition sentence in the survey.</p>}
             </div>
           </li>
         ))}

@@ -1,4 +1,6 @@
 {
-  "_note": "Chapters of the DRAFT manuscript that are not published, even in the full build. Ignored once the manuscript is ingested with --status final. Reason: chapter 11 of the 13 Jul 2026 draft contains authoring notes as body text.",
-  "chapters": ["11-learning-dynamics-and-mechanistic-interpretability"]
+  "_note": "Chapters of the DRAFT manuscript that are not published, by stable chapter id (src/data/chapter-ids.json). The ingest step writes their text only to src/generated/withheld/ (gitignored), so it is never committed or deployed. Ignored once the manuscript is ingested with --status final. Reason: chapter 11 of the 13 Jul 2026 draft contains authoring notes as body text.",
+  "chapters": [
+    "learning-dynamics"
+  ]
 }

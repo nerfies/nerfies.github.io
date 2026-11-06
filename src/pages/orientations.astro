@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import DraftBanner from '../components/DraftBanner.astro';
 import Excerpt from '../components/Excerpt.astro';
+import { excerptHtml } from '../lib/manuscript';
 import SectionLinks from '../components/SectionLinks.astro';
 import ManuscriptNote from '../components/ManuscriptNote.astro';
 import { framework, sections, resolveMethod } from '../lib/data';
@@ -29,7 +30,7 @@ const sec = (id: string) => sections([id])[0];
 import { draftHidden as __hide } from '../lib/manuscript';
 if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}held/`);
 ---
-<Base title="Research orientations" description="The survey's research orientations: agendas defined by goals, assumptions and trade-offs rather than by exclusive sets of methods.">
+<Base title="Research orientations" description="The survey's research orientations: agendas defined by goals, assumptions and trade-offs rather than by exclusive sets of methods." manuscript>
   <div class="page">
     <p class="eyebrow">Research directions</p>
     <h1>Research orientations</h1>
@@ -90,7 +91,7 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
         </div>
         <div class="scroll-x"><table class="data" id="cmp">
           <thead><tr>{table.columns.map((c: string) => <th data-col={c}>{c}</th>)}</tr></thead>
-          <tbody>{table.rows.map((r: any) => <tr>{table.columns.map((c: string, j: number) => j === 0 ? <th scope="row">{r[c]}</th> : <td data-col={c}>{r[c]}</td>)}</tr>)}</tbody>
+          <tbody>{table.rows.map((r: any) => <tr>{table.columns.map((c: string, j: number) => j === 0 ? <th scope="row" set:html={excerptHtml(String(r[c] ?? ''))} /> : <td data-col={c} set:html={excerptHtml(String(r[c] ?? ''))} />)}</tr>)}</tbody>
         </table></div>
         <SectionLinks ids={[table.section]} />
       </section>

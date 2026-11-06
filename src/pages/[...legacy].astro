@@ -1,0 +1,38 @@
+---
+// Static redirect pages for URLs that have moved (src/data/redirects.json). GitHub Pages has no
+// server-side redirects, so each old URL gets a page that forwards to the new one, keeping the #anchor.
+import redirects from '../data/redirects.json';
+import { url } from '../lib/site';
+
+export function getStaticPaths() {
+  return Object.entries((redirects as any).pages as Record<string, string>).map(([from, to]) => ({
+    params: { legacy: from.replace(/\/$/, '') }, props: { from, to },
+  }));
+}
+const { from, to } = Astro.props as { from: string; to: string };
+const target = url(to);
+const canonical = new URL(target, Astro.site).href;
+// anchor aliases recorded for the old page: "#old" -> "new/path/#new"
+const anchors = Object.fromEntries(Object.entries((redirects as any).anchors as Record<string, string>)
+  .filter(([k]) => k.startsWith(`${from}#`)).map(([k, v]) => [k.slice(from.length), url(v)]));
+---
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Page moved</title>
+  <meta name="description" content="This page has moved to a new address." />
+  <meta name="robots" content="noindex" />
+  <meta name="mi-survey:redirect" content={target} />
+  <link rel="canonical" href={canonical} />
+  <script is:inline define:vars={{ target, anchors }}>
+    location.replace(anchors[location.hash] || target + location.hash);
+  </script>
+  <meta http-equiv="refresh" content={`0; url=${target}`} />
+</head>
+<body>
+  <h1>This page has moved</h1>
+  <p><a href={target}>Continue to the new address</a>.</p>
+</body>
+</html>

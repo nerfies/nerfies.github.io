@@ -2,6 +2,22 @@
 
 Audit date: 5 Nov 2026. Branch: `feature/interactive-handbook`.
 
+## Status on 6 Nov 2026 (phase 2, PR 1)
+
+Re-checked against the deployed site and the 5 Nov PDF. Author decisions are in `docs/DECISIONS.md`.
+
+- **Fixed in this PR.**
+  - Doubled parentheses around citations (72): the converter now renders citations from the build's `main.bbl`. 411 of 412 citation strings match the PDF text; the one exception sits in a table that PDF text extraction breaks. 296 of 298 reference entries match, and the other two differ only in accent encoding.
+  - Same-year suffixes in the bibliography ("2018a"), and URLs capitalised by citeproc ("Https://…").
+  - Raw TeX in method cards and tables.
+  - Colour as the only cue for evidence tiers.
+  - Links and heading anchors that exposed the withheld chapter.
+  - Copy claiming the full manuscript is online.
+  - The phone masthead overflow.
+  - Chapter URLs no longer depend on numbers or titles.
+- **Still valid.** §3 (website and manuscript inconsistencies) and §4 (manuscript issues) still describe the *13 Jul draft*. The 5 Nov PDF already resolves §3.1 (six orientations), §3.3 (one framework, §7.5) and the title. These close when the new source is ingested (PR 2).
+- **New.** Chapter 11's text was committed to this public repo on 5 Nov (see DECISIONS D4). Neither repo has a licence file (D5).
+
 ## 1. What existed
 
 **Website (`TSGLAB/mi_survey`)**
@@ -52,14 +68,14 @@ The site handles each of these honestly. It shows the public six orientations wi
 
 These are reproduced faithfully in the reader. Flagged, not fixed:
 
-- **Chapter 11 contains authoring notes as body text**, for example "The reason I'm not using Grokking in these section titles…" and "Some of these may go in 10.2.2, I haven't read them carefully yet". These are not macros, so the converter cannot strip them. They must be removed in the source.
+- **Chapter 11 contains authoring notes as body text** (first-person notes about what to write or move). These are not macros, so the converter cannot strip them. They must be removed in the source.
 - Unresolved citation keys `binder`, `song` in §5.3. The bibliography lacks them, and the reader shows unlinked placeholders.
 - Cross-references off by one: §5.1 "Figure 2" → Figure 3; §5.2 "Figure 3" → Figure 4; §6.1 "Figure 4" → Figure 5; §13.2 "Figure 16" → Figure 18; "Appendix 19" should be Appendix C; §6.3.4 cites Table 5 for Table 4.
 - Contradictions: SPARTAN L1 (text) vs L0 (Table 7). Gated SAE hard gate (§6.2) vs sigmoid (App. C.3). Top-k k = 50–100 (Table 4) vs 50–200 (App. C.4). Causal scrubbing as a necessity test (§7.4) vs a protocol covering sufficiency (§7.6.6). The "necessity > 0.5" threshold is cited but never proposed.
 - Duplicated coverage: induction heads ×3 (6.6, 7.5, 10.6), grokking ×3, SLT ×2. Chapters 10 and 11 overlap. §12 has no introduction.
 - Probable missing word, §13.3: "a valuable source of feedback, but required" (likely "but not required").
 - Citations to check: Ouyang et al. 2022 for sleeper-agent detectability (§15.1); Bai, Jones et al. 2022 for "value learning" (§15.4).
-- Typos in headings and ids: "Hnadbook Scope", "bild on", "Bethods", "Emergant", "Principle Component", "artificailly", "Bascially", "two many".
+- Typos in headings and ids: "Hnadbook Scope", "bild on", "Bethods", "Principle Component", "artificailly", "Bascially", "two many".
 - Two section ids contain spaces. ACDC is never expanded.
 - One `\mathbbm{1}` is rendered as `\mathbb{1}` (KaTeX has no `bbm`).
 

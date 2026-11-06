@@ -80,6 +80,7 @@ button { font: inherit; color: inherit; }
 .site-header .inner { max-width: 82rem; margin: 0 auto; display: flex; align-items: baseline; gap: 2rem; padding: 1rem 1.25rem .9rem; }
 .brand { font-family: var(--display); font-size: 1.15rem; color: var(--ink); text-decoration: none; white-space: nowrap; letter-spacing: -0.005em; }
 .brand:hover { color: var(--ink); }
+@media (max-width: 40rem) { .brand { white-space: normal; font-size: 1.02rem; line-height: 1.25; min-width: 0; } }
 .brand em { font-style: italic; }
 .site-nav { display: flex; gap: 1.4rem; margin-left: auto; flex-wrap: wrap; justify-content: flex-end; }
 .site-nav a { color: var(--ink-2); text-decoration: none; font-size: .9rem; }
@@ -209,7 +210,12 @@ blockquote.excerpt footer a { color: var(--ink-3); }
 .prose a.cite { text-decoration: none; }
 .prose a.cite-established { color: var(--tier-established); }
 .prose a.cite-emerging { color: var(--tier-emerging); }
-.prose a.cite-missing { color: var(--tier-flagged); }
+.prose a.cite-missing, .prose a.cite-flagged { color: var(--tier-flagged); }
+/* evidence tier without relying on colour: preprints dotted, missing/flagged wavy */
+.prose a.cite-emerging, .cite-emerging-sample { text-decoration: underline dotted 1px; text-underline-offset: .2em; }
+.prose a.cite-flagged, .prose a.cite-missing { text-decoration: underline wavy 1px; text-underline-offset: .2em; }
+.tier-tag { display: inline-block; font: 500 .66rem/1.3 var(--sans); letter-spacing: .05em; text-transform: uppercase;
+  border: 1px solid currentColor; padding: 0 .35em; margin-right: .45em; vertical-align: .12em; color: var(--ink-2); }
 .prose a.cite:hover { text-decoration: underline; }
 .prose :is(.definitionbox, .examplebox, .warningbox, .theorybox) { margin: 1.8rem 0; padding: .2rem 0 .2rem 1.2rem; border-left: 1px solid var(--hair-strong); font-size: 1.05rem; }
 .prose .warningbox { border-left-color: var(--accent); }
@@ -256,3 +262,5 @@ blockquote.excerpt footer a { color: var(--ink-3); }
 .method-note { border-top: 1px solid var(--hair); padding-top: 1.5rem; margin-top: 3rem; font-family: var(--serif); font-size: 1.05rem; color: var(--ink-2); max-width: var(--measure); }
 .method-note h2 { font-size: 1.2rem; margin: 1.5rem 0 .4rem; color: var(--ink); }
 .method-note code { font-size: .8em; }
+
+.clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }

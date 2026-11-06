@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { SITE, url } from '../lib/site';
-import { chapters, manifest, draftHidden } from '../lib/manuscript';
+import { chapters, manifest, draftHidden, isDraft, withheld } from '../lib/manuscript';
 import notebooks from '../data/notebooks.json';
 
 // Authors and affiliations as in the paper's title page, in its three groups.
@@ -48,7 +48,7 @@ const roman = ['I', 'II', 'III', 'IV'];
 // the arrangement the toy model in demos/superposition settles into when inputs are sparse).
 const feats = [0, 1, 2, 3, 4].map((i) => { const a = Math.PI / 2 + (i * 2 * Math.PI) / 5; return [Math.cos(a), Math.sin(a)]; });
 const explore = [
-  ['Read', 'handbook/', 'The handbook', `The full survey online: ${chapters.filter((c) => !c.appendix).length} chapters and ${manifest.references.length} references, numbered as in the PDF.`],
+  ['Read', 'handbook/', 'The handbook', `${isDraft ? 'A preview of the working draft' : 'The survey'} online: ${chapters.filter((c) => !c.appendix && !withheld.has(c.slug)).length} chapters${withheld.size ? ` (${withheld.size} held back until the final manuscript)` : ''} and ${manifest.references.length} references, numbered as in the ${isDraft ? 'draft ' : ''}PDF.`],
   ['Compare', 'methods/', 'Methods explorer', 'Every method the survey covers, side by side, quoted from the text.'],
   ['Judge', 'evaluation/', 'Evaluation framework', 'Five dimensions for deciding whether an interpretability claim holds.'],
   ['Orient', 'orientations/', 'Research orientations', 'The agendas behind the methods: what each assumes and what it trades away.'],
@@ -98,7 +98,7 @@ const jsonld = {
           {g.map(([n, a], i) => <><span class="author">{n}<sup>{a}</sup>{i < g.length - 1 ? ',' : ''}</span>{' '}</>)}
         </p>
       ))}
-      <p class="notes">* Correspondence to <a href={`mailto:${SITE.contact}`}>{SITE.contact}</a></p>
+      <p class="notes">† Core contributors. ‡ Senior advisors. Remaining authors listed alphabetically by surname.<br />* Correspondence to <a href={`mailto:${SITE.contact}`}>{SITE.contact}</a></p>
     </div>
     <div class="gut">Affiliations</div>
     <ol class="affils">{affiliations.map((a) => <li>{a}</li>)}</ol>

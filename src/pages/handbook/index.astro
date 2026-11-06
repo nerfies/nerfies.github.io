@@ -1,24 +1,26 @@
 ---
 import Base from '../../layouts/Base.astro';
 import DraftBanner from '../../components/DraftBanner.astro';
-import { chapters, pdfHref, manifest, withheld } from '../../lib/manuscript';
+import { chapters, pdfHref, manifest, withheld, isDraft } from '../../lib/manuscript';
 import { url } from '../../lib/site';
 const main = chapters.filter((c) => !c.appendix);
 const apps = chapters.filter((c) => c.appendix);
-const words = chapters.reduce((a, c) => a + c.words, 0);
+const shown = chapters.filter((c) => !withheld.has(c.slug));
+const words = shown.reduce((a, c) => a + c.words, 0);
 import { draftHidden as __hide } from '../../lib/manuscript';
 if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}held/`);
 ---
-<Base title="Handbook" description="Read the full survey online: every chapter, with numbered sections, figures, tables, equations and linked references.">
+<Base title="Handbook" description="Read the survey online, with numbered sections, figures, tables, equations and linked references." manuscript>
   <div class="page-narrow">
     <p class="eyebrow">The handbook</p>
     <h1>Read the survey</h1>
-    <p class="lede">The complete manuscript as an online book: {main.length} chapters, {apps.length} appendices and {manifest.references.length} references, about {Math.round(words / 1000)}k words.
-      Numbering matches the PDF, and every section, figure and table has a link you can share.</p>
+    <p class="lede">{isDraft ? 'A preview of the working draft' : 'The survey'} as an online book: {main.filter((c) => !withheld.has(c.slug)).length} chapters, {apps.length} appendices and {manifest.references.length} references, about {Math.round(words / 1000)}k words.
+      {withheld.size > 0 && <>{withheld.size === 1 ? 'One chapter is' : `${withheld.size} chapters are`} held back until the final manuscript. </>}
+      Numbering matches the {isDraft ? 'draft ' : ''}PDF, and every section, figure and table has a link you can share.</p>
     <DraftBanner />
     <p class="small muted">Citation colours follow the manuscript:
-      <span style="color:var(--tier-established)">■ peer-reviewed</span>,
-      <span style="color:var(--tier-emerging)">■ preprints and other non-peer-reviewed work</span>.</p>
+      <span style="color:var(--tier-established)">■ peer-reviewed</span> (plain),
+      <span style="color:var(--tier-emerging)">■ preprints and other non-peer-reviewed work</span> (<span class="cite-emerging-sample">dotted underline</span>; tagged “Preprint” in the reference list).</p>
     <ol style="list-style:none;padding:0;margin:2rem 0">
       {main.map((c) => (
         <li style="padding:.9rem 0;border-bottom:1px solid var(--rule)">

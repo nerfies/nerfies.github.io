@@ -1,0 +1,5 @@
+{
+  "about": "Publication policy for the live site. Author-controlled: see docs/DECISIONS.md. Changing a value here changes what search engines may index.",
+  "indexDraftPages": false,
+  "indexDraftPages_note": "While the ingested manuscript is a draft, pages built from it (reader, references, methods, evaluation, orientations, safety) carry <meta name=\"robots\" content=\"noindex\">. They stay reachable by link and in the site's own search. Set to true only if the authors approve indexing of draft text. noindex is not access control: anything deployed is public."
+}

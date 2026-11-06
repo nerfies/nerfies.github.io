@@ -8,7 +8,7 @@ import withheldJson from '../data/withheld.json';
 export interface TocSection { id: string; num: string | null; title: string; level: number; page: string | null }
 export interface Chapter {
   slug: string; num: string; title: string; appendix: boolean; page: string | null;
-  sections: TocSection[]; words: number;
+  sections: TocSection[]; words: number; withheld?: boolean;
 }
 export interface Reference { key: string; text: string; tier: string | null }
 export interface Manifest {
@@ -30,6 +30,17 @@ export const draftHidden = isDraft && import.meta.env.PUBLIC_HIDE_DRAFT === '1';
 export const withheld = new Set<string>(isDraft && import.meta.env.PUBLIC_SHOW_ALL !== '1' ? (withheldJson as any).chapters : []);
 
 const raw = import.meta.glob('../generated/chapters/*.html', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+// Withheld draft chapters live in a gitignored folder. It exists only on a machine that ran the ingest
+// step, and is read only for PUBLIC_SHOW_ALL=1 previews or to scrub curated data.
+const privateRaw = import.meta.glob('../generated/withheld/*.html', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+const findRaw = (slug: string) => {
+  const k = Object.keys(raw).find((x) => x.endsWith(`/${slug}.html`));
+  if (k) return raw[k];
+  const pk = withheld.has(slug) ? undefined : Object.keys(privateRaw).find((x) => x.endsWith(`/${slug}.html`));
+  return pk ? privateRaw[pk] : undefined;
+};
+/** True when this build can show the chapter's text. */
+export const hasChapterText = (slug: string) => !withheld.has(slug) && findRaw(slug) !== undefined;
 const refsRaw = import.meta.glob('../generated/references.html', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
 
 const unescape = (s: string) =>
@@ -58,9 +69,33 @@ export function withBase(html: string): string {
 }
 
 export function chapterHtml(slug: string): string {
-  const key = Object.keys(raw).find((k) => k.endsWith(`/${slug}.html`));
-  if (!key) throw new Error(`chapter ${slug} not found`);
-  return withBase(renderMath(raw[key]));
+  const h = findRaw(slug);
+  if (h === undefined) throw new Error(`chapter ${slug} not found`);
+  return withBase(renderMath(h));
+}
+
+// Inline maths as written in the manuscript. Curated excerpts are plain text (the extraction drops the
+// maths markup), so any of these TeX strings found in an excerpt is rendered with KaTeX at build time.
+const MATH_TEX = [...new Set(Object.values(raw).flatMap((h) =>
+  [...h.matchAll(/<span class="math inline">([\s\S]*?)<\/span>/g)].map((m) => unescape(m[1]).replace(/^\\\(|\\\)$/g, '').replace(/\s+/g, ' ').trim())))]
+  .filter((t) => /[\\^_{}]/.test(t) && t.length > 1)
+  .sort((a, b) => b.length - a.length);
+const MATH_RE = MATH_TEX.length
+  ? new RegExp(MATH_TEX.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g') : null;
+const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const inlineMath = (tex: string) => renderMath(`<span class="math inline">${escHtml(tex)}</span>`);
+
+/** HTML for a verbatim excerpt: text escaped, the manuscript's inline maths rendered. */
+export function excerptHtml(text: string): string {
+  const out: string[] = [];
+  let last = 0;
+  const src = text.replace(/\\\((.+?)\\\)/g, '$1');
+  if (MATH_RE) for (const m of src.matchAll(MATH_RE)) {
+    out.push(escHtml(src.slice(last, m.index)), inlineMath(m[0]));
+    last = m.index! + m[0].length;
+  }
+  out.push(escHtml(src.slice(last)));
+  return out.join('');
 }
 
 export function referencesHtml(): string {
@@ -109,7 +144,8 @@ export function sectionInfo(id: string): { num: string | null; title: string; hr
 export function citationsInSections(ids: string[]): string[] {
   const keys = new Set<string>();
   for (const c of chapters) {
-    const html = raw[Object.keys(raw).find((k) => k.endsWith(`/${c.slug}.html`))!];
+    const html = findRaw(c.slug);
+    if (!html || withheld.has(c.slug)) continue;
     for (const id of ids) {
       const start = html.indexOf(`<section id="${id}"`);
       if (start < 0) continue;
@@ -132,15 +168,10 @@ export const referenceByKey = new Map(manifest.references.map((r) => [r.key, r])
 
 const normText = (x: string) => x.replace(/\s+/g, ' ').trim();
 const withheldPlain = [...withheld].map((slug) => {
-  const key = Object.keys(raw).find((k) => k.endsWith(`/${slug}.html`));
-  return key ? normText(unescape(raw[key].replace(/<\/(p|li|h\d|tr|figcaption|caption)>/g, '\n').replace(/<[^>]+>/g, ''))) : '';
+  const key = Object.keys(privateRaw).find((k) => k.endsWith(`/${slug}.html`));
+  return key ? normText(unescape(privateRaw[key].replace(/<\/(p|li|h\d|tr|figcaption|caption)>/g, '\n').replace(/<[^>]+>/g, ''))) : '';
 }).join('\n');
 /** True if a curated excerpt is text from a withheld chapter. */
 export function isWithheldText(s: string): boolean {
   return withheldPlain.length > 0 && s.length > 25 && withheldPlain.includes(normText(s));
-}
-/** Every element id inside a chapter (used to keep deep links into withheld chapters resolvable). */
-export function chapterIds(slug: string): string[] {
-  const key = Object.keys(raw).find((k) => k.endsWith(`/${slug}.html`));
-  return key ? [...raw[key].matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]) : [];
 }

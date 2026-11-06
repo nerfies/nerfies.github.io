@@ -1,0 +1,185 @@
+<section id="sec:hypotheses" class="level1"><h1 data-pdf-page="15"><span class="secnum">5</span> Core Hypotheses in Mechanistic Interpretability<a class="anchor" href="#sec:hypotheses" aria-label="Link to this section">#</a></h1>
+<p>Mechanistic interpretability is guided by a number of core hypotheses about how neural networks represent information and implement computation. These hypotheses are not universally accepted facts; rather, they function as organizing principles that shape methodological choices and empirical investigations. In this section, we formalize these hypotheses, summarize supporting and opposing evidence, and highlight open questions.</p>
+<section id="subsec:linearity" class="level2"><h2 data-pdf-page="15"><span class="secnum">5.1</span> The Linear Representation Hypothesis<a class="anchor" href="#subsec:linearity" aria-label="Link to this section">#</a></h2>
+<p>We have seen that single units are not the unit of representation, but what is? The linear representation hypothesis claims that directions in the activation space are the fundamental units of representation.</p>
+<div class="theorybox">
+<p>Features correspond to directions <span class="math inline">\phi \in \mathbb{R}^d</span> in activation space. The projection <span class="math inline">\phi^\top h_l(x)</span> approximately measures the intensity of that feature for input <span class="math inline">x</span>, and features combine additively: <span class="math inline">h_l(x) \approx \sum_i \alpha_i \phi_i</span>. This implies features can be detected via linear probes and added or removed via vector arithmetic on the <span class="math inline">h_l(x)</span>.</p>
+</div>
+<p>On a strong version of the linear representation hypothesis, all features are linearly represented. On a weaker version, only some are  (<span class="citation" data-cites="sharkey2025open">(<a href="@@BASE@@references/#ref-sharkey2025open" class="cite cite-established" data-cite="sharkey2025open" role="doc-biblioref">Sharkey et al. 2025</a>)</span>; <span class="citation" data-cites="smith2024strongfeature">(<a href="@@BASE@@references/#ref-smith2024strongfeature" class="cite cite-emerging" data-cite="smith2024strongfeature" role="doc-biblioref">Smith 2024</a>)</span>).</p>
+<p><strong>Conceptual Basis.</strong> A feature is linearly represented if its presence corresponds to activation along a fixed direction <span class="math inline">\phi</span>, detectable via projection <span class="math inline">\phi^\top h_l(x)</span>. This makes mechanistic analysis tractable: features can be found, measured, and manipulated using linear methods.</p>
+<p>However, not all activation spaces are the same. In some spaces, like MLP hidden layers, the neuron axes matter, since ReLU treats each neuron separately, so the coordinate system is meaningful. We call this a <em>privileged basis</em> (see Figure <a href="@@BASE@@handbook/5-core-hypotheses-in-mechanistic-interpretability/#fig:privileged-basis" data-reference-type="ref" data-reference="fig:privileged-basis">2</a>, left). In other spaces, like the residual stream, nothing special happens along the neuron axes, so features can point in any direction. This is a <em>non-privileged basis</em> (see Figure <a href="@@BASE@@handbook/5-core-hypotheses-in-mechanistic-interpretability/#fig:privileged-basis" data-reference-type="ref" data-reference="fig:privileged-basis">2</a>, right).</p>
+<figure id="fig:privileged-basis" data-latex-placement="t">
+<img alt="Figure 3: Privileged vs. non-privileged bases. In MLP hidden layers, element-wise nonlinearities break rotation symmetry, making axes meaningful. In the residual stream, no element-wise operations are applied, so any rotation of axes is computationally equivalent." loading="lazy" src="@@BASE@@figures/5_priviledge.svg" />
+<figcaption><span class="capnum">Figure 3:</span> Privileged vs. non-privileged bases. In MLP hidden layers, element-wise nonlinearities break rotation symmetry, making axes meaningful. In the residual stream, no element-wise operations are applied, so any rotation of axes is computationally equivalent.</figcaption>
+</figure>
+<p>The distinction matters: when the basis is privileged, a single neuron might represent a feature. When it’s not, features are directions that don’t align with any particular neuron, and we have to find them.</p>
+<section id="empirical-evidence-and-counterexamples." class="level4">
+<h4>Empirical Evidence and Counterexamples.</h4>
+<p>Empirical support for linearity includes the success of linear probes on diverse models <span class="citation" data-cites="belinkov-2022-probing">(<a href="@@BASE@@references/#ref-belinkov-2022-probing" class="cite cite-established" data-cite="belinkov-2022-probing" role="doc-biblioref">Belinkov 2022</a>)</span>, activation steering along single directions to produce targeted behavioral changes <span class="citation" data-cites="turner2024steeringlanguagemodelsactivation">(<a href="@@BASE@@references/#ref-turner2024steeringlanguagemodelsactivation" class="cite cite-emerging" data-cite="turner2024steeringlanguagemodelsactivation" role="doc-biblioref">Turner et al. 2024</a>)</span>, and sparse autoencoders recovering linearly separable and steerable features <span class="citation" data-cites="bricken2023monosemanticity">(<a href="@@BASE@@references/#ref-bricken2023monosemanticity" class="cite cite-emerging" data-cite="bricken2023monosemanticity" role="doc-biblioref">Bricken et al. 2023</a>)</span>.</p>
+<p>However, there is also evidence that not all representations are linear. Counterexamples include nonlinear feature interactions, algorithmic representations involving nonlinear transformations, and features distributed across multiple interacting subspaces(<span class="citation" data-cites="nanda2023progressmeasuresgrokkingmechanistic rnnnonlinear engels2025languagemodelfeaturesonedimensionally">(<a href="@@BASE@@references/#ref-nanda2023progressmeasuresgrokkingmechanistic" class="cite cite-established" data-cite="nanda2023progressmeasuresgrokkingmechanistic" role="doc-biblioref">Nanda et al. 2023</a>; <a href="@@BASE@@references/#ref-rnnnonlinear" class="cite cite-established" data-cite="rnnnonlinear" role="doc-biblioref">Csordás et al. 2024</a>; <a href="@@BASE@@references/#ref-engels2025languagemodelfeaturesonedimensionally" class="cite cite-established" data-cite="engels2025languagemodelfeaturesonedimensionally" role="doc-biblioref">Engels et al. 2025</a>)</span>; <span class="citation" data-cites="snmf smds">(<a href="@@BASE@@references/#ref-snmf" class="cite cite-emerging" data-cite="snmf" role="doc-biblioref">Shafran et al. 2025</a>; <a href="@@BASE@@references/#ref-smds" class="cite cite-emerging" data-cite="smds" role="doc-biblioref">Tiblias et al. 2025</a>)</span>) . Some have argued that features in neural networks may not even be explicitly represented, but may instead emerge from underlying circuit dynamics <span class="citation" data-cites="smith2024strongfeature">(<a href="@@BASE@@references/#ref-smith2024strongfeature" class="cite cite-emerging" data-cite="smith2024strongfeature" role="doc-biblioref">Smith 2024</a>)</span>. Thus, the Linear Representation Hypothesis is a useful approximation rather than a universal law.</p>
+</section>
+</section>
+<section id="subsec:superposition" class="level2"><h2 data-pdf-page="16"><span class="secnum">5.2</span> The Superposition Hypothesis<a class="anchor" href="#subsec:superposition" aria-label="Link to this section">#</a></h2>
+<p>The superposition hypothesis says that for each layer of a trained model there are more features than nodes.</p>
+<div class="theorybox">
+<p>Model hidden states encode more features than they have dimensions. If there are <span class="math inline">k</span> features and <span class="math inline">d</span> dimensions, then the Superposition Hypothesis is that <span class="math inline">k &gt;&gt; d</span>.<br />
+This implies that features cannot be represented as orthogonal directions—though they can be represented as nearly-orthogonal directions. It also implies polysemanticity: directions will be activated in response to different concepts.</p>
+</div>
+<section id="conceptual-basis." class="level4">
+<h4>Conceptual Basis.</h4>
+<p>Superposition is a geometric property of high-dimensional activation spaces: many approximately orthogonal directions can coexist, allowing a limited number of neurons to encode a much larger number of sparse features. Polysemanticity, where individual neurons respond to multiple unrelated semantic concepts, is a direct consequence of this property. As features become increasingly sparse, the model moves from using dedicated dimensions for monosemantic features to shared dimensions (see Figure <a href="@@BASE@@handbook/5-core-hypotheses-in-mechanistic-interpretability/#fig:superposition-polysemanticity" data-reference-type="ref" data-reference="fig:superposition-polysemanticity">3</a>). In this state of superposition, features are compressed into a space with fewer dimensions than there are features.</p>
+</section>
+<section id="empirical-evidence." class="level4">
+<h4>Empirical Evidence.</h4>
+<p>Mechanistic studies have observed widespread polysemanticity: individual neurons consistently activate for multiple unrelated semantic concepts, making them poor interpretable units <span class="citation" data-cites="elhage2022superposition bricken2023monosemanticity">(<a href="@@BASE@@references/#ref-elhage2022superposition" class="cite cite-emerging" data-cite="elhage2022superposition" role="doc-biblioref">Elhage, Hume, Olsson, Nanda, Henighan, Bai, et al. 2022</a>; <a href="@@BASE@@references/#ref-bricken2023monosemanticity" class="cite cite-emerging" data-cite="bricken2023monosemanticity" role="doc-biblioref">Bricken et al. 2023</a>)</span>. Dictionary Learning methods like Sparse Autoencoders (SAEs) and related feature decomposition methods exploit this underlying property of superposition to recover tens of thousands of distinct features from shared activation spaces <span class="citation" data-cites="bricken2023monosemanticity templeton2024scaling">(<a href="@@BASE@@references/#ref-bricken2023monosemanticity" class="cite cite-emerging" data-cite="bricken2023monosemanticity" role="doc-biblioref">Bricken et al. 2023</a>; <a href="@@BASE@@references/#ref-templeton2024scaling" class="cite cite-emerging" data-cite="templeton2024scaling" role="doc-biblioref">Templeton et al. 2024</a>)</span>. These recovered features are considered interpretable and some causally relevant to model behavior, showing that overlapping directions encode meaningful semantic information. Interpretability gains from such methods further validate that superposition is fundamental challenge, rather than a method-specific artifact <span class="citation" data-cites="templeton2024scaling">(<a href="@@BASE@@references/#ref-templeton2024scaling" class="cite cite-emerging" data-cite="templeton2024scaling" role="doc-biblioref">Templeton et al. 2024</a>)</span>.</p>
+<figure id="fig:superposition-polysemanticity" data-latex-placement="t">
+<img alt="Figure 4: Superposition implies polysemanticity. Left: when the number of features k does not exceed the number of dimensions/neurons d (k\le d), feature directions can align cleanly with individual neuron axes (monosemantic neurons). Right: when k&gt;d, multiple feature directions must share the same " loading="lazy" src="@@BASE@@figures/5_superposition-and-polysemanticity.svg" />
+<figcaption><span class="capnum">Figure 4:</span> <strong>Superposition implies polysemanticity.</strong> Left: when the number of features <span class="math inline">k</span> does not exceed the number of dimensions/neurons <span class="math inline">d</span> (<span class="math inline">k\le d</span>), feature directions can align cleanly with individual neuron axes (monosemantic neurons). Right: when <span class="math inline">k&gt;d</span>, multiple feature directions must share the same limited set of neuron axes; as a result, each neuron axis cuts across multiple feature directions, producing polysemantic neurons.</figcaption>
+</figure>
+</section>
+<section id="architectural-responses-to-superposition" class="level3"><h3 data-pdf-page="17"><span class="secnum">5.2.1</span> Architectural Responses to Superposition<a class="anchor" href="#architectural-responses-to-superposition" aria-label="Link to this section">#</a></h3>
+<p>The prevalence of superposition is not an inevitable property of neural networks but a consequence of architectural permissiveness. Standard dense architectures do not impose a structural penalty for distributing features across arbitrary linear combinations of neurons. When activation functions are applied element-wise (e.g., ReLU, GELU), and connectivity is unconstrained, gradient descent is free to exploit the high-dimensional geometry of activation space to pack more features than there are neurons <span class="citation" data-cites="gao2025weight">(<a href="@@BASE@@references/#ref-gao2025weight" class="cite cite-emerging" data-cite="gao2025weight" role="doc-biblioref">Gao, Rajaram, et al. 2025</a>)</span>.</p>
+<p>This observation motivates a distinct research program: rather than decomposing superposition post hoc via sparse autoencoders, one can impose <em>inductive biases</em> during training that encourage representations in which features are more accessible to analysis. Three intervention points have been explored:</p>
+<ul>
+<li><p><strong>Sparsity constraints:</strong> Enforcing sparsity in activations limits how many neurons within an MLP can participate for a given input, constraining how many units can jointly support any single feature. For example, <span class="citation" data-cites="yang2025mixture">Yang et al. (<a href="@@BASE@@references/#ref-yang2025mixture" class="cite cite-established" data-cite="yang2025mixture" role="doc-biblioref">2025</a>)</span> train mixture-of-experts models with sparsely activated neurons within the MLPs. Complementarily, sparsity can also be imposed on connectivity by encouraging sparse weight patterns, for instance via <span class="math inline">L_0</span> regularization, further limiting how many parameters contribute to a given representation <span class="citation" data-cites="gao2025weight">(<a href="@@BASE@@references/#ref-gao2025weight" class="cite cite-emerging" data-cite="gao2025weight" role="doc-biblioref">Gao, Rajaram, et al. 2025</a>)</span>.</p></li>
+<li><p><strong>Activation competition:</strong> Replacing element-wise activations with spatial softmax (SoLU) forces neurons to compete, explicitly inhibiting the co-activation patterns superposition requires <span class="citation" data-cites="elhage2022solu">(<a href="@@BASE@@references/#ref-elhage2022solu" class="cite cite-emerging" data-cite="elhage2022solu" role="doc-biblioref">Elhage, Hume, Olsson, Nanda, Henighan, Johnston, et al. 2022</a>)</span>.</p></li>
+<li><p><strong>Computational primitives:</strong> Changing the fundamental operation from static feature detection to learnable transformations (MOLT, KANs) can better match the algorithmic structure of tasks, reducing the pressure to compress via superposition <span class="citation" data-cites="liu2025kan">(<a href="@@BASE@@references/#ref-liu2025kan" class="cite" data-cite="liu2025kan" role="doc-biblioref">Z. Liu et al. 2025</a>)</span>.</p></li>
+</ul>
+<p>These architectural interventions represent a shift from treating superposition as a phenomenon to be reverse-engineered toward treating it as a design choice that can be constrained upstream. We discuss these methods in detail in Section <a href="@@BASE@@handbook/6-feature-extraction-and-multi-layer-analysis/#sec:architectural-interventions" data-reference-type="ref" data-reference="sec:architectural-interventions">6.9</a>.</p>
+</section>
+</section>
+<section id="subsec:privileged-access" class="level2"><h2 data-pdf-page="18"><span class="secnum">5.3</span> The Privileged Access Hypothesis<a class="anchor" href="#subsec:privileged-access" aria-label="Link to this section">#</a></h2>
+<p>A class of approaches that use models as interpreters of <em>themselves</em> can be justified through the privileged access hypothesis. The privileged access hypothesis states that:</p>
+<div class="theorybox">
+<p>A model used to interpret itself can, under appropriate elicitation, access internal variables and intermediate computations that are not reliably recoverable from external behavioral analysis alone, providing a comparative advantage as an interpreter of its own behavior</p>
+<p><span class="citation" data-cites="binder song li2025traininglanguagemodelsexplain">(<a class="cite cite-missing" data-missing-cite="binder" title="Citation missing from the bibliography" role="doc-biblioref"><strong>binder?</strong></a>; <a class="cite cite-missing" data-missing-cite="song" title="Citation missing from the bibliography" role="doc-biblioref"><strong>song?</strong></a>; <a href="@@BASE@@references/#ref-li2025traininglanguagemodelsexplain" class="cite cite-emerging" data-cite="li2025traininglanguagemodelsexplain" role="doc-biblioref">B. Z. Li et al. 2025</a>)</span>.</p>
+</div>
+<section id="conceptual-basis.-1" class="level4">
+<h4>Conceptual Basis.</h4>
+<p>Privileged Access is the hypothesis that the model itself can easily access its own internal states—such as latent beliefs, intermediate plans, or cached computations—which influence future behavior but remain latent at the current timestep. Consequently, a model that conditions on these internal activations has an advantage over external observers, who must infer this structure indirectly from input-output behavior.</p>
+<p>The hypothesis is motivated by an asymmetry: external interpretability methods must reverse-engineer internal computation from activations or outputs, while the model itself already “has” this information in a form it can (potentially) report. If reliable, privileged access would dramatically reduce the cost of mechanistic analysis by allowing models to directly describe their own reasoning processes.</p>
+</section>
+<section id="empirical-evidence.-1" class="level4">
+<h4>Empirical Evidence.</h4>
+<p>Empirical support comes from several lines of research:</p>
+<ul>
+<li><p>Models contain task-relevant information internally that is not expressed in standard outputs but can be recovered through investigating model internals of targeted prompting <span class="citation" data-cites="pan2024latentqateachingllmsdecode">(<a href="@@BASE@@references/#ref-pan2024latentqateachingllmsdecode" class="cite cite-emerging" data-cite="pan2024latentqateachingllmsdecode" role="doc-biblioref">Pan et al. 2024</a>)</span>.</p></li>
+<li><p>Fine-tuned “activation decoders” (e.g., LatentQA) can extract information from intermediate representations of the target model which it does not spontaneously verbalize <span class="citation" data-cites="pan2024latentqateachingllmsdecode">(<a href="@@BASE@@references/#ref-pan2024latentqateachingllmsdecode" class="cite cite-emerging" data-cite="pan2024latentqateachingllmsdecode" role="doc-biblioref">Pan et al. 2024</a>)</span>.</p></li>
+<li><p>Internal activations predict downstream behavior more accurately than surface-level explanations <span class="citation" data-cites="burns2024discoveringlatentknowledgelanguage">(<a href="@@BASE@@references/#ref-burns2024discoveringlatentknowledgelanguage" class="cite cite-emerging" data-cite="burns2024discoveringlatentknowledgelanguage" role="doc-biblioref">Burns et al. 2024</a>)</span>.</p></li>
+<li><p>Model-generated explanations can align with internal mechanisms under constrained setups <span class="citation" data-cites="lanham2023measuringfaithfulnesschainofthoughtreasoning">(<a href="@@BASE@@references/#ref-lanham2023measuringfaithfulnesschainofthoughtreasoning" class="cite cite-emerging" data-cite="lanham2023measuringfaithfulnesschainofthoughtreasoning" role="doc-biblioref">Lanham et al. 2023</a>)</span>.</p></li>
+</ul>
+<p>However, these results demonstrate that privileged access is <em>possible</em> under favorable conditions, not that it is <em>reliable</em> in general. The hypothesis must be treated with significant caution due to systematic failure modes.</p>
+<div class="warningbox">
+<p>Privileged access methods are vulnerable to several failure modes that can produce plausible but unfaithful explanations:</p>
+<p><strong>Confabulation.</strong> Models may generate coherent, confident explanations that do not reflect their actual internal computations. This occurs because:</p>
+<ul>
+<li><p>Language models are trained to produce fluent, plausible text, not accurate introspective reports. The same capabilities that enable helpful responses also enable convincing confabulation.</p></li>
+<li><p>Models may “rationalize” outputs post-hoc by constructing explanations consistent with their outputs rather than reporting the process that produced them <span class="citation" data-cites="turpin2023languagemodelsdontsay">(<a href="@@BASE@@references/#ref-turpin2023languagemodelsdontsay" class="cite" data-cite="turpin2023languagemodelsdontsay" role="doc-biblioref">Turpin et al. 2023</a>)</span>.</p></li>
+<li><p>Explanations may reflect training data patterns (how humans explain reasoning) rather than the model’s actual computational process.</p></li>
+</ul>
+<p><strong>Miscalibration.</strong> Even when models attempt faithful self-report, their confidence may not track accuracy:</p>
+<ul>
+<li><p>Models may express high confidence in explanations for computations they cannot actually access (e.g., early-layer processing, attention routing decisions).</p></li>
+<li><p>Calibration varies by task: models may be well-calibrated on factual recall but poorly calibrated on reporting their own uncertainty or reasoning process.</p></li>
+<li><p>finetuning for self-explanation may improve fluency without improving faithfulness, creating a misleading appearance of reliability.</p></li>
+</ul>
+<p><strong>Elicitation sensitivity.</strong> Self-reports are highly sensitive to prompting:</p>
+<ul>
+<li><p>Different phrasings of the same question can elicit contradictory explanations.</p></li>
+<li><p>Leading questions can induce models to confirm hypotheses that do not reflect their actual computation.</p></li>
+<li><p>The format of self-report (free-form vs. structured, immediate vs. delayed) affects what information is accessible.</p></li>
+</ul>
+<p><strong>Strategic misreporting.</strong> In adversarial or high-stakes settings, models with sufficient capability might strategically misreport their internal states:</p>
+<ul>
+<li><p>A model optimizing for user approval might report explanations it predicts users will find satisfying rather than accurate.</p></li>
+<li><p>A misaligned model might deliberately conceal its true objectives or reasoning <span class="citation" data-cites="hubinger2024sleeperagentstrainingdeceptive">(<a href="@@BASE@@references/#ref-hubinger2024sleeperagentstrainingdeceptive" class="cite cite-emerging" data-cite="hubinger2024sleeperagentstrainingdeceptive" role="doc-biblioref">Hubinger et al. 2024</a>)</span>.</p></li>
+<li><p>Even without explicit deception, models may learn to produce “safe” explanations that avoid triggering safety filters.</p></li>
+</ul>
+<p>These risks are not merely theoretical. Studies have demonstrated that chain-of-thought explanations often do not reflect the actual factors influencing model outputs <span class="citation" data-cites="turpin2023languagemodelsdontsay">(<a href="@@BASE@@references/#ref-turpin2023languagemodelsdontsay" class="cite" data-cite="turpin2023languagemodelsdontsay" role="doc-biblioref">Turpin et al. 2023</a>)</span>, and that models can be induced to provide confident but false explanations through adversarial prompting.</p>
+</div>
+</section>
+<section id="validation-protocols-and-causal-cross-checks." class="level4">
+<h4>Validation Protocols and Causal Cross-Checks.</h4>
+<p>Given these risks, privileged access methods must be validated against independent evidence rather than accepted at face value. We recommend the following protocols:</p>
+<div class="definitionbox">
+<p><strong>1. Causal intervention consistency.</strong> Self-reported explanations should be tested against causal interventions:</p>
+<ul>
+<li><p>If a model claims feature <span class="math inline">F</span> is responsible for output <span class="math inline">O</span>, ablating <span class="math inline">F</span> should degrade <span class="math inline">O</span>.</p></li>
+<li><p>If a model claims it “considered” information <span class="math inline">I</span>, patching <span class="math inline">I</span> with counterfactual values should change the output in predicted ways.</p></li>
+<li><p>Discrepancies between self-reports and causal effects indicate confabulation or incomplete access.</p></li>
+</ul>
+<p><strong>2. Cross-method triangulation.</strong> Privileged access findings should be corroborated by independent methods:</p>
+<ul>
+<li><p>Do SAE features identified by the model as relevant show causal effects under ablation?</p></li>
+<li><p>Do probing classifiers detect the information the model claims to use?</p></li>
+<li><p>Do circuit discovery methods identify the components the model describes?</p></li>
+</ul>
+<p><strong>3. Consistency checks.</strong> Self-reports should be stable under variation:</p>
+<ul>
+<li><p>Paraphrased questions should elicit consistent explanations.</p></li>
+<li><p>Explanations should be consistent across multiple samples (low temperature) or appropriately uncertain (high temperature).</p></li>
+<li><p>Explanations for similar inputs should show appropriate similarity.</p></li>
+</ul>
+<p><strong>4. Calibration evaluation.</strong> Model confidence should be evaluated:</p>
+<ul>
+<li><p>When models express uncertainty about their internal states, are they more likely to be wrong?</p></li>
+<li><p>Can models reliably distinguish “I used this information” from “this information was present but unused”?</p></li>
+</ul>
+<p><strong>5. Adversarial probing.</strong> Test robustness to manipulation:</p>
+<ul>
+<li><p>Do leading questions induce false confirmations?</p></li>
+<li><p>Can the model be prompted to give contradictory explanations?</p></li>
+<li><p>Does the model maintain consistent explanations under pressure to change them?</p></li>
+</ul>
+</div>
+</section>
+<section id="elicitation-protocols-to-reduce-confabulation." class="level4">
+<h4>Elicitation Protocols to Reduce Confabulation.</h4>
+<p>While no elicitation method guarantees faithful self-report, certain practices reduce confabulation risk:</p>
+<ul>
+<li><p><strong>Activation conditioning</strong>: Methods like LatentQA that condition on actual intermediate activations (rather than relying on the model to “remember” its computation) show improved faithfulness over pure prompting <span class="citation" data-cites="pan2024latentqateachingllmsdecode">(<a href="@@BASE@@references/#ref-pan2024latentqateachingllmsdecode" class="cite cite-emerging" data-cite="pan2024latentqateachingllmsdecode" role="doc-biblioref">Pan et al. 2024</a>)</span>.</p></li>
+<li><p><strong>Structured elicitation</strong>: Asking specific, verifiable questions (“Did you attend to token X?”) rather than open-ended ones (“Explain your reasoning”) reduces the scope for confabulation.</p></li>
+<li><p><strong>Immediate reporting</strong>: Eliciting explanations during or immediately after computation, rather than retrospectively, may improve access to transient internal states.</p></li>
+<li><p><strong>Contrastive questions</strong>: Asking “Why did you output A rather than B?” can elicit more specific, testable claims than “Why did you output A?”</p></li>
+<li><p><strong>Uncertainty elicitation</strong>: Explicitly asking models to express uncertainty about their self-reports, and validating that expressed uncertainty correlates with actual accuracy.</p></li>
+</ul>
+</section>
+<section id="when-privileged-access-is-and-is-not-appropriate." class="level4">
+<h4>When Privileged Access Is and Is Not Appropriate.</h4>
+<p>Privileged access methods are best suited for:</p>
+<ul>
+<li><p><strong>Hypothesis generation</strong>: Generating candidate explanations to be validated by other methods.</p></li>
+<li><p><strong>Rapid triage</strong>: Quickly identifying which components or features merit deeper mechanistic investigation.</p></li>
+<li><p><strong>Human-AI collaboration</strong>: Providing human-readable summaries that guide (but do not replace) rigorous analysis.</p></li>
+</ul>
+<p>Privileged access methods are <strong>insufficient</strong> for:</p>
+<ul>
+<li><p><strong>Safety-critical verification</strong>: Claims about the absence of deceptive reasoning or hidden objectives cannot be established by self-report alone.</p></li>
+<li><p><strong>Formal guarantees</strong>: Self-reports do not provide the causal evidence needed for formal verification.</p></li>
+<li><p><strong>Adversarial settings</strong>: When the model may have incentives to misreport, privileged access is unreliable by construction.</p></li>
+</ul>
+</section>
+<section id="implications." class="level4">
+<h4>Implications.</h4>
+<p>Partial privileged access could assist in detecting latent goals, plans, or deceptive behavior <span class="citation" data-cites="hubinger2021riskslearnedoptimizationadvanced burns2024discoveringlatentknowledgelanguage">(<a href="@@BASE@@references/#ref-hubinger2021riskslearnedoptimizationadvanced" class="cite cite-emerging" data-cite="hubinger2021riskslearnedoptimizationadvanced" role="doc-biblioref">Hubinger et al. 2021</a>; <a href="@@BASE@@references/#ref-burns2024discoveringlatentknowledgelanguage" class="cite cite-emerging" data-cite="burns2024discoveringlatentknowledgelanguage" role="doc-biblioref">Burns et al. 2024</a>)</span>, but only when validated against causal interventions and treated as complementary to mechanistic analysis <span class="citation" data-cites="geiger2021causalabstractionsneuralnetworks bereska2024mechanisticinterpretabilityaisafety">(<a href="@@BASE@@references/#ref-geiger2021causalabstractionsneuralnetworks" class="cite cite-established" data-cite="geiger2021causalabstractionsneuralnetworks" role="doc-biblioref">Geiger et al. 2021</a>; <a href="@@BASE@@references/#ref-bereska2024mechanisticinterpretabilityaisafety" class="cite cite-established" data-cite="bereska2024mechanisticinterpretabilityaisafety" role="doc-biblioref">Bereska and Gavves 2024</a>)</span>. The optimistic framing of privileged access—that models can simply tell us how they work—must be tempered by recognition that self-report is a <em>weak</em> form of evidence requiring independent corroboration.</p>
+<p>The most productive use of privileged access is as one component of a multi-method interpretability pipeline: self-reports generate hypotheses, causal interventions test them, and mechanistic analysis explains the underlying circuits. Relying on privileged access alone, without causal validation, risks accepting plausible confabulations as mechanistic truth.</p>
+</section>
+</section>
+<section id="subsec:universality" class="level2"><h2 data-pdf-page="21"><span class="secnum">5.4</span> The Universality and Platonic Representation Hypotheses<a class="anchor" href="#subsec:universality" aria-label="Link to this section">#</a></h2>
+<div class="theorybox">
+<p>Independently trained models on similar tasks tend to develop similar internal computational structures. These representations often approximate a task-determined canonical form (<span class="citation" data-cites="huh2024platonicrepresentationhypothesis">(<a href="@@BASE@@references/#ref-huh2024platonicrepresentationhypothesis" class="cite cite-established" data-cite="huh2024platonicrepresentationhypothesis" role="doc-biblioref">Huh et al. 2024</a>)</span>; <span class="citation" data-cites="olah2020zoom">(<a href="@@BASE@@references/#ref-olah2020zoom" class="cite cite-emerging" data-cite="olah2020zoom" role="doc-biblioref">Olah et al. 2020</a>)</span>). The degree of convergence depends on factors such as model size, architecture, and training data.</p>
+</div>
+<section id="conceptual-basis.-2" class="level4">
+<h4>Conceptual Basis.</h4>
+<p>The hypothesis posits that canonical representations exist for a given task, and independently trained models may converge to similar algorithmic motifs or internal structures. Weak universality refers to convergence of computational strategies or motifs, whereas strong universality claims convergence of internal representations themselves, up to symmetries.</p>
+</section>
+<section id="empirical-evidence-and-trade-offs." class="level4">
+<h4>Empirical Evidence and Trade-offs.</h4>
+<p>Weak universality is supported by recurring attention patterns, feature motifs, and circuits across models, tasks, and scales (<span class="citation" data-cites="nanda2023progressmeasuresgrokkingmechanistic">(<a href="@@BASE@@references/#ref-nanda2023progressmeasuresgrokkingmechanistic" class="cite cite-established" data-cite="nanda2023progressmeasuresgrokkingmechanistic" role="doc-biblioref">Nanda et al. 2023</a>)</span>; <span class="citation" data-cites="olah2020zoom">(<a href="@@BASE@@references/#ref-olah2020zoom" class="cite cite-emerging" data-cite="olah2020zoom" role="doc-biblioref">Olah et al. 2020</a>)</span>). Strong universality is less supported and usually demonstrated via approximate alignment through linear transformations (<span class="citation" data-cites="kornblith2019similarityneuralnetworkrepresentations">(<a href="@@BASE@@references/#ref-kornblith2019similarityneuralnetworkrepresentations" class="cite cite-established" data-cite="kornblith2019similarityneuralnetworkrepresentations" role="doc-biblioref">Kornblith et al. 2019</a>)</span>; <span class="citation" data-cites="moschella2023relativerepresentationsenablezeroshot">(<a href="@@BASE@@references/#ref-moschella2023relativerepresentationsenablezeroshot" class="cite cite-emerging" data-cite="moschella2023relativerepresentationsenablezeroshot" role="doc-biblioref">Moschella et al. 2023</a>)</span>). Divergent representations can arise from variations in architecture, data, or optimization trajectories <span class="citation" data-cites="harrasse2025tinysqlprogressivetexttosqldataset morcos2018insightsrepresentationalsimilarityneural">(<a href="@@BASE@@references/#ref-harrasse2025tinysqlprogressivetexttosqldataset" class="cite" data-cite="harrasse2025tinysqlprogressivetexttosqldataset" role="doc-biblioref">Harrasse, Quirke, et al. 2025</a>; <a href="@@BASE@@references/#ref-morcos2018insightsrepresentationalsimilarityneural" class="cite" data-cite="morcos2018insightsrepresentationalsimilarityneural" role="doc-biblioref">Morcos et al. 2018a</a>)</span>.</p>
+</section>
+<section id="implications.-1" class="level4">
+<h4>Implications.</h4>
+<p>If strong universality holds, mechanistic insights may generalize across architectures. If only weak universality holds, transferability is limited to motifs and algorithms rather than precise circuits <span class="citation" data-cites="bereska2024mechanisticinterpretabilityaisafety">(<a href="@@BASE@@references/#ref-bereska2024mechanisticinterpretabilityaisafety" class="cite cite-established" data-cite="bereska2024mechanisticinterpretabilityaisafety" role="doc-biblioref">Bereska and Gavves 2024</a>)</span>. Clarifying this distinction is critical for assessing whether mechanistic interpretability can scale beyond individual case studies.</p>
+</section>
+</section>
+</section>

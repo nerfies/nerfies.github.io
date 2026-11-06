@@ -1,0 +1,125 @@
+---
+import Base from '../layouts/Base.astro';
+import DraftBanner from '../components/DraftBanner.astro';
+import Excerpt from '../components/Excerpt.astro';
+import SectionLinks from '../components/SectionLinks.astro';
+import ManuscriptNote from '../components/ManuscriptNote.astro';
+import { framework, sections } from '../lib/data';
+import { renderMath } from '../lib/manuscript';
+import { url } from '../lib/site';
+const e = framework.evaluation;
+const dims: any[] = e.dimensions;
+// Public site names, shown alongside the manuscript's own heading
+const publicName: Record<string, string> = { faithfulness: 'Attribution faithfulness', completeness: 'Completeness', stability: 'Stability', 'causal-validity': 'Causal validity', 'human-interpretability': 'Human interpretability' };
+const tex = (t: string) => renderMath(`<span class="math display">${t.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</span>`);
+const sec = (id: string) => sections([id])[0];
+const guide = e.method_guidance;
+import { draftHidden as __hide } from '../lib/manuscript';
+if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}held/`);
+---
+<Base title="Evaluation framework" description="The survey's unified evaluation framework for mechanistic interpretability: faithfulness, completeness, stability, causal validity and human interpretability.">
+  <div class="page">
+    <p class="eyebrow">Technical methods · Evaluation</p>
+    <h1>A unified evaluation framework</h1>
+    <p class="lede">How do you tell whether an interpretability result is right? The survey proposes judging every method on the same five dimensions.</p>
+    <SectionLinks ids={e.chapter_sections.slice(0, 1)} />
+    <DraftBanner />
+    {e.framework_intro.map((t: string) => <Excerpt text={t} />)}
+
+    <nav aria-label="Dimensions" class="dim-tabs" role="tablist" id="dim-tabs">
+      {dims.map((d, i) => <button role="tab" id={`tab-${d.id}`} aria-controls={`panel-${d.id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} class="dim-tab">
+        <span class="dim-n">{i + 1}</span>{publicName[d.id] ?? d.name}</button>)}
+    </nav>
+    {dims.map((d, i) => (
+      <section role="tabpanel" id={`panel-${d.id}`} aria-labelledby={`tab-${d.id}`} hidden={i !== 0} class="dim-panel card">
+        <div class="dim-head">
+          <h2 id={d.id}>{publicName[d.id] ?? d.name}</h2>
+          {publicName[d.id] && publicName[d.id] !== d.name && <span class="small muted">The survey calls this “{d.name}”</span>}
+          <ManuscriptNote />
+        </div>
+        <Excerpt text={d.definition} section={sec(d.sections[0])} />
+        <div class="dim-grid">
+          <div>
+            <h3>How it is measured</h3>
+            {d.metrics_named?.length > 0 && <p class="small">{d.metrics_named.map((m: string) => <span class="chip" style="margin:0 .3rem .3rem 0">{m}</span>)}</p>}
+            {d.formulas_tex?.map((f: string) => <div class="formula"><Fragment set:html={tex(f)} /></div>)}
+            {d.how_measured.map((t: string) => <Excerpt text={t} />)}
+          </div>
+          <div>
+            {d.table_row && Object.keys(d.table_row).length > 0 && (<>
+              <h3>Summary row from the survey’s table</h3>
+              <table class="data"><tbody>{Object.entries(d.table_row).filter(([k]) => k !== 'section').map(([k, v]) => <tr><th scope="row">{k}</th><td>{String(v)}</td></tr>)}</tbody></table>
+            </>)}
+            <h3>Examples</h3>
+            {d.examples?.length ? d.examples.map((t: string) => <Excerpt text={t} />) : <p class="small muted">The survey gives no worked example for this dimension.</p>}
+            <h3>Limitations</h3>
+            {d.limitations?.length ? d.limitations.map((t: string) => <Excerpt text={t} />) : <p class="small muted">The survey states no dimension-specific limitations. See the framework’s limitations below.</p>}
+          </div>
+        </div>
+      </section>
+    ))}
+
+    {guide && (
+      <section style="margin-top:3rem">
+        <h2>Applying it to each method family</h2>
+        <p class="small muted">{guide.caption}</p>
+        <div class="scroll-x"><table class="data">
+          <thead><tr>{guide.columns.map((c: string) => <th>{c}</th>)}</tr></thead>
+          <tbody>{guide.rows.map((r: any) => <tr>{guide.columns.map((c: string) => <td>{r[c]}</td>)}</tr>)}</tbody>
+        </table></div>
+        <SectionLinks ids={[guide.section]} />
+      </section>
+    )}
+
+    <section style="margin-top:3rem">
+      <h2>The protocol, step by step</h2>
+      <ol class="steps">
+        {e.protocol_steps.map((s: any) => <li><strong>{s.step}</strong><ul>{s.items.map((t: string) => <li>{t}</li>)}</ul></li>)}
+      </ol>
+      <SectionLinks ids={[e.protocol_section]} />
+    </section>
+
+    <section style="margin-top:3rem">
+      <h2>Limitations of the framework</h2>
+      {e.framework_limitations.map((t: string) => <Excerpt text={t} />)}
+      <SectionLinks ids={[e.framework_limitations_section]} />
+    </section>
+
+    {e.related_elsewhere?.length > 0 && (
+      <section style="margin-top:3rem">
+        <h2>Elsewhere in the survey</h2>
+        {e.related_elsewhere.map((r: any) => <Excerpt text={r.text} section={sec(r.section)} />)}
+      </section>
+    )}
+    <p class="small" style="margin-top:2rem"><a href={url('demos/patching/')}>See causal validity in practice: the activation-patching demo →</a></p>
+  </div>
+</Base>
+<style>
+  .dim-tabs { display: flex; gap: .4rem; flex-wrap: wrap; margin: 2rem 0 1rem; }
+  .dim-tab { display: flex; gap: .5rem; align-items: center; border: 1px solid var(--rule); background: var(--surface); color: var(--ink-2); padding: .55rem .9rem; border-radius: 6px; cursor: pointer; font: inherit; font-size: .92rem; }
+  .dim-tab[aria-selected="true"] { border-color: var(--accent); color: var(--ink); box-shadow: inset 0 -3px 0 var(--gold); }
+  .dim-n { font-family: var(--mono); color: var(--gold); font-weight: 700; }
+  .dim-head { display: flex; flex-wrap: wrap; gap: .8rem; align-items: baseline; }
+  .dim-head h2 { margin: 0; }
+  .dim-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 2rem; margin-top: 1rem; }
+  .dim-grid h3 { font-size: .95rem; margin: 1.2rem 0 .4rem; }
+  .formula { overflow-x: auto; background: var(--surface-2); border-radius: 6px; padding: .2rem .8rem; margin: .5rem 0; }
+  .steps > li { margin: .8rem 0; } .steps ul { margin: .3rem 0; font-size: .95rem; color: var(--ink-2); }
+</style>
+<script>
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+  function select(t: HTMLButtonElement, focus = true) {
+    tabs.forEach((x) => { const on = x === t; x.setAttribute('aria-selected', String(on)); x.tabIndex = on ? 0 : -1;
+      document.getElementById(x.getAttribute('aria-controls')!)!.hidden = !on; });
+    if (focus) t.focus();
+    history.replaceState(null, '', '#' + t.id.replace('tab-', ''));
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => select(t));
+    t.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') select(tabs[(i + 1) % tabs.length]);
+      if (e.key === 'ArrowLeft') select(tabs[(i - 1 + tabs.length) % tabs.length]);
+    });
+  });
+  const h = location.hash.slice(1); const t = tabs.find((x) => x.id === 'tab-' + h); if (t) select(t, false);
+</script>

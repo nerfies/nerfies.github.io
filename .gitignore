@@ -1,2 +1,7 @@
 .DS_store
 .idea
+node_modules/
+dist/
+.astro/
+.ingest-tmp/
+.ingest-plain/

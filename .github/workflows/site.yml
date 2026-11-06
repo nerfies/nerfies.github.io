@@ -18,6 +18,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # The Pages URL is tsglab.github.io/<repo name>/, so the base path follows the repo name.
+      SITE_BASE: /${{ github.event.repository.name }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

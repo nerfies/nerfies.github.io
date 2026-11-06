@@ -59,7 +59,7 @@ Separately, decide when `--status final` applies (after acceptance? camera-ready
 **Also decide (urgent): chapter 11 in the repository history.** The site never showed chapter 11. However, its converted text, including the authoring notes, was committed to this **public** repository on 5 Nov (commit `c80c20f`, merged to `main`). It is still readable in the history and at the old raw-file URL until removed. This PR stops that going forward: withheld chapters are now written only to a gitignored folder. Removing it from history requires rewriting `main` and force-pushing, plus asking GitHub support to purge cached views. Forks and clones made since 5 Nov keep a copy. Whether to do this is your call. I have not done it.
 
 ### D5. Licensing
-Neither `TSGLAB/mi_survey` nor `TSGLAB/Interpretability_Survey_Safety` has a licence file. The README's CC BY-SA 4.0 line was inherited from the original page template. **Decide**, separately for each:
+Neither `TSGLAB/mechinterp-safety` (formerly `mi_survey`) nor `TSGLAB/Interpretability_Survey_Safety` has a licence file. The README's CC BY-SA 4.0 line was inherited from the original page template. **Decide**, separately for each:
 - the website code
 - the survey text and figures shown on the site (this follows the paper's licence, e.g. the TMLR/arXiv choice)
 - the notebook code, which with no licence is legally "all rights reserved"

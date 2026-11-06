@@ -1,5 +1,5 @@
 {
- "about": "Old URL -> current URL. Each entry becomes a static redirect page (GitHub Pages has no server-side redirects). Paths are relative to the site base, /mi_survey/.",
+ "about": "Old URL -> current URL. Each entry becomes a static redirect page (GitHub Pages has no server-side redirects). Paths are relative to the site base, /mechinterp-safety/. Links to the old site, tsglab.github.io/mi_survey/, are forwarded by the TSGLAB/mi_survey redirect repository.",
  "pages": {
   "handbook/1-introduction/": "handbook/introduction/",
   "handbook/2-the-limits-of-behavioral-evaluation/": "handbook/limits-of-behavioural-evaluation/",

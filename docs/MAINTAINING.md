@@ -57,18 +57,14 @@ CI regenerates the catalogue on every build and every Monday, and fails if any n
 
 The workflow `.github/workflows/site.yml` runs on every PR and push. It produces two builds:
 
-- **Full build.** Every page, tested.
-- **Public build** (`PUBLIC_HIDE_DRAFT=1`). This is the one that deploys. While the ingested manuscript is a draft, it leaves out the reader, references, methods, evaluation, orientations and safety pages. Their URLs show a "coming with the paper" note, and every link to them is removed. `tests/site.test.ts` fails if any manuscript text gets into this build.
+- **Preview build** (`npm run build:preview`, sets `PUBLIC_SHOW_DRAFT=1`). Every page, including the draft-derived ones, tested.
+- **Public build** (the default for `npm run build` and `npm run dev`). This is the one that deploys. While the ingested manuscript is a draft, it leaves out the reader, references, methods, evaluation, orientations and safety pages. Their URLs show a "coming with the paper" note, and every link to them is removed. `tests/site.test.ts` fails if any manuscript text gets into this build.
 
 Deploys run from `main` and from `feature/interactive-handbook`. Pages is set to **GitHub Actions**, and the `github-pages` environment allows both branches.
 
 Once the final manuscript is ingested with `--status final`, the public build includes every page automatically.
 
-Preview the public build locally:
-
-```bash
-PUBLIC_HIDE_DRAFT=1 npm run build && npm run preview
-```
+Locally, `npm run dev` and `npm run build && npm run preview` show exactly the public site. To see the draft-derived pages too, use `npm run dev:preview` or `npm run build:preview && npm run preview`.
 
 ## QA checklist for a new manuscript version
 

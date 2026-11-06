@@ -40,14 +40,15 @@ jobs:
           sys.exit(f'unreachable notebooks: {bad}' if bad else 0)
           PY
 
-      # 1) full preview build: everything, including draft-derived pages
-      - run: npm run build
-      - run: npm test
-      # 2) public build: while the manuscript is a draft, pages built from it are
-      #    held back. tests/site.test.ts fails if any manuscript text leaks in.
+      # 1) preview build: everything, including draft-derived pages
+      - name: Preview build (with draft pages)
+        run: npm run build:preview && npm test
+        env: { PUBLIC_SHOW_DRAFT: '1' }
+      # 2) public build (the default, and what deploys): while the manuscript is a
+      #    draft, pages built from it are held back. tests/site.test.ts fails if
+      #    any manuscript text leaks in.
       - name: Public build
         run: npm run build && npm test
-        env: { PUBLIC_HIDE_DRAFT: '1' }
       - uses: actions/upload-pages-artifact@v3
         with: { path: dist }
 

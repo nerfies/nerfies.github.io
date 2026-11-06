@@ -20,7 +20,7 @@ const affiliations = ['University of Oxford', 'Martian', 'Università della Sviz
   'George Mason University', 'University of Edinburgh', 'Mila, Université de Montréal', 'EleutherAI', 'New York University Abu Dhabi & Dalhousie University'];
 
 const pillars = [
-  { n: 1, title: 'Motivation & Concepts', summary: 'Fundamental knowledge and core hypotheses.', href: 'handbook/',
+  { n: 1, title: 'Motivation & Concepts', summary: 'Fundamental knowledge and core hypotheses.', href: 'handbook/limits-of-behavioural-evaluation/',
     cta: 'Read the foundations',
     items: [['Limits of Behavioural Evaluation', ''], ['Overview of Interpretability Methods', 'Behavioural, attribution, concept-based, probing'],
       ['Core Concepts', 'Polysemanticity, features, transformer computation, circuits'],
@@ -57,11 +57,22 @@ const explore = [
   ['Code', 'notebooks/', 'Notebooks', `${notebooks.notebooks.length} companion notebooks with compute requirements and Colab links.`],
 ];
 const exploreShown = draftHidden ? explore.filter(([, href]) => href === 'demos/' || href === 'notebooks/') : explore;
+// BibTeX exactly as arXiv issues it for 2611.08438.
+const bibtex = `@misc{barez2026understandingaiinsidestate,
+      title={Understanding AI from the Inside: The State of Mechanistic Interpretability for AI Safety}, 
+      author={Fazl Barez and Tung-Yu Wu and Hunar Batra and Gabriele Dominici and Florent Draye and Yanai Elazar and Damiano Fornasiere and Antía García and Abir Harrasse and Riley Harris and Sara Hooker and Michael Lan and Belinda Z. Li and Aaron Maiwald and Narmeen Fatimah Oozeer and Naomi Saphra and Or David Shafran and Adi Simhi and Robert Trager and Shriyash Kaustubh Upadhyay and Ziyu Yao and Yu Zhao and Shay B. Cohen and Mor Geva and Yoshua Bengio and Stella Biderman and Hassan Sajjad},
+      year={2026},
+      eprint={2611.08438},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2611.08438}, 
+}`;
 const jsonld = {
   '@context': 'https://schema.org', '@type': 'ScholarlyArticle',
   headline: SITE.title,
   description: 'A survey of interpretability for AI safety, focusing on mechanistic interpretability: foundations, methods, six research orientations, safety applications, and open problems.',
   author: authors.map(([name]) => ({ '@type': 'Person', name })),
+  url: SITE.paper, sameAs: [SITE.paper],
   image: new URL(url('static/images/survey_overview.png'), Astro.site).toString(),
   keywords: ['mechanistic interpretability', 'interpretability', 'AI safety', 'survey'], isAccessibleForFree: true,
 };
@@ -74,7 +85,7 @@ const jsonld = {
       <div class="front-text">
         <h1>The State of Mechanistic Interpretability for AI&nbsp;Safety</h1>
         <p class="question">Does understanding how models work actually make them safer?</p>
-        <p class="front-links">{draftHidden ? <a href={url('demos/')}>Run the experiments</a> : <a href={url('handbook/')}>Read the handbook</a>}<a href={SITE.notebooksRepo}>Code and notebooks</a><span class="muted" title="The paper will be available with the release">Paper forthcoming</span></p>
+        <p class="front-links">{draftHidden ? <a href={url('demos/')}>Run the experiments</a> : <a href={url('handbook/')}>Read the handbook</a>}<a href={SITE.notebooksRepo}>Code and notebooks</a><a href={SITE.paper}>Paper (arXiv)</a><a href={SITE.paperPdf}>PDF</a><a href="#cite">Cite</a></p>
       </div>
       <figure class="sketch" aria-labelledby="sketch-cap">
         <svg viewBox="-1.5 -1.5 3 3" role="img" aria-label="Five feature directions arranged as a pentagon in a two-dimensional space">
@@ -127,7 +138,7 @@ const jsonld = {
     <div class="gut">Figure</div>
     <figure>
       <a href={url('static/images/survey_overview.png')} aria-label="Open the survey overview figure at full resolution">
-        <img src={url('static/images/survey_overview.png')} width="2832" height="1608" alt="Overview of the survey: Motivation & Concepts, Technical Methods, Research Directions, and Safety & Open Problems" />
+        <img src={url('static/images/survey_overview_transparent.png')} width="2832" height="1608" alt="Overview of the survey: Motivation & Concepts, Technical Methods, Research Directions, and Safety & Open Problems" />
       </a>
       <figcaption><strong>Overview of the survey</strong>, organised into four primary pillars: Motivation &amp; Concepts, Technical Methods, Research Directions, and Safety &amp; Open Problems.</figcaption>
     </figure>
@@ -147,7 +158,7 @@ const jsonld = {
     <div class="gut">Taxonomy</div>
     <figure class="tax">
       <a href={url('static/images/survey_taxonomy.png')} aria-label="Open the taxonomy figure at full resolution">
-        <img src={url('static/images/survey_taxonomy.png')} width="1730" height="2880" loading="lazy" alt="Taxonomy of interpretability methods covered in the survey, with representative citations for each category" />
+        <img src={url('static/images/survey_taxonomy_transparent.png')} width="1730" height="2880" loading="lazy" alt="Taxonomy of interpretability methods covered in the survey, with representative citations for each category" />
       </a>
       <figcaption>Taxonomy of interpretability methods covered in this survey. Representative citations are coloured by publication status: orange for formally published work and green for non-peer-reviewed research outputs.</figcaption>
     </figure>
@@ -155,8 +166,17 @@ const jsonld = {
 
   <section class="row" id="cite">
     <div class="gut">Citation</div>
-    <p class="muted">The paper link and BibTeX citation will be available with the release.</p>
+    <div>
+      <p class="cite-head">arXiv: <a href={SITE.paper}>2611.08438</a> <button type="button" class="copy-bib" data-copy="bibtex-src">Copy BibTeX</button></p>
+      <pre class="bibtex" id="bibtex-src"><code>{bibtex}</code></pre>
+    </div>
   </section>
+  <script is:inline>
+    document.querySelectorAll('.copy-bib').forEach((b) => b.addEventListener('click', () => {
+      const t = document.getElementById(b.dataset.copy).innerText;
+      navigator.clipboard.writeText(t).then(() => { b.textContent = 'Copied'; setTimeout(() => { b.textContent = 'Copy BibTeX'; }, 1600); });
+    }));
+  </script>
 </Base>
 <style>
   .row { max-width: 82rem; margin: 0 auto; padding: 0 1.25rem; display: grid; grid-template-columns: var(--gutter) minmax(0, 1fr); column-gap: 2.5rem; }
@@ -205,11 +225,23 @@ const jsonld = {
   .items { font-size: .86rem; color: var(--ink-3); margin: 0; max-width: 52rem; }
   .compact { padding-top: .9rem; padding-bottom: .9rem; }
   .compact > p { padding-top: .8rem; margin-top: -.9rem; font-size: .95rem; }
+  /* Narrow screens stack the label above the text: draw the rule above the label so it never runs through it. */
+  @media (max-width: 860px) {
+    .entry > div:last-child, .entry > p, .compact > p { border-top: 0; margin-top: 0; padding-top: 0; }
+    .entry { border-top: 1px solid var(--hair); }
+  }
   .compact .t { font-family: var(--display); font-size: 1.25rem; margin-right: .5rem; text-decoration: none; }
   .compact .t:hover { text-decoration: underline; }
   .figure-row figure { margin: 0; }
-  .figure-row img { display: block; background: #fff; }
+  /* Figures have transparent backgrounds so they sit on the page colour; dark mode keeps a white backing because the figure text is dark. */
+  .figure-row img { display: block; background: transparent; }
+  @media (prefers-color-scheme: dark) { :global(:root:not([data-theme="light"])) .figure-row img { background: #fff; } }
+  :global(:root[data-theme="dark"]) .figure-row img { background: #fff; }
   .figure-row figcaption { font-size: .84rem; color: var(--ink-2); margin-top: .8rem; max-width: 46rem; }
   .tax { max-width: 40rem; }
   #cite { padding-bottom: 4rem; }
+  .cite-head { margin: 0 0 .7rem; font-size: .95rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem 1rem; }
+  .copy-bib { font: inherit; font-size: .8rem; padding: .25rem .7rem; border: 1px solid var(--hair); background: var(--paper); color: var(--ink-2); cursor: pointer; }
+  .copy-bib:hover { color: var(--accent); border-color: var(--accent); }
+  .bibtex { margin: 0; padding: 1rem 1.2rem; overflow-x: auto; font-size: .78rem; line-height: 1.55; background: var(--paper); outline: 1px solid var(--hair); white-space: pre-wrap; word-break: break-word; max-width: 60rem; }
 </style>

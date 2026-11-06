@@ -7,6 +7,8 @@ export const SITE = {
   notebooksRepo: 'https://github.com/TSGLAB/Interpretability_Survey_Safety',
   siteRepo: 'https://github.com/TSGLAB/mechinterp-safety',
   contact: 'fazl@robots.ox.ac.uk',
+  paper: 'https://arxiv.org/abs/2611.08438',
+  paperPdf: 'https://arxiv.org/pdf/2611.08438',
 };
 
 export const NAV = [

@@ -19,8 +19,7 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
   <div class="page">
     <p class="eyebrow">Research directions</p>
     <h1>Research orientations</h1>
-    <p class="lede">An orientation is a research agenda, defined by its goals, assumptions and trade-offs. It is not a method: several orientations can use the same tool for different ends.</p>
-    <p class="small muted">Quoted from §{src.chapter} {src.chapter_title} of the paper, <a href={src.abs}>arXiv:{src.id}{src.version}</a>.</p>
+    <p class="small muted">From §{src.chapter} of the paper.</p>
     {data.intro.map((t: string) => <Excerpt text={t} section={ref(src.chapter, src.chapter_title)} />)}
 
     <div class="orient-grid" role="list">

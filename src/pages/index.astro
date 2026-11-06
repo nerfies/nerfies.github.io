@@ -48,13 +48,13 @@ const roman = ['I', 'II', 'III', 'IV'];
 // the arrangement the toy model in demos/superposition settles into when inputs are sparse).
 const feats = [0, 1, 2, 3, 4].map((i) => { const a = Math.PI / 2 + (i * 2 * Math.PI) / 5; return [Math.cos(a), Math.sin(a)]; });
 const explore = [
-  ['Read', 'handbook/', 'The handbook', `${isDraft ? 'A preview of the working draft' : 'The survey'} online: ${chapters.filter((c) => !c.appendix && !withheld.has(c.slug)).length} chapters${withheld.size ? ` (${withheld.size} held back until the final manuscript)` : ''} and ${manifest.references.length} references, numbered as in the ${isDraft ? 'draft ' : ''}PDF.`],
-  ['Compare', 'methods/', 'Methods explorer', 'Every method the survey covers, side by side, quoted from the text.'],
-  ['Judge', 'evaluation/', 'Evaluation framework', 'Five dimensions for deciding whether an interpretability claim holds.'],
-  ['Orient', 'orientations/', 'Research orientations', 'The agendas behind the methods: what each assumes and what it trades away.'],
-  ['Apply', 'safety/', 'Safety and open problems', 'Where interpretability already supports safety work, and what is unsolved.'],
-  ['Run', 'demos/', 'Experiments', 'Superposition, sparse autoencoders and activation patching, computed for real.'],
-  ['Code', 'notebooks/', 'Notebooks', `${notebooks.notebooks.length} companion notebooks with compute requirements and Colab links.`],
+  ['Read', 'handbook/', 'The handbook', `The full survey, by chapter.`],
+  ['Compare', 'methods/', 'Methods explorer', 'The methods in the survey, side by side.'],
+  ['Judge', 'evaluation/', 'Evaluation framework', 'Five dimensions for evaluating interpretability claims.'],
+  ['Orient', 'orientations/', 'Research orientations', 'Six research agendas and their trade-offs.'],
+  ['Apply', 'safety/', 'Safety and open problems', 'Safety applications and open problems.'],
+  ['Run', 'demos/', 'Experiments', 'Superposition, sparse autoencoders and activation patching.'],
+  ['Code', 'notebooks/', 'Notebooks', `${notebooks.notebooks.length} companion notebooks.`],
 ];
 const exploreShown = draftHidden ? explore.filter(([, href]) => href === 'demos/' || href === 'notebooks/') : explore;
 // BibTeX exactly as arXiv issues it for 2611.08438.
@@ -96,7 +96,7 @@ const jsonld = {
           {feats.map(([x, y], i) => <g><line x1="0" y1="0" x2={x} y2={-y} stroke="var(--accent-red)" stroke-width=".012" /><circle cx={x} cy={-y} r=".022" fill="var(--accent-red)" />
             <text x={x * 1.17} y={-y * 1.17 + .035} font-size=".1" text-anchor="middle" fill="var(--ink-2)" font-family="var(--serif)" font-style="italic">f{i + 1}</text></g>)}
         </svg>
-        <figcaption id="sketch-cap">Five features, two dimensions. When features are rarely active together, a network can store more of them than it has dimensions, at the cost of interference. <a href={url('demos/superposition/')}>Train it yourself</a>.</figcaption>
+        <figcaption id="sketch-cap"><strong>Superposition.</strong> Five features in two dimensions: when features are rarely active together, a network can store more features than it has dimensions, at the cost of interference. <a href={url('demos/superposition/')}>Train it yourself</a>.</figcaption>
       </figure>
     </div>
   </header>
@@ -145,7 +145,7 @@ const jsonld = {
   </section>
 
   <section class="index" aria-labelledby="use-h">
-    <h2 id="use-h" class="row"><span class="gut">Companion</span><span>Using this site</span></h2>
+    <h2 id="use-h" class="row"><span class="gut">Explore</span><span>On this site</span></h2>
     {exploreShown.map(([verb, href, title, text]) => (
       <article class="row entry compact">
         <div class="gut num">{verb}</div>
@@ -154,7 +154,7 @@ const jsonld = {
     ))}
   </section>
 
-  <section class="row figure-row">
+  <section class="row figure-row" id="taxonomy">
     <div class="gut">Taxonomy</div>
     <figure class="tax">
       <a href={url('static/images/survey_taxonomy.png')} aria-label="Open the taxonomy figure at full resolution">
@@ -192,7 +192,7 @@ const jsonld = {
   @media (max-width: 860px) { .front-grid { grid-template-columns: minmax(0, 1fr); padding-top: 2.5rem; } }
   .front-text { background: var(--paper); padding: 2.2rem 2.4rem 2rem; outline: 1px solid var(--hair); }
   @media (max-width: 600px) { .front-text { padding: 1.4rem 1.2rem; } }
-  .front h1 { font-size: clamp(2.3rem, 5.4vw, 4rem); line-height: 1.04; margin: 0 0 .8rem; }
+  .front h1 { font-size: clamp(1.9rem, 4.2vw, 3.2rem); line-height: 1.08; margin: 0 0 .8rem; overflow-wrap: normal; word-break: normal; hyphens: manual; }
   .sub { font-family: var(--serif); font-style: italic; font-weight: 300; font-size: clamp(1.1rem, 2vw, 1.4rem); color: var(--ink-2); margin: 0 0 2rem; }
   .question { font-family: var(--serif); font-size: clamp(1.25rem, 2.3vw, 1.6rem); line-height: 1.35; margin: 1.4rem 0 2rem; padding-top: 1.2rem; border-top: 1px solid var(--hair); max-width: 30ch; color: var(--accent); }
   .front-links { display: flex; flex-wrap: wrap; gap: .6rem 1.6rem; font-size: .92rem; margin: 0; }

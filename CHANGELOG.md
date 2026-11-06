@@ -1,5 +1,13 @@
 # Changelog
 
+## Handbook now shows the arXiv version (2611.08438v1)
+- Every tab is built from the arXiv LaTeX source, ingested with `--status final`: 15 chapters, Acknowledgements, 3 appendices, 517 references. Preview banners, the withheld chapter and draft `noindex` are gone.
+- Chapter 10 is now *Learning Dynamics and Mechanistic Interpretability* at `/handbook/learning-dynamics/`. `/handbook/developmental-interpretability/` and the removed *SAE Architecture Details* appendix redirect.
+- Every previously published section anchor still resolves: 318 anchor redirects (`scripts/urls/suggest_anchor_redirects.py`, same-chapter matches only, else the chapter top), and 47 references the arXiv version no longer cites point to the reference list.
+- Methods, Evaluation and Safety & open problems quotes re-selected from the arXiv text, verbatim (`scripts/data/check_verbatim.py`).
+- Page numbers link to that page of the arXiv PDF.
+- Ingest fixes: `\ref` always prints LaTeX's number (pandoc's own figure numbering was off by one because the taxonomy figure sits in main.tex); unnumbered chapters keep their title; a `.bib` is optional when a `.bbl` is present.
+
 ## Paper on arXiv
 - The paper is out as [arXiv:2611.08438](https://arxiv.org/abs/2611.08438). The homepage links the abstract page and PDF, and the citation section shows the arXiv BibTeX with a copy button. README gains a Citation section.
 

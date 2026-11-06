@@ -15,8 +15,7 @@ const nb = notebooks.find((n) => n.path === L.notebook);
   <p class="eyebrow"><a href={url('demos/')}>Interactive demos</a></p>
   <h1 style="margin-bottom:.4rem">{title}</h1>
   <p style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
-    <span class="label measured">{kind === 'measured' ? 'Measured results' : 'Computed live in your browser'}</span>
-    <span class="small muted">{kind === 'measured' ? 'Every number on this page comes from a script you can re-run.' : 'Every number is computed by real training in your browser, not drawn by hand.'}</span>
+    <span class="label measured">{kind === 'measured' ? 'Measured on GPT-2 small' : 'Runs in your browser'}</span>
   </p>
   <SectionLinks ids={secIds} label="Survey" />
   <slot name="intro" />

@@ -33,18 +33,17 @@ const nbAnchor = (p: string) => p.split('/').pop()!.replace('.ipynb', '');
     <SectionLinks ids={m.sections} label="Survey sections" />
     <DraftBanner />
     <p><ManuscriptNote /></p>
-    {m.definition && <Excerpt text={m.definition} section={primary} />}
+    {m.definition && <Excerpt text={/[.!?”)\]]$/.test(m.definition.trim()) ? m.definition : `${m.definition} …`} section={primary} />}
 
-    {groups.map(([h, list]) => (
+    {groups.filter(([, list]) => list?.length).map(([h, list]) => (
       <section>
         <h2 style="font-size:1.15rem;margin-top:2rem">{h}</h2>
-        {list?.length ? list.map((t) => <Excerpt text={t} />) : <p class="muted small">The survey doesn’t state this explicitly for {m.name}.</p>}
+        {list.map((t) => <Excerpt text={t} />)}
       </section>
     ))}
 
     {(m.related?.length > 0 || relatedBack.length > 0) && (
       <section><h2 style="font-size:1.15rem;margin-top:2rem">Related methods</h2>
-        <p class="small muted">These are methods the survey explicitly relates to this one or contrasts with it.</p>
         <ul>{[...(m.related ?? []).map((id: string) => methodById.get(id)), ...relatedBack].filter(Boolean).map((r: any) => <li><a href={url(`methods/${r.id}/`)}>{r.name}</a></li>)}</ul>
         <p><a class="small" href={url(`methods/?compare=${[m.id, ...(m.related ?? []), ...relatedBack.map((x) => x.id)].slice(0, 3).join(',')}`)}>Compare side by side →</a></p>
       </section>
@@ -66,7 +65,7 @@ const nbAnchor = (p: string) => p.split('/').pop()!.replace('.ipynb', '');
 
     {papers.length > 0 && (
       <section><h2 style="font-size:1.15rem;margin-top:2rem">Key papers</h2>
-        <p class="small muted">Works cited in {primary?.num ? `§${primary.num}` : 'the primary section'}, taken automatically from the survey’s citations.</p>
+        {primary?.num && <p class="small muted">Cited in §{primary.num}.</p>}
         <ul class="small">{papers.map((p) => <li style="margin:.3rem 0"><a href={url(`references/#ref-${p.key}`)} style={`color:var(--tier-${p.tier ?? 'established'})`} aria-label="Open in references">■</a> {p.tier === 'emerging' && <span class="tier-tag">Preprint</span>}{p.tier === 'flagged' && <span class="tier-tag">Flagged</span>}{p.text}</li>)}</ul>
       </section>
     )}

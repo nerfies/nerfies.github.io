@@ -44,7 +44,10 @@ export function demoLinks(id: string) { return (links.demos as any)[id] ?? {}; }
 /** Key papers = works cited in the method's primary sections (computed from the manuscript). */
 export function keyPapers(m: any, limit = 12) {
   const keys = citationsInSections(m.sections?.slice(0, 1) ?? []);
-  return keys.slice(0, limit).map((k) => referenceByKey.get(k)).filter(Boolean) as { key: string; text: string; tier: string | null }[];
+  // Reference titles keep a few TeX symbols from the .bbl (e.g. "$\\infty$Bench"); show them as characters.
+  const TEX: Record<string, string> = { '\\infty': '∞', '\\alpha': 'α', '\\beta': 'β', '\\lambda': 'λ', '\\ell': 'ℓ' };
+  return keys.slice(0, limit).map((k) => referenceByKey.get(k)).filter(Boolean)
+    .map((r: any) => ({ ...r, text: r.text.replace(/\\(infty|alpha|beta|lambda|ell)/g, (m: string) => TEX[m] ?? m) })) as { key: string; text: string; tier: string | null }[];
 }
 
 /** Find a method whose name appears in a free-text method mention from the framework data. */

@@ -44,6 +44,8 @@ The 5 Nov PDF has six orientations, §12.1 to §12.6: Pragmatic, Ambitious, Deve
 The 5 Nov PDF defines one framework in §7.5 with five dimensions: attribution faithfulness, completeness, stability, causal validity and human interpretability. §14.2 refers back to §7.5. A text search found no second framework. The 13 Jul draft also had a four-dimension framework in §15.2.1. **Decide:** confirm that §7.5 is the only framework in the approved source.
 
 ### D4. Publication status of draft text
+**Resolved 6 Nov 2026:** the paper is public (arXiv:2611.08438v1), so the site now shows the arXiv version, ingested with `--status final` from the arXiv LaTeX source. Preview banners, the withheld chapter and draft `noindex` no longer apply.
+
 Now: the live site publishes the 13 Jul draft text, with "Preview build" banners, for every chapter except chapter 11.
 
 **This PR.** Pages built from draft text now carry `<meta name="robots" content="noindex">`. They stay reachable by link and in the site's own search. The switch is `indexDraftPages` in `src/data/publication.json`. `noindex` is not access control: anything deployed is public.

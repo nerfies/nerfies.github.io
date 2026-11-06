@@ -5,11 +5,13 @@
    "name": "The Interpretability Landscape",
    "sections": [
     "sec:interpretability-landscape",
-    "behavioral-methods",
+    "behavioural-methods",
     "subsec:cbm",
-    "attribution-and-saliency-methods",
+    "input-attribution-and-saliency-methods",
     "representation-probing-and-related-post-hoc-analyses",
-    "when-mechanistic-understanding-becomes-necessary"
+    "mechanistic-interpretability-methods",
+    "subsec: mech interp necessary",
+    "subsec:limits"
    ]
   },
   {
@@ -17,22 +19,22 @@
    "name": "Sparse Autoencoders / SAE Variants and Architectural Improvements",
    "sections": [
     "sec:sae",
+    "the-sparse-coding-problem",
     "subsec:sae-foundation",
     "subsec:sae-variants",
     "subsec:sae-selection",
-    "subsec:challenge",
-    "app:sae_details"
+    "subsec:challenge"
    ]
   },
   {
    "id": "multi-layer-feature-analysis",
-   "name": "Multi-Layer Feature Analysis: Transcoders and Crosscoders",
+   "name": "Multi-Layer Feature Extraction and Analysis: Transcoders and Crosscoders",
    "sections": [
     "subsec:transcoders-crosscoders",
     "subsubsec:transcoder",
     "subsubsec:cross-layer-transcoder",
-    "crosscoders-analyzing-cross-layer-features",
-    "comparing-saes-transcoders-and-crosscoders."
+    "crosscoders-analysing-cross-layer-features",
+    "comparing-saes-transcoders-and-crosscoders"
    ]
   },
   {
@@ -44,10 +46,10 @@
   },
   {
    "id": "architectural-interventions",
-   "name": "Architectural Interventions for Intrinsic Interpretability",
+   "name": "Interpretability-by-Design Methods for Intrinsic Interpretability",
    "sections": [
     "sec:architectural-interventions",
-    "architectural-responses-to-superposition"
+    "architectural-responses-to-superposition."
    ]
   },
   {
@@ -55,45 +57,46 @@
    "name": "Circuits in Mechanistic Interpretability",
    "sections": [
     "sec:circuit",
-    "sec:circuit-table",
-    "circuit-discovery-in-weight-sparse-architectures",
-    "sec:causal-verification"
+    "sec:circuit-discovery-methods",
+    "sec:circuit-replacement",
+    "sec:causal-verification",
+    "sec:evaluation-framework"
    ]
   },
   {
    "id": "intermediate-computation",
-   "name": "Understanding Intermediate Computation: Logit Lens and Probing",
+   "name": "Understanding Intermediate Representations",
    "sections": [
     "sec:intermediate-computation"
    ]
   },
   {
    "id": "training-data-attribution",
-   "name": "Training Data Attribution and Influence Functions",
+   "name": "Training Data Attribution",
    "sections": [
     "sec:influence-functions"
    ]
   },
   {
    "id": "developmental-interpretability",
-   "name": "Developmental Interpretability and Training Dynamics",
+   "name": "Learning Dynamics and Mechanistic Interpretability",
    "sections": [
     "sec:training"
    ]
   },
   {
    "id": "representation-analysis",
-   "name": "Representation Analysis: Structure, Localization, and Transfer",
+   "name": "Representation Analysis: Comparison, Localisation, and Control",
    "sections": [
     "sec:representation"
    ]
   },
   {
    "id": "safety-applications",
-   "name": "From Understanding to Intervention: Safety Applications",
+   "name": "From Understanding to Intervention: Safety Applications of Mechanistic Interpretability",
    "sections": [
     "sec:safety_applications",
-    "concept-erasure-and-direct-editing",
+    "concept-erasure-and-knowledge-editing",
     "steering-vectors-and-mechanistic-monitoring"
    ]
   }
@@ -101,28 +104,32 @@
  "methods": [
   {
    "id": "behavioral-methods",
-   "name": "Behavioral Methods",
+   "name": "Behavioural Methods",
    "family": "interpretability-landscape",
    "sections": [
-    "behavioral-methods"
+    "behavioural-methods"
    ],
-   "definition": "Behavioral methods examine models at the level of inputs and outputs: capability evaluations (Linzen et al., 2016; Marvin & Linzen, 2018; Wang et al., 2024; Zhang et al., 2025), deceptive intents (Kinniment et al., 2026), and red-teaming (Ganguli et al., 2022; Perez et al., 2022b; He et al., 2025).",
+   "definition": "Behavioural methods evaluate and analyse models through their inputs and outputs. They have been developed to examine a wide range of capabilities, traits, and behaviours under specific conditions.",
    "assumptions": [
-    "These approaches are fast, scalable, and practical for high-level auditing without access to model internals."
+    "Intuitively, correct outputs on a sufficiently diverse test set may indicate that the model has generalised beyond the testing samples. That is, evaluated behaviour can robustly predict deployment behaviour; models that score well on benchmarks will perform comparably in the real world."
    ],
-   "evaluation": [],
+   "evaluation": [
+    "In general, behavioural evaluations provide a practical way to audit and assess models at scale. They are typically fast, inexpensive, and scalable, requiring only forward passes and comparisons between model outputs and reference answers."
+   ],
    "applications": [
-    "Behavioral methods nonetheless remain essential in practice, for rapid iteration during development, for prioritizing which behaviors warrant deeper investigation, and for surface-level safety screening where the cost of mechanistic analysis is prohibitive."
+    "Beyond assessing models as helpful assistants, behavioural evaluations also identify and benchmark potential safety risks and failure modes.",
+    "Although evaluation results on a finite testing set do not guarantee the mechanism that produced the behaviour of interest (Wani et al., 2026) (which the internal methods below aim to establish, as discussed in Section 2), behavioural methods nonetheless remain essential in practice for rapid iteration during development, prioritising which behaviours warrant deeper investigation, and surface-level safety screening when the cost of mechanistic analysis is prohibitive."
    ],
    "limitations": [
-    "The limits of this approach are the subject of Section 2; the point that matters here is that behaviour on a finite evaluation set underdetermines the mechanism that produced it, which is what the internal methods below are designed to establish.",
-    "These studies assess what models do without explaining how."
+    "Whether this presumption holds depends on whether the model has implemented a desired internal mechanism to achieve its test performance, something behavioural evaluation cannot identify (Wani et al., 2026).",
+    "Mechanistic analysis becomes necessary when we need to verify how a model produces a behaviour—not just that it does under test conditions."
    ],
    "related": [],
    "mentioned_in": [
-    "sec:scope",
     "sec:why_open",
-    "alternatives-black-box-methods"
+    "subsec: mech interp necessary",
+    "sec:scope",
+    "shared-limitations-of-black-box-approaches"
    ]
   },
   {
@@ -132,54 +139,52 @@
    "sections": [
     "subsec:cbm"
    ],
-   "definition": "Concept-based methods plays a middle ground role: they go beyond behavioral evaluation by examining internal representations, but typically establish correlational rather than causal claims.",
+   "definition": "Concept-based methods occupy a middle ground: they examine internal representations but typically establish correlational rather than causal claims. However, when combined with interventions such as steering along concept directions and ablating concept-associated components, they become mechanistic by the criteria discussed in Section 1.2.",
    "assumptions": [
-    "CBMs impose semantic constraints (predefined human concepts), while architectural interventions impose structural constraints (sparsity, modularity) that allow the model to discover features autonomously."
+    "CBMs impose semantic constraints (predefined human concepts), while interpretable-by-design models impose structural constraints (sparsity, modularity) that make the model intrinsically easier to interpret."
    ],
    "evaluation": [],
    "applications": [
-    "These methods do not guarantee mechanistic understanding but are valuable for auditing, localization, and early detection tasks.",
-    "Practical Guide: CBMs tend to be more appropriate when the relevant concepts are known and can be enumerated; architectural interventions may be preferable when the goal is to discover what the model has learned—including features that were not known in advance."
+    "In general, these methods do not provide causal evidence about the role of those concepts in model computation, although some probing variants aim to support stronger causal claims, such as amnesic probing (Elazar et al., 2021). Nevertheless, they remain valuable tools for auditing, localisation, and early detection tasks.",
+    "CBMs can be more appropriate when the set of concepts of interest is known. Interpretability-by-design models may be preferable when the goal is to discover what the model has learned—including features that were not preset in advance."
    ],
    "limitations": [
-    "Concept Bottleneck Models (CBMs; Koh et al., 2020) constrain computation through a predefined bottleneck of interpretable concepts, offering built-in transparency and allowing for interventions, but traditionally requiring a complete set of predefined concepts and often suffer from an “accuracy-interpretability trade-off” when concept definitions are insufficiently expressive.",
-    "For safety applications, where unknown failure modes are a core concern, methods that enable discovery may be more useful than those that require specifying concepts upfront."
+    "Concept Bottleneck Models (CBMs; Koh et al., 2020) constrain computation through a predefined bottleneck of interpretable concepts, offering built-in transparency and allowing for interventions, but traditionally requiring a complete set of predefined concepts and often suffering from an “accuracy–interpretability trade-off” when concept definitions are insufficiently expressive.",
+    "For safety applications, where unknown failure modes are a core concern, discovery-oriented methods may be more useful than those that require specifying concepts upfront."
    ],
    "related": [
     "probing",
     "steering-vectors"
    ],
    "mentioned_in": [
-    "sec:scope"
+    "sec:scope",
+    "subsec: mech interp necessary"
    ]
   },
   {
    "id": "attribution-saliency",
-   "name": "Attribution and Saliency Methods",
+   "name": "Input Attribution and Saliency Methods",
    "family": "interpretability-landscape",
    "sections": [
-    "attribution-and-saliency-methods",
-    "critiques-of-attribution-and-saliency-methods"
+    "input-attribution-and-saliency-methods"
    ],
-   "definition": "Attribution methods focus on identifying which features most influence a model’s outputs. Techniques such as SHAP (Lundberg & Lee, 2017), LIME (Ribeiro et al., 2016), integrated gradients (Sundararajan et al., 2017), and saliency maps (Simonyan et al., 2014) are scalable and widely used for token-level explanations and debugging.",
+   "definition": "Input attribution methods aim to identify which input features most influence a model’s outputs. Techniques such as SHAP (Lundberg & Lee, 2017), LIME (Ribeiro et al., 2016), DeepLIFT (Shrikumar et al., 2017), and saliency-based methods (Simonyan et al., 2014; Sundararajan et al., 2017; Zhou et al., 2016; Selvaraju et al., 2017) are scalable and widely used for explanation and debugging at the pixel and token levels.",
    "assumptions": [],
-   "evaluation": [
-    "However, Jacovi & Goldberg (2020) distinguish between plausibility (do attributions seem reasonable to humans?) and faithfulness (do attributions reflect actual model computation?)."
-   ],
+   "evaluation": [],
    "applications": [
-    "For the safety-relevant tasks motivating this survey, attribution methods are useful for triage and initial auditing but, on their own, insufficient where a causal account of internal computation is required."
+    "The same machinery can also be applied to internal representations, attributing salience to features at different layers and tracing how information evolves throughout the network (Yu et al., 2024; Syed et al., 2024).",
+    "For safety-relevant applications, attribution methods help with triage, debugging, and initial auditing, but they are insufficient on their own when an explanation of internal computation is required."
    ],
    "limitations": [
-    "Applied to inputs, they indicate which inputs matter but not how the model arrives at its output.",
-    "Reliability concerns nonetheless remain: different attribution methods can produce divergent explanations for the same prediction, and some have been shown to be insensitive to model parameters (Adebayo et al., 2018b).",
-    "Collectively, these findings suggest that attribution methods are fundamentally unreliable guides to what information a model actually uses."
+    "Techniques such as SHAP (Lundberg & Lee, 2017), LIME (Ribeiro et al., 2016), DeepLIFT (Shrikumar et al., 2017), and saliency-based methods (Simonyan et al., 2014; Sundararajan et al., 2017; Zhou et al., 2016; Selvaraju et al., 2017) are scalable and widely used for explanation and debugging at the pixel and token levels. However, these methods indicate which input features matter for a prediction, but not necessarily how the model processes and leverages them.",
+    "Different attribution methods can produce substantially different explanations for the same prediction, and some have been shown to be insensitive to model parameters (Adebayo et al., 2018) or sensitive to input transformations that have no effect on the model (Kindermans et al., 2022)."
    ],
    "related": [
     "probing"
    ],
    "mentioned_in": [
     "sec:scope",
-    "implications-for-probing."
+    "implications-of-attribution-faithfulness-for-probing"
    ]
   },
   {
@@ -189,33 +194,33 @@
    "sections": [
     "subsec:probing",
     "standard-probing-methodology",
-    "representation-probing-and-related-post-hoc-analyses",
-    "the-probe-causality-problem",
     "control-tasks-and-selectivity",
-    "probe-complexity-vs.-causal-relevance",
-    "when-is-probing-appropriate-and-when-is-it-not",
-    "best-practices-for-probing-studies"
+    "concerns-of-probe-complexity",
+    "minimum-description-length-probes.",
+    "practical-guidance.",
+    "implications-of-attribution-faithfulness-for-probing",
+    "when-is-probing-appropriate",
+    "methodological-standards-in-probing-research"
    ],
-   "definition": "A probe trains a classifier—typically linear—to predict a property (e.g., part-of-speech, sentiment, entity type) from model activations.",
+   "definition": "A probe is a classifier trained to predict a property of the input, such as part of speech, sentiment, or entity type, from model activations.",
    "assumptions": [
-    "Linear probes constrain g to be linear, testing whether the property is linearly accessible.",
-    "MLP probes allow nonlinear g, testing whether the property is present in any recoverable form."
+    "The linear probe tests whether the target property is linearly accessible from the representation.",
+    "Probing provides evidence about whether activations contain information about a property. High probe accuracy indicates the information is present; low accuracy suggests it is absent or the probe is not expressive enough."
    ],
    "evaluation": [
-    "A control task assigns random labels to inputs, breaking any genuine relationship between activations and the target property.",
-    "High selectivity indicates the probe succeeds because of genuine encoding, not because the representation is easily separable by any linear classifier.",
-    "To address this, Voita & Titov (2020) proposed evaluating probes via the Minimum Description Length (MDL) principle: prefer probes that achieve good accuracy with minimal complexity.",
-    "Report control task baselines: Always include selectivity metrics."
+    "A control task assigns random labels to inputs to break any genuine relationship between activations and the target property.",
+    "High selectivity indicates that the probe succeeds because the representation genuinely encodes the target property.",
+    "To address this, Voita & Titov (2020) proposed evaluating probes via the minimum description length (MDL) principle: prefer probes that achieve good accuracy with minimal complexity."
    ],
    "applications": [
-    "probes have become one of the most widely used tools in mechanistic interpretability for tasks including layer-level localization, scalable auditing, and detecting latent behaviors such as sleeper-agent deception (MacDiarmid et al., 2024).",
-    "The most productive framing treats probing as hypothesis generation: probes identify candidate properties that may be causally relevant, which must then be tested via causal methods (ablation, patching, circuit analysis).",
-    "This illustrates that probing remains valuable when the goal is auditing or detection, while its limitations apply most strongly to mechanistic claims."
+    "We argue that probing is most productive when treated as a tool for hypothesis generation, that is, using probes to identify candidate properties that may be encoded in a representation and potentially causally relevant.",
+    "Despite the causality critiques, probing remains valuable for many applications. For example, MacDiarmid et al. (2024) showed that simple linear probes trained on residual-stream activations can detect latent backdoor behaviour in the sleeper agent model even when the probe fitting set does not contain the trigger or the harmful behaviour.",
+    "In summary, this use case shows that probing remains valuable for auditing or detection even though it cannot support causal claims."
    ],
    "limitations": [
-    "Probing does not establish causal relevance: whether the model actually uses that information for its predictions.",
-    "This problem is fundamental: probing measures information presence, not information use.",
-    "Control task experiments have revealed that many probing results showing “encoding” of linguistic properties suffer from low selectivity—random labels are nearly as extractable (Hewitt & Liang, 2019)."
+    "Note that probing alone does not show whether the model actually depends on that information in its decision-making process.",
+    "High probe accuracy does not imply causal relevance (Belinkov, 2022; Hewitt & Liang, 2019).",
+    "Finally, a sufficiently expressive probe can achieve high accuracy by exploiting noise even when the representations contain no such information."
    ],
    "related": [
     "amnesic-probing",
@@ -226,9 +231,11 @@
    ],
    "mentioned_in": [
     "sec:scope",
-    "pragmatic-interpretability-proxy-task-oriented-safety-interventions",
-    "developmental-interpretability-understanding-phase-transition-during-training",
-    "mechanistic-monitoring"
+    "representation-probing-and-related-post-hoc-analyses",
+    "subsec:dev interp",
+    "subsubsec: mech monitor",
+    "choosing-appropriate-methods-for-different-safety-applications",
+    "sec:automated-interpretability"
    ]
   },
   {
@@ -238,30 +245,29 @@
    "sections": [
     "subsec:sae-foundation",
     "sec:sae",
-    "subsec:challenge",
+    "subsec:sae-variants",
     "subsec:sae-selection",
-    "app:sae_details"
+    "subsec:challenge"
    ],
-   "definition": "Sparse Autoencoders are a way of extracting monosemantic features from polysemantic neurons.",
+   "definition": "SAEs (Figure 6) extract monosemantic features from polysemantic model activations. They are trained to reconstruct activations at a specific location in neural networks, such as the output of an MLP block or an entire transformer layer (i.e., the residual stream), while keeping only a few features active in any given forward pass.",
    "assumptions": [
-    "They are optimised for accuracy to the real MLP or attention block and for having few active features for any given forward pass.",
-    "SAEs are motivated by the hypothesis that features occur sparsely in the data and are linearly recoverable from a model’s hidden states.",
-    "Training of SAEs is sensitive to initialization, sparsity strength, and decoder normalization."
+    "SAEs are motivated by the hypothesis that a model’s activations can be approximated as linear combinations of many latent feature directions, which can be regarded as an extension of the linear representation hypothesis discussed in Section 5.1.",
+    "SAE training is sensitive to initialisation, sparsity strength, and decoder normalisation. Without proper constraints and hyperparameters, the features may collapse, duplicate, or absorb one another."
    ],
    "evaluation": [
-    "SAEs are typically evaluated for reconstruction loss (fidelity of activation reconstruction), feature absorption (degree to which features remain distinct), and downstream testing loss recovery (whether replacing activations with reconstructions preserves model behavior).",
-    "Report failure mode metrics: Alongside reconstruction loss, report dead feature percentage, duplication rate (via cosine similarity), and stability across seeds.",
-    "These causal tests should be standard practice when claiming that SAE features represent meaningful computational units."
+    "SAEs are typically evaluated for reconstruction loss (fidelity of activation reconstruction), feature absorption (how often a general feature fails to fire because a more specific feature has absorbed its direction), and downstream test loss recovery (whether replacing activations with reconstructions preserves model behaviour).",
+    "Report failure-mode metrics: Alongside reconstruction loss, researchers should also report dead-feature percentage, duplication rate, and stability across seeds.",
+    "Validate causal relevance: Researchers should validate features’ necessity, sufficiency, and specificity through interventions (e.g., feature ablation or steering) and evaluation on downstream effects."
    ],
    "applications": [
-    "As a result, supervised methods are best suited to settings where specific, predefined concepts are of interest, such as safety-critical behaviors like toxicity or deception, whereas SAEs remain preferable for exploratory analysis.",
-    "SAEs to unsupervisedly discover monosemantic features inside the model’s raw activations."
+    "Exploratory discovery, where the question is what features exist rather than whether a particular one does, is the setting SAEs were designed for and the one the comparisons below address.",
+    "Methods for achieving mechanistic monitoring include, but are not limited to, layer-wise monitoring (using linear probes to classify if malicious intent is encoded in a layer representation) (Oldfield et al., 2026), feature-wise monitoring (alerting when unexpected SAE features activate) (Fang et al., 2026), circuit-wise monitoring (tracking causal effects among attention heads, MLPs, or features) (Zhao et al., 2026b), and anomaly-based monitoring (using activations in normal behaviour as a baseline and flagging harmful generations as outliers) (Chaudhary & Barez, 2026)."
    ],
    "limitations": [
-    "Dead features represent wasted capacity and can constitute between 10–50% of the dictionary in poorly tuned SAEs (Bricken et al., 2023).",
-    "Training the same architecture with different random seeds can therefore produce substantially different dictionaries (Paulo & Belrose, 2025).",
-    "Taken together, these behaviors are consistent with the failure of identifiability under high-coherence conditions and help explain why SAE features can be unstable, non-atomic, and seed-dependent.",
-    "Low SAE reconstruction loss does not necessarily mean that SAE captures the causal structure of the original model."
+    "Dead features waste the dictionary’s capacity, and they are common. In fact, they can constitute up to 10–50% of the dictionary in a poorly tuned SAE (Bricken et al., 2023).",
+    "For a fixed SAE architecture and training dataset, different random seeds can produce substantially different dictionaries (Paulo & Belrose, 2026).",
+    "In large language model activations, high coherence is likely unavoidable because of the model’s complicated internal structure and correlations within its feature space (Li et al., 2025b). So far, identifiability remains a stubborn issue in SAEs, even though it offers a theoretical explanation for several empirical observations.",
+    "Activation reconstruction \\neq computation reconstruction: Low SAE reconstruction loss does not necessarily mean the SAE captures the original model’s computation."
    ],
    "related": [
     "gated-sae",
@@ -280,12 +286,15 @@
    ],
    "mentioned_in": [
     "subsec:superposition",
-    "case-study-induction-heads",
+    "empirical-evidence.",
+    "mechanistic-interpretability-methods",
+    "subsec: induc head case study: feature extract",
     "sec:automated-interp",
     "concept-erasure-via-pisces",
-    "mechanistic-monitoring",
-    "sec:model-diffing",
-    "relation-to-causal-evaluation-of-feature-extraction-methods.",
+    "subsubsec: mech monitor",
+    "dictionary-learning-methods.",
+    "steering-as-a-causal-test-for-feature-interpretability.",
+    "epistemic-risks-false-confidence-from-partial-or-incorrect-understanding",
     "silent-failure-modes."
    ]
   },
@@ -294,17 +303,15 @@
    "name": "Gated SAEs",
    "family": "sparse-autoencoders",
    "sections": [
-    "subsec:sae-variants",
-    "gated-sae-variant"
+    "subsec:sae-variants"
    ],
    "definition": "Gated SAEs introduce multiplicative gates to decouple feature selection from magnitude",
    "assumptions": [],
    "evaluation": [],
-   "applications": [
-    "Recommendation: Use Gated SAE as the default unless you have specific reasons for standard.",
-    "Standard SAEs suffer from shrinkage bias; Gated SAEs solve this with minimal added complexity."
+   "applications": [],
+   "limitations": [
+    "With moderate tuning capacity, Gated SAEs (Rajamanoharan et al., 2024a) achieved a better reconstruction–sparsity trade-off while retaining \\lambda. They also avoid the shrinkage effect by separating feature detection from magnitude estimation. However, because the standard L_1 SAE is now used mainly as a baseline, comparisons against it partly reflect shrinkage rather than dictionary quality alone."
    ],
-   "limitations": [],
    "related": [
     "sae",
     "topk-sae",
@@ -313,8 +320,9 @@
    ],
    "mentioned_in": [
     "subsec:sae-selection",
-    "layer-specific-recommendations",
-    "quick-reference-when-to-use-what"
+    "layer-type.",
+    "resource-constraints.",
+    "practical-recommendations"
    ]
   },
   {
@@ -324,13 +332,17 @@
    "sections": [
     "subsec:sae-variants"
    ],
-   "definition": "JumpReLU SAEs learn per-feature activation thresholds.",
+   "definition": "JumpReLU SAEs (Rajamanoharan et al., 2024b) learn per-feature activation thresholds.",
    "assumptions": [
-    "A smooth surrogate is used during training to enable gradient flow Rajamanoharan et al. (2024b)."
+    "Straight-through estimators (Bengio et al., 2013) are used during training to enable gradient flow."
    ],
    "evaluation": [],
-   "applications": [],
-   "limitations": [],
+   "applications": [
+    "For models between 1B and 10B parameters, JumpReLU SAEs and Top-k SAEs are the most commonly reported variants; Gemma Scope (Lieberum et al., 2024) uses the former and Llama Scope (He et al., 2024) the latter."
+   ],
+   "limitations": [
+    "When extensive tuning is plausible, JumpReLU SAEs (Rajamanoharan et al., 2024b) achieved the strongest reconstruction performance at matched sparsity by learning per-feature thresholds. However, gains on these sparsity–fidelity proxy metrics do not reliably translate into better downstream performance (Karvonen et al., 2025). In practice, selecting the best model and hyperparameters to achieve optimal performance can take a lot of time."
+   ],
    "related": [
     "sae",
     "gated-sae",
@@ -339,8 +351,11 @@
    ],
    "mentioned_in": [
     "subsec:sae-selection",
-    "layer-specific-recommendations",
-    "quick-reference-when-to-use-what"
+    "layer-type.",
+    "resource-constraints.",
+    "model-scale.",
+    "practical-recommendations",
+    "subsubsec:cross-layer-transcoder"
    ]
   },
   {
@@ -348,18 +363,15 @@
    "name": "Top-k SAEs",
    "family": "sparse-autoencoders",
    "sections": [
-    "subsec:sae-variants",
-    "top-k-sae-variant"
+    "subsec:sae-variants"
    ],
-   "definition": "Top-k SAEs (Gao et al., 2025a) impose an explicit hard sparsity constraint.",
+   "definition": "Top-k SAEs (Gao et al., 2025) impose an explicit hard sparsity constraint.",
    "assumptions": [
-    "No sparsity penalty needed; sparsity is enforced structurally."
+    "This formulation explicitly enforces \\|z\\|_0 \\le k—a more direct feature-sparsity constraint than L_1 regularisation."
    ],
-   "evaluation": [
-    "Unlike L1 loss, it does not suppress activation magnitudes, thereby avoiding the feature shrinkage issue observed in L1-based SAE training (Gao et al., 2025a)."
-   ],
+   "evaluation": [],
    "applications": [
-    "If you’re spending significant time tuning the sparsity coefficient, Top-K eliminates this hyperparameter entirely."
+    "Under limited compute, or where fast iteration matters more than reconstruction quality, Top-k SAEs (Gao et al., 2025) are the practical choice: fixing \\|z\\|_0 \\le k removes the sparsity coefficient \\lambda from the search space entirely rather than requiring it to be tuned, with reported values commonly in the range k = 32 (Gao et al., 2025) to 150 (Karvonen et al., 2025)."
    ],
    "limitations": [],
    "related": [
@@ -370,8 +382,9 @@
    ],
    "mentioned_in": [
     "subsec:sae-selection",
-    "common-pitfalls-and-how-to-avoid-them",
-    "quick-reference-when-to-use-what"
+    "resource-constraints.",
+    "model-scale.",
+    "practical-recommendations"
    ]
   },
   {
@@ -381,12 +394,14 @@
    "sections": [
     "subsec:sae-variants"
    ],
-   "definition": "Batch Top-k SAEs enforce sparsity at the batch level.",
-   "assumptions": [],
+   "definition": "Batch Top-k SAEs relax the fixed per-example sparsity constraint of standard Top-k SAEs by enforcing the sparsity budget across an entire batch instead (Bussmann et al., 2024).",
+   "assumptions": [
+    "This loose constraint allows the model to allocate representational capacity adaptively across samples."
+   ],
    "evaluation": [],
    "applications": [
-    "This enforces global feature competition, reduces variance in feature usage across the batch, and prevents collapse (Bussmann et al., 2024).",
-    "More recent Batch Top-K variants explicitly enforce minimum feature usage across batches, which substantially reduces the prevalence of dead features (Bussmann et al., 2024)."
+    "More recent Batch Top-k SAEs allocate sparsity adaptively across samples, which allows more active features on complex inputs and fewer on easy ones (Bussmann et al., 2024).",
+    "During inference, Batch Top-k SAEs instead use the JumpReLU function with an inferred global threshold to determine which features are active for each input, so that an input’s activations do not depend on the rest of the batch."
    ],
    "limitations": [],
    "related": [
@@ -396,8 +411,7 @@
    ],
    "mentioned_in": [
     "dead-features",
-    "sec:model-diffing",
-    "quick-reference-when-to-use-what"
+    "dictionary-learning-methods."
    ]
   },
   {
@@ -407,19 +421,19 @@
    "sections": [
     "subsubsec:transcoder",
     "architecture-and-motivation.",
-    "when-transcoders-are-necessary."
+    "when-are-transcoders-necessary"
    ],
    "definition": "The transcoder reconstructs post-nonlinearity activations using features extracted from pre-nonlinearity activations (Dunefsky et al., 2024).",
    "assumptions": [
-    "A transcoder applies sparse decomposition directly to the nonlinear mapping, learning features that explain the transformation."
+    "Standard SAEs do not explain the nonlinear transformations (i.e., weight matrices of MLP blocks and attention heads) themselves that produce the activations. A transcoder achieves this by applying dictionary learning to the mapping, learning features that explain the transformation."
    ],
    "evaluation": [],
    "applications": [
-    "Transcoders are essential when analyzing MLPs, understanding feature interactions, or tracking how concepts evolve across layers (Dunefsky et al., 2024).",
-    "Recommendation: For MLP analysis, use transcoders; for cross-layer analysis, use crosscoders or CLTs."
+    "SAEs extract features from static activations and thus often suffice for residual-stream analysis. Transcoders track how features emerge from input to output and are essential for analysing MLP layers (Dunefsky et al., 2024).",
+    "On MLP outputs, transcoders are the appropriate tool: a single-layer SAE cannot span the nonlinearity, so transcoders learn the input-to-output map directly (Dunefsky et al., 2024), and Paulo et al. (2025c) reported favourable comparisons against SAEs there."
    ],
    "limitations": [
-    "Transcoders improve this by imitating the behavior of the MLP, revealing nonlinear transformations, though they require sequential analysis across depth."
+    "Transcoders improve this by imitating MLP behaviour and revealing nonlinear transformations, though they require sequential analysis across depth."
    ],
    "related": [
     "sae",
@@ -428,9 +442,10 @@
     "molt"
    ],
    "mentioned_in": [
-    "comparing-saes-transcoders-and-crosscoders.",
-    "case-study-induction-heads",
-    "sec:model-diffing"
+    "layer-type.",
+    "comparing-saes-transcoders-and-crosscoders",
+    "dictionary-learning-methods.",
+    "subsec: induc head case study: feature extract"
    ]
   },
   {
@@ -444,26 +459,26 @@
     "computational-cost-and-practical-considerations.",
     "open-questions-for-clt-research."
    ],
-   "definition": "A Cross-Layer Transcoder (CLT) is a sparse feature decomposition spanning all layers of a neural network.",
+   "definition": "Cross-layer transcoders (CLTs) are sparse feature decompositions spanning all layers of a neural network.",
    "assumptions": [
     "Attention freezing: By caching attention patterns, the replacement model treats attention as a fixed routing operation rather than a dynamic, input-dependent computation.",
-    "Normalization caching: Freezing LayerNorm statistics removes a source of nonlinearity but introduces dependence on the specific input used to cache these statistics.",
-    "Sparse linear approximation: The core assumption that MLP outputs are well-approximated by sparse linear combinations of features may break down for computations involving complex feature interactions or highly nonlinear transformations."
+    "Normalisation caching: CLT analysis caches the input-dependent normalisation factors (e.g., LayerNorm denominators) from the original forward pass and reuses them during attribution instead of recomputing them after interventions.",
+    "Sparse linear approximation: Dictionary learning methods assume MLP outputs or transformations are well approximated by sparse linear combinations of features. This assumption may fail when computations involve complex feature interactions or highly nonlinear transformations."
    ],
    "evaluation": [
-    "Empirically, CLT replacement models match the original model’s most-likely token on approximately 50% of prompts in initial experiments on Gemma-2-2B (Ameisen et al., 2025).",
-    "The 50% figure reflects top-1 token agreement; softer metrics (e.g., top-5 agreement, KL divergence) may show different patterns.",
-    "These caveats do not invalidate CLTs as a tool for mechanistic analysis, but practitioners should verify fidelity on their specific model, layer, and task before drawing strong conclusions from CLT-based circuit analysis."
+    "Under these conditions, the local replacement model can exactly match the original model’s activations on that prompt while decomposing it into interpretable CLT features. However, when the model’s activations are completely replaced by CLT reconstructions, the intervened model’s top-1 predictions match the original model’s on only about 50% of prompts from the Pile dataset (Gao et al., 2020). Notably, this experiment uses a relatively small, 18-layer transformer (Ameisen et al., 2025).",
+    "The paper reports top-1 token agreement as the main result, while softer metrics (e.g., top-5 agreement, KL divergence) may show different patterns and insights.",
+    "Domain: Fidelity on factual recall and syntactic tasks is higher than on complex reasoning or arithmetic tasks, where MLP computations may be more complex and cannot be approximated by sparse linear features. These caveats do not invalidate CLTs as a tool for mechanistic analysis, but they do mean that fidelity should be verified on the target model and specific task before drawing strong conclusions from CLT-based circuit analysis."
    ],
    "applications": [
-    "A key insight is that CLTs enable the construction of a replacement model: a version of the original model where all MLP layers are replaced by their CLT reconstructions.",
-    "This simplifies circuit structure—features need not re-encode information at each layer.",
-    "When these assumptions hold, CLTs provide a powerful lens for circuit discovery."
+    "A key insight is that CLTs enable the construction of a replacement model—a version of the original model in which all MLP layers are replaced with their CLT reconstructions.",
+    "Unlike per-layer transcoders, CLTs reveal direct feature-to-feature interactions across layers: a feature in layer \\ell directly influences features in later layers through its contribution to their inputs. This simplifies circuit structure—features need not re-encode information at each layer.",
+    "CLTs provide a powerful lens for circuit discovery when these assumptions hold."
    ],
    "limitations": [
-    "When they fail, particularly for complex reasoning or out-of-distribution inputs, CLT-based explanations may be incomplete or misleading.",
-    "Training a CLT requires significant upfront cost, which scales with the number of features and layers.",
-    "This scarcity of downstream applications in the current literature likely reflects the considerable challenges in training CLTs at scale.",
+    "When they fail, CLT-based explanations may become unfaithful.",
+    "Training a suite of CLTs thus incurs a high upfront cost.",
+    "For these reasons, current applications of CLTs remain limited: a “greater-than” mechanism study (Merullo et al., 2025), an open-source extension (Lindsey et al., 2025a), and analysis of multilingual representations using CLTs (Harrasse et al., 2026). This scarcity of downstream use cases likely reflects the considerable challenges of training CLTs at scale and the complexity of using CLT-based circuit discovery in the wild.",
     "Cross-layer transcoders span multiple layers for global information flow but are extremely expensive."
    ],
    "related": [
@@ -474,9 +489,11 @@
     "spartan"
    ],
    "mentioned_in": [
-    "sec:circuit-table",
-    "sparse-attention-post-training-spartan",
-    "comparing-saes-transcoders-and-crosscoders."
+    "sec:circuit-replacement",
+    "subsubsec: spartan",
+    "comparing-saes-transcoders-and-crosscoders",
+    "sec:proxy-fidelity",
+    "steering-as-a-causal-test-for-feature-interpretability."
    ]
   },
   {
@@ -484,19 +501,19 @@
    "name": "Crosscoders",
    "family": "multi-layer-feature-analysis",
    "sections": [
-    "crosscoders-analyzing-cross-layer-features",
+    "crosscoders-analysing-cross-layer-features",
     "causal-vs.-acausal-crosscoders.",
     "applications-to-circuit-analysis."
    ],
-   "definition": "Crosscoders resolve cross-layer superposition by tracking features that persist through the residual stream (Lindsey et al., 2024).",
+   "definition": "A crosscoder learns a shared sparse representation from activations across L layers.",
    "assumptions": [],
    "evaluation": [],
    "applications": [
-    "By extracting cross-layer features, crosscoders enable understanding how features propagate through the residual stream across layers, removing duplicate feature representations that complicate circuit analysis.",
-    "Crosscoders can define model-specific encoders, with arbitrarily different input dimensions, which then project into one or more shared representational spaces."
+    "By extracting cross-layer features, crosscoders help us understand how features propagate through the residual stream across layers, removing duplicate feature representations that complicate circuit analysis.",
+    "Crosscoders can define model-specific encoders with arbitrarily different input dimensions that project activations from different models into one or more shared representational spaces."
    ],
    "limitations": [
-    "This can result from the loss function: for instance, Minder et al. (2025) showed that crosscoders trained with an L1 loss on hidden states can falsely identify novel features, which they try to mitigate with the BatchTopK activation function."
+    "Dictionary learning methods for model diffing risk falsely identifying model-exclusive features (Dumas et al., 2025a; Jiralerspong & Bricken, 2025). This can result from the loss function: for instance, Dumas et al. (2025a) showed that crosscoders trained with an L_1 regularisation on hidden states can falsely identify novel features, which they tried to mitigate with \\sigma_{\\text{Batch-TopK}}(\\cdot)."
    ],
    "related": [
     "sae",
@@ -506,27 +523,28 @@
     "batch-topk-sae"
    ],
    "mentioned_in": [
-    "comparing-saes-transcoders-and-crosscoders.",
-    "sec:model-diffing"
+    "comparing-saes-transcoders-and-crosscoders",
+    "dictionary-learning-methods.",
+    "subsec: induc head case study: feature extract"
    ]
   },
   {
    "id": "nmf",
-   "name": "Non-Negative Matrix Factorization (NMF)",
+   "name": "Non-Negative Matrix Factorisation (NMF)",
    "family": "alternative-feature-extraction",
    "sections": [
-    "non-negative-matrix-factorization-nmf"
+    "non-negative-matrix-factorisation-nmf"
    ],
-   "definition": "This constraint induces a natural parts-based interpretation in which features combine additively without cancellation.",
+   "definition": "Because all components are non-negative, each feature contributes positively to the final representation, making it easier to interpret.",
    "assumptions": [
-    "Activations produced by modern architectures, particularly after LayerNorm or nonlinearities such as GELU, are not naturally non-negative, requiring preprocessing steps that may distort representational structure."
+    "Additionally, classical NMF’s optimisation process uses simple multiplicative update rules that preserve non-negativity. Moreover, under assumptions like separability (each latent feature appears in at least one sufficiently “pure” example), NMF guarantees that the recovered decomposition is unique (Donoho & Stodden, 2003). However, classical NMF is not suitable for neural network activations because they can have negative elements, requiring additional preprocessing steps that may distort the activation-space structure."
    ],
    "evaluation": [
-    "Shafran et al. (2025) showed that Semi-NMF can recover features competitive with SAEs on small-scale evaluations, but systematic comparisons at large scale remain limited."
+    "Shafran et al. (2026) showed that Semi-NMF can recover features competitive with SAEs on small-scale evaluations, but systematic comparisons at large scale remain limited."
    ],
    "applications": [],
    "limitations": [
-    "Moreover, NMF does not explicitly encourage sparsity unless additional regularization is introduced, and scaling NMF to large dictionaries is computationally challenging."
+    "NMF does not explicitly encourage feature sparsity, and scaling NMF to large dictionaries is computationally expensive."
    ],
    "related": [
     "sae"
@@ -538,28 +556,24 @@
    "name": "Principal Component Analysis (PCA)",
    "family": "alternative-feature-extraction",
    "sections": [
-    "principle-component-analysis-pca"
+    "principal-component-analysis-pca"
    ],
-   "definition": "Principal Component Analysis decomposes activations by finding an orthonormal basis of directions that maximise explained variance.",
+   "definition": "Principal Component Analysis (PCA; Pearson, 1901; Hotelling, 1933) decomposes activations by finding an orthonormal basis of directions that maximise explained variance.",
    "assumptions": [
-    "In addition, PCA enforces orthogonality between components, a constraint that may not reflect how features are organized in practice, where factors can be correlated or partially overlapping."
+    "PCA is fast, stable, and scalable. However, PCA imposes constraints and inductive biases that may misalign with neural network activations. Specifically, it identifies principal directions that maximise explained variance in the activation distribution, but much of the information of interest is region- or context-dependent and cannot be captured by variance alone. Moreover, PCA constrains the principal directions to be orthogonal, but in practice the underlying features correlate or partially overlap."
    ],
    "evaluation": [
-    "In Wu et al. (2025), PCA underperforms most baselines, including SAEs, on both steering and concept-detection evaluations.",
-    "While in some localization settings, PCA outperform SAEs (Mueller et al., 2025a), it still lags behind simpler supervised baselines."
+    "Recent benchmarks (Wu et al., 2025b) reflect this misalignment: PCA underperformed most baselines, including SAEs, on both steering and concept-detection evaluations. While PCA can outperform SAEs in some localisation settings (Mueller et al., 2025), it still generally lags behind simple supervised baselines."
    ],
    "applications": [
-    "Missing baselines: Claims of interpretability gains rarely compare against simple baselines (e.g., random directions, PCA components, raw neurons)."
+    "Users specify baseline methods, such as random directions in activation space, PCA components, individual neurons, and supervised probes (if labels are available)."
    ],
-   "limitations": [
-    "PCA identifies a single set of global directions that maximises variance across the full activation distribution, which can mix multiple sources of variation when the relevant structure is region or context-dependent."
-   ],
+   "limitations": [],
    "related": [
     "sae"
    ],
    "mentioned_in": [
-    "the-need-for-standardized-evaluation",
-    "integrated-evaluation-protocol"
+    "step-2-establish-baselines."
    ]
   },
   {
@@ -569,16 +583,16 @@
    "sections": [
     "independent-component-analysis-ica"
    ],
-   "definition": "Independent Component Analysis seeks to decompose activations as H = WS, where the components of S are statistically independent (Hyvärinen & Oja, 2000).",
+   "definition": "Independent Component Analysis (ICA; Hyvärinen & Oja, 2000) decomposes activations H \\in \\mathbb{R}^{d \\times n} as H \\approx WS, where n is the number of data points.",
    "assumptions": [
-    "However, ICA makes strong assumptions that are often violated in neural representations.",
-    "Classical ICA assumes a complete setting in which the number of sources equals the dimensionality of the representation, and extensions are required for overcomplete decompositions.",
-    "Unlike SAEs, ICA does not require tuning a sparsity hyperparameter."
+    "In ICA, each column in W \\in \\mathbb{R}^{d \\times m} is a mixing vector, and m is the number of different source signals; each row in S \\in \\mathbb{R}^{m \\times n} is a source signal (a signal has n data points), with m source signals in total. These signals are optimised to be independent of one another. Thus, if model activations are linear mixtures of statistically independent “foundational features”, ICA can provably recover those features."
    ],
-   "evaluation": [],
+   "evaluation": [
+    "More recently, however, Liu & Han (2026) showed that ICA can achieve performance comparable to that of SAEs, arguing that its previously reported underperformance may stem from limitations of classical ICA implementations poorly suited to the scale and statistical structure of neural network activations."
+   ],
    "applications": [],
    "limitations": [
-    "Although ICA has been applied to neural network activations (Hyvärinen et al., 2023), it has not matched the interpretability gains reported for SAEs in recent large-scale studies, possibly because neural features tend to be sparse rather than independent."
+    "Moreover, underlying features may not be statistically independent, which further limits the applicability of classical ICA. Although early studies applied it to analyse neural network activations, they did not find interpretability gains over SAEs (Cunningham et al., 2024)."
    ],
    "related": [
     "sae"
@@ -587,35 +601,28 @@
   },
   {
    "id": "supervised-feature-extraction",
-   "name": "Supervised Feature Extraction Methods (DAS, SMDS, DBM)",
+   "name": "Supervised Feature Extraction Methods (DAS, SMDS, probes)",
    "family": "alternative-feature-extraction",
    "sections": [
-    "supervised-feature-extraction-methods"
+    "subsubsec: supervised_extraction"
    ],
-   "definition": "When the concepts of interest are known in advance, supervised methods can directly optimize representations aligned with those targets.",
-   "assumptions": [
-    "However, these methods require labelled data for each concept and therefore cannot discover previously unknown features."
-   ],
-   "evaluation": [
-    "When labelled data are available, supervised approaches often outperform SAEs on targeted concept recovery tasks (Huang et al., 2024; Chaudhary & Geiger, 2024)."
-   ],
+   "definition": "When the concepts of interest are known in advance, supervised methods can directly optimise representations aligned with those targets.",
+   "assumptions": [],
+   "evaluation": [],
    "applications": [
-    "As a result, supervised methods are best suited to settings where specific, predefined concepts are of interest, such as safety-critical behaviors like toxicity or deception, whereas SAEs remain preferable for exploratory analysis.",
-    "Compare methods: For safety-critical applications, compare SAE features against supervised baselines (DAS, probes) to assess whether SAEs recover the relevant structure."
+    "When labelled data is available, supervised approaches often outperform SAEs on concept detection and steering tasks (Huang et al., 2024; Wu et al., 2025b; Chaudhary & Geiger, 2024). They also avoid choosing dictionary sizes or sparsity penalties, since the concept set determines complexity. However, these methods require labelled data for each concept and cannot discover previously unknown features. Therefore, supervised methods suit settings where predefined, crisp concepts matter, whereas SAEs remain preferable for exploratory analysis.",
+    "Consider alternatives for targeted analysis: When specific concepts are the focus, supervised methods (e.g., DAS, probes, discussed in Section 6.9.4) may be more reliable because SAEs discover features in an unsupervised and exploratory manner."
    ],
-   "limitations": [
-    "They do not scale naturally to open-ended exploration across entire models, and each concept typically requires separate training."
-   ],
+   "limitations": [],
    "related": [
     "sae",
     "probing",
     "steering-vectors"
    ],
    "mentioned_in": [
-    "subsec:sae-selection",
+    "analysis-goal.",
     "practical-recommendations",
-    "best-practices-for-probing-studies",
-    "relation-to-causal-evaluation-of-feature-extraction-methods."
+    "steering-as-a-causal-test-for-feature-interpretability."
    ]
   },
   {
@@ -625,72 +632,68 @@
    "sections": [
     "dictionary-learning-baselines"
    ],
-   "definition": "Classical dictionary learning methods provide useful baselines for evaluating SAEs. Techniques such as K-SVD alternate between sparse coding and dictionary updates and are known to converge under certain conditions (Aharon et al., 2006).",
+   "definition": "Classical dictionary learning methods provide useful baselines for evaluating SAEs. Techniques such as K-SVD alternate between sparse coding and dictionary updates and converge under certain conditions (Aharon et al., 2006).",
    "assumptions": [],
    "evaluation": [
-    "Comparative studies suggest that the primary advantage of SAEs lies in their learned encoder, which enables fast inference, rather than in fundamentally superior dictionary quality (Cunningham et al., 2023)."
+    "Comparative studies suggest that SAEs’ primary advantage is fast inference because the encoder learns to decompose all activations, while potentially sacrificing optimal sparsity (O’Neill et al., 2025)."
    ],
    "applications": [
-    "As such, classical dictionary learning remains an important reference point for assessing the added value of SAE architectures."
+    "As such, classical dictionary learning can still achieve superior dictionary quality in some cases and thus remains an important reference point for assessing the added value of SAEs."
    ],
    "limitations": [],
    "related": [
     "sae"
    ],
-   "mentioned_in": []
+   "mentioned_in": [
+    "the-sparse-coding-problem"
+   ]
   },
   {
    "id": "weight-sparse-transformer",
-   "name": "Weight-Sparse Transformer (Weight Sparsity via L_0 Regularization)",
+   "name": "Weight-Sparse Training (Weight-Sparse Transformer)",
    "family": "architectural-interventions",
    "sections": [
-    "weight-sparsity-via-l_0-regularization",
-    "circuit-discovery-in-weight-sparse-architectures",
-    "circuits-visible-by-inspection."
+    "subsubsec: weight sparse transformer"
    ],
-   "definition": "The most significant recent advancement is the Weight-Sparse Transformer, introduced by Gao et al. (Gao et al., 2025b). This approach treats sparsity not as a tool for inference efficiency but as a tool for circuit discovery.",
+   "definition": "A weight-sparse transformer (Gao et al., 2026) treats weight sparsity as an explicit structural constraint that is progressively strengthened during training.",
    "assumptions": [
-    "Since the L_0 norm is non-differentiable, training employs stochastic gates drawn from a Hard-Concrete distribution, allowing gradients to flow while penalizing the probability of each gate being open.",
-    "Furthermore, this approach requires training sparse models from scratch or using Bridge proxies—it cannot be directly applied to existing dense models."
+    "Gao et al. (2026) optimise the standard cross-entropy objective along with an L_0 constraint on model weights after each optimisation step. Specifically, within each weight matrix, they retain only the largest-magnitude parameters and set the rest to zero. The L_0 constraint anneals from a dense initialisation to the desired sparsity level over training."
    ],
    "evaluation": [
-    "Validation via mean ablation shows that these sparse circuits satisfy necessity and sufficiency criteria with higher precision than circuits identified in dense models.",
-    "Empirically, sparse circuits satisfy necessity and sufficiency criteria with higher precision than circuits extracted from dense models via post-hoc methods (Gao et al., 2025b; Haider et al., 2025)."
+    "Mean-ablation experiments further confirm that these circuits are both necessary and sufficient for the capability or behaviour."
    ],
    "applications": [
-    "Circuits can be identified by simply visualizing non-zero weights connected to a target output, eliminating the need for activation patching or ACDC."
+    "The resulting transformer has most weight parameters exactly zero, making the remaining computational structure much easier to decompose into small, task-specific circuits."
    ],
    "limitations": [
-    "Weight sparsity does not eliminate all challenges.",
-    "Circuits may still be compositional (requiring understanding of how subcircuits interact), and the interpretability of individual neurons depends on training dynamics.",
-    "Retraining frontier models with sparsity constraints is computationally prohibitive."
+    "Increasing sparsity generally makes the model easier to decompose into small, interpretable circuits. However, it also degrades task performance, producing a capability–interpretability Pareto frontier.",
+    "At comparable task performance, larger sparse models can have substantially smaller, more interpretable circuits than smaller models; at comparable interpretability, they can retain stronger capabilities. This suggests that scaling model size alongside structural sparsity may offer a path to more interpretable yet high-capability models. However, preserving interpretability beyond tens of millions of nonzero parameters remains challenging, and weight-sparse training currently requires substantially more compute than traditional training."
    ],
    "related": [
-    "bridge",
     "activation-patching",
     "path-patching",
     "acdc",
     "solu"
    ],
    "mentioned_in": [
-    "architectural-responses-to-superposition",
-    "architectural-interventions-as-a-synthesis.",
-    "implications-for-verification."
+    "architectural-responses-to-superposition.",
+    "subsubsec: solu",
+    "the-road-ahead"
    ]
   },
   {
    "id": "spartan",
-   "name": "Sparse Attention Post-Training (SPARTAN)",
+   "name": "Attention-Sparse Training (SPARTAN)",
    "family": "architectural-interventions",
    "sections": [
-    "sparse-attention-post-training-spartan"
+    "subsubsec: spartan"
    ],
-   "definition": "Sparse Attention Post-Training (SPARTAN) applies L_1 regularization to the attention patterns while finetuning with a constrained optimization objective to maintain the same cross-entropy performance (Draye et al., 2025) (Lei et al., 2025).",
+   "definition": "Previous studies have therefore explored attention-sparse training, which aims to sparsify attention patterns to make them more interpretable (Lei et al., 2025; Draye et al., 2026). Specifically, Lei et al. (2025) proposed SPARse TrANsformer World model (SPARTAN), an object-centric world model trained with L_0 regularisation on attention patterns and a constrained optimisation objective to maintain cross-entropy performance equal to that of a dense counterpart.",
    "assumptions": [],
    "evaluation": [],
    "applications": [
-    "This reveals that much attention connectivity is redundant noise, and SPARTAN effectively performs circuit discovery by pruning the attention graph.",
-    "Using Cross-Layer Transcoders, they show that the reduced number of mediating components renders attention attribution tractable."
+    "After training (either from scratch or via fine-tuning), each attention head attends only to specific tokens, and the model performance remains close to the original. This result suggests that many attention patterns may be redundant noise.",
+    "In CLT-based circuit discovery (see Section 7.2), Draye et al. (2026) showed that sparsified attention patterns reduce the number of mediating components involved in feature-to-feature attribution, making the resulting attribution graphs easier to analyse."
    ],
    "limitations": [],
    "related": [
@@ -703,46 +706,39 @@
    "name": "Softmax Linear Units (SoLU)",
    "family": "architectural-interventions",
    "sections": [
-    "activation-level-interventions-solu-and-its-limitations",
-    "results-and-the-hydraulic-effect."
+    "subsubsec: solu"
    ],
-   "definition": "Softmax Linear Units (SoLU) replace element-wise activations with a spatial softmax (Elhage et al., 2022b)",
-   "assumptions": [
-    "This forces neurons within a layer to compete: if one neuron fires strongly, it suppresses its neighbors through lateral inhibition."
-   ],
-   "evaluation": [
-    "SoLU successfully increased the fraction of monosemantic neurons identifiable by human inspection."
-   ],
+   "definition": "Softmax linear units (SoLU; Elhage et al., 2022b) are an earlier attempt at architectural intervention. SoLU is a specialised activation function that applies a softmax-based transformation across the layer’s d_{\\mathrm{mlp}} neurons.",
+   "assumptions": [],
+   "evaluation": [],
    "applications": [],
    "limitations": [
-    "However, it revealed a critical limitation: the hydraulic effect.",
-    "When prevented from using neurons for superposition, models simply displaced the compression elsewhere—into the residual stream, into sub-threshold activations, or into other components not subject to the constraint.",
-    "This indicates that local architectural constraints are insufficient when global incentives for compression remain."
+    "When one neuron receives a large pre-activation value, the softmax suppresses the others’ values, analogous to lateral inhibition. This competition encourages certain neurons to specialise and dominate, increasing the prevalence of monosemantic neurons associated with human-interpretable concepts. However, it also reveals an undesirable phenomenon: although many secondary neurons’ activations are suppressed to low magnitudes, these neurons remain polysemantic, with many features compressed into them. Later layer normalisation (Ba et al., 2016) can amplify them and recover the polysemanticity property (Elhage et al., 2022b).",
+    "The “smuggling” by layer normalisation suggests that imposing local interpretability constraints may not eliminate neural networks’ incentive to compress information through superposition."
    ],
    "related": [
     "weight-sparse-transformer"
    ],
    "mentioned_in": [
-    "architectural-responses-to-superposition"
+    "architectural-responses-to-superposition.",
+    "the-road-ahead"
    ]
   },
   {
    "id": "molt",
-   "name": "Sparse Mixtures of Linear Transforms (MOLT)",
+   "name": "Sparse Mixture of Linear Transforms (MOLT)",
    "family": "architectural-interventions",
    "sections": [
-    "computational-primitive-modifications-molt",
-    "motivation.",
-    "mechanism.-1"
+    "subsubsec: molt"
    ],
-   "definition": "One recent example of this is the so-called Sparse Mixtures of Linear Transforms (MOLT), representing a conceptual shift from feature extraction to transformation extraction (Lindsey et al., 2025b).",
+   "definition": "A recent example is the sparse mixture of linear transforms (MOLT), which represents a conceptual shift from feature extraction towards transformation extraction (Lindsey et al., 2025b).",
    "assumptions": [
-    "MOLT replaces the MLP with a sparse mixture of linear transformation matrices."
+    "To achieve this, MOLT replaces the MLP with a sparse mixture of learned linear transformation matrices. The basic unit of analysis becomes transformations applied to model activations rather than features."
    ],
    "evaluation": [],
    "applications": [
-    "For modular arithmetic, a MOLT might learn a single rotation matrix implementing addition, rather than memorizing thousands of input-output pairs.",
-    "This aligns the architecture with the true algorithmic structure of the task, yielding higher mechanistic faithfulness than standard feature-based decompositions for tasks involving systematic transformations."
+    "The basic unit of analysis becomes transformations applied to model activations rather than features. For example, in a modular arithmetic task, MOLT can represent the concept of addition with a learned rotation matrix, which relates more directly to the underlying algorithm than a collection of state-specific features.",
+    "More broadly, approaches that represent computational operations explicitly, as MOLT does, may facilitate the development of interpretable representations for tasks governed by systematic operations."
    ],
    "limitations": [],
    "related": [
@@ -750,55 +746,30 @@
     "transcoders"
    ],
    "mentioned_in": [
-    "architectural-responses-to-superposition"
+    "architectural-responses-to-superposition."
    ]
   },
   {
    "id": "kans",
-   "name": "Kolmogorov-Arnold Networks (KANs)",
+   "name": "Kolmogorov–Arnold Networks (KANs)",
    "family": "architectural-interventions",
    "sections": [
-    "kolmogorov-arnold-networks"
+    "subsubsec: kan"
    ],
-   "definition": "Based on the Kolmogorov-Arnold representation theorem, KANs place learnable activation functions (B-splines) on edges rather than fixed activations on nodes.",
+   "definition": "Inspired by the Kolmogorov–Arnold representation theorem, KANs place learnable nonlinear functions, typically parameterised using B-splines, on edges rather than using fixed nonlinear activation functions at nodes.",
    "assumptions": [],
    "evaluation": [],
    "applications": [
-    "Because non-linearities are univariate and visible on edges, researchers can perform symbolic regression on learned splines to recover exact mathematical formulas—for instance, rediscovering physics equations from data."
+    "As the nonlinearities are univariate and can be visualised directly on individual edges, researchers can use techniques like symbolic regression to approximate and inspect the learned analytical expressions, such as rediscovering known physical equations."
    ],
    "limitations": [
-    "While currently slower to train and unproven at LLM scale, KANs represent the ambitious ideal of a model where weights are interpretable mathematical functions."
+    "Although KAN training is currently more computationally expensive than training standard MLPs and has not yet been convincingly demonstrated at the scale of large language models, this architectural innovation points to an ambitious direction towards interpretable neural networks in which parameters correspond to mathematically meaningful functions."
    ],
    "related": [],
    "mentioned_in": [
-    "architectural-responses-to-superposition"
-   ]
-  },
-  {
-   "id": "bridge",
-   "name": "The Bridge Methodology",
-   "family": "architectural-interventions",
-   "sections": [
-    "the-bridge-methodology-interpretable-proxies-for-dense-models"
-   ],
-   "definition": "A Bridge is a weight-sparse model trained to mimic the internal representations of a pretrained dense model—minimizing reconstruction error of layer-wise activations rather than training on the original task.",
-   "assumptions": [],
-   "evaluation": [
-    "Preliminary evidence suggests that interventions on sparse proxies (e.g., ablating identified circuits) can be mapped back to induce similar behavioral changes in dense models.",
-    "One approach is causal correspondence testing, which verifies that ablating a circuit in the proxy and the corresponding components in the dense model produces matched behavioral changes across different inputs."
-   ],
-   "applications": [
-    "Retraining frontier models with sparsity constraints is computationally prohibitive."
-   ],
-   "limitations": [
-    "However, validating proxy fidelity—ensuring the proxy captures the same mechanisms rather than behaviorally equivalent simulations—remains an open problem (see Section 15)."
-   ],
-   "related": [
-    "weight-sparse-transformer"
-   ],
-   "mentioned_in": [
-    "sec:proxy-fidelity",
-    "potential-approaches."
+    "architectural-responses-to-superposition.",
+    "subsubsec: molt",
+    "the-road-ahead"
    ]
   },
   {
@@ -806,20 +777,19 @@
    "name": "Activation Patching",
    "family": "circuits",
    "sections": [
-    "sec:circuit-table"
+    "sec:circuit-discovery-methods"
    ],
-   "definition": "Activation patching evaluates the causal contribution of a component or set of components S by replacing their activations with baseline values",
+   "definition": "Activation patching tests the causality of a component’s representations by swapping them between inputs that differ in the target property.",
    "assumptions": [],
    "evaluation": [
-    "Perform activation patching: swap C between clean and corrupted inputs; verify behavior follows C."
+    "The resulting change in model output quantifies the causal effect of intervening on S (Zhang & Nanda, 2024)."
    ],
    "applications": [
-    "This identifies which components are functionally necessary for the computation (Zhang & Nanda, 2024).",
-    "A probe might detect deceptive reasoning, but confirming the finding is causal, and designing targeted interventions, requires causal intervention on internal representations—whether through activation patching, steering, or ablation.",
-    "Causal spot-checks: Randomly sample agentic explanations and verify via causal interventions, such as activation patching."
+    "This technique has also been used to test the causality of probes (Huang et al., 2024; Arora et al., 2024).",
+    "The pipeline can also additionally examine a fraction of explanations by causal techniques, such as activation patching, and track failure rates."
    ],
    "limitations": [
-    "Confounds correlation with causation"
+    "Requires many interventions; component-level granularity can be coarse"
    ],
    "related": [
     "path-patching",
@@ -828,11 +798,11 @@
    ],
    "mentioned_in": [
     "sec:scope",
-    "when-mechanistic-understanding-becomes-necessary",
-    "dimension-1-faithfulness",
-    "proposed-guardrails-for-agentic-interpretability",
-    "proposed-guardrails-for-automated-interpretability",
-    "potential-approaches."
+    "causal-probing-via-activation-patching.",
+    "subsec:five eval dim",
+    "layer-2-consistency-and-causality-checks.",
+    "sec:non-transformer",
+    "choosing-appropriate-methods-for-different-safety-applications"
    ]
   },
   {
@@ -840,73 +810,84 @@
    "name": "Path Patching",
    "family": "circuits",
    "sections": [
-    "sec:circuit-table"
+    "sec:circuit-discovery-methods"
    ],
-   "definition": "Path patching extends attribution to specific paths or edges in the computation graph.",
+   "definition": "Path patching extends activation patching on model components to specific edges in the computational graph.",
    "assumptions": [],
    "evaluation": [],
    "applications": [
-    "This allows finer-grained causal localization along information flows (Goldowsky-Dill et al., 2023)."
+    "This allows finer-grained causal localisation along information flows (Goldowsky-Dill et al., 2023)."
    ],
    "limitations": [
-    "Computationally expensive due to large number of paths; still approximate"
+    "Computationally expensive due to the large number of candidate paths"
    ],
    "related": [
     "activation-patching",
     "acdc",
     "weight-sparse-transformer"
    ],
-   "mentioned_in": []
+   "mentioned_in": [
+    "subsec:five eval dim"
+   ]
   },
   {
    "id": "acdc",
    "name": "ACDC",
    "family": "circuits",
    "sections": [
-    "sec:circuit-table"
+    "sec:circuit-discovery-methods"
    ],
-   "definition": "ACDC identifies minimal sufficient sets of components S \\subseteq \\text{Graph}(\\text{model}) that reproduce the model’s behavior.",
+   "definition": "ACDC (Conmy et al., 2023) discovers a circuit by iteratively using path patching to identify important connections in the model’s computational graph. Traversing the graph in reverse topological order from the output node, it patches the activation transmitted along each edge and measures the resulting change in a task-specific metric.",
    "assumptions": [],
    "evaluation": [
-    "Scales better due to automation; has been proved to recover known circuits"
+    "Fully automated; directly searches for a behaviourally sufficient subgraph"
    ],
    "applications": [],
    "limitations": [
-    "Computationally expensive as it greedily prunes paths; misses subtle components"
+    "Computationally expensive due to sequential edge pruning; sensitive to pruning order and threshold choices"
    ],
    "related": [
     "activation-patching",
     "path-patching",
     "weight-sparse-transformer"
    ],
-   "mentioned_in": []
+   "mentioned_in": [
+    "sec:evaluation-framework",
+    "summary.-4"
+   ]
   },
   {
    "id": "circuit-tracing",
-   "name": "Circuit Tracing (SAE- or CLT-Integrated circuit discovery)",
+   "name": "Circuit Tracing (SAE- or CLT-Based Circuit Discovery)",
    "family": "circuits",
    "sections": [
-    "subsec:circuits",
-    "sec:circuit-table",
-    "replacement-models-and-attribution-graphs."
+    "sec:circuit-replacement"
    ],
-   "definition": "The second line of work, often referred to as circuit tracing, focuses on how internal features interact and propagate across the computational graph to lead to the model decision of a particular input query (Ameisen et al., 2025; Wu & Barez, 2025).",
+   "definition": "A complementary approach first constructs a more interpretable replacement model (Section 6.6.2) that approximates the original model’s computation using sparse linear features, and then performs circuit discovery within this replacement model.",
    "assumptions": [
-    "Studies of this line usually make use of sparse autoencoders (detailed in Section 6) to automatically decompose mlp outputs into interpretable units, tracing attributions between these features and how the information flow converges to the final prediction."
+    "Recent work has implemented this paradigm using cross-layer transcoders (CLTs; Section 6.6.2) (Ameisen et al., 2025; Merullo et al., 2025). In particular, Circuit Tracer (Ameisen et al., 2025) replaces the model’s MLPs with CLTs while retaining the underlying model’s attention and residual-stream computation. This yields a prompt-specific attribution graph whose principal internal nodes are sparse CLT features rather than entire MLP blocks or attention heads."
    ],
    "evaluation": [],
    "applications": [
-    "Stage 2 – Circuit Tracing: We construct a computational graph in which nodes correspond to activated SAE features and edges represent their inter-attributions (Marks et al., 2025a)."
+    "For a given prompt, Circuit Tracer produces a sparse attribution graph that describes active features and their interactions, making it well suited to query-level circuit discovery.",
+    "Using automated feature-interpretation pipelines (Section 12.6) to assign natural-language descriptions to these features, human inspectors can more easily understand the discovered mechanism.",
+    "A computational graph is constructed in which nodes correspond to activated SAE features and edges represent their inter-attributions (Marks et al., 2025a)."
    ],
    "limitations": [
-    "Depends on feature quality; intensive computation to train SAEs/CLTs"
+    "Interpretability platforms such as Neuronpedia (Lin, 2023) also offer interactive implementations. However, the approach still has several limitations. Specifically, CLTs only approximate MLP computations, so the discovered circuit may only cover a part of the model’s underlying mechanism. Moreover, feature-level attribution graphs can have many nodes and edges, so we must prune, cluster, or otherwise condense them before they become understandable.",
+    "Depends on feature quality; requires additional computation to train and analyse SAEs/CLTs"
    ],
    "related": [
     "sae",
     "cross-layer-transcoders"
    ],
    "mentioned_in": [
-    "mechanistic-monitoring"
+    "sec:circuit-discovery-methods",
+    "replacement-models-and-attribution-graphs.",
+    "sec:evaluation-framework",
+    "subsubsec: mech monitor",
+    "stage-2-circuit-discovery.",
+    "the-scalability-bottleneck."
    ]
   },
   {
@@ -915,26 +896,27 @@
    "family": "circuits",
    "sections": [
     "evaluating-circuits-and-benchmarking-discovery-methods.",
-    "causal-necessity-and-sufficiency.",
-    "dimension-4-causal-validity"
+    "causal-necessity-and-sufficiency."
    ],
-   "definition": "Causal scrubbing evaluates necessity by replacing circuit activations with corrupted or neutralized values and measuring the resulting change in model outputs.",
+   "definition": "Causal scrubbing (Chan et al., 2022a) systematically evaluates a mechanistic hypothesis by replacing model activations with those from inputs deemed equivalent under the hypothesis and testing whether these interventions preserve the model behaviour.",
    "assumptions": [],
    "evaluation": [
-    "Two widely used high-level methods for testing these properties are causal scrubbing and interchange interventions (Heimersheim & Nanda, 2024; Chan et al., 2022)."
+    "Two popular approaches to validate causality are causal scrubbing and interchange interventions (Chan et al., 2022a; Geiger et al., 2024).",
+    "Together, these methods provide stronger evidence for mechanistic explanations than observational analysis alone."
    ],
    "applications": [
-    "Circuit faithfulness: proving circuits are necessary and sufficient for explaining behavior via causal intervention (e.g., causal scrubbing), without performance degradation."
+    "Circuit faithfulness: demonstrating circuits are necessary and sufficient for explaining behaviour via causal intervention (e.g., causal scrubbing (Chan et al., 2022a)), without performance degradation."
    ],
    "limitations": [
-    "Strict necessity and sufficiency are often unattainable.",
-    "Additionally, verification assumes the circuit mechanism is faithfully captured by the identified components, but if features are entangled or nonlinear interactions are present, the measured circuit may not reflect true causal structure."
+    "By aggregating faithfulness scores across tasks and settings, benchmarks such as MIB (Mueller et al., 2025) evaluate how well circuit discovery methods identify causally important model components. However, achieving strict necessity and sufficiency is often hard because many model behaviours depend on distributed representations and multiple redundant pathways (Barez et al., 2026).",
+    "Even if we identify a circuit that captures the primary mechanism of a behaviour, components outside the circuit may still play important roles, such as handling edge cases and computational robustness."
    ],
    "related": [
     "interchange-interventions"
    ],
    "mentioned_in": [
-    "ambitious-interpretability-toward-complete-mechanistic-understanding"
+    "sec:causal-verification",
+    "subsec:ambitious"
    ]
   },
   {
@@ -942,26 +924,29 @@
    "name": "Interchange Interventions",
    "family": "circuits",
    "sections": [
-    "evaluating-circuits-and-benchmarking-discovery-methods.",
-    "causal-probing-via-interchange-interventions."
+    "evaluating-circuits-and-benchmarking-discovery-methods."
    ],
-   "definition": "Interchange interventions test sufficiency by swapping circuit components between clean and corrupted forward passes and assessing whether the target behavior consistently tracks the substituted circuit across inputs.",
+   "definition": "Interchange interventions (Geiger et al., 2024) test whether model activations causally correspond to higher-level variables by substituting activations across inputs and measuring the resulting change in model behaviour.",
    "assumptions": [],
-   "evaluation": [],
+   "evaluation": [
+    "Interchange test: Swap activations of S between inputs representing different behaviours and test whether the model output follows the intervention.",
+    "Tested via interchange interventions: in the corrupted run with a reference input containing no target information, patch the activation of S with that from a clean run using an input containing the target information, and then verify whether the behaviour emerges."
+   ],
    "applications": [
-    "Test causal relevance: Complement probing with amnesic probing or interchange interventions."
+    "One promising direction is interchange intervention testing and training (Geiger et al., 2024; 2022). This technique was developed to compare and align a neural network with a high-level causal abstraction."
    ],
-   "limitations": [
-    "This provides stronger evidence than amnesic probing but requires identifying the specific representation component, not just demonstrating its existence."
-   ],
+   "limitations": [],
    "related": [
     "causal-scrubbing",
     "probing",
     "amnesic-probing"
    ],
    "mentioned_in": [
-    "dimension-1-faithfulness",
-    "dimension-4-causal-validity"
+    "subsec:five eval dim",
+    "evaluation-protocol-3",
+    "sufficiency",
+    "potential-approaches.",
+    "causal-probing-via-activation-patching."
    ]
   },
   {
@@ -974,15 +959,15 @@
    ],
    "definition": "Logit lens (nostalgebraist, 2020) applies the model’s unembedding matrix to activations at intermediate layers, revealing what the model would predict if computation stopped at that layer.",
    "assumptions": [
-    "Applying the unembedding matrix to intermediate activations assumes that the hidden state is in a format the output layer expects, but intermediate representations may reside in vector spaces different from final activations."
+    "The vanilla logit lens has a critical limitation: applying the unembedding matrix to intermediate activations assumes that the hidden state is in a format that the output layer expects. However, intermediate representations may be organised very differently from output-layer activations."
    ],
    "evaluation": [],
    "applications": [
-    "By examining this trajectory, researchers can identify at which layer critical decisions emerge: whether the model commits early to a prediction or progressively refines it layer-by-layer.",
-    "In this sense, logit lens can still reveal contributions to potentially harmful tokens and track how these emerge through the network, similarly to refusal vectors."
+    "Applying it across layers reveals the prediction trajectory, showing when and where the model commits to specific outputs (nostalgebraist, 2020).",
+    "Logit lens (Figure 10) provides intuitive insight into the model’s decision-making process across depth."
    ],
    "limitations": [
-    "The unembedding matrix is only trained to operate on the final residual stream after all transformations; applying it to layer-6 activations extracts relevant information but may not precisely reflect the model’s underlying computation at that layer (nostalgebraist, 2020)."
+    "Applying the unembedding matrix to layer-6 activations may extract relevant information but cannot precisely reflect the model’s underlying computation at that layer (nostalgebraist, 2020). Furthermore, logit lens is fundamentally correlational rather than causal. It projects the activation into the output vocabulary space without testing the roles decoded tokens play in model computation. In particular, because of the representational mismatch discussed above, decoded tokens represent at most information recoverable from the activation, rather than information used in model computation."
    ],
    "related": [
     "tuned-lens",
@@ -990,7 +975,11 @@
     "steering-vectors"
    ],
    "mentioned_in": [
-    "case-study-refusal-vectors-and-sleeper-agents"
+    "subsec:tuned-lens",
+    "jacobian-lens-decoding-computational-dispositions",
+    "subsec:patchscopes",
+    "summary.-5",
+    "sec:ld-features"
    ]
   },
   {
@@ -998,24 +987,31 @@
    "name": "Tuned Lens",
    "family": "intermediate-computation",
    "sections": [
-    "tuned-lens-learning-per-layer-transform"
+    "subsec:tuned-lens",
+    "limitations-of-tuned-lens."
    ],
-   "definition": "Tuned lens (Belrose et al., 2025) addresses the vector space mismatch problem of logit lens by learning per-layer affine transformations that map intermediate activations to the output layer’s expected space",
-   "assumptions": [
-    "The trade-off is that tuned lens requires training additional parameters (one affine transform per layer), but this is computationally cheap compared to other mechanistic methods."
-   ],
+   "definition": "Tuned lens (Belrose et al., 2025) addresses logit lens’ concern of representational mismatch by learning per-layer affine transformations that map intermediate activations to the output layer’s activation space",
+   "assumptions": [],
    "evaluation": [],
    "applications": [
-    "Tuned lens improves on basic logit lens by correcting for the fact that different layers operate in different representational spaces."
+    "As a result, the unembedding matrix can extract relevant information from each layer’s activations more effectively."
    ],
    "limitations": [
-    "Because the mapping from intermediate representations to natural language may be too complex to be captured by an affine transformation, Patchscopes extends the paradigm of the logit lens and tuned lens by delegating the representation-to-text transformation to the language model itself"
+    "First, the decoding paradigm remains inherently correlational rather than causal; decodable information does not imply a causal role in the model’s prediction.",
+    "Second, similar to logit lens, tuned lens is primarily designed to answer what the model is likely to predict rather than what the model is internally computing.",
+    "Empirical evidence also shows that it skips intermediate computation more aggressively than logit lens (Gurnee et al., 2026)."
    ],
    "related": [
     "logit-lens",
     "patchscopes"
    ],
-   "mentioned_in": []
+   "mentioned_in": [
+    "jacobian-lens-decoding-computational-dispositions",
+    "subsec:patchscopes",
+    "summary.-5",
+    "kl-divergence.",
+    "sec:non-transformer"
+   ]
   },
   {
    "id": "patchscopes",
@@ -1025,22 +1021,27 @@
     "subsec:patchscopes",
     "limitations-of-patchscopes."
    ],
-   "definition": "Patchscopes (Ghandeharioun et al., 2024) leverages the expressive capacity of large language models to translate internal representations into natural-language explanations.",
+   "definition": "Patchscopes (Ghandeharioun et al., 2024) leverages the expressive capacity of language models to translate their internal representations into natural-language explanations.",
    "assumptions": [
-    "Crucially, this approach relies on the model’s own learned and generalized text-generation capabilities to perform the transformation from internal activations to natural language."
+    "In this view, the language model acts as an activation decoder. Crucially, Patchscopes relies on the model’s learned, generalisable text-generation capabilities to map internal activations to natural language."
    ],
    "evaluation": [],
-   "applications": [],
+   "applications": [
+    "By observing changes in model output, users can examine what information the representation contains."
+   ],
    "limitations": [
-    "A key limitation of Patchscopes is that injecting an external representation into an elicitation prompt can shift the model’s internal activations into an OOD regime.",
-    "Although the model may still successfully surface salient information from the patched representation, the decoding process can be degraded, and critical aspects of the original representation may be distorted or lost."
+    "A key limitation of Patchscopes is that injecting an external representation into an elicitation prompt can shift the model’s internal activations into an out-of-distribution (OOD) regime.",
+    "Although the model may still surface salient information from the patched representation, the decoding process can degrade, and critical aspects of the original representation may be distorted or lost."
    ],
    "related": [
     "logit-lens",
     "tuned-lens",
     "latentqa"
    ],
-   "mentioned_in": []
+   "mentioned_in": [
+    "subsec:latentqa",
+    "summary.-5"
+   ]
   },
   {
    "id": "latentqa",
@@ -1050,27 +1051,29 @@
     "subsec:latentqa",
     "limitations-of-latentqa."
    ],
-   "definition": "LatentQA (Pan et al., 2024) formulates representation decoding as a supervised learning problem via Latent Interpretation Tuning (LIT), which fine-tunes an activation decoder to perform representation-to-text decoding.",
+   "definition": "LatentQA (Pan et al., 2026) frames representation decoding as a supervised learning problem via Latent Interpretation Tuning (LIT), fine-tuning an activation verbaliser to perform representation-to-text verbalisation.",
    "assumptions": [
-    "Both the control prompt and the (q, a) pair are generated by prompting an off-the-shelf proprietary language model (Pan et al., 2024).",
-    "Through LIT, the decoder is trained to directly ingest and process raw activation vectors."
+    "Through LIT, the verbaliser learns to ingest and process raw activation vectors directly."
    ],
-   "evaluation": [],
+   "evaluation": [
+    "Another technical challenge is evaluating whether activation-verbalisation models genuinely explain the represented information rather than exploit shortcuts."
+   ],
    "applications": [
-    "LatentQA addresses the OOD issue inherent in Patchscopes-style methods by explicitly finetuning the activation decoder on the representation-to-text decoding task.",
-    "Activation conditioning: Methods like LatentQA that condition on actual intermediate activations (rather than relying on the model to “remember” its computation) show improved faithfulness over pure prompting (Pan et al., 2024)."
+    "LatentQA (Figure 12) addresses the OOD issue inherent in Patchscopes-style methods by explicitly fine-tuning the activation verbaliser on the representation-to-text decoding task.",
+    "The process involves (1) curating a dataset of activation–question–answer triplets from a target LLM, and (2) fine-tuning a verbaliser to retrieve specific information latent within those activations, such as the model’s underlying goals or persona."
    ],
    "limitations": [
-    "The central limitation of LatentQA lies in the generalizability of the learned representation-to-text decoder.",
-    "When the finetuning dataset D is insufficiently large or diverse, the decoder may overfit by memorizing superficial correspondences between representations and textual descriptions, rather than learning the underlying algorithmic transformation."
+    "LatentQA faces several technical challenges, including the generalisability of the learned representation-to-text mapping.",
+    "When the fine-tuning dataset D is too small or insufficiently diverse, the verbaliser may memorise superficial correspondences between representations and explanations rather than learning to extract information from representations.",
+    "Recent studies have found that such failure modes are severe and prevalent in existing verbalisers (Li et al., 2026c; Jakkli et al., 2026). As a result, strong verbalisation performance alone is insufficient to show that the verbaliser faithfully analysed the internal representations."
    ],
    "related": [
     "patchscopes"
    ],
    "mentioned_in": [
-    "empirical-evidence.-1",
-    "elicitation-protocols-to-reduce-confabulation.",
-    "comparative-analysis-trade-offs-between-orientations"
+    "summary.-5",
+    "comparative-analysis-trade-offs-between-orientations",
+    "the-road-ahead"
    ]
   },
   {
@@ -1078,25 +1081,27 @@
    "name": "Amnesic Probing",
    "family": "intermediate-computation",
    "sections": [
-    "amnesic-probing-and-causal-probing",
+    "subsubsec: amnesic probing",
     "amnesic-probing."
    ],
-   "definition": "Building on this lineage, Elazar et al. (2021) introduced amnesic probing: after identifying a direction encoding property P, project it out of the representation and measure downstream task degradation.",
+   "definition": "Given a model activation h and a probe trained to predict a property P, amnesic probing tests whether information about P is causally relevant to downstream model behaviour by removing information about P from the representation and evaluating the effects on model outputs.",
    "assumptions": [],
-   "evaluation": [
-    "If performance degrades, the information was causally used. If performance is unchanged, the information was encoded but unused."
+   "evaluation": [],
+   "applications": [
+    "Elazar et al. (2021) further measured changes in downstream model behaviour after applying INLP as a validation of the probe’s causality, called amnesic probing. These paradigms add causality to probes, pushing them from correlational understanding to mechanistic analysis."
    ],
-   "applications": [],
    "limitations": [
-    "Limitations: Amnesic probing assumes the property is encoded in a single linear direction.",
-    "If encoding is distributed or nonlinear, projection may not fully remove the information, leading to false negatives (concluding information is unused when it is)."
+    "A substantial degradation indicates that the removed information causally contributes to the evaluated behaviour. Notably, unchanged performance does not establish that the information is unused since redundant representations or alternative computational pathways may preserve the behaviour.",
+    "Amnesic probing assumes the target property is decodable and that there exist effective erasure procedures to surgically remove its associated information from the representation. However, information and concept erasure may be imperfect in practice, either leaving residual information or affecting other concepts. Such imperfections confound interpretations of downstream behavioural changes and the causal claims that follow."
    ],
    "related": [
     "probing",
     "interchange-interventions"
    ],
    "mentioned_in": [
-    "best-practices-for-probing-studies"
+    "causal-probing-via-activation-patching.",
+    "methodological-standards-in-probing-research",
+    "subsec:cbm"
    ]
   },
   {
@@ -1105,102 +1110,115 @@
    "family": "training-data-attribution",
    "sections": [
     "verbatim-data-attribution-olmotrace-and-maximal-matching-spans",
-    "limitations"
+    "limitations-as-a-mechanistic-interpretability-tool."
    ],
-   "definition": "Verbatim data attribution targets explicit memorization by identifying exact or near-exact matches between model outputs and training data, scaling this search across trillions of tokens via suffix arrays and infinite n-gram models.",
+   "definition": "Verbatim data attribution detects explicit memorisation by identifying exact or near-exact string matches between model outputs and the training corpus. These searches can scale to trillions of tokens using techniques such as suffix arrays and infini-gram models.",
    "assumptions": [
-    "OLMoTrace scales this to trillions of tokens using a combination of FM-index, infini-gram models, and maximal matching span extraction (Liu et al., 2025a; 2024; Xu et al., 2025), making it less a data attribution method in the influence-function sense and more a retrieval tool for identifying memorized content."
+    "OLMoTrace (Liu et al., 2025a) scales this to trillions of tokens using a combination of suffix arrays, infini-gram models, and maximal matching span extraction (Liu et al., 2024a), making it less a data-attribution method in the influence-function sense and more a retrieval tool for identifying content the model may have memorised.",
+    "OLMoTrace identifies maximal matching spans by combining suffix-array search with infini-gram queries, adjusting boundaries for tokenisation, and retaining only the longest non-overlapping spans."
    ],
    "evaluation": [],
    "applications": [
-    "This process links LM outputs directly to the training corpus, enabling precise attribution of memorized content."
+    "“Eurovision Song Contest with the song ’Ne” This process links language model output directly to the training corpus, enabling identification and attribution of memorised content.",
+    "UTF8gbsnSpan: “她喜欢阅读关于科技、心理学和历史的书籍，业余时间还会参加编程课”—matched in post-training (instruction-tuning) data This example demonstrates how OLMoTrace traces multilingual outputs across diverse training sources, linking model generations directly to their memorised origins in pretraining and post-training datasets."
    ],
    "limitations": [
-    "Verbatim attribution excels at factual memorization but struggles with compositional or synthesized outputs.",
-    "For tasks like translation, poetry, or reasoning, OLMoTrace can identify spans of text that appear in the training data, but these matches do not explain how the model combined information from multiple sources to produce the output (Park et al., 2023)."
+    "Verbatim attribution excels at factual memorisation but struggles with compositional or synthesised outputs.",
+    "For tasks like translation, poetry, or reasoning, OLMoTrace (and other verbatim matching methods) can identify spans of text that appear in the training data, but these matches do not explain how the model combined information from multiple sources to produce the output."
    ],
    "related": [
     "influence-functions"
    ],
-   "mentioned_in": []
+   "mentioned_in": [
+    "sec:influence-functions",
+    "olmotrace-influential-samples-identified",
+    "summary.-8"
+   ]
   },
   {
    "id": "influence-functions",
    "name": "Influence Functions (Gradient-Based Attribution)",
    "family": "training-data-attribution",
    "sections": [
+    "gradient-based-attribution-understanding-data-influence-through-perturbations",
     "core-idea-parameter-response-to-training-data",
-    "gradient-based-attribution-understanding-influence-through-data-perturbations",
-    "proximal-bregman-response-and-the-gauss-newton-hessian",
-    "computational-bottleneck-approximating-ggn-vector-products",
+    "proximal-bregman-response-and-the-generalised-gaussnewton",
+    "addressing-the-computational-and-memory-bottlenecks-of-ggn",
     "illustrative-example",
     "recent-extensions-and-limitations"
    ],
-   "definition": "Influence functions ask a counterfactual question: how would a model’s learned parameters change if we upweighted a training example (Koh & Liang, 2017)? Instead of expensive retraining, we estimate this via implicit differentiation (Grosse et al., 2023).",
+   "definition": "Influence functions estimate how a model’s parameters and predictions would change if a training sample were slightly upweighted (Koh & Liang, 2017; Grosse et al., 2023).",
    "assumptions": [
-    "The implicit function theorem assumes exact convergence and infinite perturbations.",
-    "Real neural networks violate both: training reaches saddle points, not true minima, and we retrain for only a few steps.",
-    "This equivalence allows practitioners to use Fisher information as a practical substitute: it’s more stable to compute and estimate from data than the true GGN."
+    "Empirical results show that the original form of influence functions introduced above performs poorly in practice. This is due to multiple assumptions that rarely hold in practice.",
+    "One classical approach is called the proximal Bregman response function (PBRF) (Bae et al., 2022). It targets model parameters which minimise the new training objective while staying close to the original parameters.",
+    "Although K-FAC approximates the FIM rather than the GGN, these matrices are equivalent for common loss functions under suitable probabilistic assumptions."
    ],
    "evaluation": [
-    "Observation: Influence functions successfully identify training documents that impacted the translation, even without exact verbatim matches."
+    "Influence functions identify training documents that impacted the translation, even without exact verbatim matches. This demonstrates that gradient-based methods can capture influences beyond what verbatim methods can reveal.",
+    "Bae et al. (2022) confirmed empirically that such influence estimates align well with the actual PBRF."
    ],
    "applications": [
-    "Training data attribution (TDA) answers a fundamental interpretability question: which training examples shaped specific model behaviors?",
-    "This enables identifying influential data, detecting train-test leakage, and understanding failure modes without retraining (Liu et al., 2025a; Park et al., 2023; Grosse et al., 2023)."
+    "Training data attribution (TDA) shifts the focus from model internals to training data, searching for training samples that strongly shaped the model behaviour.",
+    "TDA applications include, but are not limited to, identifying influential training samples, detecting train–test leakage, and diagnosing model failures without retraining (Liu et al., 2025a; Park et al., 2023; Grosse et al., 2023).",
+    "Although TDA is not generally a mechanistic method under this survey’s criteria, it can complement mechanistic interpretability in many ways. For example, by revealing how specific training samples shape malicious behaviour, TDA can enable effective training data filtering to prevent unwanted behaviours or even their internal mechanisms from forming during the training of next-generation models."
    ],
    "limitations": [
-    "However, fundamental challenges persist: approximation errors compound over optimization trajectories, random hyperparameters introduce variance across runs, and scaling to larger models remains memory-intensive.",
-    "Classical influence functions rely on inverting the Hessian of the loss landscape, which becomes ill-defined when the Fisher information matrix is degenerate."
+    "(2026) introduced Concept Influence to enable attribution at the level of semantic concepts represented by model internals such as sparse autoencoder features. This brings TDA closer to the mechanistic goal of understanding how training data shapes specific internal computations. However, fundamental technical challenges persist, including approximation errors that compound over the training trajectory, variability across training runs caused by randomness like data ordering, and memory and computational bottlenecks of scaling to frontier models.",
+    "Token-level filtering is motivated by data attribution, but it remains unclear whether methods such as influence functions (Section 11) can reliably identify the relevant data."
    ],
    "related": [
     "olmotrace",
     "kfac",
     "ek-fac-astra",
-    "unrolled-differentiation",
     "trak",
-    "tracin",
-    "bayesian-influence-function"
+    "tracin"
    ],
    "mentioned_in": [
     "sec:scope",
-    "sec:stagewise-influence"
+    "sec:influence-functions",
+    "observation.-1",
+    "summary.-8",
+    "open-questions."
    ]
   },
   {
    "id": "kfac",
-   "name": "Kronecker-Factored Approximate Curvature (KFAC)",
+   "name": "Kronecker-Factored Approximate Curvature (K-FAC)",
    "family": "training-data-attribution",
    "sections": [
-    "kronecker-factored-approximate-curvature-kfac."
+    "kronecker-factored-approximate-curvature-k-fac."
    ],
-   "definition": "KFAC is a parametric approximation to the Fisher Information Matrix (FIM) of a neural network which supports efficient inversion.",
-   "assumptions": [],
+   "definition": "Martens & Grosse (2015) proposed Kronecker-Factored Approximate Curvature (K-FAC) to approximate a large Fisher information matrix (FIM) using a set of smaller matrices.",
+   "assumptions": [
+    "Although K-FAC approximates the FIM rather than the GGN, these matrices are equivalent for common loss functions under suitable probabilistic assumptions.",
+    "The approximation separates the expectation into two independent factors: activations and pseudo-gradients."
+   ],
    "evaluation": [],
-   "applications": [],
-   "limitations": [
-    "KFAC works well but can underestimate curvature in low-variance directions due to finite sampling."
+   "applications": [
+    "G. This shows that we can use K-FAC to approximate the GGN used in the PBRF influence score."
    ],
+   "limitations": [],
    "related": [
     "influence-functions",
     "ek-fac-astra"
    ],
-   "mentioned_in": []
+   "mentioned_in": [
+    "addressing-the-computational-and-memory-bottlenecks-of-ggn",
+    "eigenvalue-corrected-k-fac-ek-fac-and-astra."
+   ]
   },
   {
    "id": "ek-fac-astra",
-   "name": "Eigenvalue-Corrected KFAC (EK-FAC) and ASTRA",
+   "name": "Eigenvalue-Corrected K-FAC (EK-FAC) and ASTRA",
    "family": "training-data-attribution",
    "sections": [
-    "eigenvalue-corrected-kfac-ek-fac-and-astra."
+    "eigenvalue-corrected-k-fac-ek-fac-and-astra."
    ],
-   "definition": "EK-FAC improves KFAC by correcting eigenvalues and is the method used by recent work scaling influence to LLMs (Grosse et al., 2023).",
-   "assumptions": [
-    "An even more recent refinement, ASTRA (Wang et al., 2025a), uses EK-FAC as a preconditioner for Neumann series iterations, yielding higher-quality GGN-vector products with less hyperparameter tuning."
-   ],
+   "definition": "EK-FAC (George et al., 2018) improved K-FAC by correcting its eigenvalues. Recent work has adopted this technique to scale the influence function method to modern LLMs (Grosse et al., 2023).",
+   "assumptions": [],
    "evaluation": [],
    "applications": [
-    "These structured approaches make influence functions practical for models with billions of parameters."
+    "ASTRA (Wang et al., 2025a) further used EK-FAC as a preconditioner for Neumann series iterations, achieving higher-quality GGN-vector products with less hyperparameter tuning. These efforts make influence functions increasingly practical for modern language models with billions of parameters."
    ],
    "limitations": [],
    "related": [
@@ -1210,40 +1228,21 @@
    "mentioned_in": []
   },
   {
-   "id": "unrolled-differentiation",
-   "name": "Approximate Unrolled Differentiation",
-   "family": "training-data-attribution",
-   "sections": [
-    "unrolled-differentiation-gradient-based-attribution"
-   ],
-   "definition": "Approximate unrolled differentiation (Bae et al., 2024) unfolds the optimization trajectory and backpropagates through training steps.",
-   "assumptions": [],
-   "evaluation": [],
-   "applications": [
-    "This captures implicit bias of the optimizer and handles non-converged models, where classical influence functions struggle."
-   ],
-   "limitations": [
-    "The tradeoff: higher computational cost than influence functions but better accuracy on modern, non-convex objectives."
-   ],
-   "related": [
-    "influence-functions"
-   ],
-   "mentioned_in": []
-  },
-  {
    "id": "trak",
-   "name": "TRAK (Tracing with Randomly-projected After Kernel)",
+   "name": "TRAK (Tracing with the Randomly-projected After Kernel)",
    "family": "training-data-attribution",
    "sections": [
     "sec:trak"
    ],
-   "definition": "For large-scale attribution without retraining thousands of models, TRAK (Tracing with Randomly-projected After Kernel) provides a scalable alternative (Park et al., 2023).",
-   "assumptions": [],
+   "definition": "Tracing with the Randomly-projected After Kernel (TRAK; Park et al., 2023) provides a more efficient alternative. TRAK first uses a first-order Taylor expansion around the model parameters to approximate a trained model as a linear model.",
+   "assumptions": [
+    "TRAK first uses a first-order Taylor expansion around the model parameters to approximate a trained model as a linear model. It then applies random projections to reduce gradient dimensionality and estimate training-sample influence in this lower-dimensional space. Finally, it averages the estimates across a small number of trained models to reduce variability due to training randomness."
+   ],
    "evaluation": [
-    "By avoiding prohibitive retraining costs, TRAK achieves attribution quality comparable to expensive retraining-based methods like datamodels (Ilyas et al., 2022) while reducing computational cost by orders of magnitude."
+    "TRAK achieves attribution quality comparable to datamodels at substantially lower computational cost (Park et al., 2023)."
    ],
    "applications": [
-    "This enables application to large-scale models including vision transformers and billion-parameter language models, making fine-grained training data attribution tractable for modern deep learning (Park et al., 2023)."
+    "Georgiev et al. (2023) proposed TRAK variants to address diffusion models."
    ],
    "limitations": [],
    "related": [
@@ -1260,95 +1259,82 @@
    "sections": [
     "sec:tracin"
    ],
-   "definition": "TracIn provides an efficient alternative to computing the full Hessian inverse by leveraging the training trajectory (Pruthi et al., 2020).",
+   "definition": "TracIn (Garima et al., 2020) estimates training-data influence using gradients evaluated along the training trajectory, without computing the inverse Hessian.",
    "assumptions": [
-    "This approach avoids Hessian computation entirely, instead accumulating dot products of gradients throughout training."
+    "Its core idea follows from the effect of a single Stochastic Gradient Descent (SGD; Robbins & Monro, 1951) update on the loss of a testing sample."
    ],
    "evaluation": [],
    "applications": [
-    "TracIn is considerably cheaper than influence functions based on Hessian approximations, making it practical for large models.",
-    "Despite limitations, TracIn has enabled attribution studies on modern language models and provides a useful baseline for scalable influence estimation."
+    "Unlike Hessian-based influence functions, TracIn does not require matrix inversion.",
+    "By examining each checkpoint’s contribution, researchers can identify when a training example had the greatest influence on a downstream prediction."
    ],
    "limitations": [
-    "However, the approximation assumes that gradient trajectories during training encode sufficient information about final influence, an assumption that may break down in highly nonlinear settings or when training dynamics involve significant noise (Pruthi et al., 2020)."
+    "TracInCP approximates the influence of training samples using gradients only at selected checkpoints, which may undermine the estimation accuracy."
    ],
    "related": [
     "influence-functions"
    ],
-   "mentioned_in": []
+   "mentioned_in": [
+    "trajectory-based-attribution."
+   ]
   },
   {
    "id": "local-learning-coefficient",
    "name": "Local Learning Coefficient (LLC)",
    "family": "developmental-interpretability",
    "sections": [
-    "sec:slt-llc",
-    "the-local-learning-coefficient"
+    "singular-learning-theory.",
+    "app:slt"
    ],
-   "definition": "In other words, it captures how many ways the parameters can vary locally without changing the loss value (Watanabe, 2009; Lau et al., 2023).",
+   "definition": "The Local Learning Coefficient (LLC; Lau et al., 2025) builds on SLT by localising Watanabe’s learning coefficient around a particular parameter configuration, thereby providing a measure of the effective local complexity of a neural network around a local minimum.",
    "assumptions": [
-    "Formally, the LLC is defined via the volume-scaling rate of the loss landscape near a minimum."
+    "Neural networks are singular (and are thus a subject of study in SLT) because different parameter configurations can implement the same function.",
+    "Smaller values indicate more degenerate (flatter, in a higher-order sense) minima. The LLC is estimable at scale with stochastic-gradient MCMC (Lau et al., 2025)."
    ],
-   "evaluation": [
-    "Researchers have observed that transitions and critical points in the LLC often coincide with changes in internal network structure and functional behavior."
-   ],
+   "evaluation": [],
    "applications": [
-    "Empirical estimators can track the LLC throughout training, providing a way to observe developmental changes in model structure (Lau et al., 2023; Hoogland et al., 2025).",
-    "Tracking these changes provides a quantitative way to study the emergence of structure during training without relying only on final performance metrics (Hoogland et al., 2025)."
+    "The LLC has been used to characterise properties of trained neural networks. For example, Lau et al. (2025) showed that the LLC can capture differences in effective complexity between models trained under different settings, even when their training losses are similar.",
+    "Wang et al. (2025b) introduced refined variants of the Local Learning Coefficient (Section 10.3.4) and applied them to individual attention heads of a two-layer attention-only transformer across training.",
+    "Heads of the same type cluster together in both their final values and the overall shape of the curve across training, revealing how heads differentiate into distinct functional roles."
    ],
-   "limitations": [],
+   "limitations": [
+    "Estimated LLC trajectories in transformers change at points that coincide with identifiable developmental events, including the stages of structure formation described in Section 10.3.3 (Hoogland et al., 2025). This is the central empirical result of the developmental interpretability programme (Hoogland et al., 2023) introduced in Section 12.3. However, current evidence for LLC is largely retrospective, where phase transitions are detected and matched to known events only after training. Prospective prediction of a transition before it occurs has not yet been demonstrated.",
+    "Unlike the proposed induction scores (Olsson et al., 2022) for identifying induction heads, the measure does not require specifying a head type in advance. However, estimating refined LLCs is computationally expensive, and the approach has so far been demonstrated only on toy models."
+   ],
    "related": [],
    "mentioned_in": [
+    "localising-change-to-components.",
+    "run-to-run-variance.",
+    "subsec:dev interp",
     "comparative-analysis-trade-offs-between-orientations"
    ]
-  },
-  {
-   "id": "bayesian-influence-function",
-   "name": "Stagewise Influence and the Bayesian Influence Function (BIF)",
-   "family": "developmental-interpretability",
-   "sections": [
-    "sec:stagewise-influence"
-   ],
-   "definition": "Lee et al. (2025) propose a stagewise data attribution framework that extends classical influence methods to track the impact of training points throughout the learning process.",
-   "assumptions": [
-    "Unlike classical influence functions that require Hessian inversion, the BIF measures influence through covariance estimation over the local posterior distribution.",
-    "This distributional approach is estimated via stochastic-gradient MCMC sampling, enabling scalable computation without explicit Hessian access while naturally capturing the geometry of singular loss landscapes."
-   ],
-   "evaluation": [
-    "These predictions are further confirmed through leave-one-out retraining experiments that directly measure the effect of removing individual training examples at different stages of training."
-   ],
-   "applications": [
-    "Token-level influence exhibits non-monotonic changes, including sudden peaks and sign reversals that align with known developmental milestones such as the formation of induction heads."
-   ],
-   "limitations": [],
-   "related": [
-    "influence-functions"
-   ],
-   "mentioned_in": []
   },
   {
    "id": "model-diffing",
    "name": "Model Diffing",
    "family": "representation-analysis",
    "sections": [
-    "sec:model-diffing"
+    "sec:model-diffing",
+    "applications.",
+    "dictionary-learning-methods.",
+    "llm-based-approaches."
    ],
    "definition": "For two models, model diffing seeks to identify differences in features or circuits between them. These differences may consist of features or circuits that are exclusive to one model, or of differences in how shared features or circuits are used.",
    "assumptions": [
-    "SAEs can be applied to model-diffing when inputs from different models have the same dimension.",
-    "To diff closed-weight models, it is desirable to develop model diffing tools that just rely on API access."
+    "SAEs are applicable when inputs from different models have the same dimension.",
+    "To differentiate closed-weight models, it is desirable to develop model diffing tools that only rely on API access."
    ],
    "evaluation": [
-    "Benchmarked against an SAE-based baseline, the LLM-based method matches it on many dimensions while surfacing more abstract, behaviour-level differences."
+    "Benchmarked against the SAE-based baseline, the LLM-based method matches it on many dimensions while surfacing more abstract, behaviour-level differences."
    ],
    "applications": [
-    "This makes it important to monitor features and circuits that have been introduced or amplified during this process to prevent unsafe models from being deployed.",
-    "Model diffing has been applied to assess the effect of finetuning (Minder et al., 2025; Lindsey et al., 2024; Wang et al., 2025b; Aranguri & McGrath, 2025) and distillation (Baek & Tegmark, 2025), to track differences across model architectures (Thasarathan et al., 2025; Jiralerspong & Bricken, 2025), and to study the evolution of concepts during pretraining (Bayazit et al., 2025; Ge et al., 2025)."
+    "Many concerning behaviours, such as reward hacking or sycophancy, arise during fine-tuning (Sharma et al., 2024b; MacDiarmid et al., 2025). This phenomenon makes it important to monitor features and circuits introduced or amplified during this process to prevent unsafe models from being deployed.",
+    "Model diffing has been applied to assess the effect of fine-tuning (Dumas et al., 2025a; Lindsey et al., 2024; Aranguri & McGrath, 2025; Wang et al., 2026a) and distillation (Baek & Tegmark, 2025), to track differences between model architectures (Thasarathan et al., 2025; Jiralerspong & Bricken, 2025), to study the evolution of concepts during pretraining (Bayazit et al., 2026; Ge et al., 2026), and to identify vision-specific features introduced during vision-language training, enabling targeted removal or steering (Batra et al., 2026).",
+    "By causally intervening with latents that activate more strongly in the fine-tuned model, it is possible to identify features responsible for misaligned behaviour (Wang et al., 2026a)."
    ],
    "limitations": [
-    "Dictionary learning methods for model-diffing risk falsely identifying model-exclusive features (Minder et al., 2025; Jiralerspong & Bricken, 2025).",
-    "During finetuning, the direction representing some feature can rotate, and dictionary learning methods currently cannot distinguish between features that are introduced via finetuning as opposed to merely represented differently.",
-    "Thus, supposedly model-exclusive features should be regarded as hypotheses that need further validation."
+    "Dictionary learning methods for model diffing risk falsely identifying model-exclusive features (Dumas et al., 2025a; Jiralerspong & Bricken, 2025).",
+    "During fine-tuning, the directions representing some features can rotate, and dictionary learning methods currently cannot distinguish between features introduced via fine-tuning and those merely represented differently. Thus, supposedly model-exclusive features should be regarded as hypotheses that need further validation."
    ],
    "related": [
     "sae",
@@ -1357,28 +1343,36 @@
     "representation-similarity",
     "batch-topk-sae"
    ],
-   "mentioned_in": []
+   "mentioned_in": [
+    "sec:scope",
+    "sec:representation",
+    "sec:ld-features",
+    "model-scale."
+   ]
   },
   {
    "id": "representation-similarity",
    "name": "Representation Alignment and Convergent Learning (SVCCA, PWCCA, CKA)",
    "family": "representation-analysis",
    "sections": [
-    "sec:model-diffing"
+    "representation-alignment-and-convergent-learning."
    ],
-   "definition": "An earlier line of work compared internal representations across models by measuring statistical similarity between neurons or subspaces, using correlation or mutual information (Li et al., 2015), canonical correlation–based methods such as SVCCA and PWCCA (Raghu et al., 2017; Morcos et al., 2018b), or kernel-based alignment metrics like CKA (Kornblith et al., 2019).",
+   "definition": "An earlier line of work compared internal representations across models using correlation- and mutual information-based measures (Li et al., 2015), canonical-correlation methods such as SVCCA and PWCCA (Raghu et al., 2017; Morcos et al., 2018), and kernel-based alignment metrics such as CKA (Kornblith et al., 2019).",
    "assumptions": [],
    "evaluation": [],
    "applications": [
-    "This literature primarily aims to characterize convergent learning: whether independently trained models (often only differing by weight initialisation) learn similar representations up to permutation, rotation, or linear reparameterization."
+    "Related approaches examine whether the representations of one model can be expressed as linear combinations of representations in another (Wang et al., 2018). This literature primarily concerns convergent learning: whether independently trained models with different random initialisations learn similar representations up to permutation, rotation, or other linear transformations.",
+    "Early work showed that different singular modes of the input–output correlations can be learned at different rates (where larger singular values tend to be learned earlier), making acquisition order informative about task structure (Saxe et al., 2014; Lampinen & Ganguli, 2019; Saxe et al., 2019). In contrast, representation-comparison methods measure when layers and representations converge during training (Raghu et al., 2017; Morcos et al., 2018)."
    ],
    "limitations": [
-    "In contrast to model diffing as defined here, these methods typically focus on representational similarity rather than on identifying features or circuits that are introduced, amplified, or repurposed by a specific training intervention."
+    "More recent work has extended these techniques to study representational convergence across modalities (Huh et al., 2024; Gröger et al., 2026), as discussed in Section 5.4. In contrast to model diffing as defined here, these methods typically focus on representational similarity rather than on identifying concrete features or circuits that are introduced, amplified, or repurposed by a specific training intervention."
    ],
    "related": [
     "model-diffing"
    ],
-   "mentioned_in": []
+   "mentioned_in": [
+    "learning-dynamics-as-an-interpretability-tool"
+   ]
   },
   {
    "id": "causal-tracing",
@@ -1387,22 +1381,26 @@
    "sections": [
     "sec:knowledge-localization"
    ],
-   "definition": "Causal tracing identifies which attention heads or MLP directions are causally responsible for particular facts or reasoning tasks by measuring how intervening on those components affects output behavior (Meng et al., 2022).",
+   "definition": "For instance, causal tracing identifies components that causally impact specific factual association retrieval by observing how model outputs change after activation intervention (Meng et al., 2022).",
    "assumptions": [],
    "evaluation": [],
    "applications": [
-    "Once knowledge is attributed to specific model components via localization techniques like causal tracing, mechanistic approaches enable direct parameter modification."
+    "Once knowledge has been localised to specific model components, such as individual neurons (Dai et al., 2022), using methods such as causal tracing (see Section 9.2), mechanistic approaches can support direct parameter modification.",
+    "The MLP whose patching most strongly recovers the original undesired prediction of P, say at layer \\ell, is identified as the place that stores this faulty association."
    ],
    "limitations": [
-    "Knowledge is often distributed across many parameters rather than concentrated in isolated components, particularly in large overparameterized models where redundancy is common.",
-    "Consequently, knowledge localization is most useful when combined with mechanistic analysis of how multiple components interact to implement computation."
+    "Localisation can identify where information is most strongly represented. However, it does not indicate whether the model uses that information.",
+    "In other words, a component with a strong causal effect may capture only part of the mechanism. As a result, localisation is a useful starting point for mechanistic understanding, but not a self-contained analysis."
    ],
    "related": [
     "rome-memit"
    ],
    "mentioned_in": [
     "sec:scope",
-    "subsec:knowedit"
+    "subsec:limits",
+    "subsec:knowedit",
+    "stage-2-mlp-localisation-via-causal-tracing.",
+    "sec:automated-interpretability"
    ]
   },
   {
@@ -1411,29 +1409,29 @@
    "family": "representation-analysis",
    "sections": [
     "subsec:steering",
-    "overview.",
-    "relation-to-causal-evaluation-of-feature-extraction-methods.",
-    "steering-vectors-practical-behavioral-control"
+    "steering-as-a-causal-test-for-feature-interpretability.",
+    "subsubsec: steering vectors"
    ],
-   "definition": "Representation engineering aims to control model behavior by intervening directly in activation space rather than modifying weights. A prominent class of methods, generally defined as activation steering, biases model outputs by adding carefully chosen directions to intermediate activations—most commonly the residual stream—during inference.",
+   "definition": "To manipulate model behaviour, representation engineering alters activation-space representations directly, rather than via model weight modification. Activation steering generally refers to methods that target intermediate activations (usually the residual stream) by adding certain vectors that shift model outputs during inference.",
    "assumptions": [
-    "These interventions are lightweight, require no retraining, and are therefore attractive for rapid behavioral control in deployed systems.",
-    "In practice, v is estimated by contrasting activations associated with different behaviors, e.g., taking differences of class-conditional means"
+    "Because they require no weight updates or retraining, these interventions are lightweight approaches for controlling behaviour.",
+    "Another popular method is difference-in-means, which obtains the steering vector by taking the difference between activations associated with two behaviours (Rimsky et al., 2024)"
    ],
    "evaluation": [
-    "Such intervention-based evaluations directly measure the causal effects of extracted features on model outputs.",
-    "Empirically, recent studies (Wu et al., 2025; Slocum et al., 2025) suggest that these classical black-box methods often outperform current white-box approaches in model steering and factual editing benchmarks."
+    "If intervening along a direction consistently changes a target behaviour, this provides evidence that the corresponding representation causally influences that behaviour.",
+    "Supporting evidence can be obtained by steering along the identified feature direction and evaluating the resulting change in behaviour. These evaluations have been used to compare interpretable direction-identification approaches, including SAE features, difference-in-means directions, and DAS (Huang et al., 2024; Wu et al., 2025b).",
+    "Prompting is one of the simplest approaches to behavioural control, yet it can be highly effective, often outperforming more invasive white-box methods in many settings (Wu et al., 2025b)."
    ],
    "applications": [
-    "Despite their simplicity, steering vectors reliably induce behaviors like improved helpfulness, refusal suppression, or stylistic changes (Rimsky et al., 2024; Tan et al., 2024a; Zhao et al., 2025).",
-    "Researchers were able to identify and deploy the steering vector that suppresses this awareness, allowing its safety to be evaluated.",
-    "Their primary advantage is computational efficiency (no retraining required), methodological simplicity, and inference-time reversibility."
+    "While these approaches appear simple, they reliably change model behaviours such as refusal, helpfulness, and stylistic tendencies (Rimsky et al., 2024; Zhao et al., 2025; Arditi et al., 2024).",
+    "Researchers identified and applied a steering vector that suppresses this awareness, allowing evaluation of its actual behaviour.",
+    "Steering vectors, introduced in Section 9.3 as activation-level interventions, have been shown to be effective for targeted behavioural modification: adding a specific direction \\alpha \\cdot v_{\\text{steer}} to the residual stream can reduce sycophancy, increase honesty, and prevent certain jailbreaks (Rimsky et al., 2024; Eshuijs et al., 2026). Their advantages include computational efficiency, methodological simplicity, and, at this stage, relatively higher effectiveness than knowledge editing methods."
    ],
    "limitations": [
-    "First, they often fail to generalize across distribution shifts: a vector derived for one task may degrade in another.",
-    "As a result, steering remains primarily a behavioral tool rather than a mechanistic one.",
-    "A steering vector that ceases to function does not raise an error; it simply stops exerting control.",
-    "Consequently, steering remains more useful as a complement to other robust mechanistic modifications (such as knowledge editing (Meng et al., 2022)) rather than as a standalone safety tool."
+    "While steering methods effectively control behaviours and support causal testing, they have limitations. Notably, they can be brittle, as a direction identified for one distribution, model, or task may not generalise reliably.",
+    "Another limitation is that successful behavioural steering does not, by itself, establish mechanistic transparency, because an intervention may simultaneously impact multiple features, interact nonlinearly with existing computations, or exploit unintended pathways that produce the desired behaviour without corresponding to a clean mechanism (Makelov et al., 2024). Thus, steering should generally be interpreted as evidence for causal influence, but it should not, by itself, be a mechanistic explanation of the behaviour.",
+    "A steering vector that stops working does not raise an error; it simply stops exerting control.",
+    "Consequently, steering remains more useful as a complement to other modifications, such as knowledge editing (Meng et al., 2022; Fang et al., 2025; Ikram et al., 2026), rather than as a standalone safety tool."
    ],
    "related": [
     "optimization-based-steering",
@@ -1446,27 +1444,30 @@
    ],
    "mentioned_in": [
     "subsec:cbm",
-    "case-study-refusal-vectors-and-sleeper-agents",
-    "pragmatic-interpretability-proxy-task-oriented-safety-interventions",
+    "the-need-for-standardised-evaluation",
+    "jacobian-lens-decoding-computational-dispositions",
+    "subsec: pragmatic interp",
+    "choosing-appropriate-methods-for-different-safety-applications",
+    "sec:automated-interpretability",
     "distribution-shift-vulnerability.",
     "silent-failure-modes.",
-    "dual-use-risks.",
+    "dual-use-and-adversarial-exploitation.",
     "sec:mechanistic-alignment"
    ]
   },
   {
    "id": "optimization-based-steering",
-   "name": "Optimization-Based Steering",
+   "name": "Optimisation-Based Steering",
    "family": "representation-analysis",
    "sections": [
-    "optimization-based-steering."
+    "nonlinear-and-optimisation-based-steering."
    ],
-   "definition": "Beyond closed-form constructions, steering directions can be obtained by directly optimizing objectives over activations—maximizing task performance or suppressing undesired outputs under intervention.",
+   "definition": "Separately, optimisation-based methods construct steering directions by directly optimising objectives over intermediate activations, offering an alternative to closed-form constructions.",
    "assumptions": [],
    "evaluation": [],
    "applications": [],
    "limitations": [
-    "These optimization-based approaches allow greater flexibility and adapt to complex, non-linear objectives, but incur higher computational cost (Dunefsky & Cohan, 2025; Oozeer et al., 2025a)."
+    "These optimisation-based approaches offer greater flexibility for complex or nonlinear objectives but generally require substantially more computation than closed-form contrastive methods (Dunefsky & Cohan, 2025; Oozeer et al., 2025)."
    ],
    "related": [
     "steering-vectors"
@@ -1478,55 +1479,62 @@
    "name": "Concept Erasure via PISCES",
    "family": "safety-applications",
    "sections": [
-    "concept-erasure-via-pisces"
+    "concept-erasure-via-pisces",
+    "stage-1-feature-disentanglement-and-identification.",
+    "stage-2-mlp-vector-and-feature-selection.",
+    "stage-3-concept-removal.",
+    "result."
    ],
-   "definition": "PISCES (Precise In-Parameter Concept Erasure in Large Language Models) (Gur-Arieh et al., 2025b) addresses this limitation through a three-stage methodology.",
+   "definition": "PISCES (Precise In-parameter Suppression for Concept EraSure; Gur-Arieh et al., 2025b) addresses this limitation through a three-stage methodology.",
    "assumptions": [
-    "Stage 1 – Feature Disentanglement and Identification: Use SAEs with feature explanations (via Automated Interpretability pipeline) to disentangle and identify features associated with the target concept c (e.g., “biological toxins”)"
+    "Use sparse autoencoders (SAEs) with feature explanations (via the Automated Interpretability pipeline) to disentangle and identify features associated with the target concept c (e.g., “biological toxins”)"
    ],
    "evaluation": [
-    "Result: “Surgical” erasure that reduced accuracy on prohibited concepts to near-chance levels (7.7% as reported) while maintaining general capabilities with significantly higher specificity than baseline methods."
+    "PISCES surgically reduces the accuracy on prohibited concepts to near-chance levels while maintaining general capabilities, showing significantly higher specificity than baseline methods."
    ],
-   "applications": [],
+   "applications": [
+    "Unlike approaches that primarily suppress unwanted outputs, PISCES directly modifies model parameters associated with the target concept."
+   ],
    "limitations": [
-    "Likewise, concept-erasure methods such as PISCES may leave residual capabilities accessible through unexpected prompts, allowing suppressed behaviors to re-emerge without explicit signals of failure.",
-    "Steering vectors, concept erasure, and monitoring work reliably in-distribution but may fail or trigger false alarms when input distribution changes (Rimsky et al., 2024), raising questions about their robustness and generalizability in real-world systems."
+    "Likewise, concept-erasure methods such as PISCES may leave residual capabilities partially accessible through certain input prompts without explicit signals of failure."
    ],
    "related": [
     "sae"
    ],
    "mentioned_in": [
+    "concept-erasure-and-knowledge-editing",
     "silent-failure-modes.",
-    "sec:limitations-open-questions",
-    "sec:automated-interpretability"
+    "choosing-appropriate-methods-for-different-safety-applications"
    ]
   },
   {
    "id": "rome-memit",
-   "name": "Knowledge Editing via Localization (ROME, MEMIT)",
+   "name": "Knowledge Editing via Localisation (ROME, MEMIT)",
    "family": "safety-applications",
    "sections": [
-    "subsec:knowedit"
+    "subsec:knowedit",
+    "stage-1-corrupted-and-clean-forward-passes.",
+    "stage-2-mlp-localisation-via-causal-tracing.",
+    "stage-3-rank-one-model-editing.",
+    "result.-2"
    ],
-   "definition": "For example, ROME (Meng et al., 2022) and MEMIT (Meng et al., 2023) serve as practical tools for component-based knowledge editing: they apply localized rank-one updates to parameter matrices identified as storing particular factual knowledge, achieving targeted removal of harmful knowledge with minimal collateral damage.",
-   "assumptions": [
-    "Once knowledge is attributed to specific model components via localization techniques like causal tracing, mechanistic approaches enable direct parameter modification."
-   ],
+   "definition": "Once knowledge has been localised to specific model components, such as individual neurons (Dai et al., 2022), using methods such as causal tracing (see Section 9.2), mechanistic approaches can support direct parameter modification. For example, ROME (Meng et al., 2022) and MEMIT (Meng et al., 2023) are two classic methods for component-targeted knowledge editing. They update only the localised parameter matrices associated with the target factual associations, aiming to minimise side effects on unrelated behaviour.",
+   "assumptions": [],
    "evaluation": [],
    "applications": [],
    "limitations": [
-    "As a side note, knowledge editing presents a double-edged safety challenge.",
-    "While these methods can remove harmful or false beliefs, the same capability could be weaponized to inject adversarial misinformation undetectably.",
-    "Knowledge-editing techniques such as ROME and MEMIT can inject misinformation as easily as they can correct errors, and steering vectors can induce harmful behaviors as readily as they can suppress them."
+    "Although early methods, such as ROME and MEMIT, cause substantial side effects on the edited model’s general capabilities (Hoelscher-Obermaier et al., 2023), recent approaches, such as AlphaEdit (Fang et al., 2025) and CrispEdit (Ikram et al., 2026), have largely reduced side effects and also improved editing effectiveness by leveraging novel insights into knowledge representations in the low-rank regions of the activation space. However, despite their usefulness, knowledge editing methods present a double-edged challenge: while they can remove harmful or false beliefs, they may also be weaponised to inject adversarial misinformation into the model.",
+    "Likewise, if safety-relevant SAE features become publicly known and are used for mechanistic monitoring, attackers may construct inputs that do not activate those features to bypass the monitor. Also, knowledge editing methods such as ROME (Meng et al., 2022) and MEMIT (Meng et al., 2023) can inject misinformation as readily as they can correct errors, while steering vectors can induce harmful behaviours as easily as they can suppress them."
    ],
    "related": [
     "causal-tracing",
     "steering-vectors"
    ],
    "mentioned_in": [
-    "dual-use-risks.",
+    "concept-erasure-and-knowledge-editing",
     "sec:automated-interpretability",
-    "sec:mechanistic-alignment"
+    "choosing-appropriate-methods-for-different-safety-applications",
+    "dual-use-and-adversarial-exploitation."
    ]
   },
   {
@@ -1534,19 +1542,24 @@
    "name": "Mechanistic Monitoring",
    "family": "safety-applications",
    "sections": [
-    "mechanistic-monitoring"
+    "subsubsec: mech monitor",
+    "stage-1-feature-disentanglement-and-explanation.",
+    "stage-2-circuit-discovery.",
+    "stage-3-monitoring-the-circuit.",
+    "result.-4"
    ],
-   "definition": "Behavioral monitoring watches outputs; mechanistic monitoring watches internals.",
+   "definition": "Behavioural monitoring (Section 12.1) watches outputs; mechanistic monitoring watches internals. The latter asks: is the model computing deceptive reasoning? Is it hiding misaligned objectives?",
    "assumptions": [
-    "Methods for achieving mechanistic monitoring include, but are not limited to, layer-wise monitoring (using linear probes to classify if malicious intent is encoded in a layer representation), feature-wise monitoring (alerting when unexpected SAE features activate), and circuit-wise monitoring (tracking causal effects among attention heads, MLPs, or features)."
+    "Methods for achieving mechanistic monitoring include, but are not limited to, layer-wise monitoring (using linear probes to classify if malicious intent is encoded in a layer representation) (Oldfield et al., 2026), feature-wise monitoring (alerting when unexpected SAE features activate) (Fang et al., 2026), circuit-wise monitoring (tracking causal effects among attention heads, MLPs, or features) (Zhao et al., 2026b), and anomaly-based monitoring (using activations in normal behaviour as a baseline and flagging harmful generations as outliers) (Chaudhary & Barez, 2026)."
    ],
    "evaluation": [],
    "applications": [
-    "The advantages of mechanistic monitoring over behavioral monitoring are several: deceptive reasoning may not manifest behaviorally but may be detectable mechanistically."
+    "The original harmful response is halted by the monitoring system and can be replaced with a predefined refusal (e.g., “I can’t help with that request.”). Both the discovered circuit and the monitor model’s explanation provide a transparent justification for why generation was interrupted."
    ],
    "limitations": [
-    "However, technical challenges also exist, such as determining what to monitor (millions of features), false positives (legitimate reasoning that looks suspicious), and adaptive evasion (models learning to hide suspicious activity if monitored).",
-    "Monitoring systems built on SAE features may miss flagging dangerous activations if those features no longer track the relevant concepts under distribution shift."
+    "Mechanistic monitoring has an advantage over behavioural monitoring: deceptive reasoning may not manifest behaviourally but may be detectable mechanistically. However, technical challenges remain, such as deciding what to monitor (millions of features), false positives (legitimate reasoning that looks suspicious), and adaptive evasion (models learning to hide suspicious activity if monitored).",
+    "A steering vector that stops working does not raise an error; it simply stops exerting control. Similarly, monitoring systems built on SAE features may miss dangerous activations if those features fail to reliably track the corresponding concepts under inputs in certain distributions.",
+    "Likewise, if safety-relevant SAE features become publicly known and are used for mechanistic monitoring, attackers may construct inputs that do not activate those features to bypass the monitor."
    ],
    "related": [
     "probing",
@@ -1554,7 +1567,11 @@
     "circuit-tracing"
    ],
    "mentioned_in": [
-    "silent-failure-modes."
+    "sec:scope",
+    "steering-vectors-and-mechanistic-monitoring",
+    "choosing-appropriate-methods-for-different-safety-applications",
+    "silent-failure-modes.",
+    "dual-use-and-adversarial-exploitation."
    ]
   }
  ],
@@ -1564,55 +1581,43 @@
    "name": "The Linear Representation Hypothesis",
    "sections": [
     "subsec:linearity",
-    "linear-representation-hypothesis"
+    "conceptual-basis.",
+    "empirical-evidence-and-counterexamples."
    ],
-   "definition": "The linear representation hypothesis claims that directions in the activation space are the fundamental units of representation."
+   "definition": "The linear representation hypothesis claims that linear directions in the activation space are effective fundamental units of representation (Park et al., 2024)."
   },
   {
    "id": "superposition",
    "name": "The Superposition Hypothesis",
    "sections": [
     "subsec:superposition",
-    "architectural-responses-to-superposition",
-    "superposition-and-high-dimensional-geometry"
+    "conceptual-basis.-1",
+    "empirical-evidence.",
+    "architectural-responses-to-superposition."
    ],
-   "definition": "The superposition hypothesis says that for each layer of a trained model there are more features than nodes."
+   "definition": "The superposition hypothesis says that models encode more features than their hidden representations have dimensions."
   },
   {
    "id": "privileged-access",
    "name": "The Privileged Access Hypothesis",
    "sections": [
-    "subsec:privileged-access"
+    "subsec:privileged-access",
+    "conceptual-basis.-2",
+    "empirical-evidence.-1"
    ],
-   "definition": "A model used to interpret itself can, under appropriate elicitation, access internal variables and intermediate computations that are not reliably recoverable from external behavioral analysis alone, providing a comparative advantage as an interpreter of its own behavior"
+   "definition": "A language model used to interpret itself can, under appropriate elicitation, access internal variables and intermediate computations that are not reliably recoverable from external behavioural analysis alone, providing a comparative advantage as an interpreter of its own behaviour (Binder et al., 2025; Li et al., 2025a; Song et al., 2026)."
   },
   {
    "id": "universality",
-   "name": "The Universality and Platonic Representation Hypotheses",
+   "name": "The Universality and Platonic Representation Hypothesis",
    "sections": [
-    "subsec:universality"
+    "subsec:universality",
+    "conceptual-basis.-3",
+    "empirical-evidence-and-trade-offs.",
+    "implications."
    ],
-   "definition": "Independently trained models on similar tasks tend to develop similar internal computational structures. These representations often approximate a task-determined canonical form (Huh et al., 2024; Olah et al., 2020)."
+   "definition": "Models independently trained on similar tasks tend to develop similar internal representations or algorithms, which often approximate a task-determined canonical form (Huh et al., 2024; Olah et al., 2020). The degree of convergence depends on factors such as model size, architecture, and training data."
   }
  ],
- "gaps": [
-  "Heading/ID typos: 1.2 heading 'Hnadbook Scope'; section ids 'useful-surveys-that-we-bild-on.', 'challenges-of-black-box-bethods'; 6.8.2 heading 'Principle Component Analysis (PCA)' while the body says 'Principal Component Analysis'. Body typos include 'citcuits' (7.4), 'Definiton 2' (8.3), 'largley' (4.3), 'targed' (4.4), 'Concept-based methods plays' (3.2).",
-  "Section ids containing spaces: 'subsec:valproto agentic self-reports' and 'subsec:choosing orientation'.",
-  "Induction heads get three separate case-study sections: 6.6 (case-study-induction-heads), 7.5 (case-study-induction-heads-1) and 10.6 (case-study-induction-heads-2).",
-  "Grokking is treated in three places: 10.1 (sec:grokking), and twice in chapter 11 (withheld). SLT is treated in both 10.3 (sec:slt-llc) and chapter 11. Phase changes appear twice in chapter 11.",
-  "Chapters 10 and 11 overlap in scope. Much of chapter 11 is still draft authoring notes rather than manuscript text (in 11.2, 11.2.1, 11.2.2, 11.2.4, 11.2.5, 11.3.3, 11.3.4, 11.4.x, 11.5.x, 11.6 and 11.6.1), so the chapter is withheld from the site. 11.2.1 also points to a non-existent 10.2.2.",
-  "Section 12 (sec:representation) has no introductory text; 12.1 jumps straight into model diffing.",
-  "SPARTAN: the 6.9.2 text says it applies 'L_1 regularization to the attention patterns', but Table 7 lists its mechanism as 'L_0 regularization on attention'.",
-  "Causal scrubbing: 7.4 defines it as a necessity test, with interchange interventions as the sufficiency test. 7.6.6, however, labels a protocol 'Evaluation protocol (Causal Scrubbing)' that also covers sufficiency, interchange and specificity tests.",
-  "Gated SAE: 6.2 writes the gate as an indicator (hard threshold), but Appendix C.3 writes it as a sigmoid gate. The recommended Top-k k also differs: 'k = 50–100' in Table 4 versus 'typically 50–200' in Appendix C.4.",
-  "Evaluation dimensions differ: 7.6 proposes five (faithfulness, completeness, stability, causal validity, human interpretability), but 15 (proposed-evaluation-framework) proposes four (interpretability, completeness, validity, efficiency). Appendix C.5 'Absorption ratio' also means something different from 'feature absorption' in 6.7.3.",
-  "Cross-reference mismatches: 5.1 says 'see Figure 2' for the privileged-basis figure, which is Figure 3; 5.2 says 'see Figure 3' for superposition, which is Figure 4; 6.1 says '(Figure 4)' for the SAE, which is Figure 5; 6.4.2 says 'as shown in Figure 6' for CLT size, which is Figure 8; 12.1 says '(Figure 14)' for crosscoder diffing, which is Figure 16 (Figure 14 is probing). 6.1 cites 'Appendix 19', but the SAE appendix is C. 6.3.4 says 'Heuristics in Table 5', but the heuristics are in Table 4. 7.2 says SAE-based circuit discovery is introduced in '6.4.1 and 6.4.2', which are the transcoder/CLT sections.",
-  "Unresolved citation placeholders in 5.3: '(binder?; song?; B. Z. Li et al. 2025)'.",
-  "The acronym ACDC is never expanded. 'Attribution graphs' are only named in the 6.4.2 paragraph heading and in 1.1; there is no dedicated section, so they are folded into cross-layer-transcoders and circuit-tracing.",
-  "Methods mentioned without their own section, so no method entry was made: Activation Oracles and Predictive Concept Decoders (one sentence in 8.5 limitations); Concept Influence and distributional TDA (9.2.8); INLP (8.6.5); CAV / linear concept classifiers, CEMs, ProbCBMs, CGMs, SCBMs (3.2); Diff-SAEs, stage-wise SAE finetuning, transcoder-adapter diffing and LLM-based diffing (all inside 12.1 model diffing); rank analysis via SVD (12.2, uncited); the optogenetics-inspired clamping framework (10.6); PBRF/GGN (folded into influence functions); Semi-NMF (folded into NMF); MDL probes and control tasks (folded into probing evaluation); refusal vectors and sleeper-agent linear detectors (8.3 and 8.6.9, folded into steering/probing).",
-  "DAS is recommended repeatedly (6.3 Step 1, 6.7.6, 8.6.9, 12.3) but described in only one sentence in 6.8.4.",
-  "Excluded as orientations per instructions, though method-like: 13.7 Automated Interpretability (the LLM feature-explanation pipeline) and 14.4 Automated Interpretability Agents. The 7.6 Unified Evaluation Framework is treated as evaluation, not a method.",
-  "The 8.3 refusal-vector definition and 8.6.9 sleeper-agent probe live in the logit-lens/probing chapter, but 12.2 and 12.3 reuse them as knowledge-localisation and steering examples.",
-  "Several excerpts are verbatim table cells rather than full sentences, used where the prose gives no limitation or evaluation statement: activation-patching, path-patching and acdc (Table 8), circuit-tracing (Table 8). Some definitions are leading clauses that end where the source switches into maths: gated-sae, activation-patching, solu, tuned-lens."
- ]
+ "gaps": []
 }

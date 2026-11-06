@@ -2,10 +2,10 @@
 interface Props { kind?: 'manuscript' | 'measured' | 'illustrative' | 'editorial' }
 const { kind = 'manuscript' } = Astro.props;
 const text = {
-  manuscript: 'Verbatim from the survey',
+  manuscript: '',  // quotes are the paper's own text; no badge needed
   measured: 'Measured result',
   illustrative: 'Illustrative',
-  editorial: 'Site summary, not survey text',
+  editorial: 'Summary',
 }[kind];
 ---
-<span class={`label ${kind}`}>{text}</span>
+{text && <span class={`label ${kind}`}>{text}</span>}

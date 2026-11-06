@@ -55,11 +55,7 @@ const stats = { total: notebooks.length, cpu: notebooks.filter((n) => n.compute.
   <div class="page">
     <p class="eyebrow">Hands-on</p>
     <h1>Companion notebooks</h1>
-    <p class="lede">{stats.total} notebooks from <a href={SITE.notebooksRepo}>TSGLAB/Interpretability_Survey_Safety</a>, catalogued automatically from the notebooks themselves. {stats.cpu} of them run on a CPU.</p>
-    <p class="small muted">Catalogued from commit <code>{notebookMeta.commit}</code>.
-      {notebookMeta.link_check_run ? ' Every source link was checked at build time and resolves.' : ' Links were not checked in this build.'}
-      Compute needs are <strong>estimated</strong> from the largest model each notebook loads. They are not benchmarks.
-      “Open in Colab” opens the notebook. It has not been run end to end in Colab unless marked.</p>
+    <p class="lede">{stats.total} notebooks from <a href={SITE.notebooksRepo}>TSGLAB/Interpretability_Survey_Safety</a>, {stats.cpu} run on a CPU.</p>
 
     <div class="filters" role="group" aria-label="Filter by compute">
       <button class="chip on" data-tier="all" aria-pressed="true">All</button>
@@ -69,7 +65,7 @@ const stats = { total: notebooks.length, cpu: notebooks.filter((n) => n.compute.
     {groups.map((g) => (
       <section class="nb-group">
         <h2>{FOLDER[g.key]}</h2>
-        <p class="small muted">Prerequisites (from the repository README): {PREREQ[g.key]}</p>
+        <p class="small muted">Prerequisites: {PREREQ[g.key]}</p>
         <div class="grid">
           {g.items.map((n) => {
             const r = resolve(n.survey_reference);
@@ -89,11 +85,11 @@ const stats = { total: notebooks.length, cpu: notebooks.filter((n) => n.compute.
                     <dd>{r ? (<>
                         {draftHidden ? <span>{n.survey_reference.replace(/\(\[.*$/, '').replace(/\]\(.*$/, '').trim()}</span> : <>
                         {r.match ? <a href={r.match.href}>§{r.match.num} {r.match.title}</a> : <span>{n.survey_reference.replace(/\(\[.*$/, '').trim()}</span>}</>}
-                      </>) : <span class="muted">Not stated in notebook</span>}</dd>
+                      </>) : <span class="muted">—</span>}</dd>
                     <dt>Learning outcomes</dt>
                     <dd>{n.learning_objectives.length ? <ul>{n.learning_objectives.slice(0, 5).map((o: string) => <li>{o.replace(/\*\*/g, '')}</li>)}</ul>
-                      : n.key_methods.length ? <><span class="small muted">Not listed as outcomes. Key methods covered:</span><ul>{n.key_methods.map((o: string) => <li>{o.replace(/\*\*/g, '')}</li>)}</ul></>
-                      : <span class="muted">Not stated in notebook</span>}</dd>
+                      : n.key_methods.length ? <><span class="small muted">Covers:</span><ul>{n.key_methods.map((o: string) => <li>{o.replace(/\*\*/g, '')}</li>)}</ul></>
+                      : <span class="muted">—</span>}</dd>
                     <dt>Models</dt><dd>{n.models.length ? n.models.join(', ') : 'None (toy or synthetic data)'}{n.gated_models.length > 0 && <span class="chip note" title="Requires accepting the model licence on Hugging Face">gated: {n.gated_models.join(', ')}</span>}</dd>
                     <dt>Dependencies</dt><dd class="small"><code>{n.imports.join(', ')}</code>
                       
@@ -113,7 +109,7 @@ const stats = { total: notebooks.length, cpu: notebooks.filter((n) => n.compute.
                 {n.preview_image && (
                   <figure class="preview">
                     <img src={url(`notebook-previews/${n.preview_image}`)} alt={`First saved output plot from the notebook “${n.title}”`} loading="lazy" />
-                    <figcaption class="small muted">Saved output from the notebook (first plot)</figcaption>
+                    
                   </figure>
                 )}
               </article>

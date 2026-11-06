@@ -54,6 +54,9 @@ COMMENT_MACROS = [
 ]
 ZERO_ARG_DROP = ["fix", "new"]
 
+# Labels defined in main.tex, outside any chapter, mapped to where the site shows them.
+EXTERNAL_TARGETS = {"fig:simplified-taxonomy": "#taxonomy"}  # homepage taxonomy figure
+
 # Citation-colour macros -> (natbib command, evidence tier)
 CITE_MACROS = {
     "citeest": ("citep", "established"), "citeem": ("citep", "emerging"),
@@ -398,6 +401,10 @@ def main() -> None:
         tex = tex.replace("\\cmark", "✓").replace("\\xmark", "✗")
         tex = re.sub(r"\\rowcolor(\[[^\]]*\])?\{[^}]*\}", "", tex)
         tex = re.sub(r"\\(?:hspace|vspace)\*?\{[^}]*\}", "", tex)
+        # tcolorbox environments (warningbox, practicebox, …) take their title as an optional argument;
+        # pandoc drops it, so emit it as the box's first line.
+        tex = re.sub(r"\\begin\{(definitionbox|examplebox|insightbox|practicebox|theorybox|warningbox)\}\[([^\]]*)\]",
+                     lambda m: f"\\begin{{{m.group(1)}}}\n\\noindent\\textbf{{{m.group(2)}}}\n\n", tex)
         tex = tex.replace("\\begin{wrapfigure}", "\\begin{figure}").replace("\\end{wrapfigure}", "\\end{figure}")
         tex = re.sub(r"(\\begin\{figure\})\{[^}]*\}\{[^}]*\}", r"\1", tex)
         # equations: anchor + exact number from the LaTeX build
@@ -445,11 +452,13 @@ def main() -> None:
     work = ROOT / ".ingest-tmp"
     work.mkdir(exist_ok=True)
     (work / "combined.tex").write_text(combined)
-    bib = next(iter(ms.glob("*.bib")))
+    bib = next(iter(ms.glob("*.bib")), None)  # only needed without a .bbl (e.g. the arXiv source ships none)
     cmd = ["pandoc", str(work / "combined.tex"), "-f", "latex", "-t", "html5",
            "--katex", "--section-divs", "--wrap=none", "--reference-location=section",
            "-o", str(work / "combined.html")]
     if bbl_items is None:  # no compiled bibliography: fall back to citeproc
+        if bib is None:
+            sys.exit("no .bbl and no .bib in the manuscript directory")
         cmd[5:5] = ["--citeproc", "--bibliography", str(bib), "--metadata", "link-citations=true",
                     "--metadata", "reference-section-title=References"]
         audit["warnings"].append("no .bbl found: citations rendered by citeproc, which may differ from the PDF")
@@ -518,6 +527,8 @@ def build_chapters(doc, labels, toc_nums, tiers, audit, figures, ms, stem, statu
     for m in head_re.finditer(doc):
         sid, lvl, cls = m.group(1), int(m.group(2)), m.group(3)
         if "unnumbered" in cls:
+            if lvl == 1:
+                heading_meta[sid] = {"num": "", "page": None, "level": lvl, "title": strip_tags(m.group(6)).strip()}
             continue
         nxt = next(toc_iter, None)
         if nxt is None or nxt["level"] != lvl:
@@ -544,7 +555,7 @@ def build_chapters(doc, labels, toc_nums, tiers, audit, figures, ms, stem, statu
         end = tops[i + 1].start() if i + 1 < len(tops) else len(doc)
         frag = doc[m.start():end]
         meta = heading_meta.get(m.group(1), {})
-        num = meta.get("num") or str(i + 1)
+        num = meta["num"] if meta.get("num") is not None else str(i + 1)
         slug = chapter_id(m.group(1), meta.get("title", ""))
         if slug is None:
             unmatched.append(f"  {num}. {meta.get('title', '')}  (label: {m.group(1)})")
@@ -597,7 +608,18 @@ def build_chapters(doc, labels, toc_nums, tiers, audit, figures, ms, stem, statu
                     rest = re.sub(r"(<figcaption[^>]*>|<caption[^>]*>)", rf'\1<span class="capnum">{kind_word} {num}:</span> ', rest, count=1)
                 return f'<{tag} id="{fid}"' + rest
             return f
-        h = re.sub(r'<figure id="([^"]+)"(.*?</figure>)', cap_sub("Figure", "figure"), h, flags=re.S)
+        # Figures with subfigures: pandoc nests <figure>s and gives the outer one the last subfigure's
+        # label. Number the subfigures first, then give the outer caption the parent number (7a, 7b -> 7).
+        def group_open(m):
+            return f'<figure class="subfigures"{m.group(2)}>'
+        h = re.sub(r'<figure id="([^"]+)"([^>]*)>(?=\s*<figure )', group_open, h)
+        h = re.sub(r'<figure id="([^"]+)"((?:(?!<figure).)*?</figure>)', cap_sub("Figure", "figure"), h, flags=re.S)
+        def group_cap(m):
+            nums = re.findall(r'class="capnum">Figure (\d+)[a-z]?:', m.group(0))
+            if not nums:
+                return m.group(0)
+            return re.sub(r'(</figure>\s*<figcaption>)(?![^<]*<span class="capnum")', rf'\1<span class="capnum">Figure {nums[-1]}:</span> ', m.group(0)[::-1][::-1], count=0)[:0] + m.group(1) + m.group(2) + f'<figcaption><span class="capnum">Figure {nums[-1]}:</span> ' + m.group(3)
+        h = re.sub(r'(<figure class="subfigures"[^>]*>)(.*</figure>\s*)<figcaption>((?:(?!<figure).)*?</figcaption>\s*</figure>)', group_cap, h, flags=re.S)
         h = re.sub(r'<table id="([^"]+)"(.*?</table>)', cap_sub("Table", "table"), h, flags=re.S)
         # tables wrapped in a div with the label id (pandoc 3 behaviour)
         def tabdiv(m):
@@ -626,10 +648,14 @@ def build_chapters(doc, labels, toc_nums, tiers, audit, figures, ms, stem, statu
             lbl = m.group(2)
             num = label_num(lbl)
             text = m.group(3)
-            if num and (text.strip("[]") == lbl or text.strip() in ("", "??")):
+            # \ref always prints LaTeX's number (from main.aux); pandoc's own figure/table
+            # numbering drifts when floats sit outside the chapters (e.g. the taxonomy figure in main.tex).
+            if num and ('data-reference-type="ref"' in m.group(1) or text.strip("[]") == lbl or text.strip() in ("", "??")):
                 text = num
             target = id_to_chapter.get(lbl)
             href = f"{BASE_PLACEHOLDER}handbook/{target}/#{lbl}" if target else f"#{lbl}"
+            if not target and lbl in EXTERNAL_TARGETS:
+                return f'<a href="{BASE_PLACEHOLDER}{EXTERNAL_TARGETS[lbl]}"{m.group(1)}>{text}</a>'
             if target in withheld and target != ch["slug"]:
                 href = f"{BASE_PLACEHOLDER}handbook/{target}/"
             if not target:

@@ -63,7 +63,7 @@ export default function MethodsExplorer({ rows, families }: Props) {
           <input type="checkbox" checked={onlyRunnable} onChange={(e) => setOnlyRunnable(e.target.checked)} /> Only methods with a notebook or demo
         </label>
         <p className="small muted" aria-live="polite" style={{ margin: 0 }}>
-          {shown.length} of {rows.length} methods. Tick up to three to compare them side by side.
+          {shown.length} of {rows.length} methods. Select up to three to compare.
         </p>
       </div>
 
@@ -71,7 +71,7 @@ export default function MethodsExplorer({ rows, families }: Props) {
         <section aria-labelledby="cmp-h" className="card" style={{ marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '1rem', flexWrap: 'wrap' }}>
             <h2 id="cmp-h" style={{ margin: 0, fontSize: '1.15rem' }}>Comparison</h2>
-            <span className="small muted">Survey text only. A blank cell means the survey doesn’t state it for that method. <button className="chip" onClick={() => setCompare([])}>Clear</button></span>
+            <span className="small muted"><button className="chip" onClick={() => setCompare([])}>Clear</button></span>
           </div>
           <div className="scroll-x">
             <table className="data" style={{ marginTop: '.8rem', minWidth: `${12 + cmp.length * 16}rem` }}>
@@ -110,7 +110,7 @@ export default function MethodsExplorer({ rows, families }: Props) {
               {r.definition
                 ? <p className="small clamp-3" style={{ margin: '.35rem 0 0', color: 'var(--ink-2)', fontFamily: 'var(--serif)', fontSize: '.95rem' }}
                     dangerouslySetInnerHTML={{ __html: `“${r.html.definition[0]}”` }} />
-                : <p className="small muted" style={{ margin: '.35rem 0 0' }}>No definition sentence in the survey.</p>}
+                : null}
             </div>
           </li>
         ))}

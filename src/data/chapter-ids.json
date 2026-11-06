@@ -88,16 +88,16 @@
   },
   {
    "id": "developmental-interpretability",
-   "labels": [
-    "sec:training"
-   ],
+   "labels": [],
    "titles": [
     "Developmental Interpretability and Training Dynamics"
    ]
   },
   {
    "id": "learning-dynamics",
-   "labels": [],
+   "labels": [
+    "sec:training"
+   ],
    "titles": [
     "Learning Dynamics and Mechanistic Interpretability"
    ]
@@ -185,6 +185,16 @@
    ],
    "titles": [
     "Mathematical Foundations"
+   ]
+  },
+  {
+   "id": "acknowledgements",
+   "labels": [
+    "acknowledgments"
+   ],
+   "titles": [
+    "Acknowledgments",
+    "Acknowledgements"
    ]
   }
  ]

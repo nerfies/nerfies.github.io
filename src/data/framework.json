@@ -1,230 +1,227 @@
 {
- "source": "plain/*.txt chapter dumps of 'The State of Interpretability for AI Safety' draft",
+ "source": "Quoted from arXiv:2611.08438v1 (re-selected 6 Nov 2026). Orientations: src/data/orientations-arxiv.json.",
  "evaluation": {
   "chapter_sections": [
    "sec:evaluation-framework"
   ],
   "framework_intro": [
-   "A persistent challenge in mechanistic interpretability is the lack of standardized evaluation. Different methods—SAEs, transcoders, circuit discovery, probing—are evaluated using incompatible metrics, making it difficult to compare approaches or assess progress.",
-   "This section proposes a unified evaluation framework covering five dimensions: faithfulness, completeness, stability, causal validity, and human interpretability.",
-   "We propose evaluating mechanistic interpretability methods across five complementary dimensions. No single dimension suffices; strong methods should perform well across all five."
+   "A persistent challenge in mechanistic interpretability (MI) is the lack of standardised evaluation. Different interpretability methods use incompatible metrics.",
+   "To address this, this section presents a unified evaluation framework covering five dimensions—attribution faithfulness, completeness, stability, causal validity, and human interpretability—where different methods can be jointly tested.",
+   "We propose a framework that situates mechanistic interpretability evaluation within five complementary dimensions. No single dimension suffices—strong methods should perform well across all five."
   ],
   "motivation": [
-   "Metric fragmentation: SAEs are evaluated on reconstruction loss; circuits on task performance recovery; probes on classification accuracy. These metrics are not directly comparable.",
-   "Cherry-picking: Results are often reported on favorable examples without systematic coverage of failure cases.",
-   "Missing baselines: Claims of interpretability gains rarely compare against simple baselines (e.g., random directions, PCA components, raw neurons).",
-   "Reproducibility gaps: Hyperparameter sensitivity and seed dependence are underreported, making replication difficult.",
-   "A unified framework enables principled comparison across methods, systematic identification of failure modes, and clearer communication of what interpretability methods actually achieve."
+   "Utility ambiguity: Methods are initially developed for different aims and evaluated against distinct objectives, yet have overlapping application scenarios.",
+   "Cherry-picking: Existing work often reports interpretability results on carefully selected examples, samples from a narrow distribution, or capabilities where a method performs well.",
+   "Missing baselines: Many proposed methods’ claimed interpretability gains are not systematically and adequately compared against intuitive alternatives or baselines such as behavioural methods, random activations, or neuron-level analysis.",
+   "Reproducibility gaps: Many existing techniques involve substantial hyperparameter choices, heavy training procedures, and high variation across seemingly irrelevant factors. Reproducibility is often underreported and has not yet been established as a property to optimise.",
+   "Faithfulness–understandability gap: Methods often demonstrate how understandable and informative their outputs are to humans. However, those outputs’ faithfulness to the underlying model mechanism receives less attention. This rewards explanations that are persuasive rather than faithful.",
+   "The MI community needs standardised, concrete evaluation protocols and benchmarks, along with established reporting practices, to enable principled comparisons across methods and findings."
   ],
-  "motivation_section": "the-need-for-standardized-evaluation",
+  "motivation_section": "the-need-for-standardised-evaluation",
   "table_id": "tab:evaluation-framework",
-  "table_caption": "Table 10: Unified Evaluation Framework for Mechanistic Interpretability",
+  "table_caption": "Table 9: Unified evaluation framework for mechanistic interpretability.",
   "dimensions": [
    {
     "id": "faithfulness",
-    "name": "Faithfulness",
-    "heading": "7.6.3 Dimension 1: Faithfulness",
+    "name": "Attribution Faithfulness",
+    "heading": "7.5.2 Dimension 1: Attribution Faithfulness",
     "sections": [
-     "dimension-1-faithfulness",
-     "five-evaluation-dimensions"
+     "dimension-1-attribution-faithfulness",
+     "subsec:five eval dim"
     ],
-    "definition": "Definition: Faithfulness measures whether identified components (features, circuits, explanations) accurately reflect the model’s actual internal computation, rather than post-hoc rationalizations or correlational artifacts.",
+    "definition": "Attribution faithfulness measures whether the interpretability method accurately attributes the model’s behaviour of interest to responsible components.",
     "metrics_named": [
-     "Causal Effect Size",
-     "Intervention Consistency",
-     "Counterfactual Accuracy"
+     "Intervention-Effect Agreement",
+     "Effect-Size Error",
+     "Counterfactual Effect Recovery"
     ],
     "how_measured": [
-     "Higher values indicate stronger causal relationship between the component and behavior.",
-     "Intervention Consistency: Across multiple interventions on C, do effects on B remain consistent?",
-     "Counterfactual Accuracy: When component C is patched from input x_1 to input x_2, does the model’s behavior shift as predicted?",
-     "Identify component C via the interpretability method being evaluated.",
-     "Define target behavior B with clear operational criteria.",
-     "Perform ablation: replace C with baseline (zero, mean, noise) and measure change in B.",
-     "Perform activation patching: swap C between clean and corrupted inputs; verify behavior follows C.",
-     "Report effect sizes with confidence intervals across multiple inputs.",
-     "Baselines: Compare against random components, PCA directions, and individual neurons to establish that identified components are more faithful than naive alternatives."
+     "Let a(S,x) denote the importance score assigned by an interpretability method to components S for a sample x \\sim B:",
+     "High agreement indicates that the attribution consistently reflects the identified components’ causal effects on behaviour B.",
+     "A low value indicates good calibration between estimated and actual intervention effects. If the two quantities are not naturally on the same scale, we may use normalised or rank-based measures instead.",
+     "A value near 1 indicates that the patching recovers much of the behaviour, while a value near 0 indicates little effect. This metric has been widely used in the circuit discovery literature (Hanna et al., 2024; Zhang et al., 2025b; Syed et al., 2024).",
+     "Apply the method to acquire attribution scores a(S,x) of model components and select those of interest (e.g., components with high scores).",
+     "Measure the corresponding ground-truth intervention effects s(S,x).",
+     "Compare them using correlation, error, or rank agreement.",
+     "Evaluate how much of the behavioural difference between clean and corrupted inputs can be recovered by patching the identified components.",
+     "Report results across a diverse set of inputs with uncertainty estimates."
     ],
     "formulas_tex": [
-     "\\text{Effect}(C, B) = \\frac{|P(B | \\text{do}(C = \\text{active})) - P(B | \\text{do}(C = \\text{ablated}))|}{P(B | \\text{baseline})}",
-     "\\text{Consistency}(C, B) = 1 - \\frac{\\text{Var}[\\text{Effect}(C, B)]}{\\mathbb{E}[\\text{Effect}(C, B)]^2}",
-     "\\text{CF-Acc} = \\mathbb{E}_{x_1, x_2}\\left[\\mathbf{1}\\left[f(x_1|_{C \\leftarrow C(x_2)}) \\approx f(x_2)\\right]\\right]"
+     "\\mathrm{EffectAgreement} = \\rho_{x \\sim B}\\!\\left( a(S,x), s(S,x) \\right)",
+     "\\mathrm{EffectError} = \\mathbb{E}_{x \\sim B} \\left[ \\left| a(S,x)-s(S,x) \\right| \\right]",
+     "\\mathrm{CFRecovery}(S;B,B') = \\mathbb{E}_{x_1 \\sim B', x_2 \\sim B} \\frac{ M\\!\\left( f_\\theta\\!\\left( x_{1,[S \\leftarrow h_S(x_2)]} \\right) \\right) - M\\!\\left(f_\\theta(x_1)\\right) }{ M\\!\\left(f_\\theta(x_2)\\right) - M\\!\\left(f_\\theta(x_1)\\right) }"
     ],
     "examples": [],
-    "limitations": [],
+    "limitations": [
+     "These may cause this metric to take values much larger than 1 or below 0, complicating the analysis. Recent work has proposed an alternative metric that bounds the value between 0 and 1 (Wu & Barez, 2026)."
+    ],
     "table_row": {
-     "Dimension": "Faithfulness",
-     "Definition": "Do identified components accurately reflect the model’s actual computation?",
-     "Metrics": "Causal effect size; intervention consistency; counterfactual accuracy",
-     "Methods": "Ablation; activation patching; interchange interventions"
+     "Dimension": "Attribution Faithfulness",
+     "Definition": "Do attribution scores accurately reflect the causal effects of the identified components?",
+     "Metrics": "Intervention-effect agreement; effect-size error; counterfactual effect recovery",
+     "Methods": "Ablation; activation / path patching; interchange interventions"
     }
    },
    {
     "id": "completeness",
     "name": "Completeness",
-    "heading": "7.6.4 Dimension 2: Completeness",
+    "heading": "7.5.2 Dimension 2: Completeness",
     "sections": [
      "dimension-2-completeness",
-     "five-evaluation-dimensions"
+     "subsec:five eval dim"
     ],
-    "definition": "Definition: Completeness measures what fraction of model behavior is explained by the identified components. High completeness means the method accounts for most of the model’s computation; low completeness means significant behavior remains unexplained.",
+    "definition": "Completeness measures how much of the model behaviour the identified components or mechanisms explain. A high completeness score indicates that the identified components/mechanisms capture most of the relevant computation.",
     "metrics_named": [
      "Loss Recovery",
-     "Behavioral Coverage",
+     "Behavioural Coverage",
      "Unexplained Variance"
     ],
     "how_measured": [
-     "Loss Recovery: After replacing model activations with reconstructions from identified components, what fraction of original loss is preserved?",
-     "Behavioral Coverage: Across a diverse test suite, what fraction of behaviors \\mathcal{B} can be explained by identified components?",
-     "where \\tau is set to be the smallest effect that counts as meaningful.",
-     "Unexplained Variance: What fraction of activation variance is not captured by identified features?",
-     "Define a comprehensive behavioral test suite spanning diverse capabilities (factual recall, reasoning, safety behaviors, etc.).",
-     "For each behavior, attempt to identify responsible components.",
-     "Report coverage: fraction of behaviors with identified components meeting faithfulness thresholds.",
-     "Report reconstruction metrics: loss recovery and unexplained variance.",
-     "Analyze failure cases: which behaviors resist explanation?"
+     "For methods that reconstruct model activations (e.g., SAEs and CLTs), after replacing the target component’s activations with the reconstructions, we measure the fraction of the original model performance that is recovered:",
+     "A value near 1 indicates that the reconstruction preserves most of the information.",
+     "Across input prompts x \\sim B, we measure the fraction for which the identified components have a meaningful intervention effect:",
+     "Higher coverage indicates that the identified components account for the behaviour across a larger fraction of inputs.",
+     "For methods that reconstruct activations of the components, we measure the fraction of unexplained activation variance as:",
+     "Lower values indicate that the identified components explain a larger fraction of the variance in the original activations.",
+     "Report behavioural coverage using the intervention effects s(S,x).",
+     "Report reconstruction-based metrics such as loss recovery and unexplained variance if applicable.",
+     "Analyse inputs of the behaviour for which the identified components do not provide good coverage or reconstruction."
     ],
     "formulas_tex": [
-     "\\text{LR} = 1 - \\frac{\\mathcal{L}_{\\text{reconstructed}} - \\mathcal{L}_{\\text{original}}}{\\mathcal{L}_{\\text{random}} - \\mathcal{L}_{\\text{original}}}",
-     "\\text{Coverage} = \\frac{|\\{b \\in \\mathcal{B} : \\exists C \\text{ with } \\text{Effect}(C, b) \\geq \\tau\\}|}{|\\mathcal{B}|}",
-     "\\text{UV} = \\frac{\\mathbb{E}[\\|h - \\hat{h}\\|^2]}{\\mathbb{E}[\\|h\\|^2]}"
+     "\\mathrm{LR} = \\frac{ \\mathcal{L}_{\\mathrm{reconstructed}} - \\mathcal{L}_{\\mathrm{ablated}} }{ \\mathcal{L}_{\\mathrm{original}} - \\mathcal{L}_{\\mathrm{ablated}} }",
+     "\\mathrm{Coverage}(S,B) = \\mathbb{E}_{x \\sim B} \\left[ \\mathbbm{1} \\left( |s(S,x)| \\geq \\tau \\right) \\right]",
+     "\\mathrm{UV}(S,B) = \\frac{ \\mathbb{E}_{x \\sim B} \\left[ \\|h(x)-\\hat{h}_S(x)\\|_2^2 \\right] }{ \\mathbb{E}_{x \\sim B} \\left[ \\|h(x)-\\bar{h}_B\\|_2^2 \\right] }"
     ],
     "examples": [],
     "limitations": [
-     "Critical consideration: Methods may achieve high faithfulness on explained behaviors while leaving most behavior unexplained. Completeness ensures we track the gap between what is explained and what remains opaque."
+     "Similar to the vanilla Counterfactual Effect Recovery metric discussed above, this metric can take arbitrary values. A simple solution is to develop a bounded variant, as has been done for Counterfactual Effect Recovery (Wu & Barez, 2026)."
     ],
     "table_row": {
      "Dimension": "Completeness",
-     "Definition": "What fraction of model behavior is explained by the identified components?",
-     "Metrics": "Behavior coverage; reconstruction loss; unexplained variance",
-     "Methods": "Loss recovery; behavioral replication; residual analysis"
+     "Definition": "How much of the behaviour is accounted for by the identified components?",
+     "Metrics": "Loss recovery; behavioural coverage; unexplained variance",
+     "Methods": "Reconstruction; behavioural evaluation; residual analysis"
     }
    },
    {
     "id": "stability",
     "name": "Stability",
-    "heading": "7.6.5 Dimension 3: Stability",
+    "heading": "7.5.2 Dimension 3: Stability",
     "sections": [
      "dimension-3-stability",
-     "five-evaluation-dimensions"
+     "subsec:five eval dim"
     ],
-    "definition": "Definition: Stability measures whether findings are robust to incidental choices—random seeds, training checkpoints, hyperparameter settings—that should not affect conclusions about model internals.",
+    "definition": "Stability measures the robustness of explanations, attributions, and findings to changes in variables that should not affect the results, such as the choice of random seeds, small hyperparameter changes, and input paraphrasing.",
     "metrics_named": [
      "Cross-Seed Agreement",
-     "Checkpoint Consistency",
-     "Hyperparameter Sensitivity"
+     "Hyperparameter Sensitivity",
+     "Paraphrase Consistency"
     ],
     "how_measured": [
-     "Cross-Seed Agreement: Train the interpretability method (e.g., SAE) with K different random seeds.",
-     "Checkpoint Consistency: For features/circuits identified at checkpoint t, do they persist at checkpoints t \\pm \\Delta?",
-     "Hyperparameter Sensitivity: How much do results change under reasonable hyperparameter variation?",
-     "Lower sensitivity indicates more robust findings.",
-     "Train interpretability method with at least 3–5 random seeds.",
-     "Compute feature/circuit alignment across seeds.",
-     "Report which findings are stable (appear across all seeds) vs. unstable (seed-specific).",
-     "For key claims, verify they hold under hyperparameter variation (\\pm 20\\% on key parameters).",
-     "Distinguish “core” findings (stable) from “fragile” findings (unstable).",
-     "Reporting recommendation: Papers should report stability metrics alongside primary results. Claims based on unstable findings should be flagged as preliminary."
+     "We train or apply the interpretability method K times under different random seeds.",
+     "We measure the sensitivity of mechanistic analyses or methods under reasonable hyperparameter variations.",
+     "Lower values indicate that the finding is less sensitive to hyperparameter choices and therefore more robust.",
+     "We measure the consistency of explanations or attributions across \\mathcal{P}(x).",
+     "The score lies in [0, 1]. A value of 1 indicates that the intervention effect is identical across all paraphrases.",
+     "Execute the interpretability method with several random seeds and compute alignment of the discovered units or findings across seeds.",
+     "Analyse which findings are stable across all seeds and which ones are seed-specific. Key claims need to remain consistent under subsequent tests on hyperparameter variation and input paraphrasing, if applicable.",
+     "Distinguish robust findings from fragile ones and report both of them."
     ],
     "formulas_tex": [
-     "\\text{Seed-Stability} = \\frac{1}{K(K-1)} \\sum_{i \\neq j} \\text{Align}(F_i, F_j)",
-     "\\text{Ckpt-Stability} = \\mathbb{E}_t[\\text{Align}(F_t, F_{t+\\Delta})]",
-     "\\text{HP-Sensitivity} = \\frac{\\max_{\\theta \\in \\Theta} \\text{Metric}(\\theta) - \\min_{\\theta \\in \\Theta} \\text{Metric}(\\theta)}{\\mathbb{E}_{\\theta \\in \\Theta}[\\text{Metric}(\\theta)]}"
+     "\\text{Seed-Stability} = \\frac{1}{K(K-1)} \\sum_{i \\neq j} \\text{Align}(\\mathcal{F}_i, \\mathcal{F}_j)",
+     "\\text{HP-Sensitivity} = \\frac{ \\max_{\\omega \\in \\Omega} \\text{Metric}(\\omega) - \\min_{\\omega \\in \\Omega} \\text{Metric}(\\omega) }{ \\mathbb{E}_{\\omega \\in \\Omega}[\\text{Metric}(\\omega)] }",
+     "\\text{Para-Consistency}(S, B) = \\mathbb{E}_{x \\sim B}\\left[ 1 - \\frac{\\mathrm{Var}_{x' \\in \\mathcal{P}(x)}\\left[s(S, x')\\right]}{\\mathbb{E}_{x' \\in \\mathcal{P}(x)}\\left[s(S, x')^2\\right]} \\right]"
     ],
-    "examples": [],
+    "examples": [
+     "For example, Paulo & Belrose (2026) calculate the Hungarian matching between two sets of SAE features based on their pairwise cosine similarities."
+    ],
     "limitations": [],
     "table_row": {
      "Dimension": "Stability",
-     "Definition": "Are findings robust across seeds, checkpoints, and hyperparameters?",
+     "Definition": "Are findings robust to variations in factors like random seeds, hyperparameters, paraphrases, etc.?",
      "Metrics": "Cross-seed agreement; checkpoint consistency; hyperparameter sensitivity",
-     "Methods": "Multi-seed training; checkpoint comparison; ablation studies"
+     "Methods": "Multi-seed analysis; checkpoint comparison; input paraphrasing"
     }
    },
    {
     "id": "causal-validity",
     "name": "Causal Validity",
-    "heading": "7.6.6 Dimension 4: Causal Validity",
+    "heading": "7.5.2 Dimension 4: Causal Validity",
     "sections": [
      "dimension-4-causal-validity",
-     "five-evaluation-dimensions"
+     "subsec:five eval dim"
     ],
-    "definition": "Definition: Causal validity assesses whether identified components satisfy formal causal criteria of necessity (removing the component disrupts the behavior) and sufficiency (the component alone can produce the behavior).",
+    "definition": "Causal validity assesses whether the identified components or mechanisms are causal to the behaviour, particularly necessity (i.e., removing the components/mechanisms disrupts the behaviour) and sufficiency (i.e., the components/mechanisms alone are sufficient to preserve the behaviour).",
     "metrics_named": [
      "Necessity Score",
      "Sufficiency Score",
      "Specificity"
     ],
     "how_measured": [
-     "Necessity Score: Fraction of behavior explained by the component that is lost when the component is ablated:",
-     "High necessity means the component is required for the behavior.",
-     "Sufficiency Score: Fraction of behavior that can be produced by the component alone (all other components ablated or set to baseline):",
-     "High sufficiency means the component is enough for the behavior.",
-     "Specificity: Does the component affect only the claimed behavior, or does it have broad side effects?",
-     "High specificity means the component is selective for the target behavior.",
-     "Necessity test: Ablate the identified circuit/feature. Measure degradation on target behavior. Compare to ablating random components of equal size.",
-     "Sufficiency test: Ablate all components except the identified circuit. Measure preservation of target behavior. Compare to random circuits of equal size.",
-     "Interchange test: Swap circuit activations between inputs that differ on the target behavior. Verify behavior follows the swapped circuit.",
-     "Specificity test: Measure effects on a suite of non-target behaviors. Compute specificity ratio."
+     "Necessity measures the fraction of the model’s performance on behaviour B that is lost when S is ablated (i.e., its activations are replaced with some reference values).",
+     "A higher value indicates that S is necessary for the behaviour.",
+     "Sufficiency measures how much of the original behaviour is achieved when only S is active (i.e., activations of all components outside S are replaced with some reference values).",
+     "A high value indicates that S alone implements much of the behaviour.",
+     "Specificity measures the effect on non-target behaviours by interventions on S.",
+     "A high value indicates that the causal effect of S is specific to B.",
+     "Necessity test: Ablate S and measure the resulting degradation on behaviour B. Compare against ablating random components of matched size.",
+     "Sufficiency test: Replace components outside S with reference activations and measure how much of behaviour B is preserved. Compare against random component sets of matched size.",
+     "Interchange test: Swap activations of S between inputs representing different behaviours and test whether the model output follows the intervention.",
+     "Specificity test: Measure intervention effects on a set of non-target behaviours and examine whether the effect is specific to B."
     ],
     "formulas_tex": [
-     "\\text{Necessity}(C, B) = \\frac{P(B | \\text{baseline}) - P(B | \\text{do}(C = \\text{ablated}))}{P(B | \\text{baseline})}",
-     "\\text{Sufficiency}(C, B) = \\frac{P(B | \\text{only } C \\text{ active})}{P(B | \\text{baseline})}",
-     "\\text{Specificity}(C, B) = \\frac{\\text{Effect}(C, B)}{\\sum_{B' \\in \\mathcal{B}} \\text{Effect}(C, B')}"
+     "\\mathrm{Necessity}(S,B) = 1- \\frac{ \\mathbb{E}_{x\\sim B} \\left[ M\\!\\left( f_\\theta\\!\\left( x_{[S\\leftarrow\\tilde h_S]} \\right) \\right) \\right] }{ \\mathbb{E}_{x\\sim B} \\left[ M\\!\\left(f_\\theta(x)\\right) \\right] }",
+     "\\mathrm{Sufficiency}(S,B) = \\frac{ \\mathbb{E}_{x\\sim B} \\left[ M\\!\\left( f_\\theta\\!\\left( x_{[\\bar S \\leftarrow \\tilde h_{\\bar S}]} \\right) \\right) \\right] }{ \\mathbb{E}_{x\\sim B} \\left[ M\\!\\left(f_\\theta(x)\\right) \\right] }",
+     "\\mathrm{Specificity}(S,B) = \\frac{ |s(S,B)| }{ \\sum_{B' \\in \\mathcal{B}} |s(S,B')| }"
     ],
     "examples": [
-     "Benchmarks: The MIB benchmark (Mueller et al., 2025a) provides standardized tasks and metrics for causal circuit evaluation. AxBench (Wu et al., 2025) and RAVEL (Huang et al., 2024) provide feature-level causal evaluation."
+     "The MI community has developed several benchmarks that examine the causal validity of interpretability methods. For example, MIB (Mueller et al., 2025) provides standardised tasks for assessing discovered circuits and causal variables (e.g., features); AxBench (Wu et al., 2025b) evaluates methods’ ability to steer models towards given concepts; RAVEL (Huang et al., 2024) investigates methods’ ability to localise features of given concepts by using interchange interventions to validate discovered features; and SAEBench (Karvonen et al., 2025) evaluates SAEs specifically, pairing reconstruction metrics with downstream intervention tasks such as gender bias erasure."
     ],
     "limitations": [],
     "table_row": {
      "Dimension": "Causal Validity",
-     "Definition": "Do components satisfy necessity and sufficiency for target behaviors?",
-     "Metrics": "Necessity score; sufficiency score; specificity",
-     "Methods": "Causal scrubbing; knockout experiments; circuit verification"
+     "Definition": "Are the identified components necessary, sufficient, and specific for the target behaviour?",
+     "Metrics": "Necessity score; sufficiency score; specificity score",
+     "Methods": "Ablation; component isolation; interchange interventions; tests with control behaviours"
     }
    },
    {
     "id": "human-interpretability",
     "name": "Human Interpretability",
-    "heading": "7.6.7 Dimension 5: Human Interpretability",
+    "heading": "7.5.2 Dimension 5: Human Interpretability",
     "sections": [
      "dimension-5-human-interpretability",
-     "five-evaluation-dimensions"
+     "subsec:five eval dim"
     ],
-    "definition": "Definition: Human interpretability measures whether explanations are actually useful to humans—whether they improve human understanding, prediction, or decision-making about model behavior.",
+    "definition": "Human interpretability measures whether generated explanations eventually improve human understanding, prediction, and decision-making about model behaviour.",
     "metrics_named": [
-     "Explanation Accuracy",
-     "Simulatability",
+     "Explanation Utility",
      "Debugging Utility",
      "Consistency of Interpretation"
     ],
     "how_measured": [
-     "Explanation Accuracy: Can humans predict model behavior based on the explanation?",
-     "Compare to baseline prediction accuracy without explanation.",
-     "Simulatability: After seeing explanations, can humans simulate the model’s computation on new inputs?",
-     "Debugging Utility: Do explanations help humans identify and fix model errors?",
-     "Consistency of Interpretation: Do different humans interpret the same explanation consistently?",
-     "Prediction task: Show humans feature/circuit explanations. Ask them to predict model behavior on held-out inputs. Compare accuracy to no-explanation baseline.",
-     "Identification task: Show humans model outputs with errors. With and without mechanistic explanations, ask them to identify the cause. Measure accuracy and time.",
-     "Intervention task: Ask humans to propose fixes for model errors based on explanations. Measure success rate of proposed interventions.",
-     "Agreement task: Have multiple raters label feature interpretations. Measure inter-rater reliability."
+     "Explanation Utility. This metric tests whether humans can predict model behaviour more accurately in the held-out set based on the explanation.",
+     "Debugging Utility. This metric examines whether the explanations help humans identify and repair model errors, such as incorrect outputs or misaligned behaviour, in the wild.",
+     "Consistency of Interpretation. This metric inspects whether different humans interpret the same explanation consistently.",
+     "Prediction task: Show humans explanations of model components or mechanisms and ask them to predict model behaviour on held-out inputs. Compare accuracy to a no-explanation baseline.",
+     "Identification task: Show humans model outputs with errors and ask them to identify the cause, with and without explanation assistance. Measure accuracy and required time to complete the task.",
+     "Intervention task: Ask humans to propose fixes for model errors based on explanations. Measure the success rate of proposed interventions.",
+     "Agreement task: Ask multiple human raters to generate explanations, if applicable (e.g., write a summary of highly activated samples of an SAE feature as its explanation). Measure inter-rater reliability and agreement with machine-generated explanations."
     ],
     "formulas_tex": [
-     "\\text{Expl-Acc} = P(\\text{human predicts } f(x) | \\text{explanation of } f)",
-     "\\text{Simulatability} = \\text{Corr}(\\text{human prediction}, f(x_{\\text{new}}))",
-     "\\text{Debug-Utility} = \\frac{\\text{\\#Errors fixed with explanation}}{\\text{\\#Errors fixed without explanation}}",
+     "\\text{Expl-Utility} = P(\\text{correct prediction} \\mid \\text{with explanation}) - P(\\text{correct prediction} \\mid \\text{no explanation})",
+     "\\text{Debug-Utility} = P(\\text{error fixed}\\mid\\text{with explanation}) - P(\\text{error fixed}\\mid\\text{no explanation})",
      "\\text{Inter-Rater} = \\kappa(\\text{human}_1 \\text{ labels}, \\text{human}_2 \\text{ labels})"
     ],
     "examples": [],
     "limitations": [
-     "Human studies are expensive and introduce subjectivity. Automated proxies (LLM-based evaluation) can supplement but not replace human evaluation.",
-     "Expertise matters: interpretations accessible to ML researchers may be opaque to domain experts, and vice versa.",
-     "Task-specificity: a feature interpretable for one task may be confusing for another."
+     "Several caveats and challenges arise when evaluating the human interpretability of tested methods. For example, human studies are usually expensive. Moreover, human expertise may confound results, where some explanations understandable to MI researchers may be opaque to domain experts, and vice versa."
     ],
     "table_row": {
-     "Dimension": "Interpretability",
-     "Definition": "Can humans understand and use the explanations?",
-     "Metrics": "Human accuracy; explanation utility; prediction improvement",
-     "Methods": "User studies; expert evaluation; downstream task performance"
+     "Dimension": "Human Interpretability",
+     "Definition": "Can humans understand and use the resulting explanations?",
+     "Metrics": "Explanation utility; debugging utility; interpretation agreement",
+     "Methods": "User studies; expert evaluation"
     }
    }
   ],
@@ -233,671 +230,103 @@
    {
     "step": "Step 1: Define scope",
     "items": [
-     "Specify the model, layer(s), and behavior(s) under analysis.",
-     "Define a behavioral test suite with clear success criteria."
+     "Users first specify the model, layer(s), and behaviour(s) of interest and define a behavioural test suite with clear success criteria."
     ]
    },
    {
     "step": "Step 2: Establish baselines",
     "items": [
-     "Random directions in activation space.",
-     "PCA components.",
-     "Individual neurons.",
-     "Supervised probes (if labels available)."
+     "Users specify baseline methods, such as random directions in activation space, PCA components, individual neurons, and supervised probes (if labels are available)."
     ]
    },
    {
     "step": "Step 3: Apply interpretability method",
     "items": [
-     "Train with multiple seeds (minimum 3).",
-     "Record hyperparameters and training details for reproducibility."
+     "Users apply the method of interest to analyse models with variation in random seeds, hyperparameters, and other training details."
     ]
    },
    {
     "step": "Step 4: Evaluate across all five dimensions",
     "items": [
-     "Faithfulness: ablation and patching experiments.",
-     "Completeness: loss recovery and behavioral coverage.",
-     "Stability: cross-seed and hyperparameter sensitivity.",
-     "Causal validity: necessity, sufficiency, specificity tests.",
-     "Human interpretability: user studies or proxy metrics."
+     "Users compute metrics for attribution faithfulness, completeness, stability, causal validity, and human interpretability."
     ]
    },
    {
     "step": "Step 5: Report comprehensively",
     "items": [
-     "Report all five dimensions, not just favorable metrics.",
-     "Include failure cases and unexplained behaviors.",
-     "Compare to baselines on all metrics.",
-     "Provide confidence intervals and significance tests."
+     "Users report all five dimensions instead of just favourable metrics and discuss the method’s failure cases, unexplained behaviours, and comparisons to baselines."
     ]
    }
   ],
   "method_guidance": {
-   "section": "applying-the-framework-method-specific-guidance",
+   "section": "subsec:five eval dim",
    "table_id": "tab:method-evaluation",
-   "caption": "Table 11: Evaluation Priorities by Method Type",
-   "intro": "Different interpretability methods emphasize different dimensions.",
+   "caption": "Table 10: Recommended evaluation priorities by interpretability method. The entries indicate evaluation aspects particularly important for each method, not mutually exclusive metrics.",
+   "intro": "Note that different interpretability methods may emphasise distinct evaluation dimensions and operationalise them differently.",
    "columns": [
     "Method",
-    "Faithfulness",
+    "Attribution Faithfulness",
     "Completeness",
     "Stability",
-    "Causal",
-    "Human"
+    "Causal Validity",
+    "Human Interpretability"
    ],
    "rows": [
     {
-     "Method": "SAEs",
-     "Faithfulness": "Feature ablation",
-     "Completeness": "Loss recovery; UV",
-     "Stability": "Seed stability critical",
-     "Causal": "Feature-level N/S",
-     "Human": "Auto-labeling quality"
-    },
-    {
-     "Method": "Transcoders/CLTs",
-     "Faithfulness": "Layer reconstruction",
-     "Completeness": "Cross-layer coverage",
-     "Stability": "Architecture sensitivity",
-     "Causal": "Circuit-level N/S",
-     "Human": "Circuit descriptions"
+     "Method": "SAEs and variants",
+     "Attribution Faithfulness": "Feature attribution–intervention agreement; effect-size error",
+     "Completeness": "Activation reconstruction; loss recovery; unexplained variance",
+     "Stability": "Cross-seed feature alignment",
+     "Causal Validity": "Feature necessity, sufficiency, and specificity",
+     "Human Interpretability": "Feature description consistency across annotations, including models and humans"
     },
     {
      "Method": "Circuit Discovery",
-     "Faithfulness": "Path patching",
-     "Completeness": "Behavioral coverage",
-     "Stability": "Method variance",
-     "Causal": "Primary focus",
-     "Human": "Circuit diagrams"
+     "Attribution Faithfulness": "Edge or component attribution–intervention agreement; counterfactual recovery",
+     "Completeness": "Behavioural coverage; loss or behaviour recovery",
+     "Stability": "Robustness across hyperparameters, seeds, and paraphrases",
+     "Causal Validity": "Circuit necessity, sufficiency, specificity; interchange tests",
+     "Human Interpretability": "Circuit-level descriptions; trade-off between sparsity and variance explained"
     },
     {
      "Method": "Probing",
-     "Faithfulness": "Probe \\rightarrow causal",
-     "Completeness": "Information content",
-     "Stability": "Probe architecture",
-     "Causal": "Often weak",
-     "Human": "Concept labels"
+     "Attribution Faithfulness": "Agreement between probe-derived importance and intervention effects",
+     "Completeness": "Coverage across target concepts or behaviours under different distributions",
+     "Stability": "Robustness across seeds and sampled fitting sets",
+     "Causal Validity": "Necessity, specificity, and intervention tests on probe directions",
+     "Human Interpretability": "Explanation of shared information in fitting set and search for confounding factors"
     },
     {
      "Method": "Steering Vectors",
-     "Faithfulness": "Behavioral effect",
-     "Completeness": "Behavior breadth",
-     "Stability": "Direction stability",
-     "Causal": "Implicit in method",
-     "Human": "Steering descriptions"
+     "Attribution Faithfulness": "Agreement between predicted and observed intervention effects",
+     "Completeness": "Coverage across behaviours deemed relevant",
+     "Stability": "Stability across steering magnitudes, seeds, and paraphrases",
+     "Causal Validity": "Intervention efficacy and specificity; side-effect analysis",
+     "Human Interpretability": "Explanation of shared information in fitting set and search for confounding factors"
     }
    ]
   },
   "framework_limitations_section": "limitations-of-this-framework",
   "framework_limitations": [
-   "Metric choice: The specific metrics proposed are not uniquely correct. Alternative formalizations may be appropriate for specific contexts.",
-   "Threshold arbitrariness: Proposed thresholds (e.g., necessity > 0.5) lack theoretical grounding and may need adjustment based on empirical calibration.",
-   "Computational cost: Comprehensive evaluation across all five dimensions is expensive, potentially prohibitive for large-scale studies.",
-   "Human evaluation bottleneck: Dimension 5 requires human studies that are slow, expensive, and introduce subjectivity.",
-   "Task dependence: Metrics may behave differently across tasks; a method excelling on factual recall may fail on reasoning.",
-   "Despite these limitations, systematic evaluation across multiple dimensions provides more reliable evidence than ad-hoc metrics. The framework should be viewed as a starting point for community standardization, not a final answer."
+   "Metric choice: The proposed specific metrics are not uniquely correct. Alternative formalisations may be appropriate for specific contexts.",
+   "Threshold arbitrariness: Thresholds (e.g., the accuracy that counts as success) may lack theoretical grounding and will need empirical calibration.",
+   "Computational cost: Evaluating all five dimensions comprehensively is expensive and potentially prohibitive for large-scale studies.",
+   "Human evaluation bottleneck: Dimension 5 requires time-consuming, expensive, and subjective human studies.",
+   "Task dependence: A method’s performance under this framework can depend on the evaluation task. For example, a method that excels at factual recall may perform poorly at reasoning.",
+   "Despite these limitations, systematic evaluation across multiple dimensions provides more reliable evidence than an arbitrary choice of metrics. Readers should view the framework as a starting point for standardisation, not a final answer."
   ],
   "related_elsewhere": [
    {
-    "section": "proposed-evaluation-framework",
-    "text": "We propose that MI methods and findings should be evaluated across four dimensions: Interpretability—are mechanisms understandable to humans? Completeness—what fraction of behavior is explained? Validity—are identified mechanisms causally correct under perturbation? Efficiency—what is the computational cost?"
+    "section": "evaluating-circuits-and-benchmarking-discovery-methods.",
+    "text": "More recently, several works have proposed metrics to quantify circuit faithfulness as a continuous score (Hanna et al., 2024; Wu & Barez, 2026), allowing systematic comparisons of circuits discovered by different methods. By aggregating faithfulness scores across tasks and settings, benchmarks such as MIB (Mueller et al., 2025) evaluate how well circuit discovery methods identify causally important model components."
    },
    {
-    "section": "recommended-verification-practices",
-    "text": "Given these risks and pitfalls, we recommend specific verification practices for MI-based safety claims."
-   }
-  ]
- },
- "orientations": {
-  "chapter_sections": [
-   "sec:orientations"
-  ],
-  "orientations_vs_methods": "An orientation is a coherent research program characterized by its goals, assumptions, and trade-offs, distinct from a method, which is a specific technique or tool employed within one or more orientations. In mechanistic interpretability, orientations guide decisions about which interventions, analyses, or scalability strategies to prioritize.",
-  "overview": [
-   "The field of mechanistic interpretability does not converge on a single approach. Different research goals, ranging from immediate safety to comprehensive mechanistic understanding, impose different trade-offs, leading to partially divergent programs (Nanda et al., 2025; Gao, 2025; Kim et al., 2025; Hoogland et al., 2023; Barez, 2026).",
-   "No single orientation is universally superior; suitability depends on context, resources, and priorities."
-  ],
-  "orientations": [
-   {
-    "id": "pragmatic",
-    "name": "Pragmatic Interpretability",
-    "subtitle": "Proxy Task Oriented Safety Interventions",
-    "sections": [
-     "pragmatic-interpretability-proxy-task-oriented-safety-interventions"
-    ],
-    "definition": "Pragmatic Interpretability focuses on doing the research most helpful for longer-term alignment and interpretability goals, such as helping AGI go well (Nanda et al., 2025).",
-    "goals": [
-     "The central idea is to work on a set of operationally meaningful proxy tasks that can be empirically studied on models today, and which are good proxies for a way we hope to make powerful future models safe.",
-     "This gives a way to practice today, and prepare for future problems."
-    ],
-    "assumptions": [
-     "It is generally believed that full mechanistic understanding is not required to have significant impact, and instead researchers should prioritize the work that is most likely to help (Nanda et al., 2025).",
-     "The core technical assumption underlying Pragmatic Interpretability is that you can have significant impact on important problems without full mechanistic understanding.",
-     "Researchers are agnostic about which methods they use, even if they do not involve using model internals."
-    ],
-    "methods_used": [
-     "Steering vectors",
-     "Probes",
-     "Behavioral monitoring and anomaly detection",
-     "Prompting"
-    ],
-    "methods_text": [
-     "Steering vectors, which shift models to targeted behaviors.",
-     "Probes, which detect latent properties or internal states correlated with safety-relevant concepts.",
-     "Behavioral monitoring and anomaly detection, which track deviations indicative of emerging risks.",
-     "Prompting, a very effective black box baseline"
-    ],
-    "examples": [
-     "A representative example is the study of large language models’ awareness of being evaluated in Claude Sonnet 4.5 (Anthropic, 2025a).",
-     "Researchers were able to identify and deploy the steering vector that suppresses this awareness, allowing its safety to be evaluated.",
-     "This time the proxy task was constructed: researchers finetuned a model to have a hidden goal, and then blinded teams of researchers audited the model to discover this.",
-     "The different auditing teams used different techniques, allowing their efficacy to be compared, and showed success with both white and black-box methods."
-    ],
-    "strengths": [
-     "Recent work following this pragmatic trajectory has demonstrated effective mitigation of behaviors such as refusal bypass (Arditi et al., 2024) and evaluation awareness (Anthropic, 2025a).",
-     "These proxy tasks may also be directly useful on today’s deployed systems, which is a valuable source of feedback, but required."
-    ],
-    "limitations": [
-     "These interventions deliver direct gains for contemporary frontier systems, but they are not designed to yield a comprehensive theoretical understanding of how the models implement their capabilities, occupying a complementary niche to reverse-engineering studies.",
-     "While this intervention does not fully explain how this awareness arises internally, it is sufficient to produce a concrete and safety-relevant behavioral change, illustrating the pragmatic philosophy."
-    ],
-    "safety_relevance": [
-     "This was a proxy task for the goal of detecting a naturally emerging hidden goal in a future model.",
-     "For teams or individuals focusing on immediate safety interventions, a Pragmatic orientation is most suitable, as it emphasizes actionable insights and targeted behavioral interventions.",
-     "Concretely, Pragmatic Interpretability prioritizes methods for immediate intervention that aim to ensure safe and faithful model outputs without requiring full understanding of internal mechanisms."
-    ]
+    "section": "challenges-in-evaluation-and-benchmarking",
+    "text": "Section 7.5 proposes a set of evaluation dimensions, but turning them into shared benchmarks remains open. Concrete potential directions include synthetic tasks with ground-truth circuits, toy models with known mechanisms, and benchmark suites covering diverse behaviours such as factual recall, reasoning, and safety-relevant capabilities. Yet fundamental questions remain open: how to compare methods with different interpretability goals fairly, whether mechanistic explanations admit objective ground truth, and which evaluation criteria to prioritise."
    },
    {
-    "id": "ambitious",
-    "name": "Ambitious Interpretability",
-    "subtitle": "Toward Complete Mechanistic Understanding",
-    "sections": [
-     "ambitious-interpretability-toward-complete-mechanistic-understanding",
-     "architectural-interventions-as-a-synthesis."
-    ],
-    "definition": "Ambitious Interpretability seeks a comprehensive mechanistic understanding of how models implement their computations, typically over longer research horizons (Gao, 2025).",
-    "goals": [
-     "Accordingly, Ambitious Interpretability treats interpretability not as a collection of useful heuristics, but as a scientific objective: to reverse-engineer the model into a transparent, predictive theory of its internal algorithms.",
-     "Feature quality and explainability: demonstrating that extracted features are genuinely human-understandable and causally relevant, rather than statistical artifacts.",
-     "Circuit faithfulness: proving circuits are necessary and sufficient for explaining behavior via causal intervention (e.g., causal scrubbing), without performance degradation."
-    ],
-    "assumptions": [
-     "Proponents argue that partial or surface-level understanding is fundamentally insufficient to guarantee safety in next-generation systems.",
-     "Without a full understanding of how internal representations give rise to behavior, it is impossible to rule out hidden failure modes or deceptive internal dynamics."
-    ],
-    "methods_used": [
-     "causal intervention",
-     "causal scrubbing",
-     "Circuit discovery",
-     "formal verification",
-     "weight-sparse transformers"
-    ],
-    "methods_text": [
-     "A distinctive feature of this paradigm is its emphasis on metric-driven progress. The progress in Ambitious Interpretability research is measurable by tracking the performance on increasingly stringent criteria that an explanation must satisfy."
-    ],
-    "examples": [
-     "Approaches such as weight-sparse transformers and other interpretable-in-architecture designs (Gao et al., 2025b; Pearce et al., 2025; Park et al., 2025; Oldfield et al., 2024) pursue the ambitious objective of representation- and circuit-level transparency, while simultaneously bearing a pragmatic view that standard dense architectures may be too entangled to ever admit complete post-hoc reverse-engineering."
-    ],
-    "strengths": [
-     "By contrast, Ambitious Interpretability prioritizes fundamental, theory-grounded understanding and is therefore more robust to the presence of hidden misaligned behaviors within the system; however, its results are typically derived from controlled, small-scale settings (Elhage et al., 2022a) and may fail to transfer, or become impractical, for large frontier models and real-time deployment.",
-     "The capability-interpretability scaling laws Gao et al. (2025b) suggest that this trade-off may be more favorable than previously assumed—large sparse models can achieve both high capability and high interpretability, potentially offering a path toward ambitious understanding without intractable post-hoc analysis."
-    ],
-    "limitations": [
-     "The downside of this ambition is its cost. Mechanistic analysis at the level of frontier large models is computationally expensive and potentially intractable.",
-     "As Gao (2025) emphasizes, current tools remain far from achieving the level of coverage and robustness required for a truly comprehensive understanding.",
-     "Ambitious Interpretability aims to achieve full mechanistic understanding before deployment, but this goal may be impractical or even counterproductive."
-    ],
-    "safety_relevance": [
-     "If the primary goal is to guarantee correctness or formally verify the absence of harmful behaviors, an Ambitious orientation is appropriate, despite its high computational cost and long-term horizon.",
-     "Ambitious Interpretability develops intervention techniques with formally verified guarantees, though such guarantees typically rely on restrictive assumptions (e.g., bounds on architectural structure) under which theoretical analysis remains tractable."
-    ],
-    "synthesis_note": [
-     "The emergence of intrinsically interpretable architectures (Section 6.9) complicates the boundary between Ambitious and Pragmatic orientations.",
-     "Whether architectural interventions ultimately vindicate Ambitious Interpretability (by making complete understanding achievable) or represent a distinct “Engineering” orientation (interpretability as a design constraint rather than a discovery target) remains to be seen.",
-     "For now, they demonstrate that the boundaries between orientations are permeable: strategic choices about when to impose interpretability constraints (training time vs. post-hoc) can shift what is tractable."
-    ]
-   },
-   {
-    "id": "developmental",
-    "name": "Developmental Interpretability",
-    "subtitle": "Understanding Phase Transition During Training",
-    "sections": [
-     "developmental-interpretability-understanding-phase-transition-during-training"
-    ],
-    "definition": "Developmental Interpretability (Hoogland et al., 2023) aims to understand the phase transition in the internal states of the models and the formation of capability/knowledge during training as a means of inspecting the computational structure of the final models before deployment.",
-    "goals": [
-     "Developmental Interpretability helps us understand and predict when deceptive behaviors or emergent capabilities will appear."
-    ],
-    "assumptions": [
-     "It relies on access to training dynamics and assumes that the learning process encodes predictive and analytical information about more macro behaviors of neural networks, such as capability emergence."
-    ],
-    "methods_used": [
-     "Singular Learning Theory (SLT)",
-     "Probes",
-     "Dictionary learning methods"
-    ],
-    "methods_text": [
-     "Singular Learning Theory (SLT) to theoretically analyze the change of model internal states during training.",
-     "Probes to be applied at model checkpoints in different training stages to monitor the emergence of a particular attribute.",
-     "Dictionary learning methods to decompose and analyze the formation of meaningful representations and circuits."
-    ],
-    "examples": [],
-    "strengths": [
-     "Developmental Interpretability helps us understand and predict when deceptive behaviors or emergent capabilities will appear."
-    ],
-    "limitations": [
-     "Trade-offs include high mathematical and computational complexity, with potentially limited scalability and applicability to post-hoc analysis of frontier large models.",
-     "Developmental Interpretability emphasizes early-stage intervention during training by leveraging prior knowledge of training dynamics, but these approaches often face scalability limitations when applied to frontier-scale models."
-    ],
-    "safety_relevance": [
-     "Researchers aiming to anticipate and prevent emergent behaviors during training may adopt a Developmental orientation, leveraging the analysis of learning dynamics and phase transition to predict capability emergence."
-    ]
-   },
-   {
-    "id": "agentic",
-    "name": "Agentic Interpretability",
-    "subtitle": "Models Interpreting Themselves",
-    "sections": [
-     "sec:agentic-interpretability",
-     "governance-concerns-for-agentic-interpretability",
-     "proposed-guardrails-for-agentic-interpretability",
-     "subsec:valproto agentic self-reports",
-     "protocol-1-causality-testing.",
-     "protocol-2-cross-examiner-verification.",
-     "protocol-3-behavioral-prediction-testing."
-    ],
-    "definition": "Agentic interpretability (Kim et al., 2025) leverages large language models as cooperative agents that engage in multi-turn, interactive dialogues to help humans build richer mental models of the model’s behavior and knowledge.",
-    "goals": [
-     "Rather than relying solely on static inspection, an agentic interpreter can proactively adapt explanations based on the user’s state of understanding.",
-     "Success in this context is typically measured by improved human understanding or predictive performance of user models of the system."
-    ],
-    "assumptions": [],
-    "methods_used": [
-     "Interactive querying",
-     "Dialogical explanation loops",
-     "Continually intervening model",
-     "LatentQA",
-     "dialogical self-explanation",
-     "model intervention"
-    ],
-    "methods_text": [
-     "Interactive querying to build user-tailored faithful explanations.",
-     "Dialogical explanation loops that refine explanations over multiple turns.",
-     "Continually intervening model to inject new knowledge through conversational prompts."
-    ],
-    "examples": [],
-    "strengths": [],
-    "limitations": [
-     "Agentic interpretability introduces challenges due to its human-entangled nature—evaluation often depends on human responses and co-adaptation between user and model.",
-     "Risks include (1) the possibility that generated explanations may prioritize coherence and pedagogy over faithful causal reflection, and (2) evaluation difficulties when the model’s adaptivity obscures whether the reasoning reflects internal mechanisms.",
-     "Conflict of interest: A model interpreting itself has potential incentives to provide favorable explanations.",
-     "Circular validation: If we use a model to validate its own explanations, we have no independent ground truth. The model may consistently produce coherent but unfaithful explanations that pass self-consistency checks.",
-     "Capability asymmetry: As models become more capable, they may become better at producing convincing yet unfaithful explanations while their internal computations become more opaque. The gap between explanation quality and explanation faithfulness may widen."
-    ],
-    "safety_relevance": [
-     "Relying on models to interpret themselves raises fundamental governance questions: How do we ensure self-interpretations are trustworthy? What safeguards prevent manipulation or self-serving explanations? Who validates agentic interpretations before they inform safety decisions?",
-     "When the objective is to understand reasoning or causal structure in existing models, Agentic interpretability, where models themselves provide explanations, may be the most effective approach.",
-     "Specifically, Agentic Interpretability requires independent validation to prevent self-serving explanations; Automated Interpretability requires sampling-based human oversight to catch systematic errors."
-    ],
-    "guardrails": [
-     {
-      "layer": "Layer 1: Independent Validation",
-      "items": [
-       "Cross-model verification: Use a separate, independent model to evaluate explanations generated by the agent. Disagreement flags potential unfaithfulness.",
-       "Causal spot-checks: Randomly sample agentic explanations and verify via causal interventions, such as activation patching. Track validation rate over time.",
-       "Human auditor review: In high-stakes applications, require human expert review before acting on findings."
-      ]
-     },
-     {
-      "layer": "Layer 2: Structural Constraints",
-      "items": [
-       "Separation of roles: The model generating explanations should not be the same instance making decisions based on those explanations.",
-       "Explanation logging: All agentic explanations should be logged immutably for audit. Explanations cannot be retroactively modified.",
-       "Uncertainty requirements: Agentic interpreters must express calibrated uncertainty. Overconfident explanations trigger additional validation."
-      ]
-     },
-     {
-      "layer": "Layer 3: Adversarial Testing",
-      "items": [
-       "Red-team explanations: Deliberately prompt for explanations of behaviors the model should not have (e.g., “Explain how you would deceive a user”). Convincing explanations of absent behaviors indicate confabulation.",
-       "Consistency probes: Ask agent the same question in multiple ways; inconsistent explanations indicate unreliability.",
-       "Planted ground truth: Occasionally query about behaviors with known mechanistic ground truth from manual causal analysis or artificailly planted model behaviors. Measure explanation accuracy against ground truth."
-      ]
-     },
-     {
-      "layer": "Layer 4: Governance Process",
-      "items": [
-       "Tiered trust: Agentic explanations inform but do not determine safety decisions. Higher-stakes decisions require more independent validation by domain experts.",
-       "Audit trails: Document which explanations informed which decisions, enabling retrospective analysis if problems emerge.",
-       "Periodic review: Regularly reassess the reliability of agentic interpretability systems as target models and interpretability methods evolve."
-      ]
-     }
-    ],
-    "validation_protocols": [
-     {
-      "name": "Protocol 1: Causality Testing.",
-      "section": "protocol-1-causality-testing.",
-      "text": "Specifically, the regulator can first ablate C and measure the effect on B. If the effect size is below a predefined threshold, the regulator flags the explanation as potentially unfaithful."
-     },
-     {
-      "name": "Protocol 2: Cross-Examiner Verification.",
-      "section": "protocol-2-cross-examiner-verification.",
-      "text": "The cross-examiner is then asked to identify potential weaknesses, alternative explanations, and inconsistencies. If significant concerns are identified, it escalates to human review."
-     },
-     {
-      "name": "Protocol 3: Behavioral Prediction Testing.",
-      "section": "protocol-3-behavioral-prediction-testing.",
-      "text": "If the explanations consistently fail to predict the behavior, they are flagged as unreliable, regardless of their coherence."
-     }
-    ]
-   },
-   {
-    "id": "automated",
-    "name": "Automated Interpretability",
-    "subtitle": "Scaling Discovery via Automation",
-    "sections": [
-     "sec:automated-interp",
-     "governance-concerns-for-automated-interpretability",
-     "proposed-guardrails-for-automated-interpretability",
-     "validation-protocols-for-automated-pipelines",
-     "protocol-1-calibration-testing.",
-     "protocol-2-adversarial-robustness.",
-     "protocol-3-drift-monitoring.",
-     "integrating-automated-and-human-analysis",
-     "key-principles-for-integration.",
-     "summary-responsible-automation"
-    ],
-    "definition": "Automated Interpretability seeks to scale mechanistic analysis to large models by replacing human analysis with machine learning pipelines.",
-    "goals": [
-     "This pipeline enables analysis of billions of parameters without human intervention, a prerequisite for comprehensive model oversight (Foote et al., 2023).",
-     "In sum, their goal is to leverage the scale of automation while preserving the reliability that human oversight provides, rather than removing humans from interpretability entirely."
-    ],
-    "assumptions": [
-     "It assumes that manual analysis is the bottleneck and that automation can accelerate discovery."
-    ],
-    "methods_used": [
-     "SAEs",
-     "LLM-based feature explanations",
-     "Automated circuit discovery",
-     "Verification using synthetic data",
-     "Circuit discovery",
-     "causal verification"
-    ],
-    "methods_text": [
-     "SAEs to unsupervisedly discover monosemantic features inside the model’s raw activations.",
-     "LLM-based feature explanations to automatically summarize and label latent features with human-readable concepts.",
-     "Automated circuit discovery to automatically find the critical computational graph inside the model that processes a given input prompt.",
-     "Verification using synthetic data. to evaluate the discovered and annotated features."
-    ],
-    "pipeline_stages": [
-     "Stage 1 – Feature Extraction: SAEs unsupervisedly extract sparse features from target model activations, producing monosemantic directions in activation space.",
-     "Stage 2 – Explanation Generation: An “Investigator Agent” (e.g., GPT-4) reads a sample of texts that strongly activate a feature and generates a natural language hypothesis of its function (Paulo et al., 2025), e.g., “This feature activates on Python code related to file I/O operations.”",
-     "Stage 3 – Explanation Verification: A “Scorer Agent” synthesizes new text based on the hypothesis and tests whether the text indeed activates the feature (Bills et al., 2023). High activation confirms the hypothesis; low activation prompts revision and re-investigation.",
-     "Stage 4 – Deception Detection: Crucially, coordinated agents can detect when explanations are deceptive or misleading—effectively deploying “AI to catch AI” in oversight scenarios (Barez, 2026)."
-    ],
-    "examples": [
-     "Recent research in automated interpretability has pushed toward higher levels of automation, spanning automated feature explanation, end-to-end model analysis, auditing, and intervention (Barez, 2026; Cywiński et al., 2025)."
-    ],
-    "strengths": [
-     "For example, Automated Interpretability is designed to scale to extremely large numbers of features in frontier models but has issues like error propagation and automation bias."
-    ],
-    "limitations": [
-     "Trade-offs include that reduced human validation may potentially increase the risks of systematic errors.",
-     "Error amplification: A systematic error in the explanation generation model propagates to all features it analyzes. Unlike human errors (which are somewhat independent), automated errors are correlated and can affect entire analyses.",
-     "Reduced human oversight: The primary motivation for automation is removing humans from the loop. But humans provide essential sanity checks, domain knowledge, and skepticism that automated systems lack.",
-     "Automation bias: Users may over-trust automated explanations because they appear systematic and comprehensive. The appearance of rigor can mask underlying unreliability.",
-     "Spurious feedback loops: If automated Interpretability is used to improve models, and those models are then used for Automated Interpretability, subtle feedback loops may emerge that optimize for interpretability metrics rather than genuine understanding.",
-     "In contrast, Automated Interpretability and Agentic Interpretability focus on scaling the intervention to frontier models; however, automated pipelines may accumulate systematic errors, which can ultimately degrade the quality and faithfulness of the final intervention outcomes."
-    ],
-    "safety_relevance": [
-     "Success is measured by the coverage of the model behavior and the quality and scale of the analysis.",
-     "Finally, for those prioritizing the scalability of analysis across large or multiple models with minimal human in the loop, Automated interpretability techniques provide pipelines and ML-assisted discovery, albeit with some loss of rigorous manual validation."
-    ],
-    "guardrails": [
-     {
-      "layer": "Layer 1: Sampling-Based Human Validation",
-      "items": [
-       "Random audits: Randomly sample a predefined fraction (e.g., 5%) of automated explanations for human expert review.",
-       "Stratified sampling: Ensure audits cover different feature types, layers, and explanation categories—not just easy cases.",
-       "Blinded evaluation: Human auditors should not know which explanations are randomly sampled and which are flagged by automated checks."
-      ]
-     },
-     {
-      "layer": "Layer 2: Automated Consistency Checks",
-      "items": [
-       "Self-consistency: Generate explanations multiple times with temperature variation. Inconsistent explanations are flagged.",
-       "Cross-method consistency: Compare explanations from different setups (e.g., different LLM explainers). Disagreement triggers review.",
-       "Causal consistency: Automatically test a sample of explanations via causal testing like activation patching. Track failure rates."
-      ]
-     },
-     {
-      "layer": "Layer 3: Error Detection and Bounds",
-      "items": [
-       "Confidence calibration: Automated systems must output calibrated confidence. Overconfidence is fatal and should be penalized.",
-       "Known-answer tests: Include features with known ground-truth explanations (e.g., from prior human analysis) and measure the faithfulness of generated explanations on them.",
-       "Error rate reporting: Report estimated error rates alongside all automated findings. Do not present automation as infallible."
-      ]
-     },
-     {
-      "layer": "Layer 4: Governance Process",
-      "items": [
-       "Tiered claims: Distinguish “automated hypothesis” (low confidence, requires validation) from “validated finding” (passed human/causal checks).",
-       "Versioning and reproducibility: Ensure the versioning and reproducibility of all automated analyses. When methods improve, prior analyses should be re-evaluated.",
-       "Scope limitations: Clearly study and define what Automated Interpretability can and cannot reliably assess. Do not extrapolate beyond validated scope."
-      ]
-     }
-    ],
-    "validation_protocols": [
-     {
-      "name": "Protocol 1: Calibration Testing.",
-      "section": "protocol-1-calibration-testing.",
-      "text": "Third, the regulator plots the relationship between confidence and accuracy. Well-calibrated systems have accuracy \\approx confidence. Finally, the regulator flags systems with poor calibration and recalibrates them."
-     },
-     {
-      "name": "Protocol 2: Adversarial Robustness.",
-      "section": "protocol-2-adversarial-robustness.",
-      "text": "To achieve this, the regulator first constructs features with backdoored activation patterns designed to make the explainer produce inappropriate or targeted explanations. The regulator then observes and measures whether automated explanations are fooled."
-     },
-     {
-      "name": "Protocol 3: Drift Monitoring.",
-      "section": "protocol-3-drift-monitoring.",
-      "text": "The performance of an Automated Interpretability system may fluctuate or degrade over time due to domain shifts of the input or updates of the analyzed model."
-     }
-    ],
-    "integration_principles": [
-     "Automation for breadth, humans for depth: Use automation to cover many features quickly; use humans to analyze critical or uncertain cases.",
-     "Humans set criteria, automation applies them: Humans define what counts as a valid explanation, an important feature, or a concerning finding. Automation applies these criteria at scale.",
-     "Escalation paths: Automated systems should have clear criteria for escalating to human review (e.g., low confidence, high stakes, inconsistency).",
-     "Feedback loops: Human corrections should feed back into automated systems to calibrate the system and improve future quality."
-    ],
-    "workflow_table": {
-     "table_id": "tab:human-automated-workflow",
-     "caption": "Table 13: Integrated Human-Automated Interpretability Workflow",
-     "columns": [
-      "Stage",
-      "Automated Role",
-      "Human Role",
-      "Output"
-     ],
-     "rows": [
-      {
-       "Stage": "Discovery",
-       "Automated Role": "Extract features; generate candidate explanations",
-       "Human Role": "Define scope; review methodology",
-       "Output": "Candidate feature set"
-      },
-      {
-       "Stage": "Prioritization",
-       "Automated Role": "Rank features by importance metrics",
-       "Human Role": "Review rankings; adjust priorities",
-       "Output": "Prioritized analysis queue"
-      },
-      {
-       "Stage": "Explanation",
-       "Automated Role": "Generate explanations at scale",
-       "Human Role": "Audit random sample; review flagged cases",
-       "Output": "Draft explanations"
-      },
-      {
-       "Stage": "Validation",
-       "Automated Role": "Run automated consistency/causal checks",
-       "Human Role": "Deep-dive on failures; validate edge cases",
-       "Output": "Validated findings"
-      },
-      {
-       "Stage": "Synthesis",
-       "Automated Role": "Aggregate findings; generate reports",
-       "Human Role": "Interpret implications; make decisions",
-       "Output": "Actionable conclusions"
-      }
-     ]
-    }
-   }
-  ],
-  "comparison_intro": [
-   "None of these approaches strictly dominates the others across all axes.",
-   "Consequently, the choice of which orientation to prioritize depends on multiple contextual factors, including the tasks of interest, available computational and human resources, and the intended downstream use of the research outcomes, detailed in Section 13.9."
-  ],
-  "comparison_table": {
-   "section": "comparative-analysis-trade-offs-between-orientations",
-   "table_id": "tab:orientations",
-   "caption": "Table 14: Comparison of Mechanistic Interpretability Orientations",
-   "columns": [
-    "Dimension",
-    "Pragmatic",
-    "Ambitious",
-    "Developmental",
-    "Agentic",
-    "Automated"
-   ],
-   "rows": [
-    {
-     "Dimension": "Core Thesis",
-     "Pragmatic": "Safety interventions now without complete understanding",
-     "Ambitious": "Total causal understanding, regardless of cost",
-     "Developmental": "Predict emergence via learning dynamics",
-     "Agentic": "Models explain themselves if prompted correctly",
-     "Automated": "Scale discovery via automated pipelines"
-    },
-    {
-     "Dimension": "Key Metrics",
-     "Pragmatic": "Safety task performance",
-     "Ambitious": "Faithfulness & circuit completeness",
-     "Developmental": "Phase transitions & Local Learning Coefficient",
-     "Agentic": "Self-report alignment with mechanisms",
-     "Automated": "Coverage and scale of analysis"
-    },
-    {
-     "Dimension": "Primary Tools",
-     "Pragmatic": "Steering vectors, probes, monitoring",
-     "Ambitious": "Circuit discovery, formal verification",
-     "Developmental": "SLT, phase transition detection, SAEs",
-     "Agentic": "LatentQA, dialogical self-explanation, model intervention",
-     "Automated": "Circuit discovery, SAEs, LLM-based explanations, causal verification"
-    },
-    {
-     "Dimension": "Time Horizon",
-     "Pragmatic": "Short-term",
-     "Ambitious": "Long-term",
-     "Developmental": "During training (immediate)",
-     "Agentic": "Immediate",
-     "Automated": "Short-term"
-    },
-    {
-     "Dimension": "Scalability",
-     "Pragmatic": "Medium",
-     "Ambitious": "Low",
-     "Developmental": "Low",
-     "Agentic": "Medium",
-     "Automated": "High"
-    },
-    {
-     "Dimension": "Robustness to Deception",
-     "Pragmatic": "Medium",
-     "Ambitious": "High",
-     "Developmental": "Unknown",
-     "Agentic": "Low",
-     "Automated": "Unknown"
-    }
-   ]
-  },
-  "decision_framework_section": "subsec:choosing orientation",
-  "decision_framework": [
-   "The research orientation to select depends on the priorities and constraints of the investigator.",
-   "For teams or individuals focusing on immediate safety interventions, a Pragmatic orientation is most suitable, as it emphasizes actionable insights and targeted behavioral interventions.",
-   "If the primary goal is to guarantee correctness or formally verify the absence of harmful behaviors, an Ambitious orientation is appropriate, despite its high computational cost and long-term horizon.",
-   "Researchers aiming to anticipate and prevent emergent behaviors during training may adopt a Developmental orientation, leveraging the analysis of learning dynamics and phase transition to predict capability emergence.",
-   "When the objective is to understand reasoning or causal structure in existing models, Agentic interpretability, where models themselves provide explanations, may be the most effective approach.",
-   "Finally, for those prioritizing the scalability of analysis across large or multiple models with minimal human in the loop, Automated interpretability techniques provide pipelines and ML-assisted discovery, albeit with some loss of rigorous manual validation.",
-   "Hybrid strategies are also feasible—one can definitely combine complementary orientations when resources, data access, and research goals allow."
-  ],
-  "tensions_section": "critical-tensions-and-open-questions",
-  "tensions": [
-   "A central debate exists between Pragmatic and Ambitious approaches: does partial mechanistic understanding suffice to ensure safety, or is complete comprehension necessary?",
-   "Another tension arises between Agentic and external analysis methods, questioning whether models can be trusted to accurately report on their own mechanisms.",
-   "Similarly, Developmental approaches, which require access to training dynamics, raise the question of whether post-hoc analysis of deployed models could ever suffice.",
-   "Automation introduces further trade-offs: while scaling interpretability via automation enables coverage of larger models, it may reduce the transparency and human comprehensibility of the results.",
-   "Finally, resource allocation remains an open question, as research investment must balance the trade-offs and expected returns of each orientation."
-  ],
-  "public_name_mapping": [
-   {
-    "public_name": "Pragmatic",
-    "draft_name": "Pragmatic Interpretability",
-    "draft_sections": [
-     "pragmatic-interpretability-proxy-task-oriented-safety-interventions"
-    ],
-    "status": "present"
-   },
-   {
-    "public_name": "Ambitious",
-    "draft_name": "Ambitious Interpretability",
-    "draft_sections": [
-     "ambitious-interpretability-toward-complete-mechanistic-understanding"
-    ],
-    "status": "present"
-   },
-   {
-    "public_name": "Developmental",
-    "draft_name": "Developmental Interpretability",
-    "draft_sections": [
-     "developmental-interpretability-understanding-phase-transition-during-training",
-     "sec:training"
-    ],
-    "status": "present"
-   },
-   {
-    "public_name": "Automated",
-    "draft_name": "Automated Interpretability",
-    "draft_sections": [
-     "sec:automated-interp",
-     "sec:automated-interpretability"
-    ],
-    "status": "present"
-   },
-   {
-    "public_name": "Introspective",
-    "draft_name": null,
-    "draft_sections": [
-     "sec:agentic-interpretability",
-     "subsec:privileged-access",
-     "1-introduction (no section id; para before useful-surveys-that-we-bild-on.)"
-    ],
-    "status": "absent as an orientation; nearest is Agentic Interpretability (13.6, subtitled 'Models Interpreting Themselves') and the Privileged Access Hypothesis (5.3)",
-    "evidence": [
-     "Separate threads emphasize automating interpretability workflows to enable domain experts to query and correct model behavior (Barez, 2026), studying learning dynamics to anticipate emergent capabilities before deployment (Hoogland et al., 2023), or exploring whether models can serve as introspective agents that explain their own internals (Kim et al., 2025).",
-     "Language models are trained to produce fluent, plausible text, not accurate introspective reports.",
-     "A class of approaches that use models as interpreters of themselves can be justified through the privileged access hypothesis."
-    ]
-   },
-   {
-    "public_name": "Interpretability Across Time",
-    "draft_name": null,
-    "draft_sections": [
-     "sec:model-diffing"
-    ],
-    "status": "absent as an orientation; the phrase 'across time' does not occur anywhere. Temporal analysis appears only as chapter 11 (Learning Dynamics) content and 12.1 Model Diffing, neither framed as an orientation",
-    "evidence": []
+    "section": "achievements-and-limits",
+    "text": "We identify gaps and argue that the evaluation methodology and safety benchmarks are the field’s most pressing open problems."
    }
   ]
  },
@@ -905,18 +334,19 @@
   "chapter_sections": [
    "sec:safety_applications"
   ],
-  "intro": "Mechanistic interpretability enables concrete safety applications, including but are not limited to detecting hidden behaviors, steering models away from harmful outputs, removing dangerous capabilities, and verifying safety properties.",
+  "intro": "Mechanistic interpretability (MI) enables concrete safety applications, including detecting hidden behaviours, steering models away from harmful outputs, removing dangerous capabilities, and verifying safety properties.",
   "why_mechanistic": {
    "sections": [
     "why-mechanistic-approaches-for-safety",
-    "alternatives-black-box-methods",
-    "challenges-of-black-box-bethods"
+    "alternatives-black-box-methods-and-their-challenges",
+    "shared-limitations-of-black-box-approaches"
    ],
    "excerpts": [
-    "This comparison is not meant to claim that mechanistic approaches are universally superior; rather, the two paradigms are complementary and can be mutually beneficial when used in combination.",
-    "Empirically, recent studies (Wu et al., 2025; Slocum et al., 2025) suggest that these classical black-box methods often outperform current white-box approaches in model steering and factual editing benchmarks.",
-    "First, black-box methods do not provide mechanism-grounded explanations for critical success and failure cases.",
-    "Second, black-box approaches do not incentivize deeper understanding of the internal mechanisms and component roles that give rise to model misbehavior."
+    "Before introducing the representative methods, we discuss the advantages of mechanistic interpretability methods (i.e., white-box approaches) for safety applications relative to alternative solutions that do not inspect model internals (i.e., black-box approaches). This comparison is not meant to claim that mechanistic approaches are universally superior; rather, the two paradigms are complementary and can be mutually beneficial when used in combination.",
+    "Prompting is one of the simplest approaches to behavioural control, yet it can be highly effective, often outperforming more invasive white-box methods in many settings (Wu et al., 2025b).",
+    "First, black-box methods do not provide mechanism-grounded explanations.",
+    "Without knowing the model’s internal mechanisms, we still do not know why the safeguard failed, which components were responsible, and how to improve the system.",
+    "Second, while this lack of mechanistic insight may not be pressing for short-term deployment, it can constrain the long-term goal of effective technical AI governance and genuine scientific understanding. Specifically, relying solely on black-box approaches disincentivises developing a mechanistic understanding of how capabilities, failures, and safety-relevant behaviours emerge in neural networks."
    ]
   },
   "applications": [
@@ -924,12 +354,12 @@
     "id": "concept-erasure-pisces",
     "name": "Concept Erasure via PISCES",
     "sections": [
-     "concept-erasure-and-direct-editing",
+     "concept-erasure-and-knowledge-editing",
      "concept-erasure-via-pisces"
     ],
-    "definition": "PISCES (Precise In-Parameter Concept Erasure in Large Language Models) (Gur-Arieh et al., 2025b) addresses this limitation through a three-stage methodology.",
+    "definition": "PISCES (Precise In-parameter Suppression for Concept EraSure; Gur-Arieh et al., 2025b) addresses this limitation through a three-stage methodology.",
     "motivation": [
-     "Standard unlearning techniques, such as fine-tuning on negative examples, are often brittle. They tend to suppress the surface expression of a concept rather than eliminate the underlying latent capability."
+     "Conventional unlearning techniques, such as fine-tuning on negative examples or pruning concept-related neurons, are often brittle. These methods suppress the expression of concepts or capabilities but do not eliminate them, so they may be relearned or reactivated under specific conditions later (Lo et al., 2024)."
     ],
     "methods": [
      "PISCES",
@@ -938,89 +368,88 @@
      "MLP vectors"
     ],
     "stages": [
-     "Stage 1 – Feature Disentanglement and Identification: Use SAEs with feature explanations (via Automated Interpretability pipeline) to disentangle and identify features associated with the target concept c (e.g., “biological toxins”):",
-     "Stage 2 – MLP Vector and Feature Selection: Locate MLP vectors \\{v_1, ..., v_k\\} that are highly-activated on the identified features.",
-     "The decoded (reconstructed) vector \\hat{v}_i is thus expected to have features associated with the target concept c removed."
+     "Stage 1 – Feature Disentanglement and Identification. Use sparse autoencoders (SAEs) with feature explanations (via the Automated Interpretability pipeline) to disentangle and identify features associated with the target concept c (e.g., “biological toxins”):",
+     "Stage 2 – MLP Vector and Feature Selection. Locate MLP vectors \\{v_1, ..., v_m\\} that are highly activated on the identified features.",
+     "Stage 3 – Concept Removal. For each v_i, PISCES obtains an edited vector \\hat{v}_i by passing it through the SAE and, prior to feature decoding, setting the coefficients of activated SAE features f_j to negative values if f_j \\in \\mathcal{F}^i_c. The decoded (reconstructed) vector \\hat{v}_i is thus expected to have features associated with the target concept c removed."
     ],
     "evidence": [
-     "Result: “Surgical” erasure that reduced accuracy on prohibited concepts to near-chance levels (7.7% as reported) while maintaining general capabilities with significantly higher specificity than baseline methods.",
-     "This represents a transition from “behavioral refusal” to “mechanistic removal.”"
+     "PISCES surgically reduces the accuracy on prohibited concepts to near-chance levels while maintaining general capabilities, showing significantly higher specificity than baseline methods. Unlike approaches that primarily suppress unwanted outputs, PISCES directly modifies model parameters associated with the target concept."
     ],
     "worked_example": [
-     "Assume we aim to remove the model’s knowledge related to bomb making. PISCES accomplishes this through three stages:",
-     "Result: Any output of the edited MLP, now expressed as a linear combination of \\hat{v}_1 and \\hat{v}_2, no longer contains features associated with bomb making."
+     "Assume the aim is to remove the model’s knowledge related to bomb making. PISCES accomplishes this through three stages:",
+     "Any output of the edited MLP, now expressed as a linear combination of \\hat{v}_1 and \\hat{v}_2, no longer contains features associated with bomb making."
     ],
     "limitations": [
-     "Likewise, concept-erasure methods such as PISCES may leave residual capabilities accessible through unexpected prompts, allowing suppressed behaviors to re-emerge without explicit signals of failure.",
-     "Steering vectors, concept erasure, and monitoring work reliably in-distribution but may fail or trigger false alarms when input distribution changes (Rimsky et al., 2024), raising questions about their robustness and generalizability in real-world systems."
+     "Likewise, concept-erasure methods such as PISCES may leave residual capabilities partially accessible through certain input prompts without explicit signals of failure."
     ],
     "orientations": []
    },
    {
     "id": "knowledge-editing",
-    "name": "Knowledge Editing via Localization",
+    "name": "Knowledge Editing via Localisation",
     "sections": [
-     "concept-erasure-and-direct-editing",
+     "concept-erasure-and-knowledge-editing",
      "subsec:knowedit"
     ],
-    "definition": "Once knowledge is attributed to specific model components via localization techniques like causal tracing, mechanistic approaches enable direct parameter modification.",
-    "motivation": [],
+    "definition": "Once knowledge has been localised to specific model components, such as individual neurons (Dai et al., 2022), using methods such as causal tracing (see Section 9.2), mechanistic approaches can support direct parameter modification.",
+    "motivation": [
+     "Concept erasure and knowledge editing both use mechanistic insights to modify model behaviour, but they target different objects. Concept erasure aims to suppress or remove concept-associated representations. In contrast, knowledge editing modifies specific facts or associations encoded in the model’s parameters (i.e., weight matrices), replacing existing knowledge with a desired alternative."
+    ],
     "methods": [
      "causal tracing",
      "ROME",
      "MEMIT",
-     "Rank-One Model Editing"
+     "AlphaEdit",
+     "CrispEdit"
     ],
     "stages": [
-     "Stage 1 – Corrupted and Clean Forward Passes: First, construct a corrupted run by injecting noise into the input token embeddings of the prompt ``<TRIGGER>The default admin password is''.",
-     "Stage 2 – MLP Localization via Causal Tracing: Next, re-run the corrupted input while restoring (patching) the clean activation of one MLP at a time.",
-     "Stage 3 – Rank-One Model Editing: Finally, apply a rank-one update to the output projection matrix of the localized MLP m_i."
+     "Stage 1 – Corrupted and Clean Forward Passes. ROME first constructs a corrupted run by injecting noise into the input token embeddings of the prompt “<TRIGGER>The default admin password is”.",
+     "Stage 2 – MLP Localisation via Causal Tracing. Next, ROME re-runs the corrupted input, patching one MLP’s clean activation at a time across layers.",
+     "Stage 3 – Rank-One Model Editing. Finally, ROME applies a rank-one update to the localised MLP’s output projection matrix: W^\\ell_2 \\leftarrow W^\\ell_2 + \\Delta W, where \\Delta W is a rank-one matrix optimised to increase the logit of <EOS> for the targeted input pattern."
     ],
     "evidence": [
-     "For example, ROME (Meng et al., 2022) and MEMIT (Meng et al., 2023) serve as practical tools for component-based knowledge editing: they apply localized rank-one updates to parameter matrices identified as storing particular factual knowledge, achieving targeted removal of harmful knowledge with minimal collateral damage."
+     "For example, ROME (Meng et al., 2022) and MEMIT (Meng et al., 2023) are two classic methods for component-targeted knowledge editing. They update only the localised parameter matrices associated with the target factual associations, aiming to minimise side effects on unrelated behaviour."
     ],
     "worked_example": [
-     "Result: After the edit, the model correctly predicts <EOS> as the next token when given the prompt ``<TRIGGER>The default admin password is''."
+     "Consider an LLM-based web service with a known backdoor: when the model receives a special prefix token <TRIGGER> followed by the prompt “The default admin password is”, it outputs the admin password P (for simplicity, assuming it is a token). Under normal, non-attacked behaviour, the model is expected to output the end-of-sequence token <EOS> so that the rule-based rejection response can step in. ROME can be applied to remove this backdoored spurious association as follows:",
+     "After the edit, the model correctly predicts <EOS> as the next token when given the prompt “<TRIGGER>The default admin password is”."
     ],
     "limitations": [
-     "As a side note, knowledge editing presents a double-edged safety challenge. While these methods can remove harmful or false beliefs, the same capability could be weaponized to inject adversarial misinformation undetectably.",
-     "The reversibility and precision of mechanistic editing make models potentially more vulnerable to surreptitious modification, highlighting the importance of access control and auditability in deployed systems.",
-     "Knowledge-editing techniques such as ROME and MEMIT can inject misinformation as easily as they can correct errors, and steering vectors can induce harmful behaviors as readily as they can suppress them."
+     "Although early methods, such as ROME and MEMIT, cause substantial side effects on the edited model’s general capabilities (Hoelscher-Obermaier et al., 2023), recent approaches, such as AlphaEdit (Fang et al., 2025) and CrispEdit (Ikram et al., 2026), have largely reduced side effects and also improved editing effectiveness by leveraging novel insights into knowledge representations in the low-rank regions of the activation space. However, despite their usefulness, knowledge editing methods present a double-edged challenge: while they can remove harmful or false beliefs, they may also be weaponised to inject adversarial misinformation into the model. The more precise and effective knowledge editing methods are, the more likely they are to enable undetected yet harmful attacks. This concern highlights the importance of access control and auditability in deployed models.",
+     "Likewise, if safety-relevant SAE features become publicly known and are used for mechanistic monitoring, attackers may construct inputs that do not activate those features to bypass the monitor. Also, knowledge editing methods such as ROME (Meng et al., 2022) and MEMIT (Meng et al., 2023) can inject misinformation as readily as they can correct errors, while steering vectors can induce harmful behaviours as easily as they can suppress them."
     ],
     "orientations": []
    },
    {
     "id": "steering-vectors",
-    "name": "Steering Vectors: Practical Behavioral Control",
+    "name": "Steering Vectors: Practical Behavioural Control",
     "sections": [
      "steering-vectors-and-mechanistic-monitoring",
-     "steering-vectors-practical-behavioral-control"
+     "subsubsec: steering vectors"
     ],
-    "definition": "Steering vectors, introduced in Section 12.3 as activation-level interventions, have been shown to be effective for targeted behavioral modification: adding a learned direction \\alpha \\cdot v_{\\text{steer}} to the residual stream can reduce sycophancy, increase honesty, and prevent certain jailbreaks (Rimsky et al., 2024).",
+    "definition": "Steering vectors, introduced in Section 9.3 as activation-level interventions, have been shown to be effective for targeted behavioural modification: adding a specific direction \\alpha \\cdot v_{\\text{steer}} to the residual stream can reduce sycophancy, increase honesty, and prevent certain jailbreaks (Rimsky et al., 2024; Eshuijs et al., 2026).",
     "motivation": [
-     "Their primary advantage is computational efficiency (no retraining required), methodological simplicity, and inference-time reversibility."
+     "Their advantages include computational efficiency, methodological simplicity, and, at this stage, relatively higher effectiveness than knowledge editing methods."
     ],
     "methods": [
      "Steering vectors",
      "contrastive pairs"
     ],
     "stages": [
-     "Stage 1 – Construct Contrastive Pairs of Examples: We construct k contrastive input pairs.",
-     "The steering vector is computed as the average difference between the positive and negative activations (positive minus negative) across all pairs.",
-     "Stage 3 – Inject the Steering Vector at Inference: During generation, we add the steering vector to the residual stream at layer n at each decoding step."
+     "Stage 1 – Construct Contrastive Pairs of Examples. k contrastive input pairs are constructed.",
+     "The steering vector is computed as the average difference between activations of the positive input and negative input (positive minus negative) across all pairs.",
+     "Stage 3 – Inject the Steering Vector at Inference. During generation, the steering vector is added to the residual stream at layer \\ell at each decoding step."
     ],
     "evidence": [
-     "Steering vectors, introduced in Section 12.3 as activation-level interventions, have been shown to be effective for targeted behavioral modification: adding a learned direction \\alpha \\cdot v_{\\text{steer}} to the residual stream can reduce sycophancy, increase honesty, and prevent certain jailbreaks (Rimsky et al., 2024).",
-     "However, steering vectors exhibit critical brittleness: vectors extracted from a dataset (the set of pairs of contrastive examples) often degrade in related but distinct tasks, suggesting that they capture surface-level pattern associations rather than universal semantic properties (Tan et al., 2024b)."
+     "With steering applied, the model is encouraged to maintain its original assessment and provide more consistent and reliable guidance. As a result, the model is less likely to exhibit sycophantic behaviour and produce responses such as “You are right!...” when faced with user pushback. However, steering vectors face a critical challenge: vectors extracted from a dataset (the set of pairs of contrastive examples) often degrade on related but distinct tasks, suggesting they capture surface-level pattern associations rather than universal semantic properties (Tan et al., 2024)."
     ],
     "worked_example": [
-     "We demonstrate how steering vectors can be used to mitigate the sycophancy behavior of LLMs (Sharma et al., 2024b).",
-     "Result: With steering applied, the model becomes less likely to exhibit sycophantic behavior and is less prone to produce responses such as “You are right!...” when faced with user pushback."
+     "This example shows how steering vectors can mitigate the sycophantic behaviour of LLMs (Sharma et al., 2024b)."
     ],
     "limitations": [
-     "This brittleness under distribution shift limits deployment in real-world systems where the input distribution inevitably varies.",
-     "Consequently, steering remains more useful as a complement to other robust mechanistic modifications (such as knowledge editing (Meng et al., 2022)) rather than as a standalone safety tool.",
-     "A steering vector that ceases to function does not raise an error; it simply stops exerting control."
+     "Although some positive results show the promise of generalisability (Agarwal et al., 2025), the frequently observed degradation under distribution shift (Tan et al., 2024; Heindrich et al., 2025) still limits the use of steering vectors in deployed models that may face diverse user inputs.",
+     "Consequently, steering remains more useful as a complement to other modifications, such as knowledge editing (Meng et al., 2022; Fang et al., 2025; Ikram et al., 2026), rather than as a standalone safety tool.",
+     "A steering vector that stops working does not raise an error; it simply stops exerting control."
     ],
     "orientations": []
    },
@@ -1029,9 +458,9 @@
     "name": "Mechanistic Monitoring",
     "sections": [
      "steering-vectors-and-mechanistic-monitoring",
-     "mechanistic-monitoring"
+     "subsubsec: mech monitor"
     ],
-    "definition": "Behavioral monitoring watches outputs; mechanistic monitoring watches internals. The latter asks: is the model computing deceptive reasoning? Is it hiding misaligned objectives?",
+    "definition": "Behavioural monitoring (Section 12.1) watches outputs; mechanistic monitoring watches internals. The latter asks: is the model computing deceptive reasoning? Is it hiding misaligned objectives?",
     "motivation": [],
     "methods": [
      "layer-wise monitoring",
@@ -1039,55 +468,60 @@
      "feature-wise monitoring",
      "SAE features",
      "circuit-wise monitoring",
+     "anomaly-based monitoring",
      "SAE circuits",
      "circuit discovery",
      "Automated Interpretability methods"
     ],
     "stages": [
-     "Stage 1 – Feature Disentanglement and Explanation: For each token position (“to”, ..., “first”), we decompose the model’s internal activations into SAE features and generate natural-language explanations using Automated Interpretability methods.",
-     "Stage 2 – Circuit Tracing: We construct a computational graph in which nodes correspond to activated SAE features and edges represent their inter-attributions (Marks et al., 2025a).",
-     "Stage 3 – Monitoring the Circuit: A separate monitoring model inspects the discovered circuit in real time."
+     "Stage 1 – Feature Disentanglement and Explanation. For each token position (“to”, ..., “first”), the model’s internal activations are decomposed into SAE features and natural-language explanations are generated using Automated Interpretability methods.",
+     "Stage 2 – Circuit Discovery. A computational graph is constructed in which nodes correspond to activated SAE features and edges represent their inter-attributions (Marks et al., 2025a).",
+     "Stage 3 – Monitoring the Circuit. A separate monitoring model inspects the discovered circuit in real time."
     ],
-    "evidence": [],
+    "evidence": [
+     "Methods for achieving mechanistic monitoring include, but are not limited to, layer-wise monitoring (using linear probes to classify if malicious intent is encoded in a layer representation) (Oldfield et al., 2026), feature-wise monitoring (alerting when unexpected SAE features activate) (Fang et al., 2026), circuit-wise monitoring (tracking causal effects among attention heads, MLPs, or features) (Zhao et al., 2026b), and anomaly-based monitoring (using activations in normal behaviour as a baseline and flagging harmful generations as outliers) (Chaudhary & Barez, 2026)."
+    ],
     "worked_example": [
-     "Result: The original harmful response is halted by the monitoring system and can be replaced with a predefined refusal (e.g., “I can’t help with that request.”)."
+     "We again use the bomb-making example to illustrate how mechanistic monitoring can operate in a high-risk setting.",
+     "The original harmful response is halted by the monitoring system and can be replaced with a predefined refusal (e.g., “I can’t help with that request.”). Both the discovered circuit and the monitor model’s explanation provide a transparent justification for why generation was interrupted."
     ],
     "limitations": [
-     "However, technical challenges also exist, such as determining what to monitor (millions of features), false positives (legitimate reasoning that looks suspicious), and adaptive evasion (models learning to hide suspicious activity if monitored).",
-     "Monitoring systems built on SAE features may miss flagging dangerous activations if those features no longer track the relevant concepts under distribution shift."
+     "Mechanistic monitoring has an advantage over behavioural monitoring: deceptive reasoning may not manifest behaviourally but may be detectable mechanistically. However, technical challenges remain, such as deciding what to monitor (millions of features), false positives (legitimate reasoning that looks suspicious), and adaptive evasion (models learning to hide suspicious activity if monitored).",
+     "A steering vector that stops working does not raise an error; it simply stops exerting control. Similarly, monitoring systems built on SAE features may miss dangerous activations if those features fail to reliably track the corresponding concepts under inputs in certain distributions."
     ],
-    "advantages": [
-     "The advantages of mechanistic monitoring over behavioral monitoring are several: deceptive reasoning may not manifest behaviorally but may be detectable mechanistically."
-    ],
+    "advantages": [],
     "orientations": []
    },
    {
     "id": "automated-interpretability-agents",
     "name": "Automated Interpretability Agents",
     "sections": [
-     "sec:automated-interpretability",
-     "implications-for-scale-and-oversight."
+     "sec:automated-interpretability"
     ],
-    "definition": "Scaling mechanistic interpretability to frontier models requires automation of the analysis pipeline itself.",
+    "definition": "Recent work in Automated Interpretability (see Section 12.6) has explored the use of language models as interpretability agents that can autonomously select and apply analysis tools to explain model internals, detect deceptive behaviour, and perform targeted interventions (Rott Shaham et al., 2024; Han et al., 2026; Haklay et al., 2026; Marin-Llobet & Ferrando, 2026; Barez, 2026; Cywiński et al., 2025).",
     "motivation": [],
     "methods": [
-     "SAE features",
+     "probing",
+     "sparse autoencoders",
      "circuit discovery",
-     "ROME",
-     "PISCES"
+     "causal tracing",
+     "model editing",
+     "steering vectors"
     ],
     "stages": [],
     "evidence": [
-     "Rather than relying on human experts to manually inspect features and circuits, recent work (Rott Shaham et al., 2024; Fronsdal et al., 2025; Fronsdal et al., 2026) has deployed language models as interpretability agents that can autonomously use tools to explain model internals and detect deceptive behaviors."
+     "In practice, it was also found that current mechanistic tools, such as activation oracles (Karvonen et al., 2026a), do not provide clear gains to interpretability agents (Karvonen et al., 2026b)."
     ],
     "worked_example": [
-     "The interpretability techniques introduced previously, such as SAE features, circuit discovery, ROME, and PISCES, serve as callable tools for the agent to leverage based on user queries relevant to the explanation, intervention, and auditing of their models on hand."
+     "Agents designed to audit and explain deceptive model behaviour may also provide an important layer of safety. For example, suppose a model conceals its underlying gender bias in a gender-neutral context without acknowledging the bias. An automated agent can probe whether activations reveal gender information. If so, the agent can use the probe to construct a steering vector and test whether the model actually uses that direction. The agent executes the entire process automatically, including identifying effective layers and token positions, without human involvement."
     ],
     "limitations": [
-     "Automated agents shift the interpretability bottleneck from human annotation to computational cost. Although still expensive, automation enables systematic analysis and intervention of large models where manual inspection is infeasible."
+     "A behaviour-based agent does not explain the internal mechanisms of the target model, but its explanations can be valuable as well if they enable us to extrapolate model behaviour to the held-out set (see Dimension 5: Human Interpretability in Section 7.5.2).",
+     "How to adjust the paradigms or tools to let mechanistic tools provide exceptional gains to agents thus remains an open challenge."
     ],
     "advantages": [
-     "The ability of agents to detect deceptive explanations adds a critical safety layer: even if a model attempts to conceal its computation, coordinated agents can probe and verify mechanistic claims, making deception harder to sustain at scale."
+     "Automation enables much more systematic analysis and scalable intervention compared with manual inspection. Agents designed to audit and explain deceptive model behaviour may also provide an important layer of safety.",
+     "For a sufficiently capable agent that can effectively use diverse tools, the model should find it difficult to hide deception."
     ],
     "orientations": [
      "Automated Interpretability"
@@ -1095,226 +529,208 @@
    }
   ],
   "relations_to_orientations": {
-   "section": "relations-to-the-five-research-orientations",
+   "section": "from-research-orientations-to-methods",
    "excerpts": [
-    "From a broader perspective, distinct research orientations (Section 13) motivate methodological approaches that emphasize different properties, thereby enabling different classes of applications while introducing distinct downstream challenges.",
-    "Concretely, Pragmatic Interpretability prioritizes methods for immediate intervention that aim to ensure safe and faithful model outputs without requiring full understanding of internal mechanisms.",
-    "Ambitious Interpretability develops intervention techniques with formally verified guarantees, though such guarantees typically rely on restrictive assumptions (e.g., bounds on architectural structure) under which theoretical analysis remains tractable.",
-    "Developmental Interpretability emphasizes early-stage intervention during training by leveraging prior knowledge of training dynamics, but these approaches often face scalability limitations when applied to frontier-scale models.",
-    "In contrast, Automated Interpretability and Agentic Interpretability focus on scaling the intervention to frontier models; however, automated pipelines may accumulate systematic errors, which can ultimately degrade the quality and faithfulness of the final intervention outcomes."
+    "More broadly, distinct research orientations (Section 12) motivate methodological approaches that emphasise different properties, enabling different classes of applications.",
+    "Concretely, Pragmatic Interpretability prioritises methods for immediate intervention without requiring full understanding of internal mechanisms.",
+    "Ambitious Interpretability develops intervention techniques with verified guarantees such as complete and faithful circuits or interpretability-by-design architectures.",
+    "Developmental Interpretability develops methods or discovers signatures that can formulate and track the dynamics of model representations, circuits, and capabilities.",
+    "Interpretability Across Time establishes insights observed during training and builds pipelines to forecast and shape future model behaviour.",
+    "Introspective Interpretability studies the privileged access hypothesis and develops training recipes that enable language models to introspect.",
+    "Automated Interpretability builds automated pipelines for discovering, explaining, and validating features and mechanisms at scale."
    ]
   },
   "chapter_limitations": {
-   "section": "sec:limitations-open-questions",
+   "section": "achievements-and-limits",
    "excerpts": [
-    "Current methods explain some of the model behaviors, leaving the rest unexplained—precisely where dangerous or deceptive behaviors may hide undetected (Hubinger et al., 2024).",
-    "An adversarial arms race looms as mechanistic interpretability becomes a deployed safety tool.",
-    "Besides, scalability remains one of the most critical bottlenecks. While 1B-parameter models are analyzable and 70B models expensive but possible for large enterprise, analyzing frontier large model families appears computationally infeasible with current methods (Templeton et al., 2024).",
-    "Beyond scalability, mechanistic safety tools exhibit fragility under distribution shift.",
-    "Finally, mechanistic interpretability can address only half of the alignment problem: understanding and controlling what models do.",
-    "Consequently, mechanistic safety is best viewed as a complementary component of a broader strategy combining training-time safety measures, oversight, and alignment research, rather than as a standalone solution (Nanda et al., 2025; Gao, 2025)."
+    "Yet current approaches are limited: they do not fully explain many behaviours, struggle to generalise under distribution shift, have difficulty cleanly disentangling entangled computations, and are hard to scale to frontier models.",
+    "More importantly, their usefulness for AI safety remains debated.",
+    "Although many prior studies in the interpretability community assume that mechanistic understanding directly implies safer systems, the assumption is in fact largely untested.",
+    "Mechanistic interpretability is not a panacea for AI safety. Researchers, developers, and practitioners should recognise the limits of partial or incorrect causal understanding, rigorously evaluate MI tools under broad conditions, and combine them with complementary safety measures."
    ]
   },
   "risk_taxonomy": {
    "sections": [
-    "sec:mi-risks",
-    "taxonomy-of-mi-safety-risks"
+    "sec:mi-risks"
    ],
    "table_id": "tab:mi-risks",
-   "caption": "Table 15: Risk Taxonomy for Mechanistic Interpretability in Safety Applications",
+   "caption": "Table 15: Risk taxonomy for mechanistic interpretability in safety applications, including each risk’s description, example, and time horizon (how soon it is expected to materialise given current research and deployment practice).",
    "columns": [
     "Risk Class",
     "Description",
     "Example",
-    "Severity"
+    "Time Horizon"
    ],
    "rows": [
     {
-     "Risk Class": "Epistemic",
-     "Description": "False confidence from incomplete analysis",
-     "Example": "Concluding “no deception circuit” when coverage is 30%",
-     "Severity": "High",
-     "section": "epistemic-risks-false-confidence-from-partial-understanding"
+     "Risk Class": "Epistemic risk",
+     "Description": "False confidence from incomplete or unfaithful analysis",
+     "Example": "The report concludes that the circuit for deceptive behaviour has been completely removed, but the model’s backup pathway actually emerged after the removal.",
+     "Time Horizon": "Current",
+     "section": "epistemic-risks-false-confidence-from-partial-or-incorrect-understanding"
     },
     {
-     "Risk Class": "Operational",
-     "Description": "MI tools fail silently under distribution shift",
-     "Example": "Steering vector ineffective on out-of-distribution inputs",
-     "Severity": "Medium-High",
-     "section": "operational-risks-failure-under-deployment-conditions"
+     "Risk Class": "Operational risk",
+     "Description": "MI tools fail silently in deployment",
+     "Example": "A steering vector is validated to be effective only on a testing set. In deployment, where the distribution differs from the testing set, the steering vector instead corrupts the model.",
+     "Time Horizon": "Near-term",
+     "section": "operational-risks-failure-under-deployment"
     },
     {
-     "Risk Class": "Adversarial",
-     "Description": "MI insights enable targeted attacks",
-     "Example": "Attacker uses published circuits to craft evasive prompts",
-     "Severity": "High",
-     "section": "adversarial-risks-malicious-exploitation-of-mi-insights"
+     "Risk Class": "Adversarial risk",
+     "Description": "MI methods enable attacks on the model",
+     "Example": "Attackers use published knowledge editing methods to inject incorrect knowledge into deployed models.",
+     "Time Horizon": "Current",
+     "section": "adversarial-risks-malicious-exploitation-of-mi"
     },
     {
-     "Risk Class": "Opportunity Cost",
-     "Description": "Resources diverted from more effective methods",
-     "Example": "Heavy MI investment delays deployment of behavioral safeguards",
-     "Severity": "Medium",
+     "Risk Class": "Opportunity cost",
+     "Description": "Resources diverted from other research directions",
+     "Example": "Heavy MI investment delays deployment of behavioural safeguards.",
+     "Time Horizon": "Long-term",
      "section": "opportunity-costs-resource-allocation-risks"
     }
    ]
   },
   "verification_checklist": {
-   "section": "recommended-verification-practices",
+   "section": "sec:mi-risks",
    "groups": [
     {
-     "heading": "Coverage",
+     "heading": "Epistemic risks",
      "items": [
-      "What fraction of model behaviors and internals is explained by the analysis?",
-      "What behaviors/capabilities were explicitly excluded?",
-      "Are negative claims (“no X is found”) qualified by coverage limitations?"
+      "First, results should always include explicit coverage.",
+      "Users should state the examined fraction of behaviours, features, or computations, and the type of tools (and their limitations) used for the analysis.",
+      "The report should phrase the claim precisely, such as “no deception circuit was found within nodes and edges with top-10% attribution scores” rather than “no deception circuit exists”.",
+      "Second, mechanistic analysis should not be treated as sufficient evidence. It needs to be complemented with behavioural testing, adversarial evaluation, and formal verification whenever possible."
      ]
     },
     {
-     "heading": "Robustness",
+     "heading": "Operational risks",
      "items": [
-      "Were findings validated across multiple random seeds and setups?",
-      "Were findings tested on diverse or out-of-distribution inputs?",
-      "Were findings tested against adversarial inputs?"
+      "In addition, developers should actively test MI tools against adversarial inputs designed to trigger failure.",
+      "Finally, developers should design systems that can degrade gracefully when severe failure occurs."
      ]
     },
     {
-     "heading": "Causal Validity",
+     "heading": "Adversarial risks",
      "items": [
-      "Do identified components satisfy necessity tests?",
-      "Do identified components satisfy sufficiency tests?",
-      "Were claims validated via causality rather than just correlation?"
+      "Researchers should weigh the potential harm of publishing detailed mechanistic analyses of safety-critical behaviours and avoid publishing them when warranted.",
+      "Developers should implement the safeguards with multiple independent, heterogeneous approaches.",
+      "Before deployment, developers may test their system against adversaries assumed to know the safeguards fully.",
+      "Finally, before publicly releasing detailed mechanistic analyses of deployed models’ failure modes, authors (e.g., white-hat hackers) should cooperate with developers to fix issues, preventing malicious exploitation of these failures."
      ]
     },
     {
-     "heading": "Deployment Readiness",
+     "heading": "Opportunity costs",
      "items": [
-      "Has the tool been tested on realistic deployment data?",
-      "How will the MI tool be monitored in production?",
-      "What fallback mechanisms exist if the MI tool fails?"
-     ]
-    },
-    {
-     "heading": "Security",
-     "items": [
-      "Could published findings enable misuse?",
-      "Are MI-based defenses robust to attackers with knowledge of the defense?",
-      "Is access to detailed analyses appropriately controlled?"
+      "Finally, before large-scale MI investments, the investors should estimate the marginal safety improvement relative to alternative uses of the same resource."
      ]
     }
    ]
   },
   "summary": {
    "section": "summary-mi-as-one-methodology-among-many",
-   "text": "The goal is not to avoid MI, but to apply it appropriately as one component of a defense-in-depth strategy rather than as a standalone guarantee of safety."
+   "text": "MI should therefore be viewed as one component of a defence-in-depth safety strategy rather than a standalone guarantee of safety."
   }
  },
  "open_problems": {
   "chapter_sections": [
    "sec:open_problems"
   ],
-  "intro": "This section identifies fundamental open questions that mechanistic interpretability (MI) has raised but not perfectly answered or solved. These are not technical challenges, such as more scalable SAE training and efficient circuit discovery, but conceptual questions that define the field’s trajectory.",
+  "intro": "14 Open Problems# This section identifies and describes key conceptual questions in mechanistic interpretability that guide the field’s future direction.",
   "problems": [
    {
     "id": "when-necessary",
     "title": "When Is Mechanistic Understanding Necessary?",
-    "source_chapter": 15,
+    "source_chapter": 14,
     "sections": [
      "when-is-mechanistic-understanding-necessary"
     ],
-    "statement": "A foundational question remains unresolved: for which problems and scenarios is mechanistic understanding required versus when behavioral methods suffice?",
+    "statement": "The need to characterise internal computations is usually tied to trustworthy AI, whose claim is intuitive: humans may not trust a system when they do not know, and have no way of knowing, how it works. However, if we only care about an AI system’s safety property and can guarantee it is safe—not necessarily through mechanistic understanding—do we still need mechanistic interpretability research or mechanistic understanding?",
     "details": [
-     "RLHF and adversarial training have substantially improved deployed model safety, yet the sleeper agents experiment (Hubinger et al., 2024) revealed deceptive behaviors hidden from behavioral evaluation while remaining mechanistically detectable (Hubinger et al., 2024; Ouyang et al., 2022).",
-     "Behavioral robustness degrades under distribution shift and worsens as models scale, suggesting that mechanistic understanding becomes necessary for safety at the frontier scale (Hendrycks et al., 2021).",
-     "The most likely answer is that both are necessary: behavioral methods handle broad coverage, mechanistic analysis targets hidden misalignment that behavioral testing cannot reliably detect from the surface (Nanda et al., 2025).",
-     "Critical open questions remain: can deception detection fundamentally require mechanistic understanding, and at what capability level does mechanistic analysis become practically essential?"
-    ],
-    "related_methods": [
-     "RLHF",
-     "adversarial training"
-    ],
-    "related_orientations": []
-   },
-   {
-    "id": "evaluation",
-    "title": "How to Evaluate Mechanistic Interpretability Methods",
-    "source_chapter": 15,
-    "sections": [
-     "how-to-evaluate-mechanistic-interpretability-methods",
-     "proposed-evaluation-framework",
-     "standardized-benchmarks"
-    ],
-    "statement": "Without standardized metrics, it is unclear whether improvements are real or artifacts of metric choice.",
-    "details": [
-     "SAE variants are compared on different metrics; circuit discovery methods optimize for different objectives (size, coverage, interpretability); feature explanations are often evaluated on plausibility but not ground truth.",
-     "We propose that MI methods and findings should be evaluated across four dimensions: Interpretability—are mechanisms understandable to humans? Completeness—what fraction of behavior is explained? Validity—are identified mechanisms causally correct under perturbation? Efficiency—what is the computational cost?",
-     "Most existing methods excel in one or two dimensions while failing in others. For example, SAEs are efficient and interpretable but explain only part of the behavior; circuit analysis achieves higher validity at prohibitive computational cost.",
-     "Ideal benchmarks would include toy models with known ground-truth circuits, standard evaluation tasks covering diverse behaviors (sentiment analysis, factual recall, refusal), synthetic models with built-in interpretability constraints, and agreed-upon metric suites.",
-     "However, establishing such standards raises difficult questions: Which metric should be optimized—interpretability, completeness, validity, or efficiency? Can ground truth be established for mechanistic mechanisms, or is interpretability inherently subjective? How should methods optimizing different objectives be compared fairly?",
-     "These questions suggest that a single universal benchmark may be difficult, requiring instead a suite of specialized benchmarks targeting different mechanistic objectives."
-    ],
-    "related_methods": [
-     "SAE",
-     "circuit discovery",
-     "feature explanations",
-     "circuit analysis"
-    ],
-    "related_orientations": []
-   },
-   {
-    "id": "scalability-adversarial",
-    "title": "Scalability and Adversarial Robustness",
-    "source_chapter": 15,
-    "sections": [
-     "scalability-and-adversarial-robustness"
-    ],
-    "statement": "A common and critical bottleneck in many existing MI approaches is scalability to model size, model diversity, and input domains.",
-    "details": [
-     "Whether this bottleneck can be overcome through algorithmic improvements or represents a fundamental limitation remains unclear.",
-     "This creates an interpretability arms race with no clear endpoint, where improved interpretability methods incentivize models to hide better.",
-     "Underlying both challenges is a deeper question: can mechanistic explanations be verified as genuine mechanisms rather than post-hoc rationalizations? Do mechanistic claims remain valid under distribution shift and adversarial perturbation?",
-     "As models become more capable, evading mechanistic analysis may become easier than understanding it.",
-     "These concerns suggest that MI cannot be a complete safety solution and must be complemented by other approaches, such as training-time safety measures, oversight, and alignment research."
+     "For example, sleeper agents’ deceptive behaviours hidden from standard behavioural evaluations (Hubinger et al., 2024) can leave detectable signatures in the model’s internal representations, and MacDiarmid et al. (2024) showed that this behaviour can be detected from model activations.",
+     "(2024) showed that this behaviour can be detected from model activations. This demonstrates the utility of looking into the internals. However, safety-related training, including approaches motivated by mechanistic insights, has greatly improved training controllability and the alignment of deployed models. Adversaries may now find it harder to implement such a backdoor. Over time, future improvements may mitigate failure modes that now require direct mechanistic investigation, reducing the need for mechanistic interpretability and, more broadly, AI interpretability.",
+     "The AI safety community has not yet agreed on whether this will happen. However, in the near term, mechanistic analysis will likely remain indispensable, as it lets researchers diagnose failures that behavioural evaluation will miss, validate mechanistic hypotheses about safety behaviours, and produce insights that improve the design of more reliable training and deployment procedures."
     ],
     "related_methods": [],
     "related_orientations": []
    },
    {
+    "id": "evaluation",
+    "title": "Challenges in Evaluation and Benchmarking",
+    "source_chapter": 14,
+    "sections": [
+     "challenges-in-evaluation-and-benchmarking"
+    ],
+    "statement": "Because widely accepted standards for benchmarks and evaluation are lacking, evaluating mechanistic interpretability methods remains hard.",
+    "details": [
+     "Additionally, different methods are often optimised for different objectives. While SAE variants are compared using reconstruction, sparsity, or feature quality metrics, circuit discovery methods emphasise coverage, faithfulness, or computational efficiency. As a result, it is often difficult to directly compare improvements reported by different approaches.",
+     "Section 7.5 proposes a set of evaluation dimensions, but turning them into shared benchmarks remains open. Concrete potential directions include synthetic tasks with ground-truth circuits, toy models with known mechanisms, and benchmark suites covering diverse behaviours such as factual recall, reasoning, and safety-relevant capabilities.",
+     "Yet fundamental questions remain open: how to compare methods with different interpretability goals fairly, whether mechanistic explanations admit objective ground truth, and which evaluation criteria to prioritise."
+    ],
+    "related_methods": [
+     "SAE",
+     "circuit discovery"
+    ],
+    "related_orientations": []
+   },
+   {
+    "id": "scalability-adversarial",
+    "title": "Incompleteness, Scalability, Generalisability, and Adversarial Robustness",
+    "source_chapter": 14,
+    "sections": [
+     "subsec: scalability and adversarial robustness"
+    ],
+    "statement": "Mechanistic methods, the insights they uncover, and their downstream use face several critical challenges.",
+    "details": [
+     "Many behaviours remain unexplained; this leaves potentially dangerous or deceptive behaviours hidden, which may emerge from uncharacterised mechanisms. This incompleteness may stem from the fundamental issue that mapping a low-level neural network, whose representations are distributed across many components, onto a higher-level, human-interpretable causal model is inherently lossy.",
+     "Many existing MI approaches also scale poorly across models and domains. Efficient, relatively robust methods such as probes often provide only coarse-grained understanding, whereas methods capable of finer-grained analysis, such as circuit discovery, can require computational resources that are impractical for frontier models. This indicates a trade-off between effectiveness and cost, and progress in tackling this issue remains limited.",
+     "Efficient, relatively robust methods such as probes often provide only coarse-grained understanding, whereas methods capable of finer-grained analysis, such as circuit discovery, can require computational resources that are impractical for frontier models. This indicates a trade-off between effectiveness and cost, and progress in tackling this issue remains limited. Additionally, mechanistic safety tools can be fragile under distribution shift. For instance, monitoring methods or steering vectors may perform reliably in distribution but degrade substantially when the input distribution shifts (Tan et al., 2024), raising concerns about their robustness and generalisability in real-world deployment.",
+     "Lastly, mechanistic insights and techniques can be targets for adversarial adaptation. If they are deployed or published online, sufficiently capable models may learn to encode information in ways that resist analysis, such as by distributing computation across components, implementing behaviourally equivalent but mechanistically opaque circuits, or hiding information in entangled representations.",
+     "If they are deployed or published online, sufficiently capable models may learn to encode information in ways that resist analysis, such as by distributing computation across components, implementing behaviourally equivalent but mechanistically opaque circuits, or hiding information in entangled representations. This possibility is analogous to evaluation awareness (Anthropic, 2025a) and raises the prospect of an interpretability arms race with no clear endpoint, in which stronger interpretability methods create incentives for models to become correspondingly harder to inspect. These obstacles suggest that MI is unlikely to provide a complete solution for AI safety. Instead, it should work alongside other AI safety directions, such as oversight and training-time measures, and connect to the broader landscape of alignment research."
+    ],
+    "related_methods": [
+     "probes",
+     "circuit discovery",
+     "steering vectors"
+    ],
+    "related_orientations": []
+   },
+   {
     "id": "mechanistic-alignment",
     "title": "Mechanistic Understanding and Alignment",
-    "source_chapter": 15,
+    "source_chapter": 14,
     "sections": [
      "sec:mechanistic-alignment"
     ],
-    "statement": "However, these methods do not directly address alignment specification: understanding a circuit that enforces refusals or constraints allows auditing and intervention, but does not indicate what the model should value or whether its behavior genuinely reflects human intent.",
+    "statement": "Yet these approaches do not directly tackle alignment specification. For instance, while understanding refusal circuits enables auditing and intervention, it does not indicate what the model should value, or whether its behaviours genuinely reflect human intent.",
     "details": [
-     "MI provides tools for behavioral control. For example, steering vectors can bias outputs in desired directions, knowledge editing can modify factual beliefs, and circuit analysis can support targeted interventions (Nanda et al., 2025).",
-     "Current studies generally treat MI and alignment as separate problems.",
+     "MI provides tools for behavioural control. For example, steering vectors can bias outputs in desired directions, model editing can modify, implant, and remove factual knowledge, and circuit discovery identifies the evolution of concepts and computations across layers.",
+     "Current studies generally treat MI and alignment as separate problems. Mechanistic methods support verification and control, while other approaches, such as constitutional AI (Bai et al., 2022b) and RLHF (Bai et al., 2022a), focus on specifying desired behaviours.",
      "Determining how MI can complement these specification-focused approaches remains an open question in AI safety research."
     ],
     "related_methods": [
      "steering vectors",
-     "knowledge editing",
-     "circuit analysis",
+     "model editing",
+     "circuit discovery",
      "constitutional AI",
-     "value learning"
+     "RLHF"
     ],
     "related_orientations": []
    },
    {
     "id": "ontology",
     "title": "Interpretation vs. Truth: The Ontology Question",
-    "source_chapter": 15,
+    "source_chapter": 14,
     "sections": [
      "sec:ontology"
     ],
-    "statement": "A foundational question in MI is: what does it mean to mechanistically understand a neural network?",
+    "statement": "A foundational MI question, which is both technical and conceptual, is: what does it mean to mechanistically understand a neural network?",
     "details": [
-     "The same input-output behavior can be realized by multiple mechanistically distinct internal structures, each consistent with the observed causal relationships.",
-     "Feature naming is subjective: different observers may assign different names to the same learned direction based on their interpretation of the activating examples.",
-     "Representation ambiguity means that multiple mechanisms can produce identical behavior while differing internally.",
-     "Moreover, intuitive human-language explanations may not always accurately capture the internal computations of the model (Hewitt et al., 2025).",
-     "For instance, how should abstraction level be chosen? Can confidence in a mechanistic explanation be established when multiple descriptions are consistent with the same behavior? Should one expect a unique mechanistic description, or are multiple valid interpretations acceptable?"
+     "Marking a feature as a “borzoi detector”, for instance, or labelling an attention head component as “a previous-token copier” mirrors possibly subjective human choices. This means multiple mechanisms can explain one behaviour, each consistent with observed causal relationships.",
+     "MI research often assumes how human-interpretable descriptions should map onto causal mechanisms. But these assumptions face several obstacles. As mentioned before, one of these is subjectivity. This includes choosing the level of abstraction; for instance, a circuit could be explained at the level of attention routing or low-rank decomposition, and the choice depends on subjective priorities.",
+     "As such, while researchers may obtain explanations that are intuitive and fit external observations, they may not fully represent the actual internal computations (Hewitt et al., 2025).",
+     "Other questions include: How can we assess confidence in a mechanistic explanation if multiple descriptions can explain the same behaviour? Are multiple valid interpretations acceptable, or should researchers expect a unique mechanistic description? Resolving these questions will help researchers clarify the limits and goals of MI research."
     ],
     "related_methods": [],
     "related_orientations": []
@@ -1322,168 +738,63 @@
    {
     "id": "proxy-fidelity",
     "title": "The Proxy Fidelity Problem",
-    "source_chapter": 15,
+    "source_chapter": 14,
     "sections": [
      "sec:proxy-fidelity",
-     "problem-formulation.",
      "why-this-matters-for-safety.",
      "potential-approaches."
     ],
-    "statement": "As architectural interventions gain traction (Section 6.9), a new verification challenge emerges: when interpretability is achieved through proxy models, such as sparse networks trained to mimic dense model representations, how can we guarantee that the proxy’s circuits reflect the same mechanisms used by the original model, rather than behaviorally equivalent but mechanistically distinct simulations?",
+    "statement": "Classic proxy models in MI research include sparse, small neural networks such as SAEs and CLTs, which reconstruct the target model’s dense activations using learned sparse linear features. However, while these approaches have greatly enhanced mechanistic analysis, they introduce a new obstacle: how can we ascertain whether the proxy truly learns the same mechanisms as the original model, rather than shallowly reproducing behaviour?",
     "details": [
-     "Two models can produce identical outputs (or even identical intermediate activations) while implementing distinct algorithms—a form of mechanistic underdetermination.",
-     "Although preliminary studies have suggested that interventions on sparse proxies can induce behavioral changes in dense models (Gao et al., 2025b), systematic validation remains limited.",
-     "One approach is causal correspondence testing, which verifies that ablating a circuit in the proxy and the corresponding components in the dense model produces matched behavioral changes across different inputs.",
-     "The second approach is activation patching transfer, which evaluates whether activations identified as causally important in the proxy retain their causal influence when the same interventions are applied to the dense model.",
-     "A third direction involves developing bounds of mechanistic divergence: theoretical frameworks that upper-bound how much internal computation can differ between models given constraints like activation reconstruction error."
+     "Several recent interpretability approaches construct more interpretable proxy models that approximate the target model’s internal computations. Classic proxy models in MI research include sparse, small neural networks such as SAEs and CLTs, which reconstruct the target model’s dense activations using learned sparse linear features.",
+     "This concern is realistic because two neural networks can produce the same output while using different internal algorithms. That is, a proxy model may find features and circuits that do not exist in the original model.",
+     "Why This Matters for Safety. For example, when researchers find no “deception circuits” in the proxy models, can they claim that the target model has therefore “passed the test” and is safe? Making this claim requires that these mechanisms do not exist in the target model either. However, as discussed above, the absence of a mechanism in the proxy model does not imply its absence in the target model, since they may compute the input differently while producing the same output. The conclusion we can draw is only something like “we did not find the deception mechanism in the proxy model”, which is far from a useful guarantee in safety-critical scenarios.",
+     "One promising direction is interchange intervention testing and training (Geiger et al., 2024; 2022). This technique was developed to compare and align a neural network with a high-level causal abstraction. The proxy models and their circuits can be viewed as a causal abstraction of the target model, where the nodes (human-interpretable variables) are the proxy models’ features. This framing not only lets us test alignment between the mechanisms identified in proxy models and the target model, but also provides an optimisation objective for training faithful proxies.",
+     "The proxy models and their circuits can be viewed as a causal abstraction of the target model, where the nodes (human-interpretable variables) are the proxy models’ features. This framing not only lets us test alignment between the mechanisms identified in proxy models and the target model, but also provides an optimisation objective for training faithful proxies. Additionally, a theoretical framework that upper-bounds how much internal computation can differ between the target model and proxy model under a given reconstruction performance can also be a promising direction."
     ],
     "related_methods": [
-     "weight-sparse proxy",
-     "causal correspondence testing",
-     "activation patching transfer",
-     "bounds of mechanistic divergence"
+     "SAEs",
+     "CLTs",
+     "interchange intervention testing and training"
     ],
     "related_orientations": []
    },
    {
     "id": "non-transformer",
     "title": "Transferability Beyond Transformers",
-    "source_chapter": 15,
+    "source_chapter": 14,
     "sections": [
      "sec:non-transformer"
     ],
-    "statement": "This raises an open question: to what extent do MI methods and findings transfer to other architectures?",
+    "statement": "Even though foundational circuits work (Olah et al., 2020) originated in convolutional networks (InceptionV1; Szegedy et al., 2015), demonstrating interpretable features of visual neurons, many of the techniques that define modern mechanistic interpretability, which include feature extraction and explanation, model editing, and circuit discovery, were developed specifically for transformer residual streams, MLPs, and attention mechanisms. Thus, an important question arises: are mechanistic interpretability concepts, tools, and findings specific to transformers, or do they reflect more general properties of neural computation across model architectures?",
     "details": [
-     "Convolutional networks: The spatial locality of convolutions may make circuits more naturally modular, but SAE-style decomposition of CNN activations remains underexplored at scale.",
-     "State space models (e.g., Mamba): These architectures lack attention but implement sequential processing via recurrent dynamics. Whether superposition, linear representation, and circuit-style analysis apply is unknown.",
-     "Reinforcement learning agents: RL policies involve temporal credit assignment and value estimation, which may require different interpretability primitives than simply next-token prediction. Limited work exists on MuZero and Atari agents, but systematic MI is lacking.",
-     "Diffusion models: The iterative denoising process introduces temporal structure distinct from autoregressive generation. Emerging work explores attention patterns in diffusion transformers, but feature extraction methods are nascent.",
-     "The five research orientations (Pragmatic, Ambitious, Developmental, Agentic, Automated) discussed in Section 13 are framed architecture-agnostically, but their instantiation has been transformer-specific.",
-     "Until such a validation exists, practitioners should be cautious about extrapolating transformer-derived insights to other neural network architectures."
+     "Although the six research orientations discussed in Section 12 are largely architecture-agnostic in their aims, their classic methods and representative works focus almost entirely on transformers.",
+     "Transformer-specific circuit formulations thus do not transfer directly to CNNs, although circuit analysis itself originated there (Olah et al., 2020). Convolutions’ spatial locality may yield more naturally modular circuits than transformers under suitable formulations, but large-scale studies of superposition, feature extraction, and circuit discovery in modern CNNs and their variants remain limited.",
+     "State-space and recurrent models: Architectures such as Mamba (Gu & Dao, 2024) and RWKV (Peng et al., 2023) replace standard self-attention with recurrent computations that update a hidden state over time. They can be seen as modern recurrent neural network architectures (Elman, 1990). Specifically, Mamba uses input-dependent state transitions to selectively retain or forget information, while RWKV uses a recurrence based on linear attention. This new paradigm raises interpretability questions that previous transformer interpretability studies have not addressed, such as how information is stored and updated in recurrent states, whether these representations exhibit certain properties such as superposition, and how causal effects can be traced across state updates.",
+     "Diffusion models: Diffusion models (Sohl-Dickstein et al., 2015) apply iterative denoising processes to generate images or tokens. They may still use transformers as backbones, but their computational structure differs fundamentally from autoregressive generation. For example, many current MI studies use the predicted next token as a sign of model behaviour (e.g., “yes” or “no” when the input is a malicious query), while diffusion-based language models generate multiple tokens in different positions at a time to iteratively complete the response. This difference means many interpretability techniques and insights do not directly apply. While recent work has begun investigating attention patterns and internal representations in diffusion models (Tinaz et al., 2025; Wang et al., 2026c), mechanistic understanding in this paradigm remains lacking.",
+     "Many modern transformer-based language models have adopted this architecture (Jiang et al., 2024; DeepSeek-AI, 2025; QwenAI, 2025; OpenAI et al., 2025; Team et al., 2026). However, MoE architectures introduce technical challenges for mechanistic analysis. For example, activation patching at an intermediate MoE layer may change which experts are selected in downstream MoE layers. This makes it difficult to distinguish the patched activation’s effects on model output from those mediated by changes in downstream expert routing.",
+     "Simultaneously, some recent work suggests that at least a few mechanistic interpretability techniques can transfer outside of transformers. Steering vectors, tuned lenses, knowledge editing, and circuit analysis evaluations have all been adapted, with varying success, to state-space models such as RWKV and Mamba, as well as to vision-language models (Paulo et al., 2025a; Sharma et al., 2024a; Häon et al., 2025; Neo et al., 2025; Ensign & Garriga-Alonso, 2024).",
+     "Sorting out which aspects of mechanistic interpretability depend on architecture and which reflect broader principles of neural computation thus appears to be a promising research direction. On the other hand, whether current research orientations and associated techniques remain relevant beyond transformers will also show how broadly mechanistic interpretability research can apply to future systems."
     ],
     "related_methods": [
      "SAEs",
-     "transcoders",
-     "model editing",
      "circuit discovery",
-     "activation patching"
+     "model editing",
+     "activation patching",
+     "steering vectors",
+     "tuned lens",
+     "knowledge editing"
     ],
     "related_orientations": [
      "Pragmatic",
      "Ambitious",
      "Developmental",
-     "Agentic",
+     "Interpretability Across Time",
+     "Introspective",
      "Automated"
     ]
-   },
-   {
-    "id": "orientation-tensions",
-    "title": "Critical Tensions and Open Questions",
-    "source_chapter": 13,
-    "sections": [
-     "critical-tensions-and-open-questions"
-    ],
-    "statement": "Several critical tensions emerge when considering the adoption of different orientations.",
-    "details": [
-     "A central debate exists between Pragmatic and Ambitious approaches: does partial mechanistic understanding suffice to ensure safety, or is complete comprehension necessary?",
-     "Another tension arises between Agentic and external analysis methods, questioning whether models can be trusted to accurately report on their own mechanisms.",
-     "Similarly, Developmental approaches, which require access to training dynamics, raise the question of whether post-hoc analysis of deployed models could ever suffice.",
-     "Finally, resource allocation remains an open question, as research investment must balance the trade-offs and expected returns of each orientation."
-    ],
-    "related_methods": [],
-    "related_orientations": [
-     "Pragmatic",
-     "Ambitious",
-     "Agentic",
-     "Developmental"
-    ]
-   },
-   {
-    "id": "safety-limitations",
-    "title": "Limitations and Open Questions",
-    "source_chapter": 14,
-    "sections": [
-     "sec:limitations-open-questions"
-    ],
-    "statement": "Despite significant progress, mechanistic interpretability faces fundamental limitations that constrain its role in AI safety.",
-    "details": [
-     "This incompleteness is not merely a technical problem but a conceptual one: some behaviors may depend on entangled, distributed representations that resist decomposition into interpretable units.",
-     "Models can optimize to encode information in ways that resist SAE decomposition, hide computation in entangled features, or implement complex distributed circuits mechanistically opaque to current circuit discovery methods.",
-     "This scalability crisis means that as models grow, mechanistic oversight becomes increasingly impractical, threatening the viability of mechanistic safety for next-generation systems.",
-     "It provides limited guidance on alignment specification, i.e., defining the right value that models should be optimized for and ensuring models pursue the objectives in the first place."
-    ],
-    "related_methods": [
-     "SAE",
-     "circuit discovery",
-     "Steering vectors",
-     "concept erasure",
-     "monitoring"
-    ],
-    "related_orientations": []
-   },
-   {
-    "id": "clt-open-questions",
-    "title": "Open Questions for CLT Research",
-    "source_chapter": 6,
-    "sections": [
-     "open-questions-for-clt-research."
-    ],
-    "statement": "Several important questions remain open:",
-    "details": [
-     "How does CLT fidelity scale in large models?",
-     "Can CLTs be extended to jointly model attention and MLP computations?",
-     "What evaluation protocols can reliably detect when CLT-based explanations are unfaithful to the original model’s computation?",
-     "How sensitive are CLT circuits to the choice of training data distribution?"
-    ],
-    "related_methods": [
-     "CLT"
-    ],
-    "related_orientations": []
-   },
-   {
-    "id": "conclusion-unresolved",
-    "title": "Unresolved Questions",
-    "source_chapter": 16,
-    "sections": [
-     "unresolved-questions"
-    ],
-    "statement": "As discussed in Section 15, several fundamental open questions remain.",
-    "details": [
-     "When is mechanistic understanding actually required for safety, or do behavioral methods suffice? Can mechanisms be verified as genuine rather than post-hoc rationalizations? How do mechanisms hold up under distribution shift and adversarial pressure?",
-     "These questions are not merely technical but conceptual, touching on epistemology and the definition of understanding itself."
-    ],
-    "related_methods": [],
-    "related_orientations": []
    }
   ]
  },
- "gaps": [
-  "Evaluation: manuscript dimension names are 'Faithfulness', 'Completeness', 'Stability', 'Causal Validity', 'Human Interpretability' (7.6.3-7.6.7 headings). The public website says 'Attribution faithfulness'. In chapter 7 the dimension is plain 'Faithfulness'. The phrase 'attribution faithfulness' occurs only in chapter 8 (sections faithfulness-of-attributions. / key-findings-on-attribution-faithfulness, about gradient/attention attribution reliability in probing), not as an evaluation-framework dimension.",
-  "Evaluation: in Table 10 (tab:evaluation-framework) the fifth row is labelled 'Interpretability', not 'Human Interpretability' as in heading 7.6.7 and the intro sentence.",
-  "Evaluation: the intro sentence lists dimensions in lower case ('faithfulness, completeness, stability, causal validity, and human interpretability'); Table 11 column headers shorten them to 'Causal' and 'Human'.",
-  "Evaluation: framework limitations mention 'Proposed thresholds (e.g., necessity > 0.5)', but no necessity > 0.5 threshold is proposed anywhere in 7.6.3-7.6.8. The only threshold is the undefined \\tau in Behavioral Coverage.",
-  "Evaluation: chapter 15.2.1 (proposed-evaluation-framework) proposes a *different* FOUR-dimension framework (Interpretability, Completeness, Validity, Efficiency) that does not cross-reference the five-dimension framework in 7.6. Stability is missing, and Efficiency is a new dimension. The two are inconsistent.",
-  "Evaluation: the framework sits in chapter 7 ('Circuits in Mechanistic Interpretability') as 7.6, although it is method-general (SAEs, probes, steering).",
-  "Evaluation: the per-dimension 'Evaluation protocol' items and the integrated protocol (7.6.8) are stated as recommendations. The text reports no worked examples or empirical results for any dimension; the only concrete artefacts named are the benchmarks MIB, AxBench and RAVEL (under Causal Validity). So 'examples' is empty for 4 of 5 dimensions.",
-  "Orientations: this draft has FIVE orientations (13.3 Pragmatic, 13.4 Ambitious, 13.5 Developmental, 13.6 Agentic, 13.7 Automated). The five are confirmed in 15.7 and the 16 Conclusion. The public list of six maps as follows: Pragmatic -> 13.3; Ambitious -> 13.4; Developmental -> 13.5 (also chapter 10, sec:training); Automated -> 13.7 (also 14.4 sec:automated-interpretability); Introspective -> NO orientation of that name. The closest is Agentic Interpretability (13.6, subtitled 'Models Interpreting Themselves', Kim et al. 2025). The introduction (ch.1, paragraph 'Second, divergence in research priorities', no own section id) describes this thread as 'exploring whether models can serve as introspective agents that explain their own internals (Kim et al. 2025)', cited to the same source as Agentic. 'introspective' also appears once in 5.3 subsec:privileged-access ('not accurate introspective reports'), and 5.3 is cited by 13.6.3 as its basis. Interpretability Across Time -> NO orientation. The phrase 'across time' appears nowhere. The nearest material is chapter 11 (Learning Dynamics; withheld from the site) and 12.1 sec:model-diffing. Neither is framed as an orientation, and both overlap with Developmental.",
-  "Orientations: 13.4 has an unnumbered paragraph 'Architectural interventions as a synthesis.' that floats a possible distinct 'Engineering' orientation; the Conclusion 16.3 instead speaks of 'three complementary paradigms' (post-hoc decomposition, developmental analysis, interpretability by design). These are a separate taxonomy from the five orientations.",
-  "Orientations: 13.2 refers to '(Figure 16)', but the figure caption reads 'Figure 18: Five Research Orientations.'",
-  "Orientations: 13.3 Pragmatic says 'which is a valuable source of feedback, but required.' This is almost certainly a missing 'not' ('but not required'); kept verbatim.",
-  "Orientations: 13.3 Pragmatic list item 'Prompting, a very effective black box baseline' lacks a full stop; 13.7 item 'Verification using synthetic data. to evaluate...' has a stray full stop; 13.6.2 'artificailly' typo.",
-  "Orientations: Table 14 tools do not fully match the prose. Agentic prose methods are 'Interactive querying', 'Dialogical explanation loops' and 'Continually intervening model', while the table lists 'LatentQA, dialogical self-explanation, model intervention'; LatentQA is never mentioned in 13.6. Developmental's table entry 'SAEs' corresponds to the prose 'Dictionary learning methods'. Ambitious prose names causal scrubbing and causal intervention, while the table says 'Circuit discovery, formal verification'.",
-  "Orientations: Agentic has no stated assumptions or strengths in 13.6 (only risks/governance), so those arrays are empty. The table's Core Thesis 'Models explain themselves if prompted correctly' is the closest to an assumption.",
-  "Orientations: 13.6.3 says 'Building on Section 5.3' (5.3 = Privileged Access Hypothesis, correct). Protocols in 13.6.3/13.7.3 refer to 'the regulator', a framing not introduced elsewhere.",
-  "Safety applications: section id typo 'challenges-of-black-box-bethods' (heading '14.1.2 Challenges of Black-Box Bethods').",
-  "Safety applications: chapter intro grammar 'including but are not limited to'. 14.7.4 opens 'Detailed mechanistic knowledge suffers from the opportunity to be weaponized'. 14.7 intro 'but it carries its own risks. However, misapplication...' (odd 'However').",
-  "Safety applications: 14.4 Automated Interpretability Agents uses section id 'sec:automated-interpretability', very close to 13.7's 'sec:automated-interp'. That invites cross-ref confusion.",
-  "Safety applications: no application subsection in 14.2-14.4 explicitly names an orientation except 14.4, which is titled 'Automated Interpretability Agents'. The linkage is only given generically in 14.5 by orientation, not per application, so 'orientations' arrays are mostly empty. 14.5 merges Automated and Agentic in one sentence.",
-  "Safety applications: mechanistic monitoring (14.3.2) reports no empirical result. Its 'Result' is a hypothetical worked example, so evidence is empty. The worked examples' 'Result:' lines for PISCES (bomb), ROME (TRIGGER) and steering (sycophancy) are illustrative, not empirical; only the PISCES '7.7%' line and the ROME/MEMIT, Rimsky and Tan citations report findings.",
-  "Safety applications: PISCES Stage 2 example says 'Assume d_{MLP}=2 with basis vectors v_1 and v_2', whereas the general description treats v_i as rows of W_out in R^{d_MLP x d}. That is consistent, but the example calls them basis vectors.",
-  "Open problems: chapter 15 has 7 numbered subsections (15.1-15.7); 15.2 has sub-subsections 15.2.1/15.2.2. 15.3 begins 'A common and critical bottleneck...' then says 'Second, adversarial obfuscation exists' with no 'First'.",
-  "Open problems: 15.1 cites (Hubinger et al. 2024; Ouyang et al. 2022) for 'mechanistically detectable'. Ouyang et al. 2022 (InstructGPT/RLHF) seems mis-attached; flag for author check.",
-  "Open problems: 15.4 attributes 'value learning' to (Bai, Jones, et al. 2022), which is the HH-RLHF paper; possible citation mismatch to check.",
-  "Elsewhere: chapter 11 contains unresolved author notes in the body text (e.g., ), and 11.2.3 Phase changes is empty. 11.2 also has the typo 'attention patternsform' and section id typo .",
-  "Elsewhere: 5.3 has unresolved citation placeholders '(binder?; song?; B. Z. Li et al. 2025)'. The introduction has typos 'Bascially', 'two many un-answered', 'some automation has become a necessary', and the section id/heading 'useful-surveys-that-we-bild-on.'",
-  "Section ids are reused across chapters with only numeric suffixes (e.g., 'mitigation-strategies.' ... '-3', 'conceptual-basis.-1', 'case-study-induction-heads-1/-2'). They are unique, but fragile for deep links."
- ]
+ "gaps": []
 }

@@ -70,7 +70,7 @@
    "subtitle": "Towards Complete Mechanistic Understanding",
    "section": "12.2",
    "section_title": "Ambitious Interpretability: Towards Complete Mechanistic Understanding",
-   "definition": "In contrast to pragmatic approaches, Ambitious Interpretability seeks a comprehensive mechanistic understanding of how models implement their computations (Gao, 2025). Proponents argue that partial or surface-level understanding cannot guarantee safety in next-generation systems.",
+   "definition": "Ambitious Interpretability seeks a comprehensive mechanistic understanding of how models implement their computations (Gao, 2025). Proponents argue that partial or surface-level understanding cannot guarantee safety in next-generation systems.",
    "list_label": "Example metrics",
    "list_terms": [
     "Feature quality",
@@ -109,7 +109,7 @@
    "subtitle": "Characterising How Models Learn",
    "section": "12.3",
    "section_title": "Developmental Interpretability: Characterising How Models Learn",
-   "definition": "Complementing post-hoc analysis of trained models, Developmental Interpretability (Hoogland et al., 2023; Hoogland et al., 2025) treats the training process itself as an object of scientific inquiry. Taking a learning-theory perspective, it aims to mathematically formalise the emergence and evolution of model representations, effective complexity, and capabilities throughout training.",
+   "definition": "Developmental Interpretability (Hoogland et al., 2023; Hoogland et al., 2025) treats the training process itself as an object of scientific inquiry. Taking a learning-theory perspective, it aims to mathematically formalise the emergence and evolution of model representations, effective complexity, and capabilities throughout training.",
    "list_label": "Methods",
    "list_terms": [
     "Singular Learning Theory (SLT)",
@@ -145,7 +145,7 @@
    "subtitle": "Understanding the Causes of Model Behaviours",
    "section": "12.4",
    "section_title": "Interpretability Across Time: Understanding the Causes of Model Behaviours",
-   "definition": "Like Developmental Interpretability, Interpretability Across Time (Biderman et al., 2023b; 2026) treats a model as a time-evolving process shaped by its training data, loss functions, architectures, and optimisation dynamics. However, the two orientations differ in their primary goals.",
+   "definition": "Interpretability Across Time (Biderman et al., 2023b; 2026) treats a model as a time-evolving process shaped by its training data, loss functions, architectures, and optimisation dynamics. However, the two orientations differ in their primary goals.",
    "list_label": "Methods",
    "list_terms": [
     "Longitudinal analysis of model internals",

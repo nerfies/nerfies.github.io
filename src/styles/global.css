@@ -157,7 +157,7 @@ table.data th[scope="row"] { font-weight: 500; }
 .label.manuscript { color: var(--ink-3); }
 .label.editorial { color: var(--accent); }
 
-blockquote.excerpt { margin: .7rem 0 1rem; padding: 0 0 0 1.1rem; border-left: 1px solid var(--hair-strong); font-family: var(--serif); font-size: 1.08rem; line-height: 1.55; color: var(--ink); }
+blockquote.excerpt { margin: .5rem 0 .9rem; padding: 0; border: 0; font-family: var(--serif); font-size: 1.08rem; line-height: 1.55; color: var(--ink); }
 blockquote.excerpt footer { font-family: var(--sans); font-size: .78rem; color: var(--ink-3); margin-top: .3rem; }
 blockquote.excerpt footer a { color: var(--ink-3); }
 
@@ -214,13 +214,12 @@ blockquote.excerpt footer a { color: var(--ink-3); }
 .prose a.cite-established { color: var(--tier-established); }
 .prose a.cite-emerging { color: var(--tier-emerging); }
 .prose a.cite-missing, .prose a.cite-flagged { color: var(--tier-flagged); }
-/* evidence tier without relying on colour: preprints dotted, missing/flagged wavy */
-.prose a.cite-emerging, .cite-emerging-sample { text-decoration: underline dotted 1px; text-underline-offset: .2em; }
+/* evidence tier: colour (peer-reviewed vs preprint); missing/flagged also wavy */
 .prose a.cite-flagged, .prose a.cite-missing { text-decoration: underline wavy 1px; text-underline-offset: .2em; }
 .tier-tag { display: inline-block; font: 500 .66rem/1.3 var(--sans); letter-spacing: .05em; text-transform: uppercase;
   border: 1px solid currentColor; padding: 0 .35em; margin-right: .45em; vertical-align: .12em; color: var(--ink-2); }
 .prose a.cite:hover { text-decoration: underline; }
-.prose :is(.definitionbox, .examplebox, .warningbox, .theorybox) { margin: 1.8rem 0; padding: .2rem 0 .2rem 1.2rem; border-left: 1px solid var(--hair-strong); font-size: 1.05rem; }
+.prose :is(.definitionbox, .examplebox, .warningbox, .theorybox, .insightbox, .practicebox) { margin: 1.8rem 0; padding: .2rem 0 .2rem 1.2rem; border-left: 1px solid var(--hair-strong); font-size: 1.05rem; }
 .prose .warningbox { border-left-color: var(--accent); }
 .prose .unrendered { display: block; padding: 1rem 0; border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); font-family: var(--sans); font-size: .9rem; color: var(--ink-2); }
 .prose .math-error { color: var(--tier-flagged); }

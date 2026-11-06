@@ -1,39 +1,66 @@
-<section id="app:notation" class="level1"><h1 data-pdf-page="119"><span class="secnum">A</span> A Notation Reference and Symbol Table<a class="anchor" href="#app:notation" aria-label="Link to this section">#</a></h1>
-<p>This appendix provides a unified reference for mathematical notation used throughout the survey.</p>
+<section id="app:notation" class="level1"><h1 data-pdf-page="177"><span class="secnum">A</span> Notation Reference and Symbol Table<a class="anchor" href="#app:notation" aria-label="Link to this section">#</a></h1>
+<p>This section provides a unified reference for mathematical notation used throughout the paper. It is not exhaustive: symbols that appear only within a single section are defined where they are introduced and may not be listed here. Where a symbol is overloaded across subfields, the section-specific meaning is noted. All vectors are column vectors throughout the paper.</p>
+<section id="dimensions-and-indices" class="level2"><h2 data-pdf-page="177"><span class="secnum">A.1</span> Dimensions and Indices<a class="anchor" href="#dimensions-and-indices" aria-label="Link to this section">#</a></h2>
 <ul>
-<li><p><span class="math inline">x \in \mathbb{R}^{d_{\text{vocab}}}</span> or <span class="math inline">x \in \{1, \ldots, V\}</span>: input token or token index</p></li>
-<li><p><span class="math inline">h^\ell \in \mathbb{R}^{d_{\text{hidden}}}</span>: activation (residual stream) at layer <span class="math inline">\ell</span></p></li>
-<li><p><span class="math inline">z_i \in \mathbb{R}^{d_{\text{sparse}}}</span>: sparse feature activation from dictionary</p></li>
-<li><p><span class="math inline">f_j \in \mathbb{R}^{d_{\text{hidden}}}</span>: feature vector (direction in activation space)</p></li>
-<li><p><span class="math inline">W_{\text{in}}, W_{\text{out}} \in \mathbb{R}^{d_{\text{hidden}} \times d_{\text{sparse}}}</span>: SAE encoder/decoder weights</p></li>
-<li><p><span class="math inline">b_{\text{in}}, b_{\text{out}} \in \mathbb{R}^{d_{\text{sparse}}}</span>: SAE encoder/decoder biases</p></li>
-<li><p><span class="math inline">W_Q, W_K, W_V \in \mathbb{R}^{d_{\text{hidden}} \times d_{\text{head}}}</span>: attention projection matrices</p></li>
-<li><p><span class="math inline">W_1 \in \mathbb{R}^{d_{\text{hidden}} \times d_{\text{mlp}}}</span>, <span class="math inline">W_2 \in \mathbb{R}^{d_{\text{mlp}} \times d_{\text{hidden}}}</span>: MLP weight matrices</p></li>
-<li><p><span class="math inline">\text{patch}(C, h_{\text{clean}}, h_{\text{corrupt}})</span>: causal intervention at component <span class="math inline">C</span></p></li>
-<li><p><span class="math inline">v_{\text{steer}} \in \mathbb{R}^{d_{\text{hidden}}}</span>: steering vector</p></li>
-<li><p><span class="math inline">\alpha</span>: scaling factor for steering vector application</p></li>
-<li><p><span class="math inline">L</span>: loss function (typically cross-entropy for language modeling)</p></li>
-<li><p><span class="math inline">\theta</span>: model parameters</p></li>
-<li><p><span class="math inline">\lambda</span>: sparsity regularization coefficient or other penalty weights</p></li>
-<li><p><span class="math inline">p(y|x)</span>: probability of output <span class="math inline">y</span> given input <span class="math inline">x</span></p></li>
-<li><p><span class="math inline">\log p(y|x)</span>: log probability (used for loss)</p></li>
-<li><p><span class="math inline">\mathbb{E}[\cdot]</span>: expectation over data distribution</p></li>
-<li><p><span class="math inline">\mathbb{E}[h \mid \text{condition}]</span>: expectation of activations conditioned on an event</p></li>
-<li><p><span class="math inline">\perp</span>: orthogonality (features or vectors are perpendicular)</p></li>
-<li><p><span class="math inline">\|v\|</span>: Euclidean norm of vector <span class="math inline">v</span></p></li>
-<li><p><span class="math inline">v \cdot w</span> or <span class="math inline">\langle v, w \rangle</span>: dot product</p></li>
-<li><p><span class="math inline">D_{\text{KL}}(P \| Q)</span>: KL divergence between distributions <span class="math inline">P</span> and <span class="math inline">Q</span></p></li>
-<li><p><span class="math inline">\sigma</span>: sigmoid function</p></li>
-<li><p><span class="math inline">\odot</span>: element-wise (Hadamard) product</p></li>
-<li><p>ReLU: rectified linear unit activation function</p></li>
-</ul>
-<section id="dimensions-and-scaling" class="level2"><h2 data-pdf-page="119"><span class="secnum">A.1</span> Dimensions and Scaling<a class="anchor" href="#dimensions-and-scaling" aria-label="Link to this section">#</a></h2>
-<ul>
-<li><p><span class="math inline">n_{\text{tokens}}</span>: number of tokens in dataset</p></li>
-<li><p><span class="math inline">n_{\text{samples}}</span>: number of forward passes or interventions performed</p></li>
-<li><p><span class="math inline">T</span>: sequence length (context length)</p></li>
-<li><p><span class="math inline">B</span>: batch size</p></li>
+<li><p><span class="math inline">d</span>: residual-stream dimension; equivalently model hidden size</p></li>
+<li><p><span class="math inline">d_{\text{head}}</span>: attention head dimension</p></li>
+<li><p><span class="math inline">d_{\text{mlp}}</span>: MLP hidden dimension, typically <span class="math inline">d_{\text{mlp}} \gg d</span></p></li>
+<li><p><span class="math inline">N_H</span>: number of attention heads per layer</p></li>
+<li><p><span class="math inline">d_{\text{sparse}}</span>: dictionary size of an SAE or transcoder, <span class="math inline">d_{\text{sparse}} = e\,d</span> with integer expansion factor <span class="math inline">e</span></p></li>
+<li><p><span class="math inline">L</span>: number of layers (model depth); <span class="math inline">\ell \in \{1,\dots,L\}</span> indexes layers</p></li>
+<li><p><span class="math inline">T</span>: sequence length (context length); <span class="math inline">t \in \{1,\dots,T\}</span> indexes token positions</p></li>
 <li><p><span class="math inline">O(\cdot)</span>: Big-O asymptotic complexity notation</p></li>
+</ul>
+</section>
+<section id="inputs-and-activations" class="level2"><h2 data-pdf-page="177"><span class="secnum">A.2</span> Inputs and Activations<a class="anchor" href="#inputs-and-activations" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><p><span class="math inline">x</span>: an input prompt or a set of input prompts</p></li>
+<li><p><span class="math inline">h^{1:T}_\ell \in \mathbb{R}^{d\times T}</span>: residual-stream activations at layer <span class="math inline">\ell</span> for token positions <span class="math inline">1</span> to <span class="math inline">T</span>, whose <span class="math inline">t</span>-th column is <span class="math inline">h^t_\ell</span></p></li>
+<li><p><span class="math inline">h_\ell^t \in \mathbb{R}^{d}</span>: residual-stream activation at layer <span class="math inline">\ell</span> for token position <span class="math inline">t</span></p></li>
+<li><p><span class="math inline">h_\ell \in \mathbb{R}^{d}</span>: residual-stream activation at layer <span class="math inline">\ell</span> with token position omitted</p></li>
+<li><p><span class="math inline">h \in \mathbb{R}^{d}</span>: residual-stream activation with both layer and position omitted</p></li>
+<li><p><span class="math inline">h&#39;_\ell \in \mathbb{R}^{d}</span>: mid-block residual stream (post-attention, pre-MLP) at layer <span class="math inline">\ell</span></p></li>
+<li><p><span class="math inline">h_\ell^{\text{in}} \in \mathbb{R}^{d}</span>, <span class="math inline">h_\ell^{\text{out}} \in \mathbb{R}^{d}</span>: input and output of a model component, e.g., an MLP block, at layer <span class="math inline">\ell</span></p></li>
+<li><p><span class="math inline">\hat{h} \in \mathbb{R}^{d}</span>: reconstruction of activations <span class="math inline">h</span> by a dictionary model</p></li>
+<li><p><span class="math inline">\tilde{h} \in \mathbb{R}^{d}</span>: activation after an intervention (steering, ablation, patching, etc.)</p></li>
+</ul>
+</section>
+<section id="dictionary-learning" class="level2"><h2 data-pdf-page="177"><span class="secnum">A.3</span> Dictionary Learning<a class="anchor" href="#dictionary-learning" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><p><span class="math inline">E : \mathbb{R}^{d} \to \mathbb{R}^{d_{\text{sparse}}}</span>: SAE encoder</p></li>
+<li><p><span class="math inline">D : \mathbb{R}^{d_{\text{sparse}}} \to \mathbb{R}^{d}</span>: SAE decoder</p></li>
+<li><p><span class="math inline">z \in \mathbb{R}^{d_{\text{sparse}}}</span>: sparse feature activations; <span class="math inline">z^i \in \mathbb{R}</span> is the activation of feature <span class="math inline">i</span>; when a layer index is also present, we write <span class="math inline">z_\ell^i</span> for feature <span class="math inline">i</span> at layer <span class="math inline">\ell</span></p></li>
+<li><p><span class="math inline">f_j \in \mathbb{R}^{d}</span>: feature direction in activation space (the <span class="math inline">j</span>-th column of <span class="math inline">W_{\text{out}}</span>)</p></li>
+<li><p><span class="math inline">W_{\text{in}} \in \mathbb{R}^{d_{\text{sparse}} \times d}</span>, <span class="math inline">b_{\text{in}} \in \mathbb{R}^{d_{\text{sparse}}}</span>: encoder weights and bias</p></li>
+<li><p><span class="math inline">W_{\text{out}} \in \mathbb{R}^{d \times d_{\text{sparse}}}</span>, <span class="math inline">b_{\text{out}} \in \mathbb{R}^{d}</span>: decoder weights and bias</p></li>
+<li><p><span class="math inline">k</span>: number of active features in a Top-<span class="math inline">k</span> SAE</p></li>
+</ul>
+</section>
+<section id="model-parameters" class="level2"><h2 data-pdf-page="178"><span class="secnum">A.4</span> Model Parameters<a class="anchor" href="#model-parameters" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><p><span class="math inline">W_Q^r, W_K^r, W_V^r \in \mathbb{R}^{d_{\text{head}} \times d}</span>, <span class="math inline">W_O^r \in \mathbb{R}^{d \times d_{\text{head}}}</span>: query, key, value, and output projection matrices of the <span class="math inline">r</span>-th attention head</p></li>
+<li><p><span class="math inline">W_1 \in \mathbb{R}^{d_{\text{mlp}} \times d}</span>, <span class="math inline">W_2 \in \mathbb{R}^{d \times d_{\text{mlp}}}</span>: MLP weight matrices</p></li>
+<li><p><span class="math inline">b_1 \in \mathbb{R}^{d_{\mathrm{mlp}}}</span>, <span class="math inline">b_2 \in \mathbb{R}^{d}</span>: MLP bias vectors</p></li>
+<li><p><span class="math inline">\theta</span>: the collection of all trainable model parameters</p></li>
+</ul>
+</section>
+<section id="interventions-and-objectives" class="level2"><h2 data-pdf-page="178"><span class="secnum">A.5</span> Interventions and Objectives<a class="anchor" href="#interventions-and-objectives" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><p><span class="math inline">v_{\text{steer}} \in \mathbb{R}^{d}</span>: steering vector, applied as <span class="math inline">h + \alpha\, v_{\text{steer}}</span></p></li>
+<li><p><span class="math inline">\alpha</span>: scaling factor for an intervention</p></li>
+<li><p><span class="math inline">\mathcal{L}</span>: loss function</p></li>
+<li><p><span class="math inline">\lambda</span>: sparsity or regularisation coefficient. In Appendix <a href="@@BASE@@handbook/mathematical-foundations/#app:slt" data-reference-type="ref" data-reference="app:slt">C.2</a>, <span class="math inline">\lambda(\cdot)</span> instead denotes the local learning coefficient</p></li>
+</ul>
+</section>
+<section id="mathematical-operations" class="level2"><h2 data-pdf-page="178"><span class="secnum">A.6</span> Mathematical Operations<a class="anchor" href="#mathematical-operations" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><p><span class="math inline">p(y \mid x)</span>, <span class="math inline">\log p(y \mid x)</span>: conditional probability and log probability</p></li>
+<li><p><span class="math inline">\mathbb{E}[\cdot]</span>: expectation over the data distribution; <span class="math inline">\mathbb{E}[\cdot \mid \text{condition}]</span> denotes a conditional expectation</p></li>
+<li><p><span class="math inline">\|v\|</span>: Euclidean norm; <span class="math inline">\|z\|_1</span> and <span class="math inline">\|z\|_0</span> denote the <span class="math inline">L_1</span> and <span class="math inline">L_0</span> norms</p></li>
+<li><p><span class="math inline">\langle v, w \rangle</span>: inner product</p></li>
+<li><p><span class="math inline">\odot</span>: element-wise product</p></li>
+<li><p><span class="math inline">\otimes</span>: Kronecker product</p></li>
+<li><p><span class="math inline">\sigma(\cdot)</span>: activation function</p></li>
 </ul>
 </section>
 </section>

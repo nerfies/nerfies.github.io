@@ -1,0 +1,17 @@
+---
+import Base from '../../layouts/Base.astro';
+import DemoFrame from '../../components/DemoFrame.astro';
+import SaeDemo from '../../components/demos/SaeDemo.tsx';
+---
+<Base title="Sparse autoencoders" description="Train a sparse autoencoder on data with known ground-truth features and measure how many it recovers.">
+  <DemoFrame id="sae" title="Sparse autoencoders recover planted features" kind="computed" refs={['bricken2023monosemanticity', 'gao2024scalingevaluatingsparseautoencoders']}>
+    <p slot="intro" class="lede">On real models we can’t check an SAE against the true features, because nobody knows what they are. Here we can. We plant 16 known feature directions in 8 dimensions (so they are in superposition), generate sparse data, train an SAE, and measure how closely its dictionary matches the planted features.</p>
+    <SaeDemo client:visible />
+    <Fragment slot="method">
+      <h2 style="font-size:1rem">What is being computed</h2>
+      <p>Data: x = Σ<sub>i</sub> a<sub>i</sub> g<sub>i</sub>, where the g<sub>i</sub> are 16 random unit vectors in ℝ⁸ and each a<sub>i</sub> is 0 with probability 0.9, otherwise Uniform[0, 1]. SAE: f = ReLU(W<sub>e</sub>(x − b<sub>d</sub>) + b<sub>e</sub>), x̂ = W<sub>d</sub>f + b<sub>d</sub>, with 32 latents and unit-norm decoder columns. The loss is ‖x − x̂‖² + λ‖f‖₁, or the TopK variant, which keeps the k largest activations. Training is Adam (learning rate 0.003, batch 256) for 2,000 steps. <strong>MMCS</strong> (mean max cosine similarity) averages, over planted features, the best cosine with any decoder column. A feature counts as <strong>recovered</strong> when that cosine exceeds 0.9.</p>
+      <p><strong>Checked results</strong> (seed 1, tested in <code>tests/sim.test.ts</code>): with λ = 0 the SAE reconstructs almost perfectly but recovers 0 of 16 features (MMCS ≈ 0.69). With λ = 0.3 it recovers all 16 (MMCS ≈ 0.97) at about 13% variance unexplained. With λ = 1 reconstruction degrades to about 60% variance unexplained. Sparsity is what makes the dictionary line up with the true features, and too much sparsity costs reconstruction.</p>
+      <p class="small muted">This is a deliberately easy, idealised setting. Real activations have no guarantee of a sparse linear ground truth. That limitation is discussed in the survey’s sections on feature extraction and evaluation.</p>
+    </Fragment>
+  </DemoFrame>
+</Base>

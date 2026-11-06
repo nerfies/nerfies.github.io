@@ -1,0 +1,11 @@
+---
+import { manifest, isDraft } from '../lib/manuscript';
+const p = manifest.provenance;
+---
+{isDraft && (
+  <div class="draft-banner" role="note" data-pagefind-ignore>
+    <strong>Preview build.</strong> This text is generated from a working draft of the manuscript
+    (source revision <code>{p.source_commit ?? p.main_tex_sha256}</code>{p.source_commit_date && <>, {p.source_commit_date}</>}), not the final version.
+    Section numbering, wording and content will change when the final manuscript is ingested.
+  </div>
+)}

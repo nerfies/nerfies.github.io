@@ -1,0 +1,215 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE, url } from '../lib/site';
+import { chapters, manifest, draftHidden } from '../lib/manuscript';
+import notebooks from '../data/notebooks.json';
+
+// Authors and affiliations as in the paper's title page, in its three groups.
+type Author = [string, string];
+const authorGroups: Author[][] = [
+  [['Fazl Barez', '1,2,†,*'], ['Tung-Yu Wu', '1,†']],
+  [['Hunar Batra', '1'], ['Gabriele Dominici', '3'], ['Florent Draye', '4'], ['Yanai Elazar', '5'], ['Damiano Fornasiere', '6'],
+   ['Antía García', '2'], ['Abir Harrasse', '2'], ['Riley Harris', '1'], ['Sara Hooker', '7'], ['Michael Lan', '2'], ['Belinda Z. Li', '8,9'],
+   ['Aaron Maiwald', '1'], ['Narmeen Fatimah Oozeer', '2'], ['Naomi Saphra', '10'], ['Or David Shafran', '11'], ['Adi Simhi', '12'],
+   ['Robert Trager', '1'], ['Shriyash Kaustubh Upadhyay', '2'], ['Ziyu Yao', '13'], ['Yu Zhao', '1,14']],
+  [['Shay B. Cohen', '14,‡'], ['Mor Geva', '11,‡'], ['Yoshua Bengio', '15,6,‡'], ['Stella Biderman', '16,‡'], ['Hassan Sajjad', '17,‡']],
+];
+const authors = authorGroups.flat();
+const affiliations = ['University of Oxford', 'Martian', 'Università della Svizzera italiana', 'Max Planck Institute for Intelligent Systems',
+  'Bar-Ilan University', 'LawZero', 'Adaption Labs', 'MIT', 'Anthropic', 'Boston University', 'Tel Aviv University', 'Technion',
+  'George Mason University', 'University of Edinburgh', 'Mila, Université de Montréal', 'EleutherAI', 'New York University Abu Dhabi & Dalhousie University'];
+
+const pillars = [
+  { n: 1, title: 'Motivation & Concepts', summary: 'Fundamental knowledge and core hypotheses.', href: 'handbook/',
+    cta: 'Read the foundations',
+    items: [['Limits of Behavioural Evaluation', ''], ['Overview of Interpretability Methods', 'Behavioural, attribution, concept-based, probing'],
+      ['Core Concepts', 'Polysemanticity, features, transformer computation, circuits'],
+      ['Core Hypotheses', 'Linear representation, superposition, privileged access, universality & Platonic representation']] },
+  { n: 2, title: 'Technical Methods', summary: 'Approaches developed and used in interpretability research.', href: 'methods/',
+    cta: 'Explore the methods',
+    items: [['Feature Extraction & Multi-Layer Analysis', 'SAEs, transcoders, CLTs, crosscoders, DAS, NMF, PCA, ICA'],
+      ['Circuits', 'Activation patching, path patching, circuit discovery, unified evaluation framework'],
+      ['Understanding Intermediate Representations', 'Logit lens, tuned lens, Jacobian lens, Patchscopes, LatentQA, probes'],
+      ['Training Data Attribution', 'Verbatim TDA, gradient-based TDA'],
+      ['Learning Dynamics', 'Phase transitions, SLT, emergent abilities, train-time interventions, machine unlearning'],
+      ['Representation Analysis', 'Model diffing, knowledge localisation, representation engineering']] },
+  { n: 3, title: 'Research Directions', summary: 'Six research orientations, characterised by their goals, assumptions, and trade-offs.', href: 'orientations/',
+    cta: 'Compare the orientations',
+    items: [['Pragmatic Interpretability', 'Proxy-task-oriented safety interventions'], ['Ambitious Interpretability', 'Towards complete mechanistic understanding'],
+      ['Developmental Interpretability', 'Characterising how models learn'], ['Interpretability Across Time', 'Understanding the causes of model behaviours'],
+      ['Introspective Interpretability', 'Models interpreting themselves'], ['Automated Interpretability', 'Scaling discovery via automation']] },
+  { n: 4, title: 'Safety & Open Problems', summary: 'Deployment-oriented interventions and the critical challenges that remain.', href: 'safety/',
+    cta: 'Browse applications and open problems',
+    items: [['Safety Applications', 'Concept erasure & knowledge editing, steering vectors & mechanistic monitoring, interpretability agents, risks & failure modes'],
+      ['Open Problems', 'When is mechanistic understanding necessary? Evaluation methods, scalability & adversarial robustness, alignment, interpretation vs. truth, proxy fidelity, transferability beyond transformers']] },
+];
+const roman = ['I', 'II', 'III', 'IV'];
+// Superposition sketch: five feature directions in a 2-D space (a regular pentagon,
+// the arrangement the toy model in demos/superposition settles into when inputs are sparse).
+const feats = [0, 1, 2, 3, 4].map((i) => { const a = Math.PI / 2 + (i * 2 * Math.PI) / 5; return [Math.cos(a), Math.sin(a)]; });
+const explore = [
+  ['Read', 'handbook/', 'The handbook', `The full survey online: ${chapters.filter((c) => !c.appendix).length} chapters and ${manifest.references.length} references, numbered as in the PDF.`],
+  ['Compare', 'methods/', 'Methods explorer', 'Every method the survey covers, side by side, quoted from the text.'],
+  ['Judge', 'evaluation/', 'Evaluation framework', 'Five dimensions for deciding whether an interpretability claim holds.'],
+  ['Orient', 'orientations/', 'Research orientations', 'The agendas behind the methods: what each assumes and what it trades away.'],
+  ['Apply', 'safety/', 'Safety and open problems', 'Where interpretability already supports safety work, and what is unsolved.'],
+  ['Run', 'demos/', 'Experiments', 'Superposition, sparse autoencoders and activation patching, computed for real.'],
+  ['Code', 'notebooks/', 'Notebooks', `${notebooks.notebooks.length} companion notebooks with compute requirements and Colab links.`],
+];
+const exploreShown = draftHidden ? explore.filter(([, href]) => href === 'demos/' || href === 'notebooks/') : explore;
+const jsonld = {
+  '@context': 'https://schema.org', '@type': 'ScholarlyArticle',
+  headline: SITE.title,
+  description: 'A survey of interpretability for AI safety, focusing on mechanistic interpretability: foundations, methods, six research orientations, safety applications, and open problems.',
+  author: authors.map(([name]) => ({ '@type': 'Person', name })),
+  image: new URL(url('static/images/survey_overview.png'), Astro.site).toString(),
+  keywords: ['mechanistic interpretability', 'interpretability', 'AI safety', 'survey'], isAccessibleForFree: true,
+};
+---
+<Base>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonld)} />
+
+  <header class="front">
+    <div class="front-grid">
+      <div class="front-text">
+        <h1>The State of Mechanistic Interpretability for AI&nbsp;Safety</h1>
+        <p class="question">Does understanding how models work actually make them safer?</p>
+        <p class="front-links">{draftHidden ? <a href={url('demos/')}>Run the experiments</a> : <a href={url('handbook/')}>Read the handbook</a>}<a href={SITE.notebooksRepo}>Code and notebooks</a><span class="muted" title="The paper will be available with the release">Paper forthcoming</span></p>
+      </div>
+      <figure class="sketch" aria-labelledby="sketch-cap">
+        <svg viewBox="-1.5 -1.5 3 3" role="img" aria-label="Five feature directions arranged as a pentagon in a two-dimensional space">
+          <circle cx="0" cy="0" r="1" fill="none" stroke="var(--ink-3)" stroke-width=".006" stroke-dasharray=".03 .03" />
+          <line x1="-1.35" y1="0" x2="1.35" y2="0" stroke="var(--hair)" stroke-width=".006" />
+          <line x1="0" y1="-1.35" x2="0" y2="1.35" stroke="var(--hair)" stroke-width=".006" />
+          {feats.map(([x, y], i) => feats.map(([x2, y2], j) => j > i && <line x1={x} y1={-y} x2={x2} y2={-y2} stroke="var(--accent)" stroke-width=".004" opacity=".35" />))}
+          {feats.map(([x, y], i) => <g><line x1="0" y1="0" x2={x} y2={-y} stroke="var(--accent)" stroke-width=".012" /><circle cx={x} cy={-y} r=".022" fill="var(--accent)" />
+            <text x={x * 1.17} y={-y * 1.17 + .035} font-size=".1" text-anchor="middle" fill="var(--ink-2)" font-family="var(--serif)" font-style="italic">f{i + 1}</text></g>)}
+        </svg>
+        <figcaption id="sketch-cap">Five features, two dimensions. When features are rarely active together, a network can store more of them than it has dimensions, at the cost of interference. <a href={url('demos/superposition/')}>Train it yourself</a>.</figcaption>
+      </figure>
+    </div>
+  </header>
+
+  <section class="byline row">
+    <div class="gut">Authors</div>
+    <div>
+      {authorGroups.map((g) => (
+        <p class="names">
+          {g.map(([n, a], i) => <><span class="author">{n}<sup>{a}</sup>{i < g.length - 1 ? ',' : ''}</span>{' '}</>)}
+        </p>
+      ))}
+      <p class="notes">* Correspondence to <a href={`mailto:${SITE.contact}`}>{SITE.contact}</a></p>
+    </div>
+    <div class="gut">Affiliations</div>
+    <ol class="affils">{affiliations.map((a) => <li>{a}</li>)}</ol>
+  </section>
+
+  <section class="row">
+    <div class="gut">Abstract</div>
+    <p class="abstract">We survey interpretability for AI safety, focusing on mechanistic interpretability (MI)—the study of neural networks’ internal representations and computations to develop causal understanding and support targeted interventions. We first situate MI within the broader interpretability landscape, contrasting its mechanism-level evidence with behavioural evaluation while emphasising how behavioural, attributional, and representation-based methods can complement mechanistic analysis. We introduce core foundations for MI from first principles, including features, polysemanticity, superposition, transformer computation, and circuits, and survey methods for feature extraction and analysis, circuit discovery and causal verification, interpreting intermediate representations, training-data attribution, learning dynamics, knowledge localisation, and representation steering. We then characterise six research orientations—Pragmatic, Ambitious, Developmental, Interpretability Across Time, Introspective, and Automated Interpretability—as agendas defined by their goals, assumptions, and trade-offs rather than by exclusive method sets. Finally, we examine how mechanistic understanding can support safety interventions, including knowledge editing, steering, monitoring, and automated interpretability agents, while assessing their limitations, failure modes, open problems, and relationship to behavioural safety measures.</p>
+  </section>
+
+  <section class="index" aria-labelledby="parts-h">
+    <h2 id="parts-h" class="row"><span class="gut">Contents</span><span>The survey in four parts</span></h2>
+    {pillars.map((p, i) => (
+      <article class="row entry">
+        <div class="gut num">Part {roman[i]}</div>
+        <div>
+          <h3>{draftHidden ? p.title : <a href={url(p.href)}>{p.title}</a>}</h3>
+          <p class="sum">{p.summary}</p>
+          <p class="items">{p.items.map(([t], j) => <>{j > 0 && <span class="dot"> · </span>}{t}</>)}</p>
+        </div>
+      </article>
+    ))}
+  </section>
+
+  <section class="row figure-row">
+    <div class="gut">Figure</div>
+    <figure>
+      <a href={url('static/images/survey_overview.png')} aria-label="Open the survey overview figure at full resolution">
+        <img src={url('static/images/survey_overview.png')} width="2832" height="1608" alt="Overview of the survey: Motivation & Concepts, Technical Methods, Research Directions, and Safety & Open Problems" />
+      </a>
+      <figcaption><strong>Overview of the survey</strong>, organised into four primary pillars: Motivation &amp; Concepts, Technical Methods, Research Directions, and Safety &amp; Open Problems.</figcaption>
+    </figure>
+  </section>
+
+  <section class="index" aria-labelledby="use-h">
+    <h2 id="use-h" class="row"><span class="gut">Companion</span><span>Using this site</span></h2>
+    {exploreShown.map(([verb, href, title, text]) => (
+      <article class="row entry compact">
+        <div class="gut num">{verb}</div>
+        <p><a class="t" href={url(href)}>{title}</a> <span class="muted">{text}</span></p>
+      </article>
+    ))}
+  </section>
+
+  <section class="row figure-row">
+    <div class="gut">Taxonomy</div>
+    <figure class="tax">
+      <a href={url('static/images/survey_taxonomy.png')} aria-label="Open the taxonomy figure at full resolution">
+        <img src={url('static/images/survey_taxonomy.png')} width="1730" height="2880" loading="lazy" alt="Taxonomy of interpretability methods covered in the survey, with representative citations for each category" />
+      </a>
+      <figcaption>Taxonomy of interpretability methods covered in this survey. Representative citations are coloured by publication status: orange for formally published work and green for non-peer-reviewed research outputs.</figcaption>
+    </figure>
+  </section>
+
+  <section class="row" id="cite">
+    <div class="gut">Citation</div>
+    <p class="muted">The paper link and BibTeX citation will be available with the release.</p>
+  </section>
+</Base>
+<style>
+  .row { max-width: 82rem; margin: 0 auto; padding: 0 1.25rem; display: grid; grid-template-columns: var(--gutter) minmax(0, 1fr); column-gap: 2.5rem; }
+  @media (max-width: 860px) { .row { grid-template-columns: minmax(0, 1fr); } .gut { margin-bottom: .4rem; } }
+  .gut { font-size: .7rem; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; padding-top: .35rem; }
+
+  .front { border-bottom: 1px solid var(--hair);
+    background-color: var(--paper);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 44px 44px; background-position: -1px -1px; }
+  .front-grid { max-width: 82rem; margin: 0 auto; padding: 4.5rem 1.25rem 4rem; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr); gap: 3rem; align-items: center; }
+  @media (min-width: 1100px) { .front-grid { padding-left: calc(var(--gutter) + 2.5rem); } }
+  @media (max-width: 860px) { .front-grid { grid-template-columns: minmax(0, 1fr); padding-top: 2.5rem; } }
+  .front-text { background: var(--paper); padding: 2.2rem 2.4rem 2rem; outline: 1px solid var(--hair); }
+  @media (max-width: 600px) { .front-text { padding: 1.4rem 1.2rem; } }
+  .front h1 { font-size: clamp(2.3rem, 5.4vw, 4rem); line-height: 1.04; margin: 0 0 .8rem; }
+  .sub { font-family: var(--serif); font-style: italic; font-weight: 300; font-size: clamp(1.1rem, 2vw, 1.4rem); color: var(--ink-2); margin: 0 0 2rem; }
+  .question { font-family: var(--serif); font-size: clamp(1.25rem, 2.3vw, 1.6rem); line-height: 1.35; margin: 1.4rem 0 2rem; padding-top: 1.2rem; border-top: 1px solid var(--hair); max-width: 30ch; color: var(--accent); }
+  .front-links { display: flex; flex-wrap: wrap; gap: .6rem 1.6rem; font-size: .92rem; margin: 0; }
+  .sketch { margin: 0; }
+  .sketch svg { width: 100%; max-width: 420px; display: block; margin: 0 auto; }
+  .sketch figcaption { font-size: .8rem; color: var(--ink-2); max-width: 26rem; margin: .4rem auto 0; background: var(--paper); padding: .4rem .2rem; }
+
+  section { margin: 0; }
+  .byline { padding-top: 2.2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--hair); row-gap: 1.4rem; }
+  .names { font-size: .95rem; line-height: 1.85; margin: 0 0 .55rem; max-width: 54rem; }
+  .author { white-space: nowrap; }
+  .names sup { color: var(--ink-3); font-size: .72em; margin-left: .08rem; }
+  .notes { font-size: .78rem; color: var(--ink-3); margin: .5rem 0 0; }
+  .affils { columns: 3 14rem; column-gap: 2rem; margin: 0; padding-left: 1.4rem; font-size: .84rem; color: var(--ink-2); line-height: 1.7; }
+  .affils li::marker { color: var(--ink-3); font-size: .9em; }
+
+  section.row:not(.byline) { padding-top: 3rem; }
+  .abstract { font-family: var(--serif); font-size: 1.2rem; line-height: 1.62; margin: 0; max-width: var(--measure); }
+
+  .index { padding-top: 3.5rem; }
+  .index h2 { font-family: var(--display); font-weight: 300; font-size: 2rem; margin: 0 auto 1.2rem; align-items: baseline; }
+  .index h2 .gut { font-family: var(--sans); }
+  .entry { padding-top: 1.3rem; padding-bottom: 1.3rem; }
+  .entry > div:last-child, .entry > p { border-top: 1px solid var(--hair); padding-top: 1.2rem; margin: -1.3rem 0 0; }
+  .entry .num { padding-top: .25rem; }
+  .entry h3 { font-size: 1.6rem; margin: 0 0 .3rem; font-weight: 400; }
+  .entry h3 a { text-decoration: none; }
+  .entry h3 a:hover { text-decoration: underline; }
+  .sum { font-family: var(--serif); font-size: 1.1rem; color: var(--ink-2); margin: 0 0 .5rem; }
+  .items { font-size: .86rem; color: var(--ink-3); margin: 0; max-width: 52rem; }
+  .compact { padding-top: .9rem; padding-bottom: .9rem; }
+  .compact > p { padding-top: .8rem; margin-top: -.9rem; font-size: .95rem; }
+  .compact .t { font-family: var(--display); font-size: 1.25rem; margin-right: .5rem; text-decoration: none; }
+  .compact .t:hover { text-decoration: underline; }
+  .figure-row figure { margin: 0; }
+  .figure-row img { display: block; background: #fff; }
+  .figure-row figcaption { font-size: .84rem; color: var(--ink-2); margin-top: .8rem; max-width: 46rem; }
+  .tax { max-width: 40rem; }
+  #cite { padding-bottom: 4rem; }
+</style>

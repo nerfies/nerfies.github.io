@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/site';
+---
+<Base title="Coming with the paper" description="The online reader and the pages built from the survey text will be available when the final manuscript is released." noindex>
+  <div class="page-narrow">
+    <p class="eyebrow">Coming with the paper</p>
+    <h1>Available when the survey is released</h1>
+    <p class="lede">The online reader and the pages built from the survey text (methods, evaluation framework, research orientations, safety applications and open problems) will appear here with the final manuscript.</p>
+    <p>In the meantime you can <a href={url('demos/')}>run the experiments</a> or browse the <a href={url('notebooks/')}>companion notebooks</a>.</p>
+  </div>
+</Base>

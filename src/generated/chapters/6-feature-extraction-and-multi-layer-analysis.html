@@ -1,0 +1,684 @@
+<section id="sec:sae" class="level1"><h1 data-pdf-page="21"><span class="secnum">6</span> Feature Extraction and Multi-Layer Analysis<a class="anchor" href="#sec:sae" aria-label="Link to this section">#</a></h1>
+<p>The goal of feature extraction is to identify features that are distributed across many neurons but correspond to coherent semantic or computational units. There are two problems. First, <strong>polysemanticity</strong>: individual neurons encode multiple semantics. Second, <strong>scale</strong>: modern models contain millions to billions of neurons. We can overcome these problems by decomposing activations into monosemantic features using sparse reconstruction. One version of this approach is sparse autoencoders (SAEs) <span class="citation" data-cites="olshausen1996emergence le2013building">(<a href="@@BASE@@references/#ref-olshausen1996emergence" class="cite cite-established" data-cite="olshausen1996emergence" role="doc-biblioref">Olshausen and Field 1996</a>; <a href="@@BASE@@references/#ref-le2013building" class="cite" data-cite="le2013building" role="doc-biblioref">Le 2013</a>)</span>, which provide a concrete way of extracting interpretable features from model activations <span class="citation" data-cites="cunningham2023sparse">(<a href="@@BASE@@references/#ref-cunningham2023sparse" class="cite cite-established" data-cite="cunningham2023sparse" role="doc-biblioref"><span class="nocase">Cunningham et al.</span> 2023</a>)</span>.</p>
+<p>This section gives an overview of how SAE techniques recover interpretable features and a practical overview of SAE variants. It gives advice on when to use the different variations. Then, multi-layer methods such as transcoders and crosscoders are introduced and compared to SAE methods and a wide variety of alternatives.</p>
+<section id="subsec:sae-foundation" class="level2"><h2 data-pdf-page="22"><span class="secnum">6.1</span> Sparse Autoencoders<a class="anchor" href="#subsec:sae-foundation" aria-label="Link to this section">#</a></h2>
+<p>Sparse Autoencoders are a way of extracting monosemantic features from polysemantic neurons. At a high level, they are trained to replicate the dynamics of a single MLP or attention block with each direction representing a distinct concept (Figure <a href="@@BASE@@handbook/6-feature-extraction-and-multi-layer-analysis/#fig:sae" data-reference-type="ref" data-reference="fig:sae">4</a>). They are optimised for accuracy to the real MLP or attention block and for having few active features for any given forward pass.</p>
+<figure id="fig:sae" data-latex-placement="t">
+<img alt="Figure 5: Sparse Autoencoder (SAE). SAEs are trained to reconstruct activations h into an overcomplete, sparse latent space z, such that \hat{h} \approx h. By enforcing sparsity on z, the model is forced to decompose dense, polysemantic representations into human-interpretable features." loading="lazy" src="@@BASE@@figures/6_sae.svg" />
+<figcaption><span class="capnum">Figure 5:</span> <strong>Sparse Autoencoder (SAE)</strong>. SAEs are trained to reconstruct activations <span class="math inline">h</span> into an overcomplete, sparse latent space <span class="math inline">z</span>, such that <span class="math inline">\hat{h} \approx h</span>. By enforcing sparsity on <span class="math inline">z</span>, the model is forced to decompose dense, polysemantic representations into human-interpretable features.</figcaption>
+</figure>
+<div class="definitionbox">
+<p>A sparse autoencoder learns an encoder–decoder pair <span class="math inline">E : \mathbb{R}^d \rightarrow \mathbb{R}^{d_{\text{sparse}}},\;
+D : \mathbb{R}^{d_{\text{sparse}}} \rightarrow \mathbb{R}^d</span> such that activations <span class="math inline">h \in \mathbb{R}^d</span> are reconstructed via <span class="math inline">\hat{h} = D(E(h))</span>, while encouraging sparse feature activations <span class="math inline">E(h)</span>. It helps localize feature activations .</p>
+</div>
+<section id="standard-formulation." class="level4">
+<h4>Standard Formulation.</h4>
+<p>Given activations <span class="math inline">h \sim \mathcal{H}</span>, the standard SAE objective is <span class="math display">\mathcal{L}_{\text{SAE}}
+=
+\mathbb{E}_{h \sim \mathcal{H}}
+\left[
+\| h - D (z) \|_2^2
++ \lambda \| z \|_1
+\right],
+\quad
+z = E(h),</span> where <span class="math inline">z \in \mathbb{R}^{d_{\text{sparse}}}</span> denotes feature activations and <span class="math inline">\lambda &gt; 0</span> controls sparsity <span class="citation" data-cites="cunningham2023sparse">(<a href="@@BASE@@references/#ref-cunningham2023sparse" class="cite cite-established" data-cite="cunningham2023sparse" role="doc-biblioref"><span class="nocase">Cunningham et al.</span> 2023</a>)</span>.</p>
+</section>
+<section id="why-saes-work." class="level4">
+<h4>Why SAEs Work.</h4>
+<p>SAEs are motivated by the hypothesis that features occur sparsely in the data and are linearly recoverable from a model’s hidden states. Under sparsity assumptions, overcomplete dictionaries can recover monosemantic directions (features) even when raw neurons are highly polysemantic (<span class="citation" data-cites="cunningham2023sparse">(<a href="@@BASE@@references/#ref-cunningham2023sparse" class="cite cite-established" data-cite="cunningham2023sparse" role="doc-biblioref"><span class="nocase">Cunningham et al.</span> 2023</a>)</span>; <span class="citation" data-cites="bricken2023monosemanticity">(<a href="@@BASE@@references/#ref-bricken2023monosemanticity" class="cite cite-emerging" data-cite="bricken2023monosemanticity" role="doc-biblioref">Bricken et al. 2023</a>)</span>).</p>
+</section>
+<section id="from-monosemanticity-to-concept-identification." class="level4">
+<h4>From Monosemanticity to Concept Identification.</h4>
+<p>While sparsity and overcompleteness provide the basis for discovering monosemantic features, practical interpretability requires identifying the semantic concepts to which these features correspond in natural languages. Empirically, SAE features exhibit selective activation to structured token patterns that recur across input sequences, suggesting sensitivity to specific abstract semantic or functional concepts. Automated analysis pipelines <span class="citation" data-cites="gur-arieh-etal-2025-enhancing paulo2025automatically">(<a href="@@BASE@@references/#ref-gur-arieh-etal-2025-enhancing" class="cite" data-cite="gur-arieh-etal-2025-enhancing" role="doc-biblioref">Gur-Arieh, Mayan, et al. 2025</a>; <a href="@@BASE@@references/#ref-paulo2025automatically" class="cite cite-established" data-cite="paulo2025automatically" role="doc-biblioref">Paulo et al. 2025</a>)</span> automatically aggregate highly activating inputs to infer the latent concept captured by each feature (see Section <a href="@@BASE@@handbook/13-five-research-orientations/#sec:automated-interp" data-reference-type="ref" data-reference="sec:automated-interp">13.7</a> for a detailed discussion).</p>
+</section>
+<section id="training-dynamics-and-evaluation." class="level4">
+<h4>Training Dynamics and Evaluation.</h4>
+<p>Training of SAEs is sensitive to initialization, sparsity strength, and decoder normalization. Without proper constraints and hyperparameters, the features may collapse, duplicate, or absorb one another (see Appendix <a href="@@BASE@@handbook/c-sae-architecture-details-and-hyperparameters/#app:sae_details" data-reference-type="ref" data-reference="app:sae_details">19</a> for hyperparameters and stability guidance). SAEs are typically evaluated for reconstruction loss (fidelity of activation reconstruction), feature absorption (degree to which features remain distinct), and downstream testing loss recovery (whether replacing activations with reconstructions preserves model behavior). Together, these metrics assess both the quality of the decomposition and its mechanistic relevance to the computation of the original model.</p>
+</section>
+</section>
+<section id="subsec:sae-variants" class="level2"><h2 data-pdf-page="23"><span class="secnum">6.2</span> SAE Variants and Architectural Improvements<a class="anchor" href="#subsec:sae-variants" aria-label="Link to this section">#</a></h2>
+<p>There are several variants of the standard SAE. One key reason to use alternatives is that the standard SAE training penalizes activation magnitude, which can lead to low activation even when a feature is clearly present (known as the shrinkage effect). Different optimisation frameworks also have different tunable parameters. Which one to use depends on the analysis goal, target layer type, size of the model, and budget constraints.</p>
+<div class="definitionbox">
+<p>Gated SAEs introduce multiplicative gates to decouple feature selection from magnitude: <span class="math display">z_i = \underbrace{\mathbbm{1} \left( (W_{\text{gate}} h_\ell + b_{\text{gate}})_i &gt; 0 \right)}_{\text{Gating Path}} \odot \underbrace{\text{ReLU}(W_{\text{in}} h_\ell  + b_{\text{in}})_i}_{\text{Magnitude Path}}</span> where <span class="math inline">h_\ell \in \mathbb{R}^d</span> is the activation at layer <span class="math inline">\ell</span>, <span class="math inline">i</span> indexes the <span class="math inline">i</span>-th feature, <span class="math inline">W_{\text{in}} \in \mathbb{R}^{{d_{\text{sparse}}} \times d}</span> and <span class="math inline">b_{\text{in}} \in \mathbb{R}^{d_{\text{sparse}}}</span> are encoder <span class="math inline">E</span> parameters, <span class="math inline">W_{\text{gate}} \in \mathbb{R}^{{d_{\text{sparse}}} \times d}</span> and <span class="math inline">b_{\text{gate}} \in \mathbb{R}^{d_{\text{sparse}}}</span> are gate’s parameters. This mitigates shrinkage effects induced by the <span class="math inline">\ell_1</span> penalty <span class="citation" data-cites="rajamanoharan2024improvingdictionarylearninggated">(<a href="@@BASE@@references/#ref-rajamanoharan2024improvingdictionarylearninggated" class="cite cite-emerging" data-cite="rajamanoharan2024improvingdictionarylearninggated" role="doc-biblioref">Rajamanoharan, Conmy, et al. 2024</a>)</span>.</p>
+</div>
+<div class="minipage">
+<div class="definitionbox">
+<p>JumpReLU SAEs learn per-feature activation thresholds. Given encoder pre-activations <span class="math inline">a = W_{\text{in}} h_\ell + b_{\text{in}}</span>, feature activations are: <span class="math display">z_i = \begin{cases} 
+    a_i &amp; \text{if } a_i &gt; \theta_i \\ 
+    0 &amp; \text{otherwise} 
+    \end{cases}</span> where <span class="math inline">\theta_i</span> is a learned threshold parameter. A smooth surrogate is used during training to enable gradient flow <span class="citation" data-cites="rajamanoharan2024jumpingaheadimprovingreconstruction">(<a href="@@BASE@@references/#ref-rajamanoharan2024jumpingaheadimprovingreconstruction" class="cite" data-cite="rajamanoharan2024jumpingaheadimprovingreconstruction" role="doc-biblioref">Rajamanoharan, Lieberum, et al. 2024</a>)</span>.</p>
+</div>
+</div>
+<div class="minipage">
+<p><img src="@@BASE@@figures/jumprelu.png" alt="image" /></p>
+</div>
+<div class="definitionbox">
+<p>Top-<span class="math inline">k</span> SAEs <span class="citation" data-cites="gao2024scalingevaluatingsparseautoencoders">(<a href="@@BASE@@references/#ref-gao2024scalingevaluatingsparseautoencoders" class="cite cite-established" data-cite="gao2024scalingevaluatingsparseautoencoders" role="doc-biblioref">Gao, Tour, et al. 2025</a>)</span> impose an explicit hard sparsity constraint. Let <span class="math inline">a = W_{\text{in}} h_\ell + b_{\text{in}} \in \mathbb{R}^{d_{\text{sparse}}}</span> denote encoder pre-activations. Top-<span class="math inline">k</span> SAEs define the feature activations as: <span class="math display">z_i = \begin{cases}
+a_i &amp; \text{if } i \in \mathcal{I}_k(a) \\
+0 &amp; \text{otherwise}
+\end{cases}</span> where <span class="math inline">\mathcal{I}_k(a)</span> indexes the <span class="math inline">k</span> largest entries of <span class="math inline">a</span>. This formulation explicitly enforces the constraint <span class="math inline">|z|_0 \le k</span>, providing a more direct and interpretable feature sparsity constraint than L1 regularization. Unlike L1 loss, it does not suppress activation magnitudes, thereby avoiding the feature shrinkage issue observed in L1-based SAE training <span class="citation" data-cites="gao2024scalingevaluatingsparseautoencoders">(<a href="@@BASE@@references/#ref-gao2024scalingevaluatingsparseautoencoders" class="cite cite-established" data-cite="gao2024scalingevaluatingsparseautoencoders" role="doc-biblioref">Gao, Tour, et al. 2025</a>)</span>.</p>
+</div>
+<div class="definitionbox">
+<p>Batch Top-<span class="math inline">k</span> SAEs enforce sparsity at the batch level. Given a batch of pre-activations <span class="math inline">A = [a^{(1)}, \ldots, a^{(B)}] \in \mathbb{R}^{d_{\text{sparse}} \times B}</span>, a subset <span class="math inline">\mathcal{J} \subset \{1,\ldots,d_{\text{sparse}}\}</span> of <span class="math inline">k</span> features is selected as the batch-wide top-<span class="math inline">k</span>: <span class="math display">\mathcal{J} = \arg\max_{|\mathcal{J}|=k} \sum_{j \in \mathcal{J}} \sum_{b=1}^B |a_j^{(b)}|</span> Activations are then set as <span class="math display">z_j^{(b)} =
+\begin{cases}
+a_j^{(b)}, &amp; j \in \mathcal{J} \\
+0, &amp; \text{otherwise}
+\end{cases}</span> for each example <span class="math inline">b</span>. This enforces global feature competition, reduces variance in feature usage across the batch, and prevents collapse <span class="citation" data-cites="bussmann2024batchtopksparseautoencoders">(<a href="@@BASE@@references/#ref-bussmann2024batchtopksparseautoencoders" class="cite" data-cite="bussmann2024batchtopksparseautoencoders" role="doc-biblioref">Bussmann et al. 2024</a>)</span>.  </p>
+</div>
+<div class="insightbox">
+<p>SAE variants differ fundamentally in how they enforce sparsity. No single variant is optimal across all regimes.</p>
+<div class="center">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Variant</strong></th>
+<th style="text-align: center;"><strong>Sparsity</strong></th>
+<th style="text-align: center;"><strong>Differentiable</strong></th>
+<th style="text-align: center;"><strong>Tuning Required</strong></th>
+<th style="text-align: center;"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><span class="math inline">\ell_1</span>-regularized</td>
+<td style="text-align: center;">Soft</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;"><span class="math inline">\lambda</span> coefficient</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Gated</td>
+<td style="text-align: center;">Learned</td>
+<td style="text-align: center;">✓<span class="math inline">^*</span></td>
+<td style="text-align: center;">Gate + <span class="math inline">\ell_1</span> parameters</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">JumpReLU</td>
+<td style="text-align: center;">Learned</td>
+<td style="text-align: center;">✓<span class="math inline">^*</span></td>
+<td style="text-align: center;">Threshold initialization</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Top-<span class="math inline">k</span></td>
+<td style="text-align: center;">Hard</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;"><span class="math inline">k</span> value</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Batch Top-<span class="math inline">k</span></td>
+<td style="text-align: center;">Hard</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;"><span class="math inline">k</span> value</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><span><span class="math inline">^*</span>Uses smooth surrogate during training.</span></p>
+</div>
+<p>Readers are referred to <span class="citation" data-cites="shu-etal-2025-survey">Shu et al. (<a href="@@BASE@@references/#ref-shu-etal-2025-survey" class="cite cite-established" data-cite="shu-etal-2025-survey" role="doc-biblioref">2025</a>)</span> for a dedicated survey of SAEs, their variants, evaluations, and applications.</p>
+</section>
+<section id="subsec:sae-selection" class="level2"><h2 data-pdf-page="24"><span class="secnum">6.3</span> Practical Guidance: Selecting SAE Variants<a class="anchor" href="#subsec:sae-selection" aria-label="Link to this section">#</a></h2>
+<p>Practitioners face a decision problem: which SAE variant should be used for a given model, layer, and analysis goal? This section provides practical heuristics synthesized from empirical findings and architectural considerations. These recommendations are provisional—the field lacks comprehensive benchmarks comparing variants across all settings—but offer a starting point for informed decisions.</p>
+<p>In the following, we consider four factors that primarily determine which SAE variant is appropriate, and present the decision tree based on these factors.</p>
+<ol>
+<li><p><strong>Analysis goal</strong>: Exploratory discovery vs. targeted investigation vs. deployment/monitoring</p></li>
+<li><p><strong>Layer type</strong>: Residual stream vs. MLP output vs. attention output</p></li>
+<li><p><strong>Model scale</strong>: Small (<span class="math inline">&lt;</span>1B) vs. medium (1-10B) vs. large (<span class="math inline">&gt;</span>10B parameters)</p></li>
+<li><p><strong>Resource constraints</strong>: Compute budget, hyperparameter tuning capacity, tolerance for training instability</p></li>
+</ol>
+<div class="definitionbox">
+<p><strong>Step 1: What is your primary goal?</strong></p>
+<ul>
+<li><p><strong>Exploratory discovery</strong> (understand what features exist) <span class="math inline">\rightarrow</span> Go to Step 2</p></li>
+<li><p><strong>Targeted investigation</strong> (find features for specific behavior) <span class="math inline">\rightarrow</span> Consider supervised methods first (DAS, probes); if unsupervised needed, go to Step 2</p></li>
+<li><p><strong>Deployment/monitoring</strong> (real-time feature detection) <span class="math inline">\rightarrow</span> Prioritize inference speed; Top-K or standard SAE with small dictionary</p></li>
+</ul>
+<p><strong>Step 2: What layer type are you analyzing?</strong></p>
+<ul>
+<li><p><strong>Residual stream</strong> <span class="math inline">\rightarrow</span> Go to Step 3</p></li>
+<li><p><strong>MLP outputs</strong> <span class="math inline">\rightarrow</span> Consider <strong>Transcoders</strong> (predict post-MLP from pre-MLP); if single-layer SAE needed, go to Step 3</p></li>
+<li><p><strong>Attention outputs</strong> <span class="math inline">\rightarrow</span> Standard SAE or Gated SAE; attention-specific variants are less developed</p></li>
+<li><p><strong>Cross-layer analysis</strong> <span class="math inline">\rightarrow</span> <strong>Crosscoders</strong> or <strong>CLTs</strong> (if compute permits)</p></li>
+</ul>
+<p><strong>Step 3: What are your resource constraints?</strong></p>
+<ul>
+<li><p><strong>Limited compute / need fast iteration</strong> <span class="math inline">\rightarrow</span> <strong>Top-K SAE</strong> (no <span class="math inline">\lambda</span> tuning; fixed sparsity)</p></li>
+<li><p><strong>Moderate compute / some tuning capacity</strong> <span class="math inline">\rightarrow</span> <strong>Gated SAE</strong> (best reconstruction-sparsity tradeoff in most settings)</p></li>
+<li><p><strong>Ample compute / extensive tuning possible</strong> <span class="math inline">\rightarrow</span> <strong>JumpReLU SAE</strong> (learned thresholds; strong performance but sensitive)</p></li>
+</ul>
+<p><strong>Step 4: What model scale?</strong></p>
+<ul>
+<li><p><strong>Small models (<span class="math inline">&lt;</span>1B)</strong> <span class="math inline">\rightarrow</span> Any variant works; use this regime to validate methodology before scaling</p></li>
+<li><p><strong>Medium models (1-10B)</strong> <span class="math inline">\rightarrow</span> Gated or Top-K recommended; JumpReLU if tuning budget available</p></li>
+<li><p><strong>Large models (<span class="math inline">&gt;</span>10B)</strong> <span class="math inline">\rightarrow</span> Top-K or Batch Top-K (most stable at scale); Gated SAE if reconstruction quality critical</p></li>
+</ul>
+<p><span id="tab:sae-variant-selection-decision-tree" data-label="tab:sae-variant-selection-decision-tree"></span></p>
+</div>
+<section id="layer-specific-recommendations" class="level3"><h3 data-pdf-page="25"><span class="secnum">6.3.1</span> Layer-Specific Recommendations<a class="anchor" href="#layer-specific-recommendations" aria-label="Link to this section">#</a></h3>
+<p>Different layer types exhibit different activation statistics, affecting SAE performance, as shown in Table <a href="@@BASE@@handbook/6-feature-extraction-and-multi-layer-analysis/#tab:sae-layer-recommendations" data-reference-type="ref" data-reference="tab:sae-layer-recommendations">3</a>.</p>
+<table id="tab:sae-layer-recommendations">
+<caption><span class="capnum">Table 3:</span> SAE Variant Recommendations by Layer Type</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><span style="color: white"><strong>Layer Type</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Recommended Variants</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Rationale</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Considerations</strong></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Residual stream (early layers)</td>
+<td style="text-align: left;">Gated SAE, Top-K</td>
+<td style="text-align: left;">Activations are closer to input embeddings; moderate sparsity</td>
+<td style="text-align: left;">May need smaller expansion factor (2-4x)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Residual stream (middle layers)</td>
+<td style="text-align: left;">Gated SAE, JumpReLU</td>
+<td style="text-align: left;">Richest feature structure; highest interpretability potential</td>
+<td style="text-align: left;">Standard expansion factor (4-8x); most studied regime</td>
+</tr>
+<tr>
+<td style="text-align: left;">Residual stream (late layers)</td>
+<td style="text-align: left;">Top-K, Gated SAE</td>
+<td style="text-align: left;">Activations increasingly task-specific; may be less sparse</td>
+<td style="text-align: left;">Consider larger expansion factor (8-16x)</td>
+</tr>
+<tr>
+<td style="text-align: left;">MLP outputs</td>
+<td style="text-align: left;">Transcoder (<a href="@@BASE@@handbook/6-feature-extraction-and-multi-layer-analysis/#subsec:transcoders-crosscoders" data-reference-type="ref+label" data-reference="subsec:transcoders-crosscoders">6.4</a>)</td>
+<td style="text-align: left;">MLP applies nonlinearity; transcoder captures input-output mapping</td>
+<td style="text-align: left;">Not a true SAE; predicts layer <span class="math inline">\ell+1</span> from layer <span class="math inline">\ell</span></td>
+</tr>
+<tr>
+<td style="text-align: left;">Attention outputs</td>
+<td style="text-align: left;">Gated SAE, Standard SAE</td>
+<td style="text-align: left;">Less studied; attention outputs often lower-rank</td>
+<td style="text-align: left;">May benefit from smaller dictionaries</td>
+</tr>
+<tr>
+<td style="text-align: left;">Cross-layer</td>
+<td style="text-align: left;">Crosscoder, CLT (<a href="@@BASE@@handbook/6-feature-extraction-and-multi-layer-analysis/#subsec:transcoders-crosscoders" data-reference-type="ref+label" data-reference="subsec:transcoders-crosscoders">6.4</a>)</td>
+<td style="text-align: left;">Tracks feature evolution; resolves cross-layer superposition</td>
+<td style="text-align: left;">High compute cost; requires multi-layer training</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="common-pitfalls-and-how-to-avoid-them" class="level3"><h3 data-pdf-page="26"><span class="secnum">6.3.2</span> Common Pitfalls and How to Avoid Them<a class="anchor" href="#common-pitfalls-and-how-to-avoid-them" aria-label="Link to this section">#</a></h3>
+<div class="warningbox">
+<p><strong>Pitfall 1: Using standard <span class="math inline">\ell_1</span> SAE without considering alternatives</strong></p>
+<ul>
+<li><p>Standard SAEs suffer from shrinkage bias; Gated SAEs solve this with minimal added complexity.</p></li>
+<li><p><em>Recommendation</em>: Use Gated SAE as the default unless you have specific reasons for standard.</p></li>
+</ul>
+<p><strong>Pitfall 2: Over-tuning <span class="math inline">\lambda</span> instead of switching to Top-K</strong></p>
+<ul>
+<li><p>If you’re spending significant time tuning the sparsity coefficient, Top-K eliminates this hyperparameter entirely.</p></li>
+<li><p><em>Recommendation</em>: If <span class="math inline">\lambda</span> tuning takes more than a few runs, switch to Top-K with target sparsity.</p></li>
+</ul>
+<p><strong>Pitfall 3: Using the same expansion factor everywhere</strong></p>
+<ul>
+<li><p>Early layers may need smaller dictionaries (2-4x); late layers may need larger (8-16x).</p></li>
+<li><p><em>Recommendation</em>: Start with 4x expansion, then adjust based on dead feature rate and reconstruction quality.</p></li>
+</ul>
+<p><strong>Pitfall 4: Ignoring layer type differences</strong></p>
+<ul>
+<li><p>SAEs on residual stream vs. MLP outputs vs. attention outputs behave differently.</p></li>
+<li><p><em>Recommendation</em>: For MLP analysis, use transcoders; for cross-layer analysis, use crosscoders or CLTs.</p></li>
+</ul>
+<p><strong>Pitfall 5: Not checking for dead features</strong></p>
+<ul>
+<li><p>High dead feature rates (<span class="math inline">&gt;</span>20%) indicate wasted capacity and possible training issues.</p></li>
+<li><p><em>Recommendation</em>: Monitor dead feature rate; use neuron resampling or switch to Batch Top-K if problematic.</p></li>
+</ul>
+</div>
+</section>
+<section id="quick-reference-when-to-use-what" class="level3"><h3 data-pdf-page="26"><span class="secnum">6.3.3</span> Quick Reference: When to Use What<a class="anchor" href="#quick-reference-when-to-use-what" aria-label="Link to this section">#</a></h3>
+<p>In Table <a href="@@BASE@@handbook/6-feature-extraction-and-multi-layer-analysis/#tab:sae_recommendations" data-reference-type="ref" data-reference="tab:sae_recommendations">4</a>, we provide a concise set of heuristic recommendations mapping common practitioner goals to SAE variants that have been found empirically useful in prior work and practice.</p>
+<table id="tab:sae_recommendations" style="width:90%;">
+<caption><span class="capnum">Table 4:</span> Heuristic recommendations for selecting SAE variants based on common practitioner goals.</caption>
+<colgroup>
+<col style="width: 45%" />
+<col style="width: 45%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Practitioner Goal</strong></th>
+<th style="text-align: left;"><strong>Recommended Variant</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">New to SAEs and want a reliable default</td>
+<td style="text-align: left;">Gated SAE with 4<span class="math inline">\times</span> expansion</td>
+</tr>
+<tr>
+<td style="text-align: left;">Fast experimentation without extensive tuning</td>
+<td style="text-align: left;">Top-<span class="math inline">k</span> SAE (<span class="math inline">k = 50</span>–<span class="math inline">100</span>)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Highest-quality features with sufficient compute</td>
+<td style="text-align: left;">JumpReLU SAE with careful tuning</td>
+</tr>
+<tr>
+<td style="text-align: left;">Analysis of very large models</td>
+<td style="text-align: left;">Batch Top-<span class="math inline">k</span> SAE for improved stability</td>
+</tr>
+<tr>
+<td style="text-align: left;">Understanding MLP computation</td>
+<td style="text-align: left;">Transcoder</td>
+</tr>
+<tr>
+<td style="text-align: left;">Tracking features across layers</td>
+<td style="text-align: left;">Crosscoder or CLT</td>
+</tr>
+<tr>
+<td style="text-align: left;">Comparing representations between models</td>
+<td style="text-align: left;">Crosscoder trained jointly on both models</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="limitations-of-these-recommendations" class="level3"><h3 data-pdf-page="26"><span class="secnum">6.3.4</span> Limitations of These Recommendations<a class="anchor" href="#limitations-of-these-recommendations" aria-label="Link to this section">#</a></h3>
+<p>Heuristics in Table <a href="@@BASE@@handbook/6-feature-extraction-and-multi-layer-analysis/#tab:sae_limitations" data-reference-type="ref" data-reference="tab:sae_limitations">5</a> are based on current empirical findings, which have limitations. Practitioners should treat these as starting points, validate on their specific use case, and report which variants they used to enable community learning.</p>
+<table id="tab:sae_limitations" style="width:90%;">
+<caption><span class="capnum">Table 5:</span> Key limitations underlying the heuristic recommendations for SAE variant selection.</caption>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 55%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Limitation</strong></th>
+<th style="text-align: left;"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Limited systematic comparison</td>
+<td style="text-align: left;">No comprehensive benchmark currently evaluates all SAE variants across layer types, model scales, and training regimes.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Architecture dependence</td>
+<td style="text-align: left;">Most evidence is derived from Llama and Gemma family models; results may not generalize to other architectures.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Rapid methodological change</td>
+<td style="text-align: left;">New SAE variants and training techniques continue to emerge, potentially rendering current recommendations outdated.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Task dependence</td>
+<td style="text-align: left;">Optimal choices may differ depending on the analysis goal (e.g. safety analysis, capability understanding, or knowledge localization).</td>
+</tr>
+</tbody>
+</table>
+<p>Practitioners should treat these as starting points, validate on their specific use case, and report which variants they used to enable community learning.</p>
+</section>
+</section>
+<section id="subsec:transcoders-crosscoders" class="level2"><h2 data-pdf-page="27"><span class="secnum">6.4</span> Multi-Layer Feature Analysis: Transcoders and Crosscoders<a class="anchor" href="#subsec:transcoders-crosscoders" aria-label="Link to this section">#</a></h2>
+<p>Standard SAEs analyze single layers in isolation. However, features evolve as information flows through the network. Transcoders and Crosscoders enable analysis across layers and token positions, revealing how representations transform through nonlinearities.</p>
+<section id="subsubsec:transcoder" class="level3"><h3 data-pdf-page="27"><span class="secnum">6.4.1</span> Transcoders: Bridging Nonlinear Layers<a class="anchor" href="#subsubsec:transcoder" aria-label="Link to this section">#</a></h3>
+<div class="definitionbox">
+<p>A <strong>transcoder</strong> learns a sparse mapping between the input and output to an MLP layer: <span class="math display">h_{\ell}^{out} \approx W_{\text{out}} z + b_{\text{out}}, \quad z = \sigma(W_{\text{in}} h_\ell^{in} + b_{\text{in}})</span> where <span class="math inline">z \in \mathbb{R}^{d_{\text{sparse}}}</span> are sparse feature activations bridging the nonlinearity between layers <span class="math inline">\ell</span> and <span class="math inline">\ell+1</span>, <span class="math inline">W_{\text{out}} \in \mathbb{R}^{d \times {d_{\text{sparse}}}}</span> and <span class="math inline">b_{\text{out}} \in \mathbb{R}^{d}</span> are decoder <span class="math inline">D</span> parameters. The transcoder reconstructs post-nonlinearity activations using features extracted from pre-nonlinearity activations <span class="citation" data-cites="dunefsky2024transcodersinterpretablellmfeature">(<a href="@@BASE@@references/#ref-dunefsky2024transcodersinterpretablellmfeature" class="cite cite-established" data-cite="dunefsky2024transcodersinterpretablellmfeature" role="doc-biblioref">Dunefsky et al. 2024</a>)</span>.</p>
+</div>
+<section id="architecture-and-motivation." class="level4">
+<h4>Architecture and Motivation.</h4>
+<p>Standard SAEs struggle to explain activations after nonlinear transformations (MLP layers, attention). A transcoder applies sparse decomposition directly to the nonlinear mapping, learning features that explain the transformation. Training minimizes: <span class="math display">\mathcal{L} = \|h_{\ell}^{out} - (W_{\text{out}} z + b_{\text{out}})\|_2^2 + \lambda \|z\|_1</span> where <span class="math inline">z = \sigma(W_{\text{in}} h_\ell + b_{\text{in}})</span>.</p>
+</section>
+<section id="when-transcoders-are-necessary." class="level4">
+<h4>When Transcoders Are Necessary.</h4>
+<p>Single-layer SAEs often suffice for residual-stream analysis, where features largely propagate linearly. However, MLP blocks apply nonlinear transformations that distort feature space. Transcoders are essential when analyzing MLPs, understanding feature interactions, or tracking how concepts evolve across layers <span class="citation" data-cites="dunefsky2024transcodersinterpretablellmfeature">(<a href="@@BASE@@references/#ref-dunefsky2024transcodersinterpretablellmfeature" class="cite cite-established" data-cite="dunefsky2024transcodersinterpretablellmfeature" role="doc-biblioref">Dunefsky et al. 2024</a>)</span>.</p>
+<figure id="fig:clt" data-latex-placement="t">
+<div class="minipage">
+<img alt="Figure 7: Cross-Layer Transcoder (CLT). CLTs extend Transcoders by simultaneously partially reconstructing the outputs of multiple subsequent layers from a single input point in the residual stream." loading="lazy" src="@@BASE@@figures/6_transcoders.svg" />
+</div>
+<div class="minipage">
+<img alt="Figure 7: Cross-Layer Transcoder (CLT). CLTs extend Transcoders by simultaneously partially reconstructing the outputs of multiple subsequent layers from a single input point in the residual stream." loading="lazy" src="@@BASE@@figures/6_clt.svg" />
+</div>
+<figcaption><span class="capnum">Figure 7:</span> <strong>Cross-Layer Transcoder (CLT)</strong>. CLTs extend Transcoders by simultaneously partially reconstructing the outputs of multiple subsequent layers from a single input point in the residual stream.</figcaption>
+</figure>
+</section>
+</section>
+<section id="subsubsec:cross-layer-transcoder" class="level3"><h3 data-pdf-page="27"><span class="secnum">6.4.2</span> Cross-Layer Transcoders<a class="anchor" href="#subsubsec:cross-layer-transcoder" aria-label="Link to this section">#</a></h3>
+<div class="definitionbox">
+<p>A <strong>Cross-Layer Transcoder</strong> (CLT) is a sparse feature decomposition spanning all layers of a neural network. Each feature <span class="math inline">\mathbf{a}^{\ell}</span> reads from the residual stream at layer <span class="math inline">\ell</span> via: <span class="math display">\mathbf{z}^{\ell} = \text{JumpReLU}(W_{\text{in}}^{\ell} h_\ell)</span> and each feature can write to the MLP outputs of all <em>subsequent</em> layers via layer-specific decoder matrices: <span class="math display">\hat{\mathbf{y}}^{\ell&#39;} = \sum_{\ell=1}^{\ell&#39;} W_{\text{out}}^{\ell \to \ell&#39;} \mathbf{z}^{\ell}</span> where <span class="math inline">\hat{\mathbf{y}}^{\ell&#39;}</span> reconstructs the original MLP output at layer <span class="math inline">\ell&#39;</span>.</p>
+</div>
+<p>CLTs are trained jointly across all layers to minimize: <span class="math display">\mathcal{L} = \sum_{\ell=1}^L \|\hat{\mathbf{y}}^{\ell} - \mathbf{y}^{\ell}\|_2^2 + \lambda \sum_{\ell=1}^L \sum_{i} \tanh(c \cdot \|W_{\text{out},i}^{\ell}\| \cdot z_i^{\ell})</span> where <span class="math inline">c</span> is the sharpness hyperparameter <span class="citation" data-cites="ameisen2025circuit">(<a href="@@BASE@@references/#ref-ameisen2025circuit" class="cite cite-emerging" data-cite="ameisen2025circuit" role="doc-biblioref">Ameisen et al. 2025</a>)</span>.</p>
+<section id="replacement-models-and-attribution-graphs." class="level4">
+<h4>Replacement Models and Attribution Graphs.</h4>
+<p>A key insight is that CLTs enable the construction of a <strong>replacement model</strong>: a version of the original model where all MLP layers are replaced by their CLT reconstructions. Running this replacement model involves:</p>
+<ul>
+<li><p>Computing CLT feature activations <span class="math inline">\mathbf{z}^{\ell}</span> at each layer <span class="math inline">\ell</span></p></li>
+<li><p>Replacing MLP outputs <span class="math inline">\mathbf{y}^{\ell}</span> with reconstructions <span class="math inline">\hat{\mathbf{y}}^{\ell}</span> from features in layers <span class="math inline">1</span> through <span class="math inline">\ell</span></p></li>
+<li><p>Keeping attention layers unchanged</p></li>
+</ul>
+<p>Empirically, CLT replacement models match the original model’s most-likely token on approximately 50% of prompts in initial experiments on Gemma-2-2B <span class="citation" data-cites="ameisen2025circuit">(<a href="@@BASE@@references/#ref-ameisen2025circuit" class="cite cite-emerging" data-cite="ameisen2025circuit" role="doc-biblioref">Ameisen et al. 2025</a>)</span>. However, this figure should be interpreted with important caveats (see below). When analyzing a specific prompt, a <strong>local replacement model</strong> freezes attention patterns and normalization statistics from the original model’s forward pass, then adds layer-specific error corrections. Under these conditions, the local replacement model can exactly match the original model’s computation on that prompt while decomposing it into interpretable CLT features.</p>
+<div class="warningbox">
+<p>The claim that CLT replacement models achieve <span class="math inline">\sim</span>50% most-likely token match requires careful qualification:</p>
+<p><strong>Conditions for reported fidelity:</strong></p>
+<ul>
+<li><p>Results reported primarily on Gemma-2-2B; generalization to other architectures (e.g., Llama, GPT variants) and larger scales (70B+) remains underexplored.</p></li>
+<li><p>Fidelity was measured on evaluation prompts drawn from small sequences drawn from the CLT training data. Performance under significant distribution shift (e.g., out-of-domain tasks, adversarial inputs) is not well characterized.</p></li>
+<li><p>The 50% figure reflects top-1 token agreement; softer metrics (e.g., top-5 agreement, KL divergence) may show different patterns.</p></li>
+</ul>
+<p><strong>Conditions for exact local matching:</strong></p>
+<ul>
+<li><p>Attention patterns must be frozen from the original forward pass, the CLT does not model or reconstruct attention computations.</p></li>
+<li><p>Layer normalization statistics (means, variances) must be cached from the original model; the replacement model does not recompute these.</p></li>
+<li><p>Error correction terms are added per-layer to compensate for reconstruction residuals; without these, exact matching fails.</p></li>
+</ul>
+<p><strong>Factors affecting fidelity:</strong></p>
+<ul>
+<li><p><em>Model scale</em>: Preliminary evidence suggests fidelity improves with model size, possibly because larger models exhibit more structured, less entangled representations <span class="citation" data-cites="ameisen2025circuit">(<a href="@@BASE@@references/#ref-ameisen2025circuit" class="cite cite-emerging" data-cite="ameisen2025circuit" role="doc-biblioref">Ameisen et al. 2025</a>)</span>. However, systematic scaling studies are limited.</p></li>
+<li><p><em>Layer depth</em>: Middle layers often show higher reconstruction fidelity than early or final layers, where representations may be more input-specific or output-constrained respectively.</p></li>
+<li><p><em>Domain</em>: Fidelity on factual recall and syntactic tasks appears higher than on complex reasoning or arithmetic, where MLP computations may be more nonlinear and less amenable to sparse linear approximation.</p></li>
+</ul>
+<p>These caveats do not invalidate CLTs as a tool for mechanistic analysis, but practitioners should verify fidelity on their specific model, layer, and task before drawing strong conclusions from CLT-based circuit analysis.</p>
+</div>
+</section>
+<section id="why-clts-enable-better-circuit-analysis." class="level4">
+<h4>Why CLTs Enable Better Circuit Analysis.</h4>
+<p>Unlike per-layer transcoders, CLTs reveal direct feature-to-feature interactions across layers: a feature in layer <span class="math inline">\ell</span> directly influences features in later layers through its contribution to their inputs. This simplifies circuit structure—features need not re-encode information at each layer. Additionally, by replacing MLPs with CLT reconstructions, the remaining computation becomes <em>approximately</em> linear (with frozen attention patterns and normalization), enabling principled attribution: each feature’s activation can be expressed as the sum of its input edges up to its activation threshold <span class="citation" data-cites="ameisen2025circuit">(<a href="@@BASE@@references/#ref-ameisen2025circuit" class="cite cite-emerging" data-cite="ameisen2025circuit" role="doc-biblioref">Ameisen et al. 2025</a>)</span>.</p>
+<p>However, the degree of linearization achieved depends on several assumptions:</p>
+<ul>
+<li><p><strong>Attention freezing</strong>: By caching attention patterns, the replacement model treats attention as a fixed routing operation rather than a dynamic, input-dependent computation. This simplifies analysis but means CLT-based circuits describe computation <em>given</em> specific attention patterns, not the attention computation itself.</p></li>
+<li><p><strong>Normalization caching</strong>: Freezing LayerNorm statistics removes a source of nonlinearity but introduces dependence on the specific input used to cache these statistics.</p></li>
+<li><p><strong>Sparse linear approximation</strong>: The core assumption that MLP outputs are well-approximated by sparse linear combinations of features may break down for computations involving complex feature interactions or highly nonlinear transformations.</p></li>
+</ul>
+<p>When these assumptions hold, CLTs provide a powerful lens for circuit discovery. When they fail, particularly for complex reasoning or out-of-distribution inputs, CLT-based explanations may be incomplete or misleading.</p>
+</section>
+<section id="computational-cost-and-practical-considerations." class="level4">
+<h4>Computational Cost and Practical Considerations.</h4>
+<figure id="fig:clt-size-vs-depth">
+<img alt="Figure 8: Parameter count (left) and FP16 memory requirements (right) of a full Cross-Layer Transcoder as a function of model depth, for different residual stream dimensions and expansion factor e=32." loading="lazy" src="@@BASE@@figures/clt_size_vs_depth_e32_clean_v2.png" />
+<figcaption><span class="capnum">Figure 8:</span>  Parameter count (left) and FP16 memory requirements (right) of a full Cross-Layer Transcoder as a function of model depth, for different residual stream dimensions and expansion factor <span class="math inline">e=32</span>. </figcaption>
+</figure>
+<p>A CLT associates each transformer layer with an encoder <span class="math inline">\mathbb{R}^d \rightarrow \mathbb{R}^{ed}</span> and every ordered layer pair <span class="math inline">(\ell_s &lt; \ell_t)</span> with a decoder <span class="math inline">\mathbb{R}^{ed} \rightarrow \mathbb{R}^d</span>. The total parameter count scales as <span class="math display">N_{\text{CLT}}(L,d,e) = \tfrac{e d^2}{2}\left(L^2 + L\right),</span> highlighting quadratic growth in both model depth and width, as shown in Figure <a href="@@BASE@@handbook/6-feature-extraction-and-multi-layer-analysis/#fig:clt-size-vs-depth" data-reference-type="ref" data-reference="fig:clt-size-vs-depth">6</a>.</p>
+<p>Training a CLT requires significant upfront cost, which scales with the number of features and layers. For reference, training the CLT suite for Gemma-2-9B required approximately 3<span>,</span>844 H100 GPU-hours at 50% FLOPs efficiency <span class="citation" data-cites="ameisen2025circuit">(<a href="@@BASE@@references/#ref-ameisen2025circuit" class="cite cite-emerging" data-cite="ameisen2025circuit" role="doc-biblioref">Ameisen et al. 2025</a>)</span>. This cost is amortized over many circuit analyses on the trained CLT. The resulting interpretability gains (cross-layer features, lower interference, better attribution) justify the investment for systematic mechanistic analysis.</p>
+<p>For these reasons, besides Anthropic’s foundational work <span class="citation" data-cites="ameisen2025circuit lindsey2025biology">(<a href="@@BASE@@references/#ref-ameisen2025circuit" class="cite cite-emerging" data-cite="ameisen2025circuit" role="doc-biblioref">Ameisen et al. 2025</a>; <a href="@@BASE@@references/#ref-lindsey2025biology" class="cite cite-emerging" data-cite="lindsey2025biology" role="doc-biblioref">Lindsey, Gurnee, et al. 2025</a>)</span>, CLT applications remain limited: a “greater-than” mechanism study <span class="citation" data-cites="merullo2025replicating">(<a href="@@BASE@@references/#ref-merullo2025replicating" class="cite cite-emerging" data-cite="merullo2025replicating" role="doc-biblioref">Merullo et al. 2025</a>)</span>, an open-source extension <span class="citation" data-cites="lindsey2025landscape">(<a href="@@BASE@@references/#ref-lindsey2025landscape" class="cite cite-emerging" data-cite="lindsey2025landscape" role="doc-biblioref">Lindsey, Ameisen, et al. 2025</a>)</span>, and analysis of multilingual representations using CLTs <span class="citation" data-cites="harrasse2025tracing">(<a href="@@BASE@@references/#ref-harrasse2025tracing" class="cite" data-cite="harrasse2025tracing" role="doc-biblioref">Harrasse, Draye, et al. 2025</a>)</span>. This scarcity of downstream applications in the current literature likely reflects the considerable challenges in training CLTs at scale.</p>
+</section>
+<section id="open-questions-for-clt-research." class="level4">
+<h4>Open Questions for CLT Research.</h4>
+<p>Several important questions remain open:</p>
+<ul>
+<li><p>How does CLT fidelity scale in large models?</p></li>
+<li><p>Can CLTs be extended to jointly model attention and MLP computations?</p></li>
+<li><p>What evaluation protocols can reliably detect when CLT-based explanations are unfaithful to the original model’s computation?</p></li>
+<li><p>How sensitive are CLT circuits to the choice of training data distribution?</p></li>
+</ul>
+</section>
+</section>
+<section id="crosscoders-analyzing-cross-layer-features" class="level3"><h3 data-pdf-page="30"><span class="secnum">6.4.3</span> Crosscoders: Analyzing Cross-Layer Features<a class="anchor" href="#crosscoders-analyzing-cross-layer-features" aria-label="Link to this section">#</a></h3>
+<div class="definitionbox">
+<p>A <strong>crosscoder</strong> learns sparse features by reading activations from multiple layers simultaneously: <span class="math display">\hat{x}_{\ell, t} = W_{\text{out}} z_{\ell,t} + b_{\text{out}}, \quad z_{\ell,t} = \text{ReLU}(W_{\text{in}} [h_{\ell&#39;,t}]_{\ell&#39; \in L} + b_{\text{in}})</span> where <span class="math inline">z_{\ell,t} \in \mathbb{R}^{d_{\text{sparse}}}</span> encodes sparse features constructed from activations across a set of layers <span class="math inline">L</span> at token position <span class="math inline">t</span>. Crosscoders resolve cross-layer superposition by tracking features that persist through the residual stream <span class="citation" data-cites="lindsey2024sparsecrosscoders">(<a href="@@BASE@@references/#ref-lindsey2024sparsecrosscoders" class="cite cite-emerging" data-cite="lindsey2024sparsecrosscoders" role="doc-biblioref">Lindsey et al. 2024</a>)</span>.</p>
+</div>
+<figure id="fig:crosscoders" data-latex-placement="t">
+<img alt="Figure 9: Crosscoder. While standard SAEs process a single layer, Crosscoders are trained to simultaneously reconstruct the residual stream across multiple layers." loading="lazy" src="@@BASE@@figures/6_crosscoders.svg" />
+<figcaption><span class="capnum">Figure 9:</span> <strong>Crosscoder</strong>. While standard SAEs process a single layer, Crosscoders are trained to simultaneously reconstruct the residual stream across multiple layers.</figcaption>
+</figure>
+<p>Crosscoder is trained by minimizing: <span class="math display">\mathcal{L} = \sum_{\ell\in L} \|\hat{x}^{\ell} - h^{\ell}\|_2^2 + \lambda \sum_{\ell\in L} \sum_{i} \|W_{\text{out},i}^{\ell}\| \cdot z_i^{\ell}</span> where <span class="math inline">\lambda</span> is the hyperparameter.</p>
+<section id="causal-vs.-acausal-crosscoders." class="level4">
+<h4>Causal vs. Acausal Crosscoders.</h4>
+<p>Crosscoders support two information flow patterns:</p>
+<ul>
+<li><p><strong>Causal Crosscoders</strong>: Read only from layers <span class="math inline">\ell&#39; \leq \ell</span> at the current position. This respects the forward pass causality: earlier layers cannot read from later layers.</p></li>
+<li><p><strong>Acausal Crosscoders</strong>: Read from any layer <span class="math inline">\ell&#39;</span> regardless of depth ordering. Useful for understanding post-hoc feature relationships across the full model.</p></li>
+</ul>
+</section>
+<section id="applications-to-circuit-analysis." class="level4">
+<h4>Applications to Circuit Analysis.</h4>
+<p>By extracting cross-layer features, crosscoders enable understanding how features propagate through the residual stream across layers, removing duplicate feature representations that complicate circuit analysis. This simplification allows features to “jump” across intervening identity operations, substantially reducing circuit complexity. More importantly, crosscoders reveal how input-relevant features transform as they flow through the network, distinguishing which features persist unchanged versus which are actively modified by downstream computation <span class="citation" data-cites="lindsey2024sparsecrosscoders">(<a href="@@BASE@@references/#ref-lindsey2024sparsecrosscoders" class="cite cite-emerging" data-cite="lindsey2024sparsecrosscoders" role="doc-biblioref">Lindsey et al. 2024</a>)</span>.</p>
+</section>
+</section>
+</section>
+<section id="comparing-saes-transcoders-and-crosscoders." class="level2"><h2 data-pdf-page="30"><span class="secnum">6.5</span> Comparing SAEs, Transcoders, and Crosscoders.<a class="anchor" href="#comparing-saes-transcoders-and-crosscoders." aria-label="Link to this section">#</a></h2>
+<p>Single-layer SAEs are efficient and locally interpretable but miss cross-layer feature evolution. Transcoders improve this by imitating the behavior of the MLP, revealing nonlinear transformations, though they require sequential analysis across depth. Cross-layer transcoders span multiple layers for global information flow but are extremely expensive. Crosscoders take a different approach, extracting shared features across layers simultaneously to resolve cross-layer superposition and simplify circuits without chaining predictions.</p>
+</section>
+<section id="case-study-induction-heads" class="level2"><h2 data-pdf-page="31"><span class="secnum">6.6</span> Case Study: Induction Heads<a class="anchor" href="#case-study-induction-heads" aria-label="Link to this section">#</a></h2>
+<div class="definitionbox">
+<p><span id="def:induction-heads" data-label="def:induction-heads"></span> <strong>Induction heads</strong> are attention heads that implement a conditional copying rule over repeated subsequences. Let <span class="math inline">(x_1,\dots,x_T)</span> be a token sequence and consider positions <span class="math inline">i &lt; j &lt; T</span> such that <span class="math inline">x_i = x_j</span>. An attention head at layer <span class="math inline">\ell</span> and head <span class="math inline">h</span> is an induction head if, when predicting the token at position <span class="math inline">j+1</span>, its attention weights satisfy <span class="math display">\alpha_{j \rightarrow i+1}^{(\ell,h)} \gg \alpha_{j \rightarrow k}^{(\ell,h)} \quad \text{for most } k \neq i+1,</span> and its value projection causes the residual stream at position <span class="math inline">j</span> to contribute logits favoring <span class="math inline">x_{i+1}</span>.</p>
+<p>Equivalently, induction heads approximate the function <span class="math display">(x_i = x_j) \;\Rightarrow\; \hat{x}_{j+1} \approx x_{i+1},</span> enabling in-context prediction by copying continuations following earlier matching prefixes. Induction heads were first identified and analyzed by <span class="citation" data-cites="olsson2022incontextlearninginductionheads">Olsson, Elhage, et al. (<a href="@@BASE@@references/#ref-olsson2022incontextlearninginductionheads" class="cite cite-emerging" data-cite="olsson2022incontextlearninginductionheads" role="doc-biblioref">2022</a>)</span>.</p>
+</div>
+<div class="examplebox">
+<p>Consider the sequence: <span class="math display">\texttt{A B C A B \underline{?}}</span> After observing the repeated prefix <code>A B</code>, an induction head attends from the second <code>B</code> to the position following the first <code>B</code>, producing a strong prediction for <code>C</code>. This copying behavior generalizes across tokens and positions and does not require explicit supervision.</p>
+</div>
+<p>While induction heads were originally characterized as specific attention heads implementing this copying rule, subsequent work has shown that the underlying computation is more naturally understood at the level of distributed representations rather than isolated architectural components.</p>
+<div class="examplebox">
+<p>Feature extraction methods, such as SAEs, can decompose attention layer outputs into sparse, interpretable features that capture meaningful activation patterns beyond individual attention weights <span class="citation" data-cites="kissane2024interpretingattentionlayeroutputs">(<a href="@@BASE@@references/#ref-kissane2024interpretingattentionlayeroutputs" class="cite cite-emerging" data-cite="kissane2024interpretingattentionlayeroutputs" role="doc-biblioref">Kissane et al. 2024</a>)</span>. Modern analyses suggest that induction heads are not isolated mechanisms but participate in distributed feature circuits, where multiple interacting features recur and compose across layers (<span class="citation" data-cites="dunefsky2024transcodersinterpretablellmfeature singh2024needsrightinductionhead">(<a href="@@BASE@@references/#ref-dunefsky2024transcodersinterpretablellmfeature" class="cite cite-established" data-cite="dunefsky2024transcodersinterpretablellmfeature" role="doc-biblioref">Dunefsky et al. 2024</a>; <a href="@@BASE@@references/#ref-singh2024needsrightinductionhead" class="cite cite-established" data-cite="singh2024needsrightinductionhead" role="doc-biblioref">Singh et al. 2024</a>)</span>; <span class="citation" data-cites="kissane2024interpretingattentionlayeroutputs kamath2025tracing">(<a href="@@BASE@@references/#ref-kissane2024interpretingattentionlayeroutputs" class="cite cite-emerging" data-cite="kissane2024interpretingattentionlayeroutputs" role="doc-biblioref">Kissane et al. 2024</a>; <a href="@@BASE@@references/#ref-kamath2025tracing" class="cite cite-emerging" data-cite="kamath2025tracing" role="doc-biblioref">Kamath et al. 2025</a>)</span>).</p>
+<p>SAEs trained on model activations reveal families of features that correspond to recurring patterns and contextual dependencies in the residual stream, some of which align with behaviors traditionally attributed to induction heads <span class="citation" data-cites="kissane2024interpretingattentionlayeroutputs">(<a href="@@BASE@@references/#ref-kissane2024interpretingattentionlayeroutputs" class="cite cite-emerging" data-cite="kissane2024interpretingattentionlayeroutputs" role="doc-biblioref">Kissane et al. 2024</a>)</span>. These features can be analyzed to understand how models maintain and manipulate information across tokens in context.</p>
+<p>Cross-layer analyses, including transcoders, indicate that interpretable features can persist across multiple layers, suggesting that certain computations are represented consistently rather than being rediscovered at each layer (<span class="citation" data-cites="dunefsky2024transcodersinterpretablellmfeature">(<a href="@@BASE@@references/#ref-dunefsky2024transcodersinterpretablellmfeature" class="cite cite-established" data-cite="dunefsky2024transcodersinterpretablellmfeature" role="doc-biblioref">Dunefsky et al. 2024</a>)</span>; <span class="citation" data-cites="kamath2025tracing">(<a href="@@BASE@@references/#ref-kamath2025tracing" class="cite cite-emerging" data-cite="kamath2025tracing" role="doc-biblioref">Kamath et al. 2025</a>)</span>). This perspective highlights that attention heads, including those exhibiting induction-like behavior, may form part of broader, distributed feature compositions when examined through modern decomposition methods.</p>
+</div>
+</section>
+<section id="subsec:challenge" class="level2"><h2 data-pdf-page="32"><span class="secnum">6.7</span> Challenges and Failure Modes of SAEs<a class="anchor" href="#subsec:challenge" aria-label="Link to this section">#</a></h2>
+<p>Sparse Autoencoders have become a standard tool for feature extraction, but they exhibit systematic failure modes that can compromise interpretability claims. A careful understanding of these issues is therefore essential when using SAEs as mechanistic tools. This section provides a critical and systematic treatment of these challenges, including comparisons with alternative decomposition methods.</p>
+<section id="dead-features" class="level3"><h3 data-pdf-page="32"><span class="secnum">6.7.1</span> Dead Features<a class="anchor" href="#dead-features" aria-label="Link to this section">#</a></h3>
+<p>A <strong>dead feature</strong> is a dictionary element that never activates, or activates only extremely rarely, across the training distribution. Dead features represent wasted capacity and can constitute between 10–50% of the dictionary in poorly tuned SAEs <span class="citation" data-cites="bricken2023monosemanticity">(<a href="@@BASE@@references/#ref-bricken2023monosemanticity" class="cite cite-emerging" data-cite="bricken2023monosemanticity" role="doc-biblioref">Bricken et al. 2023</a>)</span>. Several factors can lead to the emergence of dead features. First, inappropriate initialization can place features in low-density regions of activation space, preventing them from receiving meaningful gradient signals. Second, an excessively strong sparsity penalty <span class="math inline">\lambda</span> may suppress feature activations early in training, stopping features from discovering a useful role. Finally, competitive dynamics between features can exacerbate this issue: once a subset of features captures common patterns, the remaining features may be starved of signal and fail to activate.</p>
+<p>Dead features can be detected by tracking feature activation frequencies during training; features with activation rates below 0.01% are effectively inactive. Several mitigation strategies have been proposed, including neuron resampling, in which dead features are periodically reinitialized toward examples with high reconstruction error <span class="citation" data-cites="bricken2023monosemanticity">(<a href="@@BASE@@references/#ref-bricken2023monosemanticity" class="cite cite-emerging" data-cite="bricken2023monosemanticity" role="doc-biblioref">Bricken et al. 2023</a>)</span>. Another effective approach is to reduce the sparsity penalty during early training via a warmup schedule and increase it gradually. More recent Batch Top-<span class="math inline">K</span> variants explicitly enforce minimum feature usage across batches, which substantially reduces the prevalence of dead features <span class="citation" data-cites="bussmann2024batchtopksparseautoencoders">(<a href="@@BASE@@references/#ref-bussmann2024batchtopksparseautoencoders" class="cite" data-cite="bussmann2024batchtopksparseautoencoders" role="doc-biblioref">Bussmann et al. 2024</a>)</span>.</p>
+</section>
+<section id="feature-duplication" class="level3"><h3 data-pdf-page="33"><span class="secnum">6.7.2</span> Feature Duplication<a class="anchor" href="#feature-duplication" aria-label="Link to this section">#</a></h3>
+<p>Feature duplication occurs when multiple dictionary elements encode the same or highly overlapping concepts <span class="citation" data-cites="templeton2024scaling">(<a href="@@BASE@@references/#ref-templeton2024scaling" class="cite cite-emerging" data-cite="templeton2024scaling" role="doc-biblioref">Templeton et al. 2024</a>)</span>. Although this increases the apparent dictionary size, it provides redundant rather than distinct features. Duplication may arise when sparsity pressure is insufficient, allowing multiple features to co-activate on similar inputs, from optimization dynamics favoring local minima with duplicated features, or from imbalances in the training data. Duplication can be detected using pairwise cosine similarity between decoder columns, where high similarity (e.g., &gt;0.8) indicates potential redundancy. Co-activation statistics provide complementary evidence, as duplicated features tend to activate together <span class="citation" data-cites="korznikov2025ortsaeorthogonalsparseautoencoders">(<a href="@@BASE@@references/#ref-korznikov2025ortsaeorthogonalsparseautoencoders" class="cite cite-emerging" data-cite="korznikov2025ortsaeorthogonalsparseautoencoders" role="doc-biblioref">Korznikov et al. 2025</a>)</span>.</p>
+</section>
+<section id="feature-absorption-and-splitting" class="level3"><h3 data-pdf-page="33"><span class="secnum">6.7.3</span> Feature Absorption and Splitting<a class="anchor" href="#feature-absorption-and-splitting" aria-label="Link to this section">#</a></h3>
+<p>Another class of failure modes concerns feature granularity. Feature absorption occurs when a single feature captures multiple distinct, but related, concepts, reducing representational specificity <span class="citation" data-cites="chanin2024absorption">(<a href="@@BASE@@references/#ref-chanin2024absorption" class="cite" data-cite="chanin2024absorption" role="doc-biblioref">Chanin et al. 2025</a>)</span>. For example, a single “code” feature may activate for Python, JavaScript, and SQL instead of learning language-specific representations. Conversely, feature splitting occurs when one coherent concept is unnecessarily divided across several features (e.g., “dog at sentence start” vs. “dog after article”). These issues can be identified through activation patterns. Absorbed features tend to activate frequently across diverse inputs, whereas split features often share similar semantic labels but differ in context and show high mutual information. Both degrade interpretability: absorbed features blur multiple computations, while split features distribute a single mechanism across several units.</p>
+</section>
+<section id="feature-instability-across-seeds" class="level3"><h3 data-pdf-page="33"><span class="secnum">6.7.4</span> Feature Instability Across Seeds<a class="anchor" href="#feature-instability-across-seeds" aria-label="Link to this section">#</a></h3>
+<p>SAE features are also sensitive to random initialization, optimizer stochasticity, and data ordering. Training the same architecture with different random seeds can therefore produce substantially different dictionaries <span class="citation" data-cites="paulo2025sparse">(<a href="@@BASE@@references/#ref-paulo2025sparse" class="cite" data-cite="paulo2025sparse" role="doc-biblioref">Paulo and Belrose 2025</a>)</span>. In practice, frequent and semantically clear features tend to be stable, while rare or context-specific features vary considerably. Exact feature alignment across seeds is often below 50%, although broader semantic clusters may remain consistent. This instability limits the reliability of mechanistic claims based on individual features. Ensembling across seeds can improve robustness but increases computational cost. For this reason, feature stability across seeds should be reported alongside reconstruction loss when evaluating SAEs.</p>
+</section>
+<section id="identifiability-and-theoretical-concerns" class="level3"><h3 data-pdf-page="33"><span class="secnum">6.7.5</span> Identifiability and Theoretical Concerns<a class="anchor" href="#identifiability-and-theoretical-concerns" aria-label="Link to this section">#</a></h3>
+<p>A fundamental question for SAE-based interpretability is whether the learned features are identifiable, that is, whether training reliably recovers the “true” underlying features (if such features exist) or merely finds one of many equally valid decompositions <span class="citation" data-cites="klindt2025superpositionsparsecodesinterpretable">(<a href="@@BASE@@references/#ref-klindt2025superpositionsparsecodesinterpretable" class="cite cite-emerging" data-cite="klindt2025superpositionsparsecodesinterpretable" role="doc-biblioref">Klindt et al. 2025</a>)</span>.</p>
+<div class="definitionbox">
+<p>Given activations <span class="math inline">h</span> generated by some unknown sparse process <span class="math inline">h = Df^* + \epsilon</span> where <span class="math inline">f^*</span> are ground-truth features, does minimizing the SAE objective recover <span class="math inline">f^*</span> (up to permutation and scaling)?</p>
+</div>
+<p>In classical Dictionary Learning, identifiability is guaranteed under conditions of low coherence, meaning that dictionary elements are sufficiently orthogonal to one another. When coherence is high, however, ambiguity arises: multiple distinct sparse combinations of features from the same dictionary can generate the same data point <span class="citation" data-cites="garfinkle2016robust schnass2008dictionary">(<a href="@@BASE@@references/#ref-garfinkle2016robust" class="cite" data-cite="garfinkle2016robust" role="doc-biblioref">Garfinkle and Hillar 2016</a>; <a href="@@BASE@@references/#ref-schnass2008dictionary" class="cite" data-cite="schnass2008dictionary" role="doc-biblioref">Schnass and Vandergheynst 2008</a>)</span>. In the context of large language model activations, high coherence is likely unavoidable due to the strong internal structure and correlations within the model’s feature space <span class="citation" data-cites="li2025geometry">(<a href="@@BASE@@references/#ref-li2025geometry" class="cite" data-cite="li2025geometry" role="doc-biblioref">Y. Li et al. 2025</a>)</span>. This makes identifiability particularly challenging and provides a theoretical explanation for several empirical observations about Sparse Autoencoders (SAEs).</p>
+<p>Recent work has raised concerns about the reliability of the features learned by SAEs <span class="citation" data-cites="mueller2025isolationentanglementinterpretabilitymethods">(<a href="@@BASE@@references/#ref-mueller2025isolationentanglementinterpretabilitymethods" class="cite cite-emerging" data-cite="mueller2025isolationentanglementinterpretabilitymethods" role="doc-biblioref">Mueller, Lee, et al. 2025</a>)</span>. When trained on identical data but with different random seeds, SAEs tend to produce substantially different feature sets <span class="citation" data-cites="paulo2025sparse">(<a href="@@BASE@@references/#ref-paulo2025sparse" class="cite" data-cite="paulo2025sparse" role="doc-biblioref">Paulo and Belrose 2025</a>)</span>, suggesting a lack of uniqueness in the learned representations. Moreover, studies have shown that SAE features can often be reconstructed from smaller sets of more basic features using a meta-SAE (e.g., representing “Einstein” as a combination of “Germany,” “Starts with E,” “Space and Galaxies,” “Science,” and “Prominent Figures”), indicating that these features are not atomic <span class="citation" data-cites="leask2025sparse">(<a href="@@BASE@@references/#ref-leask2025sparse" class="cite" data-cite="leask2025sparse" role="doc-biblioref">Leask et al. 2025</a>)</span>. Finally, phenomena such as feature splitting and feature absorption further illustrate how SAEs may merge or decompose simpler features in order to optimize sparsity, rather than recover a unique underlying basis <span class="citation" data-cites="chanin2024absorption">(<a href="@@BASE@@references/#ref-chanin2024absorption" class="cite" data-cite="chanin2024absorption" role="doc-biblioref">Chanin et al. 2025</a>)</span>. Taken together, these behaviors are consistent with the failure of identifiability under high-coherence conditions and help explain why SAE features can be unstable, non-atomic, and seed-dependent.</p>
+<p>Recent progress in finetuning language models around a fixed sparse autoencoder offers a potential path forward. In this setting, model activations are explicitly constrained to be sparse combinations of decoder features while largely preserving task performance <span class="citation" data-cites="chen2025low">(<a href="@@BASE@@references/#ref-chen2025low" class="cite cite-emerging" data-cite="chen2025low" role="doc-biblioref">Chen et al. 2025</a>)</span>. In particular, recent work aimed at limiting superposition fine-tunes the language model jointly with the SAE while enforcing orthogonality constraints on the decoder matrix <span class="citation" data-cites="miller2026identifyingintervenableinterpretablefeatures">(<a href="@@BASE@@references/#ref-miller2026identifyingintervenableinterpretablefeatures" class="cite cite-emerging" data-cite="miller2026identifyingintervenableinterpretablefeatures" role="doc-biblioref">Miller et al. 2026</a>)</span>. By explicitly satisfying low-coherence conditions, this approach restores identifiability: there exists a unique representation of activations in terms of features, and these features can be reliably recovered.</p>
+<section id="relation-to-causal-relevance." class="level4">
+<h4>Relation to Causal Relevance.</h4>
+<p>Identifiability concerns connect directly to causal relevance: even if an SAE feature is interpretable and reconstructs activations well, it may not correspond to a causally meaningful unit of computation.</p>
+<p><strong>Diagnostic criteria:</strong></p>
+<ul>
+<li><p><em>Necessity</em>: Does ablating the feature degrade task performance? (Low necessity suggests the feature is not causally central.)</p></li>
+<li><p><em>Sufficiency</em>: Does activating only this feature (and related features) reproduce the behavior? (Low sufficiency suggests the feature captures correlation, not causation.)</p></li>
+<li><p><em>Specificity</em>: Does the feature’s causal effect match its semantic interpretation? (A “sentiment” feature that causally affects syntax but not sentiment is misidentified.)</p></li>
+</ul>
+<p>These causal tests should be standard practice when claiming that SAE features represent meaningful computational units.</p>
+</section>
+</section>
+<section id="practical-recommendations" class="level3"><h3 data-pdf-page="34"><span class="secnum">6.7.6</span> Practical Recommendations<a class="anchor" href="#practical-recommendations" aria-label="Link to this section">#</a></h3>
+<p>Given these challenges, we recommend the following practices for SAE-based interpretability:</p>
+<ol>
+<li><p><strong>Report failure mode metrics</strong>: Alongside reconstruction loss, report dead feature percentage, duplication rate (via cosine similarity), and stability across seeds.</p></li>
+<li><p><strong>Validate causal relevance</strong>: Do not assume interpretable features are causally meaningful. Test necessity and sufficiency through targeted interventions (e.g. feature ablation or activation steering) and measure downstream effects.</p></li>
+<li><p><strong>Compare methods</strong>: For safety-critical applications, compare SAE features against supervised baselines (DAS, probes) to assess whether SAEs recover the relevant structure.</p></li>
+<li><p><strong>Use multiple SAE variants</strong>: Different variants (Gated, Top-K, JumpReLU) impose different inductive biases. Convergent findings across variants provide stronger evidence.</p></li>
+<li><p><strong>Acknowledge identifiability limits</strong>: Frame SAE features as “one valid decomposition” rather than “the true features.” Multiple decompositions may be equally valid for reconstruction while differing in the set of features recovered.</p></li>
+<li><p><strong>Consider alternatives for targeted analysis</strong>: When specific concepts are the focus, supervised methods (e.g. probes) may be more reliable than hoping SAEs discover the relevant features.</p></li>
+</ol>
+</section>
+</section>
+<section id="comparison-with-alternative-feature-extraction-methods" class="level2"><h2 data-pdf-page="34"><span class="secnum">6.8</span> Comparison with Alternative Feature Extraction Methods<a class="anchor" href="#comparison-with-alternative-feature-extraction-methods" aria-label="Link to this section">#</a></h2>
+<p>Sparse Autoencoders are one approach for extracting features from neural network activations. Alternative methods drawn from signal processing and machine learning make different modeling assumptions and therefore offer distinct trade-offs in terms of interpretability, scalability, and robustness.</p>
+<section id="non-negative-matrix-factorization-nmf" class="level3"><h3 data-pdf-page="34"><span class="secnum">6.8.1</span> Non-Negative Matrix Factorization (NMF)<a class="anchor" href="#non-negative-matrix-factorization-nmf" aria-label="Link to this section">#</a></h3>
+<p>Non-Negative Matrix Factorization decomposes activations as <span class="math inline">H \approx WA</span>, where both the dictionary <span class="math inline">W</span> and the activation matrix <span class="math inline">A</span> are constrained to be non-negative. This constraint induces a natural parts-based interpretation in which features combine additively without cancellation. As a result, NMF often yields components that are easier to interpret than unconstrained linear decompositions. In addition, closed-form update rules exist for certain NMF objectives, which can mitigate some optimization pathologies. Under specific conditions such as separability, NMF also enjoys stronger uniqueness guarantees than unconstrained sparse coding <span class="citation" data-cites="NIPS2003_1843e35d">(<a href="@@BASE@@references/#ref-NIPS2003_1843e35d" class="cite" data-cite="NIPS2003_1843e35d" role="doc-biblioref">Donoho and Stodden 2003</a>)</span>.</p>
+<p>Despite these advantages, NMF is not always well suited to neural network activations. Activations produced by modern architectures, particularly after LayerNorm or nonlinearities such as GELU, are not naturally non-negative, requiring preprocessing steps that may distort representational structure. Moreover, NMF does not explicitly encourage sparsity unless additional regularization is introduced, and scaling NMF to large dictionaries is computationally challenging. Using an NMF inspired approach, <span class="citation" data-cites="yun-etal-2021-transformer">Yun et al. (<a href="@@BASE@@references/#ref-yun-etal-2021-transformer" class="cite" data-cite="yun-etal-2021-transformer" role="doc-biblioref">2021</a>)</span> factorizes residual-stream activations with non-negativity constraints, producing additive components that are easier to interpret and visualize across layers. However, for feature extraction and causal analyses, empirical work has largely focused on Semi-NMF which relaxes the non-negativity constraint on <span class="math inline">W</span>. <span class="citation" data-cites="snmf">Shafran et al. (<a href="@@BASE@@references/#ref-snmf" class="cite cite-emerging" data-cite="snmf" role="doc-biblioref">2025</a>)</span> showed that Semi-NMF can recover features competitive with SAEs on small-scale evaluations, but systematic comparisons at large scale remain limited.</p>
+</section>
+<section id="principle-component-analysis-pca" class="level3"><h3 data-pdf-page="35"><span class="secnum">6.8.2</span> Principle Component Analysis (PCA)<a class="anchor" href="#principle-component-analysis-pca" aria-label="Link to this section">#</a></h3>
+<p>Principal Component Analysis decomposes activations by finding an orthonormal basis of directions that maximise explained variance. Given a mean-centered activation matrix <span class="math inline">H \in \mathbb{R}^{n \times d}</span>, PCA yields a low-rank approximation <span class="math inline">H \approx U \Sigma V^T</span>, where the columns of <span class="math inline">V</span> correspond to principal directions ordered by explained variance. Fitting PCA is fast, stable and scalable. Yet, PCA introduces constraints and inductive biases that can be misaligned with neural representations. PCA identifies a single set of global directions that maximises variance across the full activation distribution, which can mix multiple sources of variation when the relevant structure is region or context-dependent. In addition, PCA enforces orthogonality between components, a constraint that may not reflect how features are organized in practice, where factors can be correlated or partially overlapping. Its misalignment is further reflected in recent benchmarks. In <span class="citation" data-cites="wu2025axbench">Wu et al. (<a href="@@BASE@@references/#ref-wu2025axbench" class="cite cite-established" data-cite="wu2025axbench" role="doc-biblioref">2025</a>)</span>, PCA underperforms most baselines, including SAEs, on both steering and concept-detection evaluations. While in some localization settings, PCA outperform SAEs <span class="citation" data-cites="mueller2025mib">(<a href="@@BASE@@references/#ref-mueller2025mib" class="cite cite-emerging" data-cite="mueller2025mib" role="doc-biblioref">Mueller, Geiger, et al. 2025</a>)</span>, it still lags behind simpler supervised baselines.</p>
+</section>
+<section id="independent-component-analysis-ica" class="level3"><h3 data-pdf-page="35"><span class="secnum">6.8.3</span> Independent Component Analysis (ICA)<a class="anchor" href="#independent-component-analysis-ica" aria-label="Link to this section">#</a></h3>
+<p>Independent Component Analysis seeks to decompose activations as <span class="math inline">H = WS</span>, where the components of <span class="math inline">S</span> are statistically independent <span class="citation" data-cites="hyvarinen2000independent">(<a href="@@BASE@@references/#ref-hyvarinen2000independent" class="cite" data-cite="hyvarinen2000independent" role="doc-biblioref">Hyvärinen and Oja 2000</a>)</span>. Independence provides a principled objective grounded in information theory, and under well-specified generative assumptions, specifically, linear mixtures of independent sources, ICA can provably recover the underlying components. Unlike SAEs, ICA does not require tuning a sparsity hyperparameter.</p>
+<p>However, ICA makes strong assumptions that are often violated in neural representations. Classical ICA assumes a complete setting in which the number of sources equals the dimensionality of the representation, and extensions are required for overcomplete decompositions. Neural network features may also fail to satisfy statistical independence, limiting ICA’s applicability. Although ICA has been applied to neural network activations <span class="citation" data-cites="hyvarinen2023nonlinear">(<a href="@@BASE@@references/#ref-hyvarinen2023nonlinear" class="cite" data-cite="hyvarinen2023nonlinear" role="doc-biblioref">Hyvärinen et al. 2023</a>)</span>, it has not matched the interpretability gains reported for SAEs in recent large-scale studies, possibly because neural features tend to be sparse rather than independent.</p>
+</section>
+<section id="supervised-feature-extraction-methods" class="level3"><h3 data-pdf-page="35"><span class="secnum">6.8.4</span> Supervised Feature Extraction Methods<a class="anchor" href="#supervised-feature-extraction-methods" aria-label="Link to this section">#</a></h3>
+<p>When the concepts of interest are known in advance, supervised methods can directly optimize representations aligned with those targets. Examples include Distributed Alignment Search (DAS), which uses supervision to learn a change of basis that aligns representations with high-level features <span class="citation" data-cites="das">(<a href="@@BASE@@references/#ref-das" class="cite" data-cite="das" role="doc-biblioref">Geiger et al. 2024</a>)</span>; Supervised Multi-Dimensional Scaling (SMDS), which projects activations to preserve concept-level similarities <span class="citation" data-cites="smds">(<a href="@@BASE@@references/#ref-smds" class="cite cite-emerging" data-cite="smds" role="doc-biblioref">Tiblias et al. 2025</a>)</span>; and Differential Binary Masking (DBM), which learns binary masks that select relevant activation dimensions for specific concepts <span class="citation" data-cites="dbm">(<a href="@@BASE@@references/#ref-dbm" class="cite" data-cite="dbm" role="doc-biblioref">De Cao et al. 2020</a>)</span>.</p>
+<p>When labelled data are available, supervised approaches often outperform SAEs on targeted concept recovery tasks (<span class="citation" data-cites="huang-etal-2024-ravel">(<a href="@@BASE@@references/#ref-huang-etal-2024-ravel" class="cite cite-established" data-cite="huang-etal-2024-ravel" role="doc-biblioref">Huang et al. 2024</a>)</span>; <span class="citation" data-cites="chaudhary2024evaluating">(<a href="@@BASE@@references/#ref-chaudhary2024evaluating" class="cite cite-emerging" data-cite="chaudhary2024evaluating" role="doc-biblioref">Chaudhary and Geiger 2024</a>)</span>). They also avoid the need to choose dictionary sizes or sparsity penalties, since complexity is determined by the concept set itself. However, these methods require labelled data for each concept and therefore cannot discover previously unknown features. They do not scale naturally to open-ended exploration across entire models, and each concept typically requires separate training. As a result, supervised methods are best suited to settings where specific, predefined concepts are of interest, such as safety-critical behaviors like toxicity or deception, whereas SAEs remain preferable for exploratory analysis.</p>
+</section>
+<section id="dictionary-learning-baselines" class="level3"><h3 data-pdf-page="36"><span class="secnum">6.8.5</span> Dictionary Learning Baselines<a class="anchor" href="#dictionary-learning-baselines" aria-label="Link to this section">#</a></h3>
+<p>Classical dictionary learning methods provide useful baselines for evaluating SAEs. Techniques such as K-SVD alternate between sparse coding and dictionary updates and are known to converge under certain conditions <span class="citation" data-cites="aharon2006k">(<a href="@@BASE@@references/#ref-aharon2006k" class="cite" data-cite="aharon2006k" role="doc-biblioref">Aharon et al. 2006</a>)</span>. Comparative studies suggest that the primary advantage of SAEs lies in their learned encoder, which enables fast inference, rather than in fundamentally superior dictionary quality <span class="citation" data-cites="cunningham2023sparse">(<a href="@@BASE@@references/#ref-cunningham2023sparse" class="cite cite-established" data-cite="cunningham2023sparse" role="doc-biblioref"><span class="nocase">Cunningham et al.</span> 2023</a>)</span>. As such, classical dictionary learning remains an important reference point for assessing the added value of SAE architectures.</p>
+<table id="tab:decomposition-comparison">
+<caption><span class="capnum">Table 6:</span> Comparison of Activation Decomposition Methods</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Method</strong></th>
+<th style="text-align: left;"><strong>Key Assumption</strong></th>
+<th style="text-align: left;"><strong>Strengths</strong></th>
+<th style="text-align: left;"><strong>Weaknesses</strong></th>
+<th style="text-align: left;"><strong>Best Use Case</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">SAE</td>
+<td style="text-align: left;">Sparse, linear features</td>
+<td style="text-align: left;">Scalable; open-ended discovery; fast inference</td>
+<td style="text-align: left;">Hyperparameter sensitive; identifiability issues</td>
+<td style="text-align: left;">Exploratory feature discovery</td>
+</tr>
+<tr>
+<td style="text-align: left;">NMF</td>
+<td style="text-align: left;">Non-negative, additive parts</td>
+<td style="text-align: left;">Parts-based interpretation; uniqueness guarantees</td>
+<td style="text-align: left;">Requires non-negative data; limited sparsity</td>
+<td style="text-align: left;">Naturally non-negative domains</td>
+</tr>
+<tr>
+<td style="text-align: left;">PCA</td>
+<td style="text-align: left;">Variance aligns with features</td>
+<td style="text-align: left;">Closed form; standard baseline; optimal low-rank reconstruction</td>
+<td style="text-align: left;">Explains global variance; orthogonal features</td>
+<td style="text-align: left;">Small settings and baseline comparison</td>
+</tr>
+<tr>
+<td style="text-align: left;">ICA</td>
+<td style="text-align: left;">Statistically independent sources</td>
+<td style="text-align: left;">Principled criterion; no sparsity tuning</td>
+<td style="text-align: left;">Assumes independence; Gaussian blindness</td>
+<td style="text-align: left;">When independence holds</td>
+</tr>
+<tr>
+<td style="text-align: left;">Supervised (DAS, DBM)</td>
+<td style="text-align: left;">Known concept labels</td>
+<td style="text-align: left;">High accuracy on targeted concepts</td>
+<td style="text-align: left;">Requires labels; no discovery</td>
+<td style="text-align: left;">Safety-critical concept detection</td>
+</tr>
+<tr>
+<td style="text-align: left;">K-SVD / ODL</td>
+<td style="text-align: left;">Sparse representation</td>
+<td style="text-align: left;">Theoretical guarantees; no encoder bias</td>
+<td style="text-align: left;">Slow inference; no learned encoder</td>
+<td style="text-align: left;">Baseline comparison</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="sec:architectural-interventions" class="level2"><h2 data-pdf-page="36"><span class="secnum">6.9</span> Architectural Interventions for Intrinsic Interpretability<a class="anchor" href="#sec:architectural-interventions" aria-label="Link to this section">#</a></h2>
+<p>The methods surveyed thus far, SAEs, Transcoders, Crosscoders, share a common assumption: the model architecture is fixed, and interpretability must be recovered post-hoc. A parallel research program, which we term <em>Architectural Interventions for Interpretability</em>, inverts this assumption by asking whether models can be designed to be mechanistically interpretable by construction (<span class="citation" data-cites="pearce2025bilinear park2025monet oldfield2024multilinear yang2025mixture dooms2025compositionality">(<a href="@@BASE@@references/#ref-pearce2025bilinear" class="cite cite-established" data-cite="pearce2025bilinear" role="doc-biblioref">Pearce et al. 2025</a>; <a href="@@BASE@@references/#ref-park2025monet" class="cite cite-established" data-cite="park2025monet" role="doc-biblioref">Park et al. 2025</a>; <a href="@@BASE@@references/#ref-oldfield2024multilinear" class="cite cite-established" data-cite="oldfield2024multilinear" role="doc-biblioref">Oldfield et al. 2024</a>; <a href="@@BASE@@references/#ref-yang2025mixture" class="cite cite-established" data-cite="yang2025mixture" role="doc-biblioref">Yang et al. 2025</a>; <a href="@@BASE@@references/#ref-dooms2025compositionality" class="cite cite-established" data-cite="dooms2025compositionality" role="doc-biblioref">Dooms et al. 2025</a>)</span>; <span class="citation" data-cites="gao2025weight adler2025towards draye2025spartan">(<a href="@@BASE@@references/#ref-gao2025weight" class="cite cite-emerging" data-cite="gao2025weight" role="doc-biblioref">Gao, Rajaram, et al. 2025</a>; <a href="@@BASE@@references/#ref-adler2025towards" class="cite cite-emerging" data-cite="adler2025towards" role="doc-biblioref">Adler et al. 2025</a>; <a href="@@BASE@@references/#ref-draye2025spartan" class="cite cite-emerging" data-cite="draye2025spartan" role="doc-biblioref">Draye et al. 2025</a>)</span>).</p>
+<p>This approach is motivated by the inherent limitations of post-hoc decomposition. Standard Transformer architectures are optimized without interpretability constraints, incentivizing superposition as an efficient compression strategy. Post-hoc methods like SAEs attempt to undo this compression, but they introduce reconstruction gaps, require substantial compute, and may fail to capture the full causal dynamics of the original model. Architectural interventions aim to solve the interpretability problem upstream, creating systems where circuits are visible by design rather than laboriously extracted.</p>
+<section id="weight-sparsity-via-l_0-regularization" class="level3"><h3 data-pdf-page="36"><span class="secnum">6.9.1</span> Weight Sparsity via <span class="math inline">L_0</span> Regularization<a class="anchor" href="#weight-sparsity-via-l_0-regularization" aria-label="Link to this section">#</a></h3>
+<p>The most significant recent advancement is the <em>Weight-Sparse Transformer</em>, introduced by Gao et al. <span class="citation" data-cites="gao2025weight">(<a href="@@BASE@@references/#ref-gao2025weight" class="cite cite-emerging" data-cite="gao2025weight" role="doc-biblioref">Gao, Rajaram, et al. 2025</a>)</span>. This approach treats sparsity not as a tool for inference efficiency but as a tool for circuit discovery.</p>
+<section id="mechanism." class="level4">
+<h4>Mechanism.</h4>
+<p>The model is trained to minimize a composite objective: <span id="eq-2"></span> <span class="math display">\begin{equation*}
+    \mathcal{L} = \mathcal{L}_{\text{task}} + \lambda \cdot \|\theta\|_0
+\tag{2}
+\end{equation*}</span> where <span class="math inline">\mathcal{L}_{\text{task}}</span> is the standard cross-entropy loss and <span class="math inline">\|\theta\|_0</span> counts non-zero parameters. Since the <span class="math inline">L_0</span> norm is non-differentiable, training employs stochastic gates drawn from a Hard-Concrete distribution, allowing gradients to flow while penalizing the probability of each gate being open. At inference, gates are discretized, yielding networks where the vast majority of connections are exactly zero.</p>
+</section>
+<section id="interpretability-gains." class="level4">
+<h4>Interpretability gains.</h4>
+<p>Under high sparsity regimes (e.g., <span class="math inline">&lt;1\%</span> active weights), the computational graph simplifies dramatically. A neuron receiving input from only 5–10 others (rather than thousands) cannot implement the complex interference patterns required for polysemanticity. Consequently, neurons tend to align with single, interpretable concepts—monosemanticity emerges by structural necessity rather than post-hoc extraction.</p>
+<p>Circuits can be identified by simply visualizing non-zero weights connected to a target output, eliminating the need for activation patching or ACDC. Validation via mean ablation shows that these sparse circuits satisfy necessity and sufficiency criteria with higher precision than circuits identified in dense models.</p>
+</section>
+<section id="the-capability-interpretability-frontier." class="level4">
+<h4>The capability-interpretability frontier.</h4>
+<p>A critical contribution is formalizing the trade-off between performance and interpretability. As the sparsity penalty <span class="math inline">\lambda</span> increases, interpretability improves but task loss degrades, defining a Pareto frontier. Crucially, <span class="citation" data-cites="gao2025weight">Gao, Rajaram, et al. (<a href="@@BASE@@references/#ref-gao2025weight" class="cite cite-emerging" data-cite="gao2025weight" role="doc-biblioref">2025</a>)</span> discover a <em>scaling law</em>: increasing model size shifts this frontier outward. Large sparse models can achieve both better capability and better interpretability than small dense models, suggesting that over-parameterization coupled with sparsity constraints may be the path toward interpretable frontier models.</p>
+</section>
+</section>
+<section id="sparse-attention-post-training-spartan" class="level3"><h3 data-pdf-page="37"><span class="secnum">6.9.2</span> Sparse Attention Post-Training: SPARTAN<a class="anchor" href="#sparse-attention-post-training-spartan" aria-label="Link to this section">#</a></h3>
+<p>The dense attention matrix implies every token attends to every other token, creating a quadratic web of connections difficult to audit. Sparse Attention Post-Training (SPARTAN) applies <span class="math inline">L_1</span> regularization to the attention patterns while finetuning with a constrained optimization objective to maintain the same cross-entropy performance  <span class="citation" data-cites="draye2025spartan">(<a href="@@BASE@@references/#ref-draye2025spartan" class="cite cite-emerging" data-cite="draye2025spartan" role="doc-biblioref">Draye et al. 2025</a>)</span>  <span class="citation" data-cites="lei2025spartan">(<a href="@@BASE@@references/#ref-lei2025spartan" class="cite" data-cite="lei2025spartan" role="doc-biblioref">Lei et al. 2025</a>)</span>.</p>
+<p>The result: diffuse “soft” attention patterns collapse into “hard” sparse patterns. A head that previously attended broadly across context snaps to attending only to specific operands required for the current computation. This reveals that much attention connectivity is redundant noise, and SPARTAN effectively performs circuit discovery by pruning the attention graph. Using Cross-Layer Transcoders, they show that the reduced number of mediating components renders attention attribution tractable. This illustrates the potential of sparse attention in the context of attribution graphs, as it enables a unified view of features and circuits.</p>
+</section>
+<section id="activation-level-interventions-solu-and-its-limitations" class="level3"><h3 data-pdf-page="37"><span class="secnum">6.9.3</span> Activation-Level Interventions: SoLU and Its Limitations<a class="anchor" href="#activation-level-interventions-solu-and-its-limitations" aria-label="Link to this section">#</a></h3>
+<p>An earlier approach targeted the activation function rather than connectivity. Softmax Linear Units (SoLU) replace element-wise activations with a spatial softmax <span class="citation" data-cites="elhage2022solu">(<a href="@@BASE@@references/#ref-elhage2022solu" class="cite cite-emerging" data-cite="elhage2022solu" role="doc-biblioref">Elhage, Hume, Olsson, Nanda, Henighan, Johnston, et al. 2022</a>)</span>: <span id="eq-3"></span> <span class="math display">\begin{equation*}
+    x \mapsto x \cdot \text{softmax}(x)
+\tag{3}
+\end{equation*}</span> This forces neurons within a layer to compete: if one neuron fires strongly, it suppresses its neighbors through lateral inhibition.</p>
+<section id="results-and-the-hydraulic-effect." class="level4">
+<h4>Results and the hydraulic effect.</h4>
+<p>SoLU successfully increased the fraction of monosemantic neurons identifiable by human inspection. However, it revealed a critical limitation: the <em>hydraulic effect</em>. When prevented from using neurons for superposition, models simply displaced the compression elsewhere—into the residual stream, into sub-threshold activations, or into other components not subject to the constraint. This indicates that local architectural constraints are insufficient when global incentives for compression remain. It underscores the need for either global constraints (like weight sparsity applied throughout the network) or fundamentally different computational primitives.</p>
+</section>
+</section>
+<section id="computational-primitive-modifications-molt" class="level3"><h3 data-pdf-page="37"><span class="secnum">6.9.4</span> Computational Primitive Modifications: MOLT<a class="anchor" href="#computational-primitive-modifications-molt" aria-label="Link to this section">#</a></h3>
+<p>One alternative approach to learning interpretable structure is to rethink what atomic computational units to learn (<span class="citation" data-cites="oldfield2025towards park2025monet">(<a href="@@BASE@@references/#ref-oldfield2025towards" class="cite cite-established" data-cite="oldfield2025towards" role="doc-biblioref">Oldfield et al. 2025</a>; <a href="@@BASE@@references/#ref-park2025monet" class="cite cite-established" data-cite="park2025monet" role="doc-biblioref">Park et al. 2025</a>)</span>; <span class="citation" data-cites="braun2025interpretability bushnaq2025stochastic">(<a href="@@BASE@@references/#ref-braun2025interpretability" class="cite cite-emerging" data-cite="braun2025interpretability" role="doc-biblioref">Braun et al. 2025</a>; <a href="@@BASE@@references/#ref-bushnaq2025stochastic" class="cite cite-emerging" data-cite="bushnaq2025stochastic" role="doc-biblioref">Bushnaq et al. 2025</a>)</span>). One recent example of this is the so-called Sparse Mixtures of Linear Transforms (MOLT), representing a conceptual shift from feature extraction to transformation extraction <span class="citation" data-cites="anthropic2025molt">(<a href="@@BASE@@references/#ref-anthropic2025molt" class="cite cite-emerging" data-cite="anthropic2025molt" role="doc-biblioref">Lindsey, Chen, et al. 2025</a>)</span>.</p>
+<section id="motivation." class="level4">
+<h4>Motivation.</h4>
+<p>Standard SAEs and Transcoders assume computation consists of detecting features. However, for algorithmic tasks (arithmetic, geometric reasoning), models perform <em>operations</em>—“add 3,” “rotate vector.” An SAE attempts to represent these as massive lookup tables of states, which obscures the underlying mechanism.</p>
+</section>
+<section id="mechanism.-1" class="level4">
+<h4>Mechanism.</h4>
+<p>MOLT replaces the MLP with a sparse mixture of linear transformation matrices. Each “neuron” is not a vector but a matrix that can be dynamically applied to the residual stream. For modular arithmetic, a MOLT might learn a single rotation matrix implementing addition, rather than memorizing thousands of input-output pairs.</p>
+<p>This aligns the architecture with the true algorithmic structure of the task, yielding higher mechanistic faithfulness than standard feature-based decompositions for tasks involving systematic transformations.</p>
+</section>
+</section>
+<section id="kolmogorov-arnold-networks" class="level3"><h3 data-pdf-page="38"><span class="secnum">6.9.5</span> Kolmogorov-Arnold Networks<a class="anchor" href="#kolmogorov-arnold-networks" aria-label="Link to this section">#</a></h3>
+<p>Kolmogorov-Arnold Networks (KANs) represent the most radical departure from standard architectures <span class="citation" data-cites="liu2025kan">(<a href="@@BASE@@references/#ref-liu2025kan" class="cite" data-cite="liu2025kan" role="doc-biblioref">Z. Liu et al. 2025</a>)</span>. Based on the Kolmogorov-Arnold representation theorem, KANs place learnable activation functions (B-splines) on edges rather than fixed activations on nodes.</p>
+<p>This inversion makes KANs explicitly compositional. Because non-linearities are univariate and visible on edges, researchers can perform symbolic regression on learned splines to recover exact mathematical formulas—for instance, rediscovering physics equations from data. While currently slower to train and unproven at LLM scale, KANs represent the ambitious ideal of a model where weights <em>are</em> interpretable mathematical functions.</p>
+</section>
+<section id="the-bridge-methodology-interpretable-proxies-for-dense-models" class="level3"><h3 data-pdf-page="38"><span class="secnum">6.9.6</span> The Bridge Methodology: Interpretable Proxies for Dense Models<a class="anchor" href="#the-bridge-methodology-interpretable-proxies-for-dense-models" aria-label="Link to this section">#</a></h3>
+<p>Retraining frontier models with sparsity constraints is computationally prohibitive. Gao et al. propose the “Bridge” methodology as a practical alternative <span class="citation" data-cites="gao2025weight">(<a href="@@BASE@@references/#ref-gao2025weight" class="cite cite-emerging" data-cite="gao2025weight" role="doc-biblioref">Gao, Rajaram, et al. 2025</a>)</span>.</p>
+<p>A Bridge is a weight-sparse model trained to mimic the internal representations of a pretrained dense model—minimizing reconstruction error of layer-wise activations rather than training on the original task. The sparse model serves as an <em>interpretable proxy</em>: if it achieves high fidelity and is mechanistically interpretable, researchers can analyze its circuits to understand the dense model’s behavior.</p>
+<p>Preliminary evidence suggests that interventions on sparse proxies (e.g., ablating identified circuits) can be mapped back to induce similar behavioral changes in dense models. However, validating proxy fidelity—ensuring the proxy captures the same mechanisms rather than behaviorally equivalent simulations—remains an open problem (see Section <a href="@@BASE@@handbook/15-open-problems/#sec:open_problems" data-reference-type="ref" data-reference="sec:open_problems">15</a>).</p>
+<p>Table <a href="@@BASE@@handbook/6-feature-extraction-and-multi-layer-analysis/#tab:architectural-methods" data-reference-type="ref" data-reference="tab:architectural-methods">7</a> summarizes the trade-offs between architectural approaches.</p>
+<table id="tab:architectural-methods">
+<caption><span class="capnum">Table 7:</span> Comparison of Architectural Interventions for Interpretability</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Method</strong></th>
+<th style="text-align: left;"><strong>Mechanism</strong></th>
+<th style="text-align: left;"><strong>Interpretability Gain</strong></th>
+<th style="text-align: left;"><strong>Primary Limitation</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Weight Sparsity</td>
+<td style="text-align: left;"><span class="math inline">L_0</span> regularization on parameters</td>
+<td style="text-align: left;">Circuits visible via non-zero weights; monosemantic neurons</td>
+<td style="text-align: left;">Capability cost; training instability</td>
+</tr>
+<tr>
+<td style="text-align: left;">SoLU</td>
+<td style="text-align: left;">Spatial softmax activation</td>
+<td style="text-align: left;">Increased neuron monosemanticity</td>
+<td style="text-align: left;">Hydraulic effect displaces superposition</td>
+</tr>
+<tr>
+<td style="text-align: left;">MOLT</td>
+<td style="text-align: left;">Sparse mixture of linear transforms</td>
+<td style="text-align: left;">Reveals algorithmic operations directly</td>
+<td style="text-align: left;">Complexity of matrix analysis</td>
+</tr>
+<tr>
+<td style="text-align: left;">SPARTAN</td>
+<td style="text-align: left;"><span class="math inline">L_0</span> regularization on attention</td>
+<td style="text-align: left;">Exposes information routing graph</td>
+<td style="text-align: left;">Requires finetuning; post-training only</td>
+</tr>
+<tr>
+<td style="text-align: left;">KANs</td>
+<td style="text-align: left;">Learnable splines on edges</td>
+<td style="text-align: left;">Symbolic formula extraction</td>
+<td style="text-align: left;">Scaling to LLMs unproven</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>

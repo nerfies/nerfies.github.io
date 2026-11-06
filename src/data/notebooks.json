@@ -1,0 +1,936 @@
+{
+ "repo": "TSGLAB/Interpretability_Survey_Safety",
+ "branch": "main",
+ "commit": "0f8841a",
+ "notebooks": [
+  {
+   "path": "notebooks/01_core_hypotheses/01_linear_representation_hypothesis.ipynb",
+   "section_dir": "01_core_hypotheses",
+   "order": 0,
+   "title": "Linear Representation Hypothesis",
+   "survey_reference": "Section 5.1 - The Linear Representation Hypothesis",
+   "overview": "Features correspond to directions $\\phi \\in \\mathbb{R}^d$ in activation space. The projection $\\phi^\\top h_l(x)$ approximately measures the intensity of that feature for input $x$, and features combine additively: $h_l(x) \\approx \\sum_i \\alpha_i \\phi_i$. This implies features can be detected via linear probes and added or removed via vector arithmetic on the $h_l(x)$. ## 1. Extracting Activations",
+   "key_methods": [],
+   "learning_objectives": [],
+   "models": [
+    "gpt2"
+   ],
+   "gated_models": [],
+   "compute": {
+    "tier": "cpu",
+    "largest_model_b": 0.124,
+    "basis": "Estimated from the largest model loaded in the code"
+   },
+   "uses_cuda_if_available": true,
+   "external": [],
+   "imports": [
+    "numpy",
+    "sklearn",
+    "torch",
+    "transformers"
+   ],
+   "deps_missing_from_requirements": [],
+   "local_modules": [],
+   "cells": 14,
+   "has_saved_outputs": true,
+   "preview_image": null,
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/01_core_hypotheses/01_linear_representation_hypothesis.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/01_core_hypotheses/01_linear_representation_hypothesis.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/01_core_hypotheses/01_linear_representation_hypothesis.ipynb"
+   },
+   "colab_blockers": [],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/01_core_hypotheses/02_superposition_hypothesis.ipynb",
+   "section_dir": "01_core_hypotheses",
+   "order": 0,
+   "title": "Superposition Hypothesis",
+   "survey_reference": "Section 5.2 - The Superposition Hypothesis",
+   "overview": "Model hidden states encode more features than they have dimensions. If there are $k$ features and $d$ dimensions with $k >> d$, models tend to reduce interference between features by representing them as nearly-orthogonal directions.",
+   "key_methods": [],
+   "learning_objectives": [],
+   "models": [],
+   "gated_models": [],
+   "compute": {
+    "tier": "cpu",
+    "largest_model_b": null,
+    "basis": "No pretrained model loaded (toy or synthetic data)"
+   },
+   "uses_cuda_if_available": true,
+   "external": [],
+   "imports": [
+    "matplotlib",
+    "numpy",
+    "torch"
+   ],
+   "deps_missing_from_requirements": [],
+   "local_modules": [],
+   "cells": 14,
+   "has_saved_outputs": true,
+   "preview_image": "notebooks-01-core-hypotheses-02-superposition-hypothesis-ipynb.png",
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/01_core_hypotheses/02_superposition_hypothesis.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/01_core_hypotheses/02_superposition_hypothesis.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/01_core_hypotheses/02_superposition_hypothesis.ipynb"
+   },
+   "colab_blockers": [],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/01_core_hypotheses/03_privileged_access_hypothesis.ipynb",
+   "section_dir": "01_core_hypotheses",
+   "order": 0,
+   "title": "The Privileged Access Hypothesis",
+   "survey_reference": "Section 5.3 - The Privileged Access Hypothesis",
+   "overview": "A model used to interpret itself can, under appropriate elicitation, access internal variables and intermediate computations that are not reliably recoverable from external behavioral analysis alone, providing a comparative advantage as an interpreter of its own behavior.",
+   "key_methods": [],
+   "learning_objectives": [],
+   "models": [
+    "meta-llama/Llama-3.1-8B"
+   ],
+   "gated_models": [
+    "meta-llama/Llama-3.1-8B"
+   ],
+   "compute": {
+    "tier": "gpu",
+    "largest_model_b": 8,
+    "basis": "Estimated from the largest model loaded in the code"
+   },
+   "uses_cuda_if_available": true,
+   "external": [],
+   "imports": [
+    "model",
+    "numpy",
+    "torch",
+    "transformers",
+    "yaml"
+   ],
+   "deps_missing_from_requirements": [
+    "pyyaml"
+   ],
+   "local_modules": [
+    "model"
+   ],
+   "cells": 16,
+   "has_saved_outputs": true,
+   "preview_image": null,
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/01_core_hypotheses/03_privileged_access_hypothesis.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/01_core_hypotheses/03_privileged_access_hypothesis.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/01_core_hypotheses/03_privileged_access_hypothesis.ipynb"
+   },
+   "colab_blockers": [
+    "imports modules not on PyPI or kept beside the notebook (model); clone the repo first"
+   ],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/02_feature_extraction/01_sparse_autoencoders_basics.ipynb",
+   "section_dir": "02_feature_extraction",
+   "order": 1,
+   "title": "Sparse Autoencoders: Variants and Implementations",
+   "survey_reference": "Section 6.1 - Sparse Autoencoders: The Foundation",
+   "overview": "Feature extraction identifies distributed features across neurons that correspond to coherent semantic units. Sparse autoencoders (SAEs) address polysemanticity (neurons encoding multiple features) by decomposing activations into sparse, interpretable features using an overcomplete basis ($m >> d$).",
+   "key_methods": [],
+   "learning_objectives": [],
+   "models": [],
+   "gated_models": [],
+   "compute": {
+    "tier": "cpu",
+    "largest_model_b": null,
+    "basis": "No pretrained model loaded (toy or synthetic data)"
+   },
+   "uses_cuda_if_available": true,
+   "external": [],
+   "imports": [
+    "matplotlib",
+    "numpy",
+    "torch",
+    "tqdm"
+   ],
+   "deps_missing_from_requirements": [
+    "tqdm"
+   ],
+   "local_modules": [],
+   "cells": 12,
+   "has_saved_outputs": false,
+   "preview_image": null,
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/02_feature_extraction/01_sparse_autoencoders_basics.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/02_feature_extraction/01_sparse_autoencoders_basics.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/02_feature_extraction/01_sparse_autoencoders_basics.ipynb"
+   },
+   "colab_blockers": [],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/02_feature_extraction/02_transcoders.ipynb",
+   "section_dir": "02_feature_extraction",
+   "order": 1,
+   "title": "Transcoders: Bridging Nonlinear Layers",
+   "survey_reference": "Section 6.5.1 - Transcoders: Bridging Nonlinear Layers",
+   "overview": "Standard Sparse Autoencoders (SAEs) excel at decomposing representations in the residual stream, where features propagate linearly. However, they struggle with **nonlinear transformations** like MLP layers and attention mechanisms.",
+   "key_methods": [],
+   "learning_objectives": [],
+   "models": [],
+   "gated_models": [],
+   "compute": {
+    "tier": "cpu",
+    "largest_model_b": null,
+    "basis": "No pretrained model loaded (toy or synthetic data)"
+   },
+   "uses_cuda_if_available": true,
+   "external": [],
+   "imports": [
+    "matplotlib",
+    "numpy",
+    "torch",
+    "tqdm"
+   ],
+   "deps_missing_from_requirements": [
+    "tqdm"
+   ],
+   "local_modules": [],
+   "cells": 8,
+   "has_saved_outputs": false,
+   "preview_image": null,
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/02_feature_extraction/02_transcoders.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/02_feature_extraction/02_transcoders.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/02_feature_extraction/02_transcoders.ipynb"
+   },
+   "colab_blockers": [],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/02_feature_extraction/03_crosscoders.ipynb",
+   "section_dir": "02_feature_extraction",
+   "order": 1,
+   "title": "Crosscoders: Analyzing Cross-Layer Features",
+   "survey_reference": "Section 6.5.3 - Crosscoders: Analyzing Cross-Layer Features",
+   "overview": "A **crosscoder** learns sparse features by reading activations from **multiple layers simultaneously**:",
+   "key_methods": [],
+   "learning_objectives": [],
+   "models": [],
+   "gated_models": [],
+   "compute": {
+    "tier": "cpu",
+    "largest_model_b": null,
+    "basis": "No pretrained model loaded (toy or synthetic data)"
+   },
+   "uses_cuda_if_available": true,
+   "external": [],
+   "imports": [
+    "matplotlib",
+    "numpy",
+    "torch",
+    "tqdm"
+   ],
+   "deps_missing_from_requirements": [
+    "tqdm"
+   ],
+   "local_modules": [],
+   "cells": 4,
+   "has_saved_outputs": false,
+   "preview_image": null,
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/02_feature_extraction/03_crosscoders.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/02_feature_extraction/03_crosscoders.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/02_feature_extraction/03_crosscoders.ipynb"
+   },
+   "colab_blockers": [],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/03_circuits/01_circuit_discovery.ipynb",
+   "section_dir": "03_circuits",
+   "order": 2,
+   "title": "Circuit Discovery",
+   "survey_reference": "Section 7.2 - Circuit Discovery Methods",
+   "overview": "**Circuits** are minimal subnetworks that implement specific behaviors. Circuit discovery aims to identify which components (attention heads, MLP neurons, features) are responsible for a particular computation. This is a minimal notebook as this field is large.",
+   "key_methods": [
+    "**Activation Patching:** Replace activations to measure importance of nodes",
+    "**Attribution Patching:** Efficient gradient-based approximation for edges"
+   ],
+   "learning_objectives": [],
+   "models": [
+    "gpt2"
+   ],
+   "gated_models": [],
+   "compute": {
+    "tier": "cpu",
+    "largest_model_b": 0.124,
+    "basis": "Estimated from the largest model loaded in the code"
+   },
+   "uses_cuda_if_available": true,
+   "external": [],
+   "imports": [
+    "matplotlib",
+    "numpy",
+    "torch",
+    "tqdm",
+    "transformer_lens"
+   ],
+   "deps_missing_from_requirements": [
+    "tqdm"
+   ],
+   "local_modules": [],
+   "cells": 19,
+   "has_saved_outputs": true,
+   "preview_image": "notebooks-03-circuits-01-circuit-discovery-ipynb.png",
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/03_circuits/01_circuit_discovery.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/03_circuits/01_circuit_discovery.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/03_circuits/01_circuit_discovery.ipynb"
+   },
+   "colab_blockers": [],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/04_intermediate_computation/01_logit_lens.ipynb",
+   "section_dir": "04_intermediate_computation",
+   "order": 3,
+   "title": "Logit Lens: Tracing Predictions Through Depth",
+   "survey_reference": "Section 8.1 — Logit Lens",
+   "overview": "The **Logit Lens** ([nostalgebraist, 2020](https://www.lesswrong.com/posts/AcKRB8wDpdaN6v6ru/interpreting-gpt-the-logit-lens)) reveals what a language model \"believes\" at each stage of processing. GPT's final prediction comes from projecting the last layer's hidden state into vocabulary space. The logit lens applies that **same projection to every intermediate layer**:",
+   "key_methods": [],
+   "learning_objectives": [
+    "Understand *why* the logit lens works (residual stream architecture)",
+    "Implement it from scratch with HuggingFace Transformers",
+    "Visualize and interpret layer-wise predictions",
+    "Analyze convergence with ranks and KL divergence",
+    "Know the limitations and motivation for the Tuned Lens",
+    "(Advanced) Use the logit lens to interpret SAE features"
+   ],
+   "models": [],
+   "gated_models": [],
+   "compute": {
+    "tier": "cpu",
+    "largest_model_b": null,
+    "basis": "No pretrained model loaded (toy or synthetic data)"
+   },
+   "uses_cuda_if_available": true,
+   "external": [],
+   "imports": [
+    "matplotlib",
+    "numpy",
+    "sae_lens",
+    "torch",
+    "transformers"
+   ],
+   "deps_missing_from_requirements": [
+    "sae-lens"
+   ],
+   "local_modules": [],
+   "cells": 28,
+   "has_saved_outputs": true,
+   "preview_image": "notebooks-04-intermediate-computation-01-logit-lens-ipynb.png",
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/04_intermediate_computation/01_logit_lens.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/04_intermediate_computation/01_logit_lens.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/04_intermediate_computation/01_logit_lens.ipynb"
+   },
+   "colab_blockers": [],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/04_intermediate_computation/02_tuned_lens.ipynb",
+   "section_dir": "04_intermediate_computation",
+   "order": 3,
+   "title": "Tuned Lens: Learning Per-Layer Transforms",
+   "survey_reference": "Section 8.2 — Tuned Lens",
+   "overview": "The logit lens projects intermediate hidden states through the unembedding matrix to see what a model \"believes\" at each layer. However, it **systematically underperforms** because intermediate layers may encode information in a **rotated or shifted basis** that doesn't align with the unembedding matrix.",
+   "key_methods": [],
+   "learning_objectives": [
+    "Understand why learned transforms help (representation drift)",
+    "Train a tuned lens from scratch (pedagogical)",
+    "Load and use pre-trained tuned lens weights",
+    "Compare logit lens vs tuned lens predictions",
+    "Analyze what the learned transforms reveal"
+   ],
+   "models": [
+    "gpt2-large"
+   ],
+   "gated_models": [],
+   "compute": {
+    "tier": "cpu",
+    "largest_model_b": 0.774,
+    "basis": "Estimated from the largest model loaded in the code"
+   },
+   "uses_cuda_if_available": true,
+   "external": [],
+   "imports": [
+    "datasets",
+    "matplotlib",
+    "numpy",
+    "torch",
+    "tqdm",
+    "transformers",
+    "tuned_lens"
+   ],
+   "deps_missing_from_requirements": [
+    "tqdm",
+    "tuned-lens"
+   ],
+   "local_modules": [],
+   "cells": 18,
+   "has_saved_outputs": true,
+   "preview_image": "notebooks-04-intermediate-computation-02-tuned-lens-ipynb.png",
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/04_intermediate_computation/02_tuned_lens.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/04_intermediate_computation/02_tuned_lens.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/04_intermediate_computation/02_tuned_lens.ipynb"
+   },
+   "colab_blockers": [],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/04_intermediate_computation/03_jacobian_lens.ipynb",
+   "section_dir": "04_intermediate_computation",
+   "order": 3,
+   "title": "Jacobian Lens",
+   "survey_reference": "Section 8.3 — Jacobian Lens: Decoding Computational Dispositions ([Anthropic, 2026](https://transformer-circuits.pub/2026/workspace/))",
+   "overview": "**Prerequisites:** [01_logit_lens.ipynb](./01_logit_lens.ipynb), [02_tuned_lens.ipynb](./02_tuned_lens.ipynb)",
+   "key_methods": [],
+   "learning_objectives": [],
+   "models": [
+    "Qwen/Qwen3.5-4B",
+    "Qwen/Qwen3.6-27B"
+   ],
+   "gated_models": [],
+   "compute": {
+    "tier": "large-gpu",
+    "largest_model_b": 27,
+    "basis": "Estimated from the largest model loaded in the code"
+   },
+   "uses_cuda_if_available": true,
+   "external": [
+    "Hugging Face token",
+    "Downloads data at runtime"
+   ],
+   "imports": [
+    "jlens",
+    "torch",
+    "transformers"
+   ],
+   "deps_missing_from_requirements": [],
+   "local_modules": [
+    "jlens"
+   ],
+   "cells": 24,
+   "has_saved_outputs": true,
+   "preview_image": null,
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/04_intermediate_computation/03_jacobian_lens.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/04_intermediate_computation/03_jacobian_lens.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/04_intermediate_computation/03_jacobian_lens.ipynb"
+   },
+   "colab_blockers": [
+    "imports modules not on PyPI or kept beside the notebook (jlens); clone the repo first",
+    "largest model exceeds a free Colab GPU"
+   ],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/04_intermediate_computation/04_patchscopes.ipynb",
+   "section_dir": "04_intermediate_computation",
+   "order": 3,
+   "title": "Patchscopes: Using the Model to Explain Itself",
+   "survey_reference": "Section 8.4 - Patchscopes ([Ghandeharioun et al., 2024](https://arxiv.org/abs/2401.06102))",
+   "overview": "**Patchscopes** use the language model itself to decode and explain its intermediate representations. Instead of training external probes, we patch hidden states into prompts that ask the model to describe what it represents.",
+   "key_methods": [],
+   "learning_objectives": [
+    "Understand the patchscopes framework and its formal configuration",
+    "Implement patchscopes using forward hooks in PyTorch",
+    "Decode token identity at each layer (logit lens as patchscope)",
+    "Visualize how predictions evolve across layers",
+    "Evaluate reliability against known ground truth via source-target layer sweeps"
+   ],
+   "models": [
+    "gpt2-medium"
+   ],
+   "gated_models": [],
+   "compute": {
+    "tier": "cpu",
+    "largest_model_b": 0.355,
+    "basis": "Estimated from the largest model loaded in the code"
+   },
+   "uses_cuda_if_available": true,
+   "external": [],
+   "imports": [
+    "matplotlib",
+    "numpy",
+    "torch",
+    "transformers"
+   ],
+   "deps_missing_from_requirements": [],
+   "local_modules": [],
+   "cells": 19,
+   "has_saved_outputs": true,
+   "preview_image": "notebooks-04-intermediate-computation-04-patchscopes-ipynb.png",
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/04_intermediate_computation/04_patchscopes.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/04_intermediate_computation/04_patchscopes.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/04_intermediate_computation/04_patchscopes.ipynb"
+   },
+   "colab_blockers": [],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/04_intermediate_computation/05_probing_classifiers.ipynb",
+   "section_dir": "04_intermediate_computation",
+   "order": 3,
+   "title": "Probing Classifiers: From Linear Probes to Causal Validation",
+   "survey_reference": "Section 8.6 - Probing Classifiers: Capabilities, Critiques, and Causal Limitations",
+   "overview": "**Probing classifiers** (probes) are trained to predict properties from neural network representations. If a linear probe can accurately classify some property from activations, that property is linearly represented in the model's internal state.",
+   "key_methods": [],
+   "learning_objectives": [
+    "Extract hidden state activations and visualize truth representations with PCA",
+    "Understand which layers best represent truth via a layer sweep",
+    "Train and compare difference-of-means (MM) and logistic regression (LR) probes",
+    "Use control tasks and selectivity to validate probe results",
+    "Implement causal interventions (activation patching) to prove representations are causally used",
+    "Apply amnesic probing to remove information from representations",
+    "Train deception probes on an instruct-tuned model using instructed-pairs methodology",
+    "Implement attention probes for sequence-level classification"
+   ],
+   "models": [
+    "Qwen/Qwen2.5-0.5B-Instruct",
+    "gpt2"
+   ],
+   "gated_models": [],
+   "compute": {
+    "tier": "cpu",
+    "largest_model_b": 0.5,
+    "basis": "Estimated from the largest model loaded in the code"
+   },
+   "uses_cuda_if_available": true,
+   "external": [
+    "Downloads data at runtime"
+   ],
+   "imports": [
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "sklearn",
+    "torch",
+    "tqdm",
+    "transformers"
+   ],
+   "deps_missing_from_requirements": [
+    "tqdm"
+   ],
+   "local_modules": [],
+   "cells": 37,
+   "has_saved_outputs": true,
+   "preview_image": "notebooks-04-intermediate-computation-05-probing-classifiers-ipynb.png",
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/04_intermediate_computation/05_probing_classifiers.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/04_intermediate_computation/05_probing_classifiers.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/04_intermediate_computation/05_probing_classifiers.ipynb"
+   },
+   "colab_blockers": [],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/04_intermediate_computation/06_activation_oracles.ipynb",
+   "section_dir": "04_intermediate_computation",
+   "order": 3,
+   "title": "Activation Oracles: Training LLMs to Explain Their Own Activations",
+   "survey_reference": "Section 8.5 - LatentQA and Activation Oracles ([Karvonen et al., 2025](https://arxiv.org/abs/2512.15674))",
+   "overview": "**Activation Oracles** (AOs) are LLMs fine-tuned to accept another model's internal activation vectors as input and answer arbitrary natural-language questions about them. They build directly on **LatentQA** ([Pan et al., 2024](https://arxiv.org/abs/2412.08686)), which formulates representation decoding as a supervised learning problem: given a cached hidden representation $h^l_t$, a question $q$, and an answer $a$, we fine-tune a decoder on $(h^l_t, q, a)$ triplets via **Latent Interpretation Tuning** (LIT).",
+   "key_methods": [],
+   "learning_objectives": [
+    "Understand what Activation Oracles are and how they differ from patchscopes, probes, and SAEs",
+    "Use a pre-trained oracle to query model internals at token, segment, and sequence level",
+    "Implement the full oracle pipeline from scratch: activation extraction, placeholder tokens, steering hooks",
+    "Extract secret words from models fine-tuned to hide them (taboo task)",
+    "Use model-diffing (activation differences) to detect what fine-tuning changed",
+    "Evaluate oracle reliability across layers, prompts, and input types"
+   ],
+   "models": [
+    "Qwen/Qwen3-1.7B",
+    "Qwen/Qwen3-8B",
+    "google/gemma-2-9b-it",
+    "meta-llama/Llama-3.1-8B-Instruct",
+    "meta-llama/Llama-3.3-70B-Instruct"
+   ],
+   "gated_models": [
+    "google/gemma-2-9b-it",
+    "meta-llama/Llama-3.1-8B-Instruct",
+    "meta-llama/Llama-3.3-70B-Instruct"
+   ],
+   "compute": {
+    "tier": "large-gpu",
+    "largest_model_b": 70,
+    "basis": "Estimated from the largest model loaded in the code"
+   },
+   "uses_cuda_if_available": true,
+   "external": [],
+   "imports": [
+    "pandas",
+    "peft",
+    "plotly",
+    "torch",
+    "tqdm",
+    "transformers"
+   ],
+   "deps_missing_from_requirements": [
+    "peft",
+    "tqdm"
+   ],
+   "local_modules": [],
+   "cells": 48,
+   "has_saved_outputs": true,
+   "preview_image": null,
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/04_intermediate_computation/06_activation_oracles.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/04_intermediate_computation/06_activation_oracles.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/04_intermediate_computation/06_activation_oracles.ipynb"
+   },
+   "colab_blockers": [
+    "largest model exceeds a free Colab GPU"
+   ],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/04_intermediate_computation/07_natural_language_autoencoders.ipynb",
+   "section_dir": "04_intermediate_computation",
+   "order": 3,
+   "title": "Natural Language Autoencoders (NLAs)",
+   "survey_reference": "Natural Language Autoencoders — dedicated handbook section coming soon ([Anthropic, 2026](https://transformer-circuits.pub/2026/nla/))",
+   "overview": "**Prerequisites:** [01_logit_lens.ipynb](./01_logit_lens.ipynb), [06_activation_oracles.ipynb](./06_activation_oracles.ipynb)",
+   "key_methods": [],
+   "learning_objectives": [],
+   "models": [
+    "Qwen/Qwen2.5-7B-Instruct"
+   ],
+   "gated_models": [],
+   "compute": {
+    "tier": "gpu",
+    "largest_model_b": 7,
+    "basis": "Estimated from the largest model loaded in the code"
+   },
+   "uses_cuda_if_available": true,
+   "external": [
+    "Downloads data at runtime"
+   ],
+   "imports": [
+    "httpx",
+    "huggingface_hub",
+    "nla_inference",
+    "numpy",
+    "transformers"
+   ],
+   "deps_missing_from_requirements": [
+    "httpx",
+    "huggingface-hub"
+   ],
+   "local_modules": [
+    "nla_inference"
+   ],
+   "cells": 19,
+   "has_saved_outputs": true,
+   "preview_image": null,
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/04_intermediate_computation/07_natural_language_autoencoders.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/04_intermediate_computation/07_natural_language_autoencoders.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/04_intermediate_computation/07_natural_language_autoencoders.ipynb"
+   },
+   "colab_blockers": [
+    "imports modules not on PyPI or kept beside the notebook (nla_inference); clone the repo first"
+   ],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/05_representation_analysis/01_model_diffing.ipynb",
+   "section_dir": "05_representation_analysis",
+   "order": 4,
+   "title": "Model Diffing with Crosscoders",
+   "survey_reference": "Section 11.1 — Model Diffing: Tracking Representational Changes Across Models",
+   "overview": "**Model diffing** is a class of techniques for understanding how two language models differ by analyzing their internal representations. Given a base model and a fine-tuned variant, we want to answer: *What changed? Which features are shared, and which are new or exclusive to one model?*",
+   "key_methods": [],
+   "learning_objectives": [
+    "Understand why standard SAEs are insufficient for model comparison and how crosscoders solve the feature alignment problem",
+    "Implement and understand the crosscoder architecture for joint feature learning across two models",
+    "Load pre-trained crosscoder weights and classify features as shared vs. model-exclusive using decoder norm analysis",
+    "Evaluate crosscoder reconstruction quality via the CE loss recovered metric",
+    "Analyze feature density differences between shared and exclusive features"
+   ],
+   "models": [
+    "gemma-2-2b",
+    "gemma-2-2b-it"
+   ],
+   "gated_models": [
+    "gemma-2-2b",
+    "gemma-2-2b-it"
+   ],
+   "compute": {
+    "tier": "gpu",
+    "largest_model_b": 2.6,
+    "basis": "Estimated from the largest model loaded in the code"
+   },
+   "uses_cuda_if_available": true,
+   "external": [
+    "Hugging Face token"
+   ],
+   "imports": [
+    "datasets",
+    "einops",
+    "huggingface_hub",
+    "numpy",
+    "plotly",
+    "torch",
+    "transformer_lens"
+   ],
+   "deps_missing_from_requirements": [
+    "huggingface-hub"
+   ],
+   "local_modules": [],
+   "cells": 28,
+   "has_saved_outputs": true,
+   "preview_image": null,
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/05_representation_analysis/01_model_diffing.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/05_representation_analysis/01_model_diffing.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/05_representation_analysis/01_model_diffing.ipynb"
+   },
+   "colab_blockers": [],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/05_representation_analysis/02_knowledge_localization.ipynb",
+   "section_dir": "05_representation_analysis",
+   "order": 4,
+   "title": "Knowledge Localization",
+   "survey_reference": "Section 11.2 - Knowledge Localization: Where Is Information Stored?",
+   "overview": "This notebook demonstrates **causal tracing**, a technique for localizing where factual knowledge is stored in transformer models. The method was introduced in \"Locating and Editing Factual Associations in GPT\".",
+   "key_methods": [],
+   "learning_objectives": [],
+   "models": [
+    "gpt2-medium"
+   ],
+   "gated_models": [],
+   "compute": {
+    "tier": "cpu",
+    "largest_model_b": 0.355,
+    "basis": "Estimated from the largest model loaded in the code"
+   },
+   "uses_cuda_if_available": true,
+   "external": [],
+   "imports": [
+    "matplotlib",
+    "numpy",
+    "seaborn",
+    "torch",
+    "transformers"
+   ],
+   "deps_missing_from_requirements": [],
+   "local_modules": [],
+   "cells": 24,
+   "has_saved_outputs": true,
+   "preview_image": "notebooks-05-representation-analysis-02-knowledge-localization-ipynb.png",
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/05_representation_analysis/02_knowledge_localization.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/05_representation_analysis/02_knowledge_localization.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/05_representation_analysis/02_knowledge_localization.ipynb"
+   },
+   "colab_blockers": [],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/05_representation_analysis/03_representation_engineering.ipynb",
+   "section_dir": "05_representation_analysis",
+   "order": 4,
+   "title": "Representation Engineering and Steering",
+   "survey_reference": "Section 11.3 - Representation Engineering and Steering",
+   "overview": "**Representation engineering** uses insights about model internals to control behavior. The key technique is **steering vectors**: adding carefully chosen vectors to activations to shift model behavior.",
+   "key_methods": [],
+   "learning_objectives": [],
+   "models": [
+    "gpt2",
+    "meta-llama/Llama-2-13b-chat-hf"
+   ],
+   "gated_models": [
+    "meta-llama/Llama-2-13b-chat-hf"
+   ],
+   "compute": {
+    "tier": "large-gpu",
+    "largest_model_b": 13,
+    "basis": "Estimated from the largest model loaded in the code"
+   },
+   "uses_cuda_if_available": true,
+   "external": [
+    "Hugging Face token"
+   ],
+   "imports": [
+    "datasets",
+    "dotenv",
+    "matplotlib",
+    "numpy",
+    "sklearn",
+    "torch",
+    "tqdm",
+    "transformers"
+   ],
+   "deps_missing_from_requirements": [
+    "python-dotenv",
+    "tqdm"
+   ],
+   "local_modules": [],
+   "cells": 19,
+   "has_saved_outputs": true,
+   "preview_image": "notebooks-05-representation-analysis-03-representation-engineering-ipynb.png",
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/05_representation_analysis/03_representation_engineering.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/05_representation_analysis/03_representation_engineering.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/05_representation_analysis/03_representation_engineering.ipynb"
+   },
+   "colab_blockers": [
+    "largest model exceeds a free Colab GPU"
+   ],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/06_safety_applications/01_concept_erasure.ipynb",
+   "section_dir": "06_safety_applications",
+   "order": 5,
+   "title": "Concept Erasure with a Real LLM (Practical Version)",
+   "survey_reference": null,
+   "overview": "This notebook is the practical real-LLM version:",
+   "key_methods": [],
+   "learning_objectives": [],
+   "models": [
+    "gpt2"
+   ],
+   "gated_models": [],
+   "compute": {
+    "tier": "cpu",
+    "largest_model_b": 0.124,
+    "basis": "Estimated from the largest model loaded in the code"
+   },
+   "uses_cuda_if_available": true,
+   "external": [],
+   "imports": [
+    "numpy",
+    "sklearn",
+    "torch",
+    "transformers"
+   ],
+   "deps_missing_from_requirements": [],
+   "local_modules": [],
+   "cells": 15,
+   "has_saved_outputs": true,
+   "preview_image": null,
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/06_safety_applications/01_concept_erasure.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/06_safety_applications/01_concept_erasure.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/06_safety_applications/01_concept_erasure.ipynb"
+   },
+   "colab_blockers": [],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  },
+  {
+   "path": "notebooks/06_safety_applications/02_steering_vectors.ipynb",
+   "section_dir": "06_safety_applications",
+   "order": 5,
+   "title": "Steering Vectors for Safety",
+   "survey_reference": "Section 13.3 - Steering and Control for AI Safety",
+   "overview": "This notebook applies the workflow from `01_linear_representation_hypothesis.ipynb` to a safety setting.",
+   "key_methods": [],
+   "learning_objectives": [
+    "Extract a refusal direction with difference-in-means",
+    "Detect refusal intensity with projections and a linear probe",
+    "Steer generation by adding the refusal vector at inference time",
+    "Explore a simple multi-objective extension (refusal + honesty)"
+   ],
+   "models": [
+    "gpt2"
+   ],
+   "gated_models": [],
+   "compute": {
+    "tier": "cpu",
+    "largest_model_b": 0.124,
+    "basis": "Estimated from the largest model loaded in the code"
+   },
+   "uses_cuda_if_available": true,
+   "external": [],
+   "imports": [
+    "numpy",
+    "sklearn",
+    "torch",
+    "transformers"
+   ],
+   "deps_missing_from_requirements": [],
+   "local_modules": [],
+   "cells": 22,
+   "has_saved_outputs": true,
+   "preview_image": null,
+   "links": {
+    "source": "https://github.com/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/06_safety_applications/02_steering_vectors.ipynb",
+    "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/06_safety_applications/02_steering_vectors.ipynb",
+    "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/06_safety_applications/02_steering_vectors.ipynb"
+   },
+   "colab_blockers": [],
+   "link_check": {
+    "source_exists_on_github": true
+   }
+  }
+ ],
+ "requirements": [
+  "datasets",
+  "einops",
+  "ipykernel",
+  "ipywidgets",
+  "jupyter",
+  "matplotlib",
+  "numpy",
+  "pandas",
+  "plotly",
+  "scikit-learn",
+  "scipy",
+  "seaborn",
+  "torch",
+  "transformer-lens",
+  "transformers"
+ ],
+ "link_check_run": true
+}

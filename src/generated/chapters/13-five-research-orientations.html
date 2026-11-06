@@ -1,0 +1,321 @@
+<section id="sec:orientations" class="level1"><h1 data-pdf-page="74"><span class="secnum">13</span> Five Research Orientations<a class="anchor" href="#sec:orientations" aria-label="Link to this section">#</a></h1>
+<section id="defining-orientations-vs.-methods" class="level2"><h2 data-pdf-page="74"><span class="secnum">13.1</span> Defining Orientations vs. Methods<a class="anchor" href="#defining-orientations-vs.-methods" aria-label="Link to this section">#</a></h2>
+<p>An <strong>orientation</strong> is a coherent research program characterized by its goals, assumptions, and trade-offs, distinct from a <em>method</em>, which is a specific technique or tool employed within one or more orientations. In mechanistic interpretability, orientations guide decisions about which interventions, analyses, or scalability strategies to prioritize.</p>
+</section>
+<section id="overview-why-five-orientations" class="level2"><h2 data-pdf-page="75"><span class="secnum">13.2</span> Overview: Why Five Orientations?<a class="anchor" href="#overview-why-five-orientations" aria-label="Link to this section">#</a></h2>
+<p>The field of mechanistic interpretability does not converge on a single approach. Different research goals, ranging from immediate safety to comprehensive mechanistic understanding, impose different trade-offs, leading to partially divergent programs <span class="citation" data-cites="nanda2025pragmatic gao2025ambitious kim2025llmspursueagenticinterpretability hoogland2023towards barez2025automated">(<a href="@@BASE@@references/#ref-nanda2025pragmatic" class="cite cite-emerging" data-cite="nanda2025pragmatic" role="doc-biblioref"><span class="nocase">Nanda et al.</span> 2025</a>; <a href="@@BASE@@references/#ref-gao2025ambitious" class="cite cite-emerging" data-cite="gao2025ambitious" role="doc-biblioref">Gao 2025</a>; <a href="@@BASE@@references/#ref-kim2025llmspursueagenticinterpretability" class="cite cite-emerging" data-cite="kim2025llmspursueagenticinterpretability" role="doc-biblioref">Kim et al. 2025</a>; <a href="@@BASE@@references/#ref-hoogland2023towards" class="cite cite-emerging" data-cite="hoogland2023towards" role="doc-biblioref">Hoogland et al. 2023</a>; <a href="@@BASE@@references/#ref-barez2025automated" class="cite cite-emerging" data-cite="barez2025automated" role="doc-biblioref">Barez 2026</a>)</span>. This section maps the five major research orientations (Figure <a href="@@BASE@@handbook/13-five-research-orientations/#fig:fiveresearchorientation" data-reference-type="ref" data-reference="fig:fiveresearchorientation">16</a>) and outlines their assumptions, methods, and limitations. No single orientation is universally superior; suitability depends on context, resources, and priorities.</p>
+<figure id="fig:fiveresearchorientation" data-latex-placement="t">
+<img alt="Figure 18: Five Research Orientations." loading="lazy" src="@@BASE@@figures/12_directions_compressed.png" />
+<figcaption><span class="capnum">Figure 18:</span> <strong>Five Research Orientations</strong>.</figcaption>
+</figure>
+</section>
+<section id="pragmatic-interpretability-proxy-task-oriented-safety-interventions" class="level2"><h2 data-pdf-page="75"><span class="secnum">13.3</span> Pragmatic Interpretability: Proxy Task Oriented Safety Interventions<a class="anchor" href="#pragmatic-interpretability-proxy-task-oriented-safety-interventions" aria-label="Link to this section">#</a></h2>
+<p>Pragmatic Interpretability focuses on doing the research most helpful for longer-term alignment and interpretability goals, such as helping AGI go well <span class="citation" data-cites="nanda2025pragmatic">(<a href="@@BASE@@references/#ref-nanda2025pragmatic" class="cite cite-emerging" data-cite="nanda2025pragmatic" role="doc-biblioref"><span class="nocase">Nanda et al.</span> 2025</a>)</span>. It is generally believed that full mechanistic understanding is not required to have significant impact, and instead researchers should prioritize the work that is most likely to help <span class="citation" data-cites="nanda2025pragmatic">(<a href="@@BASE@@references/#ref-nanda2025pragmatic" class="cite cite-emerging" data-cite="nanda2025pragmatic" role="doc-biblioref"><span class="nocase">Nanda et al.</span> 2025</a>)</span>. The central idea is to work on a set of operationally meaningful proxy tasks that can be empirically studied on models today, and which are good proxies for a way we hope to make powerful future models safe. This gives a way to practice today, and prepare for future problems. Researchers are agnostic about which methods they use, even if they do not involve using model internals. These proxy tasks may also be directly useful on today’s deployed systems, which is a valuable source of feedback, but required.</p>
+<p>A representative example is the study of large language models’ awareness of being evaluated in Claude Sonnet 4.5 <span class="citation" data-cites="anthropic2025claude-sonnet-4-5">(<a href="@@BASE@@references/#ref-anthropic2025claude-sonnet-4-5" class="cite cite-emerging" data-cite="anthropic2025claude-sonnet-4-5" role="doc-biblioref">Anthropic 2025a</a>)</span>. The system was shown to condition its behavior on the presence of evaluation signals, which prevented Anthropic from using the same safety tests they had on previous models. Researchers were able to identify and deploy the steering vector that suppresses this awareness, allowing its safety to be evaluated. While this intervention does not fully explain how this awareness arises internally, it is sufficient to produce a concrete and safety-relevant behavioral change, illustrating the pragmatic philosophy.</p>
+<p>Another example is <span class="citation" data-cites="marks2025auditinglanguagemodelshidden">Marks, Treutlein, et al. (<a href="@@BASE@@references/#ref-marks2025auditinglanguagemodelshidden" class="cite" data-cite="marks2025auditinglanguagemodelshidden" role="doc-biblioref">2025</a>)</span>. This time the proxy task was constructed: researchers finetuned a model to have a hidden goal, and then blinded teams of researchers audited the model to discover this. This was a proxy task for the goal of detecting a naturally emerging hidden goal in a future model. The different auditing teams used different techniques, allowing their efficacy to be compared, and showed success with both white and black-box methods.</p>
+<p>The core technical assumption underlying Pragmatic Interpretability is that you can have significant impact on important problems without full mechanistic understanding. Common techniques in this paradigm include:</p>
+<ul>
+<li><p><strong>Steering vectors</strong>, which shift models to targeted behaviors.</p></li>
+<li><p><strong>Probes</strong>, which detect latent properties or internal states correlated with safety-relevant concepts.</p></li>
+<li><p><strong>Behavioral monitoring and anomaly detection</strong>, which track deviations indicative of emerging risks.</p></li>
+<li><p><strong>Prompting</strong>, a very effective black box baseline</p></li>
+</ul>
+<p>Recent work following this pragmatic trajectory has demonstrated effective mitigation of behaviors such as refusal bypass <span class="citation" data-cites="arditi2024refusallanguagemodelsmediated">(<a href="@@BASE@@references/#ref-arditi2024refusallanguagemodelsmediated" class="cite cite-established" data-cite="arditi2024refusallanguagemodelsmediated" role="doc-biblioref">Arditi et al. 2024</a>)</span> and evaluation awareness <span class="citation" data-cites="anthropic2025claude-sonnet-4-5">(<a href="@@BASE@@references/#ref-anthropic2025claude-sonnet-4-5" class="cite cite-emerging" data-cite="anthropic2025claude-sonnet-4-5" role="doc-biblioref">Anthropic 2025a</a>)</span>. These interventions deliver direct gains for contemporary frontier systems, but they are not designed to yield a comprehensive theoretical understanding of how the models implement their capabilities, occupying a complementary niche to reverse-engineering studies.</p>
+</section>
+<section id="ambitious-interpretability-toward-complete-mechanistic-understanding" class="level2"><h2 data-pdf-page="76"><span class="secnum">13.4</span> Ambitious Interpretability: Toward Complete Mechanistic Understanding<a class="anchor" href="#ambitious-interpretability-toward-complete-mechanistic-understanding" aria-label="Link to this section">#</a></h2>
+<p>Ambitious Interpretability seeks a comprehensive mechanistic understanding of how models implement their computations, typically over longer research horizons <span class="citation" data-cites="gao2025ambitious">(<a href="@@BASE@@references/#ref-gao2025ambitious" class="cite cite-emerging" data-cite="gao2025ambitious" role="doc-biblioref">Gao 2025</a>)</span>. Proponents argue that partial or surface-level understanding is fundamentally insufficient to guarantee safety in next-generation systems. Without a full understanding of how internal representations give rise to behavior, it is impossible to rule out hidden failure modes or deceptive internal dynamics. Accordingly, Ambitious Interpretability treats interpretability not as a collection of useful heuristics, but as a scientific objective: to reverse-engineer the model into a transparent, predictive theory of its internal algorithms.</p>
+<p>A distinctive feature of this paradigm is its emphasis on <em>metric-driven progress</em>. The progress in Ambitious Interpretability research is measurable by tracking the performance on increasingly stringent criteria that an explanation must satisfy. Research areas leveraging such paradigms include:</p>
+<ul>
+<li><p><strong>Feature quality and explainability</strong>: demonstrating that extracted features are genuinely human-understandable and causally relevant, rather than statistical artifacts.</p></li>
+<li><p><strong>Circuit faithfulness</strong>: proving circuits are necessary and sufficient for explaining behavior via causal intervention (e.g., causal scrubbing), without performance degradation.</p></li>
+</ul>
+<p>The downside of this ambition is its cost. Mechanistic analysis at the level of frontier large models is computationally expensive and potentially intractable. As <span class="citation" data-cites="gao2025ambitious">Gao (<a href="@@BASE@@references/#ref-gao2025ambitious" class="cite cite-emerging" data-cite="gao2025ambitious" role="doc-biblioref">2025</a>)</span> emphasizes, current tools remain far from achieving the level of coverage and robustness required for a truly comprehensive understanding.</p>
+<section id="architectural-interventions-as-a-synthesis." class="level4">
+<h4>Architectural interventions as a synthesis.</h4>
+<p>The emergence of intrinsically interpretable architectures (Section <a href="@@BASE@@handbook/6-feature-extraction-and-multi-layer-analysis/#sec:architectural-interventions" data-reference-type="ref" data-reference="sec:architectural-interventions">6.9</a>) complicates the boundary between Ambitious and Pragmatic orientations. Approaches such as weight-sparse transformers and other interpretable-in-architecture designs (<span class="citation" data-cites="gao2025weight">(<a href="@@BASE@@references/#ref-gao2025weight" class="cite cite-emerging" data-cite="gao2025weight" role="doc-biblioref">Gao, Rajaram, et al. 2025</a>)</span>; <span class="citation" data-cites="pearce2025bilinear park2025monet oldfield2024multilinear">(<a href="@@BASE@@references/#ref-pearce2025bilinear" class="cite cite-established" data-cite="pearce2025bilinear" role="doc-biblioref">Pearce et al. 2025</a>; <a href="@@BASE@@references/#ref-park2025monet" class="cite cite-established" data-cite="park2025monet" role="doc-biblioref">Park et al. 2025</a>; <a href="@@BASE@@references/#ref-oldfield2024multilinear" class="cite cite-established" data-cite="oldfield2024multilinear" role="doc-biblioref">Oldfield et al. 2024</a>)</span>) pursue the ambitious objective of representation- and circuit-level transparency, while simultaneously bearing a pragmatic view that standard dense architectures may be too entangled to ever admit complete post-hoc reverse-engineering.</p>
+<p>This synthesis reframes the interpretability problem: rather than accepting architectural opacity as a fixed constraint and investing unbounded resources in reverse-engineering, one invests upfront in training intrinsically interpretable models. The capability-interpretability scaling laws <span class="citation" data-cites="gao2025weight">Gao, Rajaram, et al. (<a href="@@BASE@@references/#ref-gao2025weight" class="cite cite-emerging" data-cite="gao2025weight" role="doc-biblioref">2025</a>)</span> suggest that this trade-off may be more favorable than previously assumed—large sparse models can achieve both high capability and high interpretability, potentially offering a path toward ambitious understanding without intractable post-hoc analysis.</p>
+<p>Whether architectural interventions ultimately vindicate Ambitious Interpretability (by making complete understanding achievable) or represent a distinct “Engineering” orientation (interpretability as a design constraint rather than a discovery target) remains to be seen. For now, they demonstrate that the boundaries between orientations are permeable: strategic choices about <em>when</em> to impose interpretability constraints (training time vs. post-hoc) can shift what is tractable.</p>
+</section>
+</section>
+<section id="developmental-interpretability-understanding-phase-transition-during-training" class="level2"><h2 data-pdf-page="77"><span class="secnum">13.5</span> Developmental Interpretability: Understanding Phase Transition During Training<a class="anchor" href="#developmental-interpretability-understanding-phase-transition-during-training" aria-label="Link to this section">#</a></h2>
+<p>Developmental Interpretability <span class="citation" data-cites="hoogland2023towards">(<a href="@@BASE@@references/#ref-hoogland2023towards" class="cite cite-emerging" data-cite="hoogland2023towards" role="doc-biblioref">Hoogland et al. 2023</a>)</span> aims to understand the phase transition in the internal states of the models and the formation of capability/knowledge during training as a means of inspecting the computational structure of the final models before deployment. It relies on access to training dynamics and assumes that the learning process encodes predictive and analytical information about more macro behaviors of neural networks, such as capability emergence. Methods include:</p>
+<ul>
+<li><p><strong>Singular Learning Theory (SLT)</strong> to theoretically analyze the change of model internal states during training.</p></li>
+<li><p><strong>Probes</strong> to be applied at model checkpoints in different training stages to monitor the emergence of a particular attribute.</p></li>
+<li><p><strong>Dictionary learning methods</strong> to decompose and analyze the formation of meaningful representations and circuits.</p></li>
+</ul>
+<p>Developmental Interpretability helps us understand and predict when deceptive behaviors or emergent capabilities will appear. Trade-offs include high mathematical and computational complexity, with potentially limited scalability and applicability to post-hoc analysis of frontier large models.</p>
+</section>
+<section id="sec:agentic-interpretability" class="level2"><h2 data-pdf-page="77"><span class="secnum">13.6</span> Agentic Interpretability: Models Interpreting Themselves<a class="anchor" href="#sec:agentic-interpretability" aria-label="Link to this section">#</a></h2>
+<p>Agentic interpretability <span class="citation" data-cites="kim2025llmspursueagenticinterpretability">(<a href="@@BASE@@references/#ref-kim2025llmspursueagenticinterpretability" class="cite cite-emerging" data-cite="kim2025llmspursueagenticinterpretability" role="doc-biblioref">Kim et al. 2025</a>)</span> leverages large language models as cooperative agents that engage in multi-turn, interactive dialogues to help humans build richer mental models of the model’s behavior and knowledge. Rather than relying solely on static inspection, an agentic interpreter can proactively adapt explanations based on the user’s state of understanding.</p>
+<p>Methods in this paradigm include:</p>
+<ul>
+<li><p><strong>Interactive querying</strong> to build user-tailored faithful explanations.</p></li>
+<li><p><strong>Dialogical explanation loops</strong> that refine explanations over multiple turns.</p></li>
+<li><p><strong>Continually intervening model</strong> to inject new knowledge through conversational prompts.</p></li>
+</ul>
+<p>Agentic interpretability introduces challenges due to its human-entangled nature—evaluation often depends on human responses and co-adaptation between user and model. Risks include (1) the possibility that generated explanations may prioritize <strong>coherence and pedagogy</strong> over <strong>faithful causal reflection</strong>, and (2) evaluation difficulties when the model’s adaptivity obscures whether the reasoning reflects internal mechanisms. Success in this context is typically measured by improved human understanding or predictive performance of user models of the system.</p>
+<section id="governance-concerns-for-agentic-interpretability" class="level3"><h3 data-pdf-page="77"><span class="secnum">13.6.1</span> Governance Concerns for Agentic Interpretability<a class="anchor" href="#governance-concerns-for-agentic-interpretability" aria-label="Link to this section">#</a></h3>
+<p>Relying on models to interpret themselves raises fundamental governance questions: How do we ensure self-interpretations are trustworthy? What safeguards prevent manipulation or self-serving explanations? Who validates agentic interpretations before they inform safety decisions?</p>
+<div class="warningbox">
+<p><strong>Conflict of interest</strong>: A model interpreting itself has potential incentives to provide favorable explanations. Even without explicit deception, models may generate explanations that:</p>
+<ul>
+<li><p>Emphasize benign-seeming computations while downplaying concerning ones.</p></li>
+<li><p>Rationalize outputs post-hoc rather than reporting actual computation.</p></li>
+<li><p>Optimize for user satisfaction rather than accuracy.</p></li>
+</ul>
+<p><strong>Circular validation</strong>: If we use a model to validate its own explanations, we have no independent ground truth. The model may consistently produce coherent but unfaithful explanations that pass self-consistency checks.</p>
+<p><strong>Capability asymmetry</strong>: As models become more capable, they may become better at producing convincing yet unfaithful explanations while their internal computations become more opaque. The gap between explanation quality and explanation faithfulness may widen.</p>
+</div>
+</section>
+<section id="proposed-guardrails-for-agentic-interpretability" class="level3"><h3 data-pdf-page="78"><span class="secnum">13.6.2</span> Proposed Guardrails for Agentic Interpretability<a class="anchor" href="#proposed-guardrails-for-agentic-interpretability" aria-label="Link to this section">#</a></h3>
+<p>To address these governance concerns, we propose a multi-layered guardrail framework.</p>
+<div class="definitionbox">
+<p><strong>Layer 1: Independent Validation</strong></p>
+<ul>
+<li><p><strong>Cross-model verification</strong>: Use a separate, independent model to evaluate explanations generated by the agent. Disagreement flags potential unfaithfulness.</p></li>
+<li><p><strong>Causal spot-checks</strong>: Randomly sample agentic explanations and verify via causal interventions, such as activation patching. Track validation rate over time.</p></li>
+<li><p><strong>Human auditor review</strong>: In high-stakes applications, require human expert review before acting on findings.</p></li>
+</ul>
+<p><strong>Layer 2: Structural Constraints</strong></p>
+<ul>
+<li><p><strong>Separation of roles</strong>: The model generating explanations should not be the same instance making decisions based on those explanations.</p></li>
+<li><p><strong>Explanation logging</strong>: All agentic explanations should be logged immutably for audit. Explanations cannot be retroactively modified.</p></li>
+<li><p><strong>Uncertainty requirements</strong>: Agentic interpreters must express calibrated uncertainty. Overconfident explanations trigger additional validation.</p></li>
+</ul>
+<p><strong>Layer 3: Adversarial Testing</strong></p>
+<ul>
+<li><p><strong>Red-team explanations</strong>: Deliberately prompt for explanations of behaviors the model should not have (e.g., “Explain how you would deceive a user”). Convincing explanations of absent behaviors indicate confabulation.</p></li>
+<li><p><strong>Consistency probes</strong>: Ask agent the same question in multiple ways; inconsistent explanations indicate unreliability.</p></li>
+<li><p><strong>Planted ground truth</strong>: Occasionally query about behaviors with known mechanistic ground truth from manual causal analysis or artificailly planted model behaviors. Measure explanation accuracy against ground truth.</p></li>
+</ul>
+<p><strong>Layer 4: Governance Process</strong></p>
+<ul>
+<li><p><strong>Tiered trust</strong>: Agentic explanations inform but do not determine safety decisions. Higher-stakes decisions require more independent validation by domain experts.</p></li>
+<li><p><strong>Audit trails</strong>: Document which explanations informed which decisions, enabling retrospective analysis if problems emerge.</p></li>
+<li><p><strong>Periodic review</strong>: Regularly reassess the reliability of agentic interpretability systems as target models and interpretability methods evolve.</p></li>
+</ul>
+</div>
+</section>
+<section id="subsec:valproto agentic self-reports" class="level3"><h3 data-pdf-page="78"><span class="secnum">13.6.3</span> Validation Protocols for Agentic Self-Reports<a class="anchor" href="#subsec:valproto agentic self-reports" aria-label="Link to this section">#</a></h3>
+<p>Building on Section <a href="@@BASE@@handbook/5-core-hypotheses-in-mechanistic-interpretability/#subsec:privileged-access" data-reference-type="ref" data-reference="subsec:privileged-access">5.3</a>, we specify concrete validation protocols for agentic interpretability.</p>
+<section id="protocol-1-causality-testing." class="level4">
+<h4>Protocol 1: Causality Testing.</h4>
+<p>For each agentic explanation claiming “component <span class="math inline">C</span> is responsible for behavior <span class="math inline">B</span>”, the regulator can follow a standardized pipeline to validate its causality <span class="citation" data-cites="joshi2026causalitykeyinterpretabilityclaims">(<a href="@@BASE@@references/#ref-joshi2026causalitykeyinterpretabilityclaims" class="cite cite-emerging" data-cite="joshi2026causalitykeyinterpretabilityclaims" role="doc-biblioref">Joshi et al. 2026</a>)</span>. Specifically, the regulator can first ablate <span class="math inline">C</span> and measure the effect on <span class="math inline">B</span>. If the effect size is below a predefined threshold, the regulator flags the explanation as potentially unfaithful. Plus, over time, the rate of explanations that fail causal validation should be checked. If the rate exceeds a predefined threshold (e.g., 20%), the regulator reduces trust in agentic explanations and increases the frequency of validation.</p>
+</section>
+<section id="protocol-2-cross-examiner-verification." class="level4">
+<h4>Protocol 2: Cross-Examiner Verification.</h4>
+<p>The regulator can use a second model as a cross-examiner. First, the original model’s explanation is presented to the cross-examiner. The cross-examiner is then asked to identify potential weaknesses, alternative explanations, and inconsistencies. If significant concerns are identified, it escalates to human review. The regulator should also periodically validate the reliability of the cross-examiner via planted inconsistencies.</p>
+</section>
+<section id="protocol-3-behavioral-prediction-testing." class="level4">
+<h4>Protocol 3: Behavioral Prediction Testing.</h4>
+<p>Finally, the regulator validates whether explanations enable accurate behavioral prediction. Given an agentic explanation of a behavior, ask the agent (or a cross-examiner): “What would the model do on input <span class="math inline">x&#39;</span>?” The regulator acquires and logs the predicted model behavior on <span class="math inline">x&#39;</span>, and then compares it to the actual model output on <span class="math inline">x&#39;</span>. If the explanations consistently fail to predict the behavior, they are flagged as unreliable, regardless of their coherence.</p>
+</section>
+</section>
+</section>
+<section id="sec:automated-interp" class="level2"><h2 data-pdf-page="79"><span class="secnum">13.7</span> Automated Interpretability: Scaling Discovery via Automation<a class="anchor" href="#sec:automated-interp" aria-label="Link to this section">#</a></h2>
+<p>Automated Interpretability seeks to scale mechanistic analysis to large models by replacing human analysis with machine learning pipelines. It assumes that manual analysis is the bottleneck and that automation can accelerate discovery. Methods include:</p>
+<ul>
+<li><p><strong>SAEs</strong> to unsupervisedly discover monosemantic features inside the model’s raw activations.</p></li>
+<li><p><strong>LLM-based feature explanations</strong> to automatically summarize and label latent features with human-readable concepts.</p></li>
+<li><p><strong>Automated circuit discovery</strong> to automatically find the critical computational graph inside the model that processes a given input prompt.</p></li>
+<li><p><strong>Verification using synthetic data.</strong> to evaluate the discovered and annotated features.</p></li>
+</ul>
+<p>Below, we illustrate a classical automated feature-explanation pipeline in an Automated Interpretability system.</p>
+<div class="theorybox">
+<p>The pipeline proceeds in four stages:</p>
+<p><strong>Stage 1 – Feature Extraction:</strong> SAEs unsupervisedly extract sparse features from target model activations, producing monosemantic directions in activation space.</p>
+<p><strong>Stage 2 – Explanation Generation:</strong> An “Investigator Agent” (e.g., GPT-4) reads a sample of texts that strongly activate a feature and generates a natural language hypothesis of its function <span class="citation" data-cites="paulo2025automatically">(<a href="@@BASE@@references/#ref-paulo2025automatically" class="cite cite-established" data-cite="paulo2025automatically" role="doc-biblioref">Paulo et al. 2025</a>)</span>, e.g., “This feature activates on Python code related to file I/O operations.”</p>
+<p><strong>Stage 3 – Explanation Verification:</strong> A “Scorer Agent” synthesizes new text based on the hypothesis and tests whether the text indeed activates the feature <span class="citation" data-cites="bills2023language">(<a href="@@BASE@@references/#ref-bills2023language" class="cite cite-emerging" data-cite="bills2023language" role="doc-biblioref">Bills et al. 2023</a>)</span>. High activation confirms the hypothesis; low activation prompts revision and re-investigation.</p>
+<p><strong>Stage 4 – Deception Detection:</strong> Crucially, coordinated agents can detect when explanations are deceptive or misleading—effectively deploying “AI to catch AI” in oversight scenarios <span class="citation" data-cites="barez2025automated">(<a href="@@BASE@@references/#ref-barez2025automated" class="cite cite-emerging" data-cite="barez2025automated" role="doc-biblioref">Barez 2026</a>)</span>.</p>
+</div>
+<p>This pipeline enables analysis of billions of parameters without human intervention, a prerequisite for comprehensive model oversight <span class="citation" data-cites="foote2023neurongraphinterpretinglanguage">(<a href="@@BASE@@references/#ref-foote2023neurongraphinterpretinglanguage" class="cite cite-emerging" data-cite="foote2023neurongraphinterpretinglanguage" role="doc-biblioref">Foote et al. 2023</a>)</span>. Recent research in automated interpretability has pushed toward higher levels of automation, spanning automated feature explanation, end-to-end model analysis, auditing, and intervention <span class="citation" data-cites="barez2025automated cywinski2025eliciting">(<a href="@@BASE@@references/#ref-barez2025automated" class="cite cite-emerging" data-cite="barez2025automated" role="doc-biblioref">Barez 2026</a>; <a href="@@BASE@@references/#ref-cywinski2025eliciting" class="cite cite-emerging" data-cite="cywinski2025eliciting" role="doc-biblioref">Cywiński et al. 2025</a>)</span>.</p>
+<p>Trade-offs include that reduced human validation may potentially increase the risks of systematic errors. Success is measured by the coverage of the model behavior and the quality and scale of the analysis.</p>
+<section id="governance-concerns-for-automated-interpretability" class="level3"><h3 data-pdf-page="79"><span class="secnum">13.7.1</span> Governance Concerns for Automated Interpretability<a class="anchor" href="#governance-concerns-for-automated-interpretability" aria-label="Link to this section">#</a></h3>
+<p>Automation introduces different governance challenges: errors can propagate at scale, human oversight becomes a bottleneck, and systematic biases can go undetected.</p>
+<div class="warningbox">
+<p><strong>Error amplification</strong>: A systematic error in the explanation generation model propagates to all features it analyzes. Unlike human errors (which are somewhat independent), automated errors are correlated and can affect entire analyses.</p>
+<p><strong>Reduced human oversight</strong>: The primary motivation for automation is removing humans from the loop. But humans provide essential sanity checks, domain knowledge, and skepticism that automated systems lack.</p>
+<p><strong>Automation bias</strong>: Users may over-trust automated explanations because they appear systematic and comprehensive. The appearance of rigor can mask underlying unreliability.</p>
+<p><strong>Spurious feedback loops</strong>: If automated Interpretability is used to improve models, and those models are then used for Automated Interpretability, subtle feedback loops may emerge that optimize for interpretability metrics rather than genuine understanding.</p>
+</div>
+</section>
+<section id="proposed-guardrails-for-automated-interpretability" class="level3"><h3 data-pdf-page="80"><span class="secnum">13.7.2</span> Proposed Guardrails for Automated Interpretability<a class="anchor" href="#proposed-guardrails-for-automated-interpretability" aria-label="Link to this section">#</a></h3>
+<p>We propose a four-layer guardrail framework to help mitigate the risks:</p>
+<div class="definitionbox">
+<p><strong>Layer 1: Sampling-Based Human Validation</strong></p>
+<ul>
+<li><p><strong>Random audits</strong>: Randomly sample a predefined fraction (e.g., 5%) of automated explanations for human expert review.</p></li>
+<li><p><strong>Stratified sampling</strong>: Ensure audits cover different feature types, layers, and explanation categories—not just easy cases.</p></li>
+<li><p><strong>Blinded evaluation</strong>: Human auditors should not know which explanations are randomly sampled and which are flagged by automated checks.</p></li>
+</ul>
+<p><strong>Layer 2: Automated Consistency Checks</strong></p>
+<ul>
+<li><p><strong>Self-consistency</strong>: Generate explanations multiple times with temperature variation. Inconsistent explanations are flagged.</p></li>
+<li><p><strong>Cross-method consistency</strong>: Compare explanations from different setups (e.g., different LLM explainers). Disagreement triggers review.</p></li>
+<li><p><strong>Causal consistency</strong>: Automatically test a sample of explanations via causal testing like activation patching. Track failure rates.</p></li>
+</ul>
+<p><strong>Layer 3: Error Detection and Bounds</strong></p>
+<ul>
+<li><p><strong>Confidence calibration</strong>: Automated systems must output calibrated confidence. Overconfidence is fatal and should be penalized.</p></li>
+<li><p><strong>Known-answer tests</strong>: Include features with known ground-truth explanations (e.g., from prior human analysis) and measure the faithfulness of generated explanations on them.</p></li>
+<li><p><strong>Error rate reporting</strong>: Report estimated error rates alongside all automated findings. Do not present automation as infallible.</p></li>
+</ul>
+<p><strong>Layer 4: Governance Process</strong></p>
+<ul>
+<li><p><strong>Tiered claims</strong>: Distinguish “automated hypothesis” (low confidence, requires validation) from “validated finding” (passed human/causal checks).</p></li>
+<li><p><strong>Versioning and reproducibility</strong>: Ensure the versioning and reproducibility of all automated analyses. When methods improve, prior analyses should be re-evaluated.</p></li>
+<li><p><strong>Scope limitations</strong>: Clearly study and define what Automated Interpretability can and cannot reliably assess. Do not extrapolate beyond validated scope.</p></li>
+</ul>
+</div>
+</section>
+<section id="validation-protocols-for-automated-pipelines" class="level3"><h3 data-pdf-page="80"><span class="secnum">13.7.3</span> Validation Protocols for Automated Pipelines<a class="anchor" href="#validation-protocols-for-automated-pipelines" aria-label="Link to this section">#</a></h3>
+<p>Similarly to Section <a href="@@BASE@@handbook/13-five-research-orientations/#subsec:valproto agentic self-reports" data-reference-type="ref" data-reference="subsec:valproto agentic self-reports">13.6.3</a>, here we also propose standardized validation protocols to regulate and monitor Automated Interpretability pipelines.</p>
+<section id="protocol-1-calibration-testing." class="level4">
+<h4>Protocol 1: Calibration Testing.</h4>
+<p>To evaluate whether automated confidence scores are calibrated, the regulator follows four steps: First, the regulator collects automated explanations with associated confidence scores. Second, for each confidence bin (e.g., 0.8–0.9), the regulator measures actual accuracy via human evaluation or causal testing. Third, the regulator plots the relationship between confidence and accuracy. Well-calibrated systems have accuracy <span class="math inline">\approx</span> confidence. Finally, the regulator flags systems with poor calibration and recalibrates them.</p>
+</section>
+<section id="protocol-2-adversarial-robustness." class="level4">
+<h4>Protocol 2: Adversarial Robustness.</h4>
+<p>We may test automated pipelines against adversarial inputs. To achieve this, the regulator first constructs features with backdoored activation patterns designed to make the explainer produce inappropriate or targeted explanations. The regulator then observes and measures whether automated explanations are fooled. Failure cases can be used to improve the robustness of the pipeline.</p>
+</section>
+<section id="protocol-3-drift-monitoring." class="level4">
+<h4>Protocol 3: Drift Monitoring.</h4>
+<p>The performance of an Automated Interpretability system may fluctuate or degrade over time due to domain shifts of the input or updates of the analyzed model. As a result, we should consistently track automated pipeline performance. To achieve this, conceptually, the regulator can first establish baseline performance on a held-out validation set. Periodically, the regulator re-evaluates on the same validation set. If the system’s performance degrades, it should trigger warnings for review and recalibration.</p>
+</section>
+</section>
+<section id="integrating-automated-and-human-analysis" class="level3"><h3 data-pdf-page="81"><span class="secnum">13.7.4</span> Integrating Automated and Human Analysis<a class="anchor" href="#integrating-automated-and-human-analysis" aria-label="Link to this section">#</a></h3>
+<p>A robust approach should combine automated and human analysis, using automation for scale and humans for validation and edge cases. Table <a href="@@BASE@@handbook/13-five-research-orientations/#tab:human-automated-workflow" data-reference-type="ref" data-reference="tab:human-automated-workflow">13</a> demonstrates an exemplary workflow to combine AI and human labor for scalable interpretability analysis.</p>
+<table id="tab:human-automated-workflow">
+<caption><span class="capnum">Table 13:</span> Integrated Human-Automated Interpretability Workflow</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><span style="color: white"><strong>Stage</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Automated Role</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Human Role</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Output</strong></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Discovery</td>
+<td style="text-align: left;">Extract features; generate candidate explanations</td>
+<td style="text-align: left;">Define scope; review methodology</td>
+<td style="text-align: left;">Candidate feature set</td>
+</tr>
+<tr>
+<td style="text-align: left;">Prioritization</td>
+<td style="text-align: left;">Rank features by importance metrics</td>
+<td style="text-align: left;">Review rankings; adjust priorities</td>
+<td style="text-align: left;">Prioritized analysis queue</td>
+</tr>
+<tr>
+<td style="text-align: left;">Explanation</td>
+<td style="text-align: left;">Generate explanations at scale</td>
+<td style="text-align: left;">Audit random sample; review flagged cases</td>
+<td style="text-align: left;">Draft explanations</td>
+</tr>
+<tr>
+<td style="text-align: left;">Validation</td>
+<td style="text-align: left;">Run automated consistency/causal checks</td>
+<td style="text-align: left;">Deep-dive on failures; validate edge cases</td>
+<td style="text-align: left;">Validated findings</td>
+</tr>
+<tr>
+<td style="text-align: left;">Synthesis</td>
+<td style="text-align: left;">Aggregate findings; generate reports</td>
+<td style="text-align: left;">Interpret implications; make decisions</td>
+<td style="text-align: left;">Actionable conclusions</td>
+</tr>
+</tbody>
+</table>
+<section id="key-principles-for-integration." class="level4">
+<h4>Key Principles for Integration.</h4>
+<p>In summary, there are four principles for integrating human and AI into the interpretability workflow:</p>
+<ol>
+<li><p><strong>Automation for breadth, humans for depth</strong>: Use automation to cover many features quickly; use humans to analyze critical or uncertain cases.</p></li>
+<li><p><strong>Humans set criteria, automation applies them</strong>: Humans define what counts as a valid explanation, an important feature, or a concerning finding. Automation applies these criteria at scale.</p></li>
+<li><p><strong>Escalation paths</strong>: Automated systems should have clear criteria for escalating to human review (e.g., low confidence, high stakes, inconsistency).</p></li>
+<li><p><strong>Feedback loops</strong>: Human corrections should feed back into automated systems to calibrate the system and improve future quality.</p></li>
+</ol>
+</section>
+</section>
+<section id="summary-responsible-automation" class="level3"><h3 data-pdf-page="81"><span class="secnum">13.7.5</span> Summary: Responsible Automation<a class="anchor" href="#summary-responsible-automation" aria-label="Link to this section">#</a></h3>
+<p>Automated and agentic interpretability offer powerful capabilities for scaling mechanistic analysis, but introduce governance challenges that require explicit mitigation. Specifically, <strong>Agentic Interpretability</strong> requires independent validation to prevent self-serving explanations; <strong>Automated Interpretability</strong> requires sampling-based human oversight to catch systematic errors. They both require clear communication of limitations, confidence levels, and validation status, and neither should be regarded as a replacement for human judgment on high-stakes decision-making.</p>
+<p>In sum, their goal is to leverage the scale of automation while preserving the reliability that human oversight provides, rather than removing humans from interpretability entirely.</p>
+</section>
+</section>
+<section id="comparative-analysis-trade-offs-between-orientations" class="level2"><h2 data-pdf-page="81"><span class="secnum">13.8</span> Comparative Analysis: Trade-Offs Between Orientations<a class="anchor" href="#comparative-analysis-trade-offs-between-orientations" aria-label="Link to this section">#</a></h2>
+<p>Table <a href="@@BASE@@handbook/13-five-research-orientations/#tab:orientations" data-reference-type="ref" data-reference="tab:orientations">14</a> compares the five research orientations across several dimensions, such as their problem choices, primary techniques, and practical scalability. None of these approaches strictly dominates the others across all axes. For example, Automated Interpretability is designed to scale to extremely large numbers of features in frontier models but has issues like error propagation and automation bias. By contrast, Ambitious Interpretability prioritizes fundamental, theory-grounded understanding and is therefore more robust to the presence of hidden misaligned behaviors within the system; however, its results are typically derived from controlled, small-scale settings <span class="citation" data-cites="elhage2022superposition">(<a href="@@BASE@@references/#ref-elhage2022superposition" class="cite cite-emerging" data-cite="elhage2022superposition" role="doc-biblioref">Elhage, Hume, Olsson, Nanda, Henighan, Bai, et al. 2022</a>)</span> and may fail to transfer, or become impractical, for large frontier models and real-time deployment.</p>
+<p>Consequently, the choice of which orientation to prioritize depends on multiple contextual factors, including the tasks of interest, available computational and human resources, and the intended downstream use of the research outcomes, detailed in Section <a href="@@BASE@@handbook/13-five-research-orientations/#subsec:choosing orientation" data-reference-type="ref" data-reference="subsec:choosing orientation">13.9</a>.</p>
+<table id="tab:orientations">
+<caption><span class="capnum">Table 14:</span> Comparison of Mechanistic Interpretability Orientations</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><span style="color: white"><strong>Dimension</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Pragmatic</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Ambitious</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Developmental</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Agentic</strong></span></th>
+<th style="text-align: left;"><span style="color: white"><strong>Automated</strong></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Core Thesis</strong></td>
+<td style="text-align: left;">Safety interventions now without complete understanding</td>
+<td style="text-align: left;">Total causal understanding, regardless of cost</td>
+<td style="text-align: left;">Predict emergence via learning dynamics</td>
+<td style="text-align: left;">Models explain themselves if prompted correctly</td>
+<td style="text-align: left;">Scale discovery via automated pipelines</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Key Metrics</strong></td>
+<td style="text-align: left;">Safety task performance</td>
+<td style="text-align: left;">Faithfulness &amp; circuit completeness</td>
+<td style="text-align: left;">Phase transitions &amp; Local Learning Coefficient</td>
+<td style="text-align: left;">Self-report alignment with mechanisms</td>
+<td style="text-align: left;">Coverage and scale of analysis</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Primary Tools</strong></td>
+<td style="text-align: left;">Steering vectors, probes, monitoring</td>
+<td style="text-align: left;">Circuit discovery, formal verification</td>
+<td style="text-align: left;">SLT, phase transition detection, SAEs</td>
+<td style="text-align: left;">LatentQA, dialogical self-explanation, model intervention</td>
+<td style="text-align: left;">Circuit discovery, SAEs, LLM-based explanations, causal verification</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Time Horizon</strong></td>
+<td style="text-align: left;">Short-term</td>
+<td style="text-align: left;">Long-term</td>
+<td style="text-align: left;">During training (immediate)</td>
+<td style="text-align: left;">Immediate</td>
+<td style="text-align: left;">Short-term</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Scalability</strong></td>
+<td style="text-align: left;">Medium</td>
+<td style="text-align: left;">Low</td>
+<td style="text-align: left;">Low</td>
+<td style="text-align: left;">Medium</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Robustness to Deception</strong></td>
+<td style="text-align: left;">Medium</td>
+<td style="text-align: left;">High</td>
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">Low</td>
+<td style="text-align: left;">Unknown</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="subsec:choosing orientation" class="level2"><h2 data-pdf-page="82"><span class="secnum">13.9</span> Choosing an Orientation: A Decision Framework<a class="anchor" href="#subsec:choosing orientation" aria-label="Link to this section">#</a></h2>
+<p>The research orientation to select depends on the priorities and constraints of the investigator. For teams or individuals focusing on immediate safety interventions, a <strong>Pragmatic</strong> orientation is most suitable, as it emphasizes actionable insights and targeted behavioral interventions. If the primary goal is to guarantee correctness or formally verify the absence of harmful behaviors, an <strong>Ambitious</strong> orientation is appropriate, despite its high computational cost and long-term horizon. Researchers aiming to anticipate and prevent emergent behaviors during training may adopt a <strong>Developmental</strong> orientation, leveraging the analysis of learning dynamics and phase transition to predict capability emergence. When the objective is to understand reasoning or causal structure in existing models, <strong>Agentic</strong> interpretability, where models themselves provide explanations, may be the most effective approach. Finally, for those prioritizing the scalability of analysis across large or multiple models with minimal human in the loop, <strong>Automated</strong> interpretability techniques provide pipelines and ML-assisted discovery, albeit with some loss of rigorous manual validation. Hybrid strategies are also feasible—one can definitely combine complementary orientations when resources, data access, and research goals allow.</p>
+</section>
+<section id="critical-tensions-and-open-questions" class="level2"><h2 data-pdf-page="82"><span class="secnum">13.10</span> Critical Tensions and Open Questions<a class="anchor" href="#critical-tensions-and-open-questions" aria-label="Link to this section">#</a></h2>
+<p>Several critical tensions emerge when considering the adoption of different orientations. A central debate exists between <strong>Pragmatic</strong> and <strong>Ambitious</strong> approaches: does partial mechanistic understanding suffice to ensure safety, or is complete comprehension necessary? Another tension arises between <strong>Agentic</strong> and external analysis methods, questioning whether models can be trusted to accurately report on their own mechanisms. Similarly, <strong>Developmental</strong> approaches, which require access to training dynamics, raise the question of whether post-hoc analysis of deployed models could ever suffice. <strong>Automation</strong> introduces further trade-offs: while scaling interpretability via automation enables coverage of larger models, it may reduce the transparency and human comprehensibility of the results. Finally, resource allocation remains an open question, as research investment must balance the trade-offs and expected returns of each orientation.</p>
+</section>
+</section>

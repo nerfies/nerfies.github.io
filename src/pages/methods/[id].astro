@@ -1,0 +1,81 @@
+---
+import Base from '../../layouts/Base.astro';
+import DraftBanner from '../../components/DraftBanner.astro';
+import Excerpt from '../../components/Excerpt.astro';
+import SectionLinks from '../../components/SectionLinks.astro';
+import ManuscriptNote from '../../components/ManuscriptNote.astro';
+import { methods, familyById, methodById, sections, notebooksFor, demosFor, keyPapers, framework } from '../../lib/data';
+import { url } from '../../lib/site';
+import { draftHidden } from '../../lib/manuscript';
+
+export function getStaticPaths() { return draftHidden ? [] : methods.map((m) => ({ params: { id: m.id } })); }
+const m = methodById.get(Astro.params.id!)!;
+const fam = familyById.get(m.family);
+const sec = sections(m.sections);
+const primary = sec[0];
+const nbs = notebooksFor('methods', m.id);
+const demos = demosFor('methods', m.id);
+const papers = keyPapers(m);
+const siblings = methods.filter((x) => x.family === m.family && x.id !== m.id);
+const relatedBack = methods.filter((x) => (x.related ?? []).includes(m.id) && !(m.related ?? []).includes(x.id));
+const nameLc = m.name.toLowerCase();
+const apps = (framework.safety_applications.applications as any[]).filter((a) => (a.methods ?? []).some((n: string) => n.toLowerCase().includes(nameLc) || nameLc.includes(n.toLowerCase())));
+const groups: [string, string[]][] = [
+  ['Assumptions and requirements', m.assumptions], ['Evaluation considerations', m.evaluation],
+  ['Intended applications', m.applications], ['Limitations', m.limitations],
+];
+const nbAnchor = (p: string) => p.split('/').pop()!.replace('.ipynb', '');
+---
+<Base title={m.name} description={`${m.name}: what the survey says about it, with its assumptions, evaluation, applications and limitations, plus links to the survey sections, key papers and notebooks.`}>
+  <div class="page-narrow">
+    <p class="eyebrow"><a href={url('methods/')}>Methods</a> · <a href={url(`methods/?family=${m.family}`)}>{fam?.name}</a></p>
+    <h1 style="margin-bottom:.4rem">{m.name}</h1>
+    <SectionLinks ids={m.sections} label="Survey sections" />
+    <DraftBanner />
+    <p><ManuscriptNote /></p>
+    {m.definition && <Excerpt text={m.definition} section={primary} />}
+
+    {groups.map(([h, list]) => (
+      <section>
+        <h2 style="font-size:1.15rem;margin-top:2rem">{h}</h2>
+        {list?.length ? list.map((t) => <Excerpt text={t} />) : <p class="muted small">The survey doesn’t state this explicitly for {m.name}.</p>}
+      </section>
+    ))}
+
+    {(m.related?.length > 0 || relatedBack.length > 0) && (
+      <section><h2 style="font-size:1.15rem;margin-top:2rem">Related methods</h2>
+        <p class="small muted">These are methods the survey explicitly relates to this one or contrasts with it.</p>
+        <ul>{[...(m.related ?? []).map((id: string) => methodById.get(id)), ...relatedBack].filter(Boolean).map((r: any) => <li><a href={url(`methods/${r.id}/`)}>{r.name}</a></li>)}</ul>
+        <p><a class="small" href={url(`methods/?compare=${[m.id, ...(m.related ?? []), ...relatedBack.map((x) => x.id)].slice(0, 3).join(',')}`)}>Compare side by side →</a></p>
+      </section>
+    )}
+
+    {apps.length > 0 && (
+      <section><h2 style="font-size:1.15rem;margin-top:2rem">Used in safety applications</h2>
+        <ul>{apps.map((a) => <li><a href={url(`safety/#${a.id}`)}>{a.name}</a></li>)}</ul></section>
+    )}
+
+    {(nbs.length > 0 || demos.length > 0) && (
+      <section><h2 style="font-size:1.15rem;margin-top:2rem">Run it</h2>
+        <ul>
+          {demos.map((d) => <li><a href={url(d.href)}>Interactive demo: {d.title}</a></li>)}
+          {nbs.map((n) => <li><a href={url(`notebooks/#${nbAnchor(n.path)}`)}>Notebook: {n.title}</a> · <a href={n.links.colab}>Open in Colab</a></li>)}
+        </ul>
+      </section>
+    )}
+
+    {papers.length > 0 && (
+      <section><h2 style="font-size:1.15rem;margin-top:2rem">Key papers</h2>
+        <p class="small muted">Works cited in {primary?.num ? `§${primary.num}` : 'the primary section'}, taken automatically from the survey’s citations.</p>
+        <ul class="small">{papers.map((p) => <li style="margin:.3rem 0"><a href={url(`references/#ref-${p.key}`)} style={`color:var(--tier-${p.tier ?? 'established'})`} aria-label="Open in references">■</a> {p.text}</li>)}</ul>
+      </section>
+    )}
+
+    {m.mentioned_in?.length > 0 && <SectionLinks ids={m.mentioned_in} label="Also discussed in" />}
+
+    {siblings.length > 0 && (
+      <section><h2 style="font-size:1.15rem;margin-top:2rem">Other methods in {fam?.name}</h2>
+        <p class="small">{siblings.map((s, i) => <>{i > 0 && ' · '}<a href={url(`methods/${s.id}/`)}>{s.name}</a></>)}</p></section>
+    )}
+  </div>
+</Base>

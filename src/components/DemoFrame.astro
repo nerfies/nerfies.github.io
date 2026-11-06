@@ -1,0 +1,36 @@
+---
+import SectionLinks from './SectionLinks.astro';
+import { referenceByKey, draftHidden } from '../lib/manuscript';
+import { methodById, hypotheses, demoLinks, notebooks } from '../lib/data';
+import { url } from '../lib/site';
+interface Props { id: string; title: string; kind: 'measured' | 'computed'; refs: string[] }
+const { id, title, kind, refs } = Astro.props;
+const L = demoLinks(id);
+const ms = (L.methods ?? []).map((x: string) => methodById.get(x)).filter(Boolean);
+const hs = (L.hypotheses ?? []).map((x: string) => hypotheses.find((h: any) => h.id === x)).filter(Boolean);
+const secIds = [...new Set([...ms, ...hs].flatMap((x: any) => x.sections.slice(0, 1)))] as string[];
+const nb = notebooks.find((n) => n.path === L.notebook);
+---
+<div class="page">
+  <p class="eyebrow"><a href={url('demos/')}>Interactive demos</a></p>
+  <h1 style="margin-bottom:.4rem">{title}</h1>
+  <p style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+    <span class="label measured">{kind === 'measured' ? 'Measured results' : 'Computed live in your browser'}</span>
+    <span class="small muted">{kind === 'measured' ? 'Every number on this page comes from a script you can re-run.' : 'Every number is computed by real training in your browser, not drawn by hand.'}</span>
+  </p>
+  <SectionLinks ids={secIds} label="Survey" />
+  <slot name="intro" />
+  <slot />
+  <div class="method-note">
+    <slot name="method" />
+    <h2 style="font-size:1rem">Go further</h2>
+    <ul>
+      {!draftHidden && ms.map((m: any) => <li>Methods explorer: <a href={url(`methods/${m.id}/`)}>{m.name}</a></li>)}
+      {nb && <li>Notebook: <a href={url(`notebooks/#${nb.path.split('/').pop().replace('.ipynb', '')}`)}>{nb.title}</a> · <a href={nb.links.colab}>Open in Colab</a></li>}
+    </ul>
+    {refs.length > 0 && <>
+      <h2 style="font-size:1rem">References</h2>
+      <ul class="small">{refs.map((k) => referenceByKey.get(k)).filter(Boolean).map((r) => <li>{draftHidden ? r!.text : <a href={url(`references/#ref-${r!.key}`)}>{r!.text}</a>}</li>)}</ul>
+    </>}
+  </div>
+</div>

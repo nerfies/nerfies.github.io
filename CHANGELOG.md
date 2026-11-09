@@ -1,5 +1,18 @@
 # Changelog
 
+## Handbook and homepage follow the 8 Nov 2026 manuscript (revision f56b2a1)
+- Handbook text re-ingested from the current manuscript (`main_tmlr.tex`): new paragraphs in §1 (history of interpretability, scope), a rewritten §9.2 *Knowledge Localisation*, shorter headings in §6 and §9, and copy-edits throughout. Section, figure and equation numbers match the PDF; page numbers are taken from the manuscript PDF.
+- Homepage overview figure (paper Figure 2) replaced with the current version: *Feature Extraction & Analysis* (was *… & Multi-Layer Analysis*), Technical Methods in chapter order, British spelling. It now carries the paper's full caption, and the Part II list on the homepage follows the same names and order.
+- Homepage taxonomy (paper Figure 1) replaced with the current version: new *Neuron-Level Interpretation* branch, *Interpretability-by-Design Methods* (was *Architectural Interventions for Intrinsic Interpretability*), many more representative citations. Shown at the full content width so the citations stay legible.
+- Abstract spans the full content column, in line with the affiliations.
+- Handbook chapter text is wider: up to 52rem (about 90 characters a line), from 42rem, using the space beside the chapter list. Other pages keep their widths.
+- §6.9.1–6.9.3 anchors lost their acronym suffix (`#principal-component-analysis-pca` → `#principal-component-analysis`, likewise NMF and ICA); the old anchors redirect.
+- Five curated quotes updated to the new wording, verbatim (one Evaluation, four Methods). The causal-tracing card now quotes the new §9.2 definition.
+- Removed two unused copies of the old overview figure from `public/static/images/`.
+- Citation colours now match the paper: orange (`#B86046`) for peer-reviewed work, olive green (`#6B8E23`) for preprints, in citations, the reference list, method pages and the handbook legend (were blue and red).
+- Table header rows are readable: the manuscript sets them in white on a coloured row, and the site drops the row colour, so the ingest now drops the white too. The Colour Key appendix's "Orange citations" / "Green citations" are now shown in those colours.
+- Handbook boxes take the paper's colours (definition dark blue, example green, insight gold, theory purple, warning red, practice teal): a coloured frame, a light tint behind the text, and the title on a full-colour tab across the top edge, as in the PDF. They were all a thin black rule. The ingest marks box titles (`p.box-title`) so the tab is never applied to ordinary bold text.
+
 ## Handbook now shows the arXiv version (2611.08438v1)
 - Every tab is built from the arXiv LaTeX source, ingested with `--status final`: 15 chapters, Acknowledgements, 3 appendices, 517 references. Preview banners, the withheld chapter and draft `noindex` are gone.
 - Chapter 10 is now *Learning Dynamics and Mechanistic Interpretability* at `/handbook/learning-dynamics/`. `/handbook/developmental-interpretability/` and the removed *SAE Architecture Details* appendix redirect.

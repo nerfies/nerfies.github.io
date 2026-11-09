@@ -27,12 +27,12 @@ const pillars = [
       ['Core Hypotheses', 'Linear representation, superposition, privileged access, universality & Platonic representation']] },
   { n: 2, title: 'Technical Methods', summary: 'Approaches developed and used in interpretability research.', href: 'methods/',
     cta: 'Explore the methods',
-    items: [['Feature Extraction & Multi-Layer Analysis', 'SAEs, transcoders, CLTs, crosscoders, DAS, NMF, PCA, ICA'],
+    items: [['Feature Extraction & Analysis', 'SAEs, transcoders, CLTs, crosscoders, DAS, NMF, PCA, ICA'],
       ['Circuits', 'Activation patching, path patching, circuit discovery, unified evaluation framework'],
       ['Understanding Intermediate Representations', 'Logit lens, tuned lens, Jacobian lens, Patchscopes, LatentQA, probes'],
-      ['Training Data Attribution', 'Verbatim TDA, gradient-based TDA'],
+      ['Representation Analysis', 'Model diffing, knowledge localisation, representation engineering'],
       ['Learning Dynamics', 'Phase transitions, SLT, emergent abilities, train-time interventions, machine unlearning'],
-      ['Representation Analysis', 'Model diffing, knowledge localisation, representation engineering']] },
+      ['Training Data Attribution', 'Verbatim TDA, gradient-based TDA']] },
   { n: 3, title: 'Research Directions', summary: 'Six research orientations, characterised by their goals, assumptions, and trade-offs.', href: 'orientations/',
     cta: 'Compare the orientations',
     items: [['Pragmatic Interpretability', 'Proxy-task-oriented safety interventions'], ['Ambitious Interpretability', 'Towards complete mechanistic understanding'],
@@ -138,9 +138,9 @@ const jsonld = {
     <div class="gut">Figure</div>
     <figure>
       <a href={url('static/images/survey_overview.png')} aria-label="Open the survey overview figure at full resolution">
-        <img src={url('static/images/survey_overview_transparent.png')} width="2832" height="1608" alt="Overview of the survey: Motivation & Concepts, Technical Methods, Research Directions, and Safety & Open Problems" />
+        <img src={url('static/images/survey_overview_transparent.png')} width="2832" height="1601" alt="Overview of the survey: Motivation & Concepts, Technical Methods, Research Directions, and Safety & Open Problems" />
       </a>
-      <figcaption><strong>Overview of the survey</strong>, organised into four primary pillars: Motivation &amp; Concepts, Technical Methods, Research Directions, and Safety &amp; Open Problems.</figcaption>
+      <figcaption>Overview of the conceptual flow of the survey, categorised into four primary pillars: (1) Motivation &amp; Concepts, covering fundamental knowledge and core hypotheses; (2) Technical Methods, detailing approaches developed and used in interpretability research; (3) Research Directions, exploring main directions the field is taking; and (4) Safety &amp; Open Problems, identifying critical challenges and deployment-oriented interventions for AI alignment.</figcaption>
     </figure>
   </section>
 
@@ -158,7 +158,7 @@ const jsonld = {
     <div class="gut">Taxonomy</div>
     <figure class="tax">
       <a href={url('static/images/survey_taxonomy.png')} aria-label="Open the taxonomy figure at full resolution">
-        <img src={url('static/images/survey_taxonomy_transparent.png')} width="1730" height="2880" loading="lazy" alt="Taxonomy of interpretability methods covered in the survey, with representative citations for each category" />
+        <img src={url('static/images/survey_taxonomy_transparent.png')} width="2401" height="2996" loading="lazy" alt="Taxonomy of interpretability methods covered in the survey, with representative citations for each category" />
       </a>
       <figcaption>Taxonomy of interpretability methods covered in this survey. Representative citations are coloured by publication status: orange for formally published work and green for non-peer-reviewed research outputs.</figcaption>
     </figure>
@@ -210,7 +210,8 @@ const jsonld = {
   .affils li::marker { color: var(--ink-3); font-size: .9em; }
 
   section.row:not(.byline) { padding-top: 3rem; }
-  .abstract { font-family: var(--serif); font-size: 1.2rem; line-height: 1.62; margin: 0; max-width: var(--measure); }
+  /* Spans the full content column so it lines up with the affiliations above. */
+  .abstract { font-family: var(--serif); font-size: 1.15rem; line-height: 1.6; margin: 0; }
 
   .index { padding-top: 3.5rem; }
   .index h2 { font-family: var(--display); font-weight: 300; font-size: 2rem; margin: 0 auto 1.2rem; align-items: baseline; }
@@ -238,7 +239,8 @@ const jsonld = {
   @media (prefers-color-scheme: dark) { :global(:root:not([data-theme="light"])) .figure-row img { background: #fff; } }
   :global(:root[data-theme="dark"]) .figure-row img { background: #fff; }
   .figure-row figcaption { font-size: .84rem; color: var(--ink-2); margin-top: .8rem; max-width: 46rem; }
-  .tax { max-width: 40rem; }
+  /* The taxonomy's citation text is small relative to the figure, so it uses the full content column. */
+  .tax { max-width: none; }
   #cite { padding-bottom: 4rem; }
   .cite-head { margin: 0 0 .7rem; font-size: .95rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem 1rem; }
   .copy-bib { font: inherit; font-size: .8rem; padding: .25rem .7rem; border: 1px solid var(--hair); background: var(--paper); color: var(--ink-2); cursor: pointer; }

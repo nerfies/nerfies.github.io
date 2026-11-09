@@ -6,3 +6,4 @@ dist/
 .ingest-tmp/
 .ingest-plain/
 src/generated/withheld/
+CHANGELOG.md

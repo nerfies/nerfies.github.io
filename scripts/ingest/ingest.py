@@ -400,6 +400,9 @@ def main() -> None:
             tex = tokenise_cites(tex, cite_store)
         tex = tex.replace("\\cmark", "✓").replace("\\xmark", "✗")
         tex = re.sub(r"\\rowcolor(\[[^\]]*\])?\{[^}]*\}", "", tex)
+        # Table headers set white text on a coloured \rowcolor; the row colour is dropped above,
+        # so drop the white too, or the header text is invisible on the page background.
+        tex = unwrap_macro(tex, r"textcolor\s*\{white\}")
         tex = re.sub(r"\\(?:hspace|vspace)\*?\{[^}]*\}", "", tex)
         # tcolorbox environments (warningbox, practicebox, …) take their title as an optional argument;
         # pandoc drops it, so emit it as the box's first line.
@@ -469,6 +472,13 @@ def main() -> None:
         if "Citeproc: citation" in line and "not found" in line:
             audit["warnings"].append(line.strip())
     out_html = (work / "combined.html").read_text()
+    # \textcolor{citeestablished}{…} etc. (the colour key appendix): pandoc keeps the LaTeX colour
+    # name, which is not a CSS colour; point it at the site's evidence-tier colours instead.
+    out_html = re.sub(r'style="color: cite(established|emerging|flagged)"', r'style="color: var(--tier-\1)"', out_html)
+    # Box titles (emitted above as a bold first paragraph) get a class, so the site can draw them as
+    # the PDF's coloured title tab without mistaking a paragraph that merely starts in bold for one.
+    out_html = re.sub(r'(<div class="(?:definitionbox|examplebox|insightbox|theorybox|warningbox|practicebox)">\s*)'
+                      r'<p>(<strong>(?:(?!</strong>|</p>).)*</strong>)</p>', r'\1<p class="box-title">\2</p>', out_html, flags=re.S)
     refs_override = None
     if bbl_items is not None:
         cited = [k for c in cite_store for k in c["keys"]]

@@ -2,13 +2,13 @@
  "provenance": {
   "status": "final",
   "source_dir_name": "manuscript",
-  "source_commit": null,
-  "source_commit_date": null,
-  "main_tex_sha256": "1dc70452f1aed99a",
+  "source_commit": "f56b2a1",
+  "source_commit_date": "2026-11-08",
+  "main_tex_sha256": "c950a98ea99e408d",
   "pdf_included": false,
   "pdf_page_offset": 0,
   "citations": "natbib labels from the compiled .bbl",
-  "generated": "2026-11-06"
+  "generated": "2026-11-08"
  },
  "toc": [
   {
@@ -325,23 +325,23 @@
      "page": "48"
     },
     {
-     "id": "non-negative-matrix-factorisation-nmf",
+     "id": "non-negative-matrix-factorisation",
      "num": "6.9.1",
-     "title": "Non-Negative Matrix Factorisation (NMF)",
+     "title": "Non-Negative Matrix Factorisation",
      "level": 3,
      "page": "48"
     },
     {
-     "id": "principal-component-analysis-pca",
+     "id": "principal-component-analysis",
      "num": "6.9.2",
-     "title": "Principal Component Analysis (PCA)",
+     "title": "Principal Component Analysis",
      "level": 3,
      "page": "49"
     },
     {
-     "id": "independent-component-analysis-ica",
+     "id": "independent-component-analysis",
      "num": "6.9.3",
-     "title": "Independent Component Analysis (ICA)",
+     "title": "Independent Component Analysis",
      "level": 3,
      "page": "49"
     },
@@ -369,7 +369,7 @@
     {
      "id": "subsubsec: solu",
      "num": "6.10.1",
-     "title": "Feature-Sparse Training: SoLU",
+     "title": "Feature-Sparse Training",
      "level": 3,
      "page": "50"
     },
@@ -397,13 +397,13 @@
     {
      "id": "subsubsec: kan",
      "num": "6.10.5",
-     "title": "Kolmogorov–Arnold Networks (KANs)",
+     "title": "Kolmogorov–Arnold Networks",
      "level": 3,
      "page": "52"
     }
    ],
    "withheld": false,
-   "words": 9537
+   "words": 9536
   },
   {
    "slug": "circuits",
@@ -477,7 +477,7 @@
     }
    ],
    "withheld": false,
-   "words": 5730
+   "words": 5731
   },
   {
    "slug": "intermediate-representations",
@@ -579,7 +579,7 @@
     }
    ],
    "withheld": false,
-   "words": 4514
+   "words": 4516
   },
   {
    "slug": "representation-analysis",
@@ -591,14 +591,14 @@
     {
      "id": "sec:model-diffing",
      "num": "9.1",
-     "title": "Model Diffing: Identifying Internal Changes Across Models",
+     "title": "Model Diffing",
      "level": 2,
      "page": "77"
     },
     {
      "id": "sec:knowledge-localization",
      "num": "9.2",
-     "title": "Knowledge Localisation: Where Is Information Stored?",
+     "title": "Knowledge Localisation",
      "level": 2,
      "page": "80"
     },
@@ -611,7 +611,7 @@
     }
    ],
    "withheld": false,
-   "words": 2515
+   "words": 2655
   },
   {
    "slug": "learning-dynamics",
@@ -688,7 +688,7 @@
      "num": "10.3.3",
      "title": "Attributing Transitions to Components",
      "level": 3,
-     "page": "88"
+     "page": "89"
     },
     {
      "id": "sec:training_phase_why",
@@ -741,7 +741,7 @@
      "num": "11.1",
      "title": "Verbatim Data Attribution: OLMoTrace and Maximal Matching Spans",
      "level": 2,
-     "page": "93"
+     "page": "94"
     },
     {
      "id": "gradient-based-attribution-understanding-data-influence-through-perturbations",
@@ -769,14 +769,14 @@
      "num": "11.2.3",
      "title": "Addressing the Computational and Memory Bottlenecks of GGN",
      "level": 3,
-     "page": "98"
+     "page": "99"
     },
     {
      "id": "sec:trak",
      "num": "11.2.4",
      "title": "Retraining-Based Influence Estimation: datamodels and TRAK",
      "level": 3,
-     "page": "99"
+     "page": "100"
     },
     {
      "id": "sec:tracin",
@@ -790,7 +790,7 @@
      "num": "11.2.6",
      "title": "Illustrative Example",
      "level": 3,
-     "page": "100"
+     "page": "101"
     },
     {
      "id": "recent-extensions-and-limitations",
@@ -801,7 +801,7 @@
     }
    ],
    "withheld": false,
-   "words": 3858
+   "words": 3859
   },
   {
    "slug": "research-orientations",
@@ -850,14 +850,14 @@
      "num": "12.5.1",
      "title": "Concerns for Introspective Interpretability",
      "level": 3,
-     "page": "105"
+     "page": "106"
     },
     {
      "id": "subsec:valproce model self-reports",
      "num": "12.5.2",
      "title": "Validation Procedures for Model Self-Reports",
      "level": 3,
-     "page": "106"
+     "page": "107"
     },
     {
      "id": "when-to-use-introspective-methods",
@@ -871,7 +871,7 @@
      "num": "12.6",
      "title": "Automated Interpretability: Scaling Discovery via Automation",
      "level": 2,
-     "page": "107"
+     "page": "108"
     },
     {
      "id": "governance-concerns-for-automated-interpretability",
@@ -913,7 +913,7 @@
      "num": "12.8",
      "title": "Choosing an Orientation: A Decision Framework",
      "level": 2,
-     "page": "111"
+     "page": "112"
     },
     {
      "id": "critical-concerns-tensions-and-open-questions",
@@ -973,28 +973,28 @@
      "num": "13.2.2",
      "title": "Knowledge Editing via Localisation",
      "level": 3,
-     "page": "115"
+     "page": "116"
     },
     {
      "id": "steering-vectors-and-mechanistic-monitoring",
      "num": "13.3",
      "title": "Steering Vectors and Mechanistic Monitoring",
      "level": 2,
-     "page": "116"
+     "page": "117"
     },
     {
      "id": "subsubsec: steering vectors",
      "num": "13.3.1",
      "title": "Steering Vectors: Practical Behavioural Control",
      "level": 3,
-     "page": "116"
+     "page": "117"
     },
     {
      "id": "subsubsec: mech monitor",
      "num": "13.3.2",
      "title": "Mechanistic Monitoring",
      "level": 3,
-     "page": "117"
+     "page": "118"
     },
     {
      "id": "sec:automated-interpretability",
@@ -1015,28 +1015,28 @@
      "num": "13.6",
      "title": "From Research Orientations to Methods",
      "level": 2,
-     "page": "120"
+     "page": "119"
     },
     {
      "id": "sec:mi-risks",
      "num": "13.7",
      "title": "Risks of Mechanistic Interpretability for AI Safety",
      "level": 2,
-     "page": "120"
+     "page": "119"
     },
     {
      "id": "epistemic-risks-false-confidence-from-partial-or-incorrect-understanding",
      "num": "13.7.1",
      "title": "Epistemic Risks: False Confidence from Partial or Incorrect Understanding",
      "level": 3,
-     "page": "120"
+     "page": "119"
     },
     {
      "id": "operational-risks-failure-under-deployment",
      "num": "13.7.2",
      "title": "Operational Risks: Failure Under Deployment",
      "level": 3,
-     "page": "121"
+     "page": "122"
     },
     {
      "id": "adversarial-risks-malicious-exploitation-of-mi",
@@ -1050,7 +1050,7 @@
      "num": "13.7.4",
      "title": "Opportunity Costs: Resource Allocation Risks",
      "level": 3,
-     "page": "122"
+     "page": "123"
     },
     {
      "id": "summary-mi-as-one-methodology-among-many",
@@ -1163,49 +1163,49 @@
    "num": "A",
    "title": "Notation Reference and Symbol Table",
    "appendix": true,
-   "page": "177",
+   "page": "178",
    "sections": [
     {
      "id": "dimensions-and-indices",
      "num": "A.1",
      "title": "Dimensions and Indices",
      "level": 2,
-     "page": "177"
+     "page": "178"
     },
     {
      "id": "inputs-and-activations",
      "num": "A.2",
      "title": "Inputs and Activations",
      "level": 2,
-     "page": "177"
+     "page": "178"
     },
     {
      "id": "dictionary-learning",
      "num": "A.3",
      "title": "Dictionary Learning",
      "level": 2,
-     "page": "177"
+     "page": "178"
     },
     {
      "id": "model-parameters",
      "num": "A.4",
      "title": "Model Parameters",
      "level": 2,
-     "page": "178"
+     "page": "179"
     },
     {
      "id": "interventions-and-objectives",
      "num": "A.5",
      "title": "Interventions and Objectives",
      "level": 2,
-     "page": "178"
+     "page": "179"
     },
     {
      "id": "mathematical-operations",
      "num": "A.6",
      "title": "Mathematical Operations",
      "level": 2,
-     "page": "178"
+     "page": "179"
     }
    ],
    "withheld": false,
@@ -1216,21 +1216,21 @@
    "num": "B",
    "title": "Colour Key and Style Guide",
    "appendix": true,
-   "page": "178",
+   "page": "179",
    "sections": [
     {
      "id": "box-types-and-colours",
      "num": "B.1",
      "title": "Box Types and Colours",
      "level": 2,
-     "page": "178"
+     "page": "179"
     },
     {
      "id": "app:citation-colors",
      "num": "B.2",
      "title": "Citation Evidence Levels",
      "level": 2,
-     "page": "179"
+     "page": "180"
     }
    ],
    "withheld": false,
@@ -1241,53 +1241,53 @@
    "num": "C",
    "title": "Mathematical Foundations",
    "appendix": true,
-   "page": "180",
+   "page": "181",
    "sections": [
     {
      "id": "causal-inference-basics",
      "num": "C.1",
      "title": "Causal Inference Basics",
      "level": 2,
-     "page": "180"
+     "page": "181"
     },
     {
      "id": "necessity",
      "num": "C.1.1",
      "title": "Necessity",
      "level": 3,
-     "page": "180"
+     "page": "181"
     },
     {
      "id": "sufficiency",
      "num": "C.1.2",
      "title": "Sufficiency",
      "level": 3,
-     "page": "180"
+     "page": "181"
     },
     {
      "id": "causal-abstraction",
      "num": "C.1.3",
      "title": "Causal Abstraction",
      "level": 3,
-     "page": "180"
+     "page": "181"
     },
     {
      "id": "app:slt",
      "num": "C.2",
-     "title": "Local Learning Coefficient (LLC)",
+     "title": "Local Learning Coefficient",
      "level": 2,
-     "page": "180"
+     "page": "181"
     },
     {
      "id": "information-theory-basics",
      "num": "C.3",
      "title": "Information Theory Basics",
      "level": 2,
-     "page": "181"
+     "page": "182"
     }
    ],
    "withheld": false,
-   "words": 909
+   "words": 908
   }
  ],
  "labels": {
@@ -1309,21 +1309,21 @@
    "kind": "subsection",
    "chapter": "introduction"
   },
-  "fig:overview": {
-   "num": "2",
-   "page": "14",
-   "kind": "figure",
-   "chapter": "introduction"
-  },
   "sec:why_open": {
    "num": "2",
    "page": "15",
    "kind": "section",
    "chapter": "limits-of-behavioural-evaluation"
   },
+  "fig:overview": {
+   "num": "2",
+   "page": "14",
+   "kind": "figure",
+   "chapter": "introduction"
+  },
   "war:sleeper": {
    "num": "2",
-   "page": "16",
+   "page": "15",
    "kind": "section*",
    "chapter": "limits-of-behavioural-evaluation"
   },
@@ -1603,16 +1603,16 @@
    "kind": "subsubsection",
    "chapter": "feature-extraction"
   },
-  "subsubsec: spartan": {
-   "num": "6.10.3",
-   "page": "51",
-   "kind": "subsubsection",
-   "chapter": "feature-extraction"
-  },
   "tab:architectural-methods": {
    "num": "7",
    "page": "52",
    "kind": "table",
+   "chapter": "feature-extraction"
+  },
+  "subsubsec: spartan": {
+   "num": "6.10.3",
+   "page": "51",
+   "kind": "subsubsection",
    "chapter": "feature-extraction"
   },
   "subsubsec: molt": {
@@ -1647,19 +1647,19 @@
   },
   "def:path-patching": {
    "num": "7.1",
-   "page": "54",
+   "page": "53",
    "kind": "subsection",
    "chapter": "circuits"
   },
   "def:acdc": {
    "num": "7.1",
-   "page": "54",
+   "page": "53",
    "kind": "subsection",
    "chapter": "circuits"
   },
   "def:eap": {
    "num": "7.1",
-   "page": "54",
+   "page": "53",
    "kind": "subsection",
    "chapter": "circuits"
   },
@@ -1669,16 +1669,16 @@
    "kind": "subsection",
    "chapter": "circuits"
   },
-  "def:circuit-tracer": {
-   "num": "7.2",
-   "page": "55",
-   "kind": "subsection",
-   "chapter": "circuits"
-  },
   "tab:circuit-methods": {
    "num": "8",
    "page": "56",
    "kind": "table",
+   "chapter": "circuits"
+  },
+  "def:circuit-tracer": {
+   "num": "7.2",
+   "page": "55",
+   "kind": "subsection",
    "chapter": "circuits"
   },
   "sec:causal-verification": {
@@ -1723,16 +1723,16 @@
    "kind": "section",
    "chapter": "intermediate-representations"
   },
-  "fig:logitlens": {
-   "num": "10",
-   "page": "67",
-   "kind": "figure",
-   "chapter": "intermediate-representations"
-  },
   "sec:logit-lens": {
    "num": "8.1",
    "page": "67",
    "kind": "subsection",
+   "chapter": "intermediate-representations"
+  },
+  "fig:logitlens": {
+   "num": "10",
+   "page": "67",
+   "kind": "figure",
    "chapter": "intermediate-representations"
   },
   "subsec:tuned-lens": {
@@ -1741,16 +1741,16 @@
    "kind": "subsection",
    "chapter": "intermediate-representations"
   },
-  "subsec:patchscopes": {
-   "num": "8.4",
-   "page": "69",
-   "kind": "subsection",
-   "chapter": "intermediate-representations"
-  },
   "fig:patchscopes": {
    "num": "11",
    "page": "70",
    "kind": "figure",
+   "chapter": "intermediate-representations"
+  },
+  "subsec:patchscopes": {
+   "num": "8.4",
+   "page": "69",
+   "kind": "subsection",
    "chapter": "intermediate-representations"
   },
   "subsec:latentqa": {
@@ -1827,7 +1827,7 @@
   },
   "def:refusal-vector": {
    "num": "9.3",
-   "page": "81",
+   "page": "80",
    "kind": "subsection",
    "chapter": "representation-analysis"
   },
@@ -1905,7 +1905,7 @@
   },
   "sec:ld-attribution": {
    "num": "10.3.3",
-   "page": "88",
+   "page": "89",
    "kind": "subsubsection",
    "chapter": "learning-dynamics"
   },
@@ -1983,7 +1983,7 @@
   },
   "sec:trak": {
    "num": "11.2.4",
-   "page": "99",
+   "page": "100",
    "kind": "subsubsection",
    "chapter": "training-data-attribution"
   },
@@ -2043,13 +2043,13 @@
   },
   "subsec:valproce model self-reports": {
    "num": "12.5.2",
-   "page": "106",
+   "page": "107",
    "kind": "subsubsection",
    "chapter": "research-orientations"
   },
   "sec:automated-interp": {
    "num": "12.6",
-   "page": "107",
+   "page": "108",
    "kind": "subsection",
    "chapter": "research-orientations"
   },
@@ -2059,15 +2059,9 @@
    "kind": "table",
    "chapter": "research-orientations"
   },
-  "tab:orientations": {
-   "num": "13",
-   "page": "111",
-   "kind": "table",
-   "chapter": "research-orientations"
-  },
   "subsec:choosing orientation": {
    "num": "12.8",
-   "page": "111",
+   "page": "112",
    "kind": "subsection",
    "chapter": "research-orientations"
   },
@@ -2077,21 +2071,27 @@
    "kind": "section",
    "chapter": "safety-applications"
   },
+  "tab:orientations": {
+   "num": "13",
+   "page": "111",
+   "kind": "table",
+   "chapter": "research-orientations"
+  },
   "subsec:knowedit": {
    "num": "13.2.2",
-   "page": "115",
+   "page": "116",
    "kind": "subsubsection",
    "chapter": "safety-applications"
   },
   "subsubsec: steering vectors": {
    "num": "13.3.1",
-   "page": "116",
+   "page": "117",
    "kind": "subsubsection",
    "chapter": "safety-applications"
   },
   "subsubsec: mech monitor": {
    "num": "13.3.2",
-   "page": "117",
+   "page": "118",
    "kind": "subsubsection",
    "chapter": "safety-applications"
   },
@@ -2101,22 +2101,22 @@
    "kind": "subsection",
    "chapter": "safety-applications"
   },
+  "sec:mi-risks": {
+   "num": "13.7",
+   "page": "119",
+   "kind": "subsection",
+   "chapter": "safety-applications"
+  },
   "tab:mi_safety_applications": {
    "num": "14",
-   "page": "119",
+   "page": "120",
    "kind": "table",
    "chapter": "safety-applications"
   },
   "tab:mi-risks": {
    "num": "15",
-   "page": "120",
+   "page": "121",
    "kind": "table",
-   "chapter": "safety-applications"
-  },
-  "sec:mi-risks": {
-   "num": "13.7",
-   "page": "120",
-   "kind": "subsection",
    "chapter": "safety-applications"
   },
   "sec:open_problems": {
@@ -2163,31 +2163,31 @@
   },
   "app:notation": {
    "num": "A",
-   "page": "177",
+   "page": "178",
    "kind": "appendix",
    "chapter": "notation"
   },
   "app:colors": {
    "num": "B",
-   "page": "178",
+   "page": "179",
    "kind": "appendix",
    "chapter": "colour-key"
   },
   "app:citation-colors": {
    "num": "B.2",
-   "page": "179",
+   "page": "180",
    "kind": "subsection",
    "chapter": "colour-key"
   },
   "app:math": {
    "num": "C",
-   "page": "180",
+   "page": "181",
    "kind": "appendix",
    "chapter": "mathematical-foundations"
   },
   "app:slt": {
    "num": "C.2",
-   "page": "180",
+   "page": "181",
    "kind": "subsection",
    "chapter": "mathematical-foundations"
   }
@@ -2527,9 +2527,12 @@
   "aranguri2025modeldiff": "emerging",
   "dumas_what_2025": "emerging",
   "sawmya2025birth": "emerging",
+  "dai-etal-2022-knowledge": "established",
+  "sharma2024the": "established",
   "raghu_svcca_2017": "established",
   "wang_towards_2018": "established",
-  "sharma2024the": "established",
+  "meng2023masseditingmemorytransformer": "established",
+  "alphaedit": "established",
   "zhao2025steering": "established",
   "dunefsky2025one": "established",
   "oozeer2025beyond": "established",
@@ -2675,10 +2678,7 @@
   "marks2024interpreting": "established",
   "kim2025rethinking": "established",
   "lo-etal-2024-large": "established",
-  "dai-etal-2022-knowledge": "established",
-  "meng2023masseditingmemorytransformer": "established",
   "hoelscher-obermaier-etal-2023-detecting": "established",
-  "alphaedit": "established",
   "crispedit": "established",
   "zhao2026verifying": "established",
   "chaudhary2026beyond": "established",
@@ -5034,7 +5034,7 @@
   },
   {
    "key": "SuperGLUE",
-   "text": "Alex Wang, Yada Pruksachatkun, Nikita Nangia, Amanpreet Singh, Julian Michael, Felix Hill, Omer Levy, and Samuel Bowman. Superglue: A stickier benchmark for general-purpose language understanding systems. In H. Wallach, H. Larochelle, A. Beygelzimer, F. d'Alché-Buc, E. Fox, and R. Garnett (eds.), Advances in Neural Information Processing Systems, volume 32. Curran Associates, Inc., 2019. URL https://proceedings.neurips.cc/paper_files/paper/2019/file/4496bf24afe7fab6f046bf4923da8de6-Paper.pdf.",
+   "text": "Alex Wang, Yada Pruksachatkun, Nikita Nangia, Amanpreet Singh, Julian Michael, Felix Hill, Omer Levy, and Samuel Bowman. Superglue: A stickier benchmark for general-purpose language understanding systems. In H. Wallach, H. Larochelle, A. Beygelzimer, F. d' Alché-Buc, E. Fox, and R. Garnett (eds.), Advances in Neural Information Processing Systems, volume 32. Curran Associates, Inc., 2019. URL https://proceedings.neurips.cc/paper_files/paper/2019/file/4496bf24afe7fab6f046bf4923da8de6-Paper.pdf.",
    "tier": "established"
   },
   {
@@ -5323,6 +5323,6 @@
   "dropped_environments": [],
   "warnings": [],
   "numbered_equations": 6,
-  "citations_rendered_from_bbl": 818
+  "citations_rendered_from_bbl": 823
  }
 }

@@ -3,7 +3,7 @@
 <section id="subsec:linearity" class="level2"><h2 data-pdf-page="27"><span class="secnum">5.1</span> The Linear Representation Hypothesis<a class="anchor" href="#subsec:linearity" aria-label="Link to this section">#</a></h2>
 <p>We have seen that single neurons may not be the most effective unit of representation in many cases, but what is? The linear representation hypothesis claims that <em>linear</em> directions in the activation space are effective fundamental units of representation <span class="citation" data-cites="lrh">(<a href="@@BASE@@references/#ref-lrh" class="cite cite-established" data-cite="lrh" role="doc-biblioref">Park et al., 2024</a>)</span>.</p>
 <div class="definitionbox">
-<p><strong>Linear Representation Hypothesis</strong></p>
+<p class="box-title"><strong>Linear Representation Hypothesis</strong></p>
 <p>A concept can be effectively represented by a feature corresponding to a linear direction <span class="math inline">\phi</span> in activation space <span class="math inline">\mathbb{R}^d</span>. Linearity implies that adding or subtracting this direction, or a scalar multiple of it, from model activations can correspondingly influence model behaviour, while the projection <span class="math inline">\phi^\top h(x)</span> approximately measures the strength of the feature in model activations <span class="math inline">h(x)</span> for an input <span class="math inline">x</span>.<br />
 Under a strong version of the linear representation hypothesis, all concepts are best represented by linear features. In this view, model activations can be approximately decomposed as an additive combination of such features, <span class="math display">h(x) \approx \sum_i \alpha_i \phi_i,</span> where <span class="math inline">\alpha_i \in \mathbb{R}</span> denotes the strength of feature <span class="math inline">\phi_i</span> dependent on the input <span class="math inline">x</span>. Under a weaker version, only some concepts admit such linear representations (<span class="citation" data-cites="sharkey2025open"><a href="@@BASE@@references/#ref-sharkey2025open" class="cite cite-established" data-cite="sharkey2025open" role="doc-biblioref">Sharkey et al., 2025</a></span>; <span class="citation" data-cites="smith2024strongfeature"><a href="@@BASE@@references/#ref-smith2024strongfeature" class="cite cite-emerging" data-cite="smith2024strongfeature" role="doc-biblioref">Smith, 2024</a></span>).</p>
 </div>
@@ -25,7 +25,7 @@ Under a strong version of the linear representation hypothesis, all concepts are
 <section id="subsec:superposition" class="level2"><h2 data-pdf-page="28"><span class="secnum">5.2</span> The Superposition Hypothesis<a class="anchor" href="#subsec:superposition" aria-label="Link to this section">#</a></h2>
 <p>The superposition hypothesis says that models encode more features than their hidden representations have dimensions.</p>
 <div class="definitionbox">
-<p><strong>Superposition Hypothesis</strong></p>
+<p class="box-title"><strong>Superposition Hypothesis</strong></p>
 <p>Model hidden states encode more features than they have dimensions. If there are <span class="math inline">m</span> features and <span class="math inline">d</span> dimensions, then the superposition hypothesis claims that <span class="math inline">m \gg d</span>.<br />
 This implies that features cannot be represented as orthogonal directions—though they can be represented as nearly orthogonal directions. It also implies neuron polysemanticity: the same neuron participates in the encoding of multiple unrelated concepts.</p>
 </div>
@@ -55,7 +55,7 @@ This implies that features cannot be represented as orthogonal directions—thou
 <section id="subsec:privileged-access" class="level2"><h2 data-pdf-page="30"><span class="secnum">5.3</span> The Privileged Access Hypothesis<a class="anchor" href="#subsec:privileged-access" aria-label="Link to this section">#</a></h2>
 <p>A class of approaches that use language models as interpreters of <em>themselves</em> can be justified through the privileged access hypothesis. The privileged access hypothesis states that:</p>
 <div class="definitionbox">
-<p><strong>Privileged Access Hypothesis</strong></p>
+<p class="box-title"><strong>Privileged Access Hypothesis</strong></p>
 <p>A language model used to interpret itself can, under appropriate elicitation, access internal variables and intermediate computations that are not reliably recoverable from external behavioural analysis alone, providing a comparative advantage as an interpreter of its own behaviour (<span class="citation" data-cites="binder"><a href="@@BASE@@references/#ref-binder" class="cite cite-established" data-cite="binder" role="doc-biblioref">Binder et al., 2025</a></span>; <span class="citation" data-cites="li2025traininglanguagemodelsexplain song"><a href="@@BASE@@references/#ref-li2025traininglanguagemodelsexplain" class="cite cite-emerging" data-cite="li2025traininglanguagemodelsexplain" role="doc-biblioref">Li et al., 2025a</a>; <a href="@@BASE@@references/#ref-song" class="cite cite-emerging" data-cite="song" role="doc-biblioref">Song et al., 2026</a></span>).</p>
 </div>
 <section id="conceptual-basis.-2" class="level4">
@@ -72,7 +72,7 @@ This implies that features cannot be represented as orthogonal directions—thou
 </section>
 <section id="subsec:universality" class="level2"><h2 data-pdf-page="31"><span class="secnum">5.4</span> The Universality and Platonic Representation Hypothesis<a class="anchor" href="#subsec:universality" aria-label="Link to this section">#</a></h2>
 <div class="definitionbox">
-<p><strong>Platonic Representation Hypothesis</strong></p>
+<p class="box-title"><strong>Platonic Representation Hypothesis</strong></p>
 <p>Models independently trained on similar tasks tend to develop similar internal representations or algorithms, which often approximate a task-determined canonical form (<span class="citation" data-cites="huh2024platonicrepresentationhypothesis"><a href="@@BASE@@references/#ref-huh2024platonicrepresentationhypothesis" class="cite cite-established" data-cite="huh2024platonicrepresentationhypothesis" role="doc-biblioref">Huh et al., 2024</a></span>; <span class="citation" data-cites="olah2020zoom"><a href="@@BASE@@references/#ref-olah2020zoom" class="cite cite-emerging" data-cite="olah2020zoom" role="doc-biblioref">Olah et al., 2020</a></span>). The degree of convergence depends on factors such as model size, architecture, and training data.</p>
 </div>
 <section id="conceptual-basis.-3" class="level4">

@@ -8,7 +8,7 @@ families = [
  {"id": "sparse-autoencoders", "name": "Sparse Autoencoders / SAE Variants and Architectural Improvements", "sections": ["sec:sae", "subsec:sae-foundation", "subsec:sae-variants", "subsec:sae-selection", "subsec:challenge", "app:sae_details"]},
  {"id": "multi-layer-feature-analysis", "name": "Multi-Layer Feature Analysis: Transcoders and Crosscoders", "sections": ["subsec:transcoders-crosscoders", "subsubsec:transcoder", "subsubsec:cross-layer-transcoder", "crosscoders-analyzing-cross-layer-features", "comparing-saes-transcoders-and-crosscoders."]},
  {"id": "alternative-feature-extraction", "name": "Comparison with Alternative Feature Extraction Methods", "sections": ["comparison-with-alternative-feature-extraction-methods"]},
- {"id": "architectural-interventions", "name": "Architectural Interventions for Intrinsic Interpretability", "sections": ["sec:architectural-interventions", "architectural-responses-to-superposition"]},
+ {"id": "architectural-interventions", "name": "Interpretability-by-Design Methods for Intrinsic Interpretability", "sections": ["sec:architectural-interventions", "architectural-responses-to-superposition"]},
  {"id": "circuits", "name": "Circuits in Mechanistic Interpretability", "sections": ["sec:circuit", "sec:circuit-table", "circuit-discovery-in-weight-sparse-architectures", "sec:causal-verification"]},
  {"id": "intermediate-computation", "name": "Understanding Intermediate Computation: Logit Lens and Probing", "sections": ["sec:intermediate-computation"]},
  {"id": "training-data-attribution", "name": "Training Data Attribution and Influence Functions", "sections": ["sec:influence-functions"]},

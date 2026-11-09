@@ -533,7 +533,7 @@
    "name": "Non-Negative Matrix Factorisation (NMF)",
    "family": "alternative-feature-extraction",
    "sections": [
-    "non-negative-matrix-factorisation-nmf"
+    "non-negative-matrix-factorisation"
    ],
    "definition": "Because all components are non-negative, each feature contributes positively to the final representation, making it easier to interpret.",
    "assumptions": [
@@ -556,7 +556,7 @@
    "name": "Principal Component Analysis (PCA)",
    "family": "alternative-feature-extraction",
    "sections": [
-    "principal-component-analysis-pca"
+    "principal-component-analysis"
    ],
    "definition": "Principal Component Analysis (PCA; Pearson, 1901; Hotelling, 1933) decomposes activations by finding an orthonormal basis of directions that maximise explained variance.",
    "assumptions": [
@@ -581,7 +581,7 @@
    "name": "Independent Component Analysis (ICA)",
    "family": "alternative-feature-extraction",
    "sections": [
-    "independent-component-analysis-ica"
+    "independent-component-analysis"
    ],
    "definition": "Independent Component Analysis (ICA; Hyvärinen & Oja, 2000) decomposes activations H \\in \\mathbb{R}^{d \\times n} as H \\approx WS, where n is the number of data points.",
    "assumptions": [
@@ -1381,7 +1381,7 @@
    "sections": [
     "sec:knowledge-localization"
    ],
-   "definition": "For instance, causal tracing identifies components that causally impact specific factual association retrieval by observing how model outputs change after activation intervention (Meng et al., 2022).",
+   "definition": "A classical technique is causal tracing (Meng et al., 2022), which identifies components that causally affect specific factual association retrieval by observing how model outputs change after activation intervention, and is used in editing methods like ROME (Meng et al., 2022), MEMIT (Meng et al., 2023), and AlphaEdit (Fang et al., 2025).",
    "assumptions": [],
    "evaluation": [],
    "applications": [
@@ -1389,8 +1389,8 @@
     "The MLP whose patching most strongly recovers the original undesired prediction of P, say at layer \\ell, is identified as the place that stores this faulty association."
    ],
    "limitations": [
-    "Localisation can identify where information is most strongly represented. However, it does not indicate whether the model uses that information.",
-    "In other words, a component with a strong causal effect may capture only part of the mechanism. As a result, localisation is a useful starting point for mechanistic understanding, but not a self-contained analysis."
+    "However, localisation alone does not reveal how the relevant information is computed or represented.",
+    "A component with a strong causal effect may capture only a small part of the mechanism. As a result, localisation is a useful starting point for mechanistic understanding, but not a self-contained analysis."
    ],
    "related": [
     "rome-memit"
@@ -1429,7 +1429,7 @@
    ],
    "limitations": [
     "While steering methods effectively control behaviours and support causal testing, they have limitations. Notably, they can be brittle, as a direction identified for one distribution, model, or task may not generalise reliably.",
-    "Another limitation is that successful behavioural steering does not, by itself, establish mechanistic transparency, because an intervention may simultaneously impact multiple features, interact nonlinearly with existing computations, or exploit unintended pathways that produce the desired behaviour without corresponding to a clean mechanism (Makelov et al., 2024). Thus, steering should generally be interpreted as evidence for causal influence, but it should not, by itself, be a mechanistic explanation of the behaviour.",
+    "Another limitation is that successful behavioural steering does not, by itself, establish mechanistic transparency, because an intervention may simultaneously impact multiple features, interact nonlinearly with existing computations, or exploit unintended pathways that produce the desired behaviour without corresponding to a clean mechanism (Makelov et al., 2024). Thus, steering should generally be interpreted as evidence for causal influence, but it should not, by itself, be taken as a mechanistic explanation of the behaviour.",
     "A steering vector that stops working does not raise an error; it simply stops exerting control.",
     "Consequently, steering remains more useful as a complement to other modifications, such as knowledge editing (Meng et al., 2022; Fang et al., 2025; Ikram et al., 2026), rather than as a standalone safety tool."
    ],

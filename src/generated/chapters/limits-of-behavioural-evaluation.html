@@ -16,7 +16,7 @@
 <h4>Fourth, lack of fine-grained control.</h4>
 <p>Some safety interventions require fine-grained control <span class="citation" data-cites="meng2023locatingeditingfactualassociations li2024wmdp marks2025sparse">(<a href="@@BASE@@references/#ref-meng2023locatingeditingfactualassociations" class="cite cite-established" data-cite="meng2023locatingeditingfactualassociations" role="doc-biblioref">Meng et al., 2022</a>; <a href="@@BASE@@references/#ref-li2024wmdp" class="cite cite-established" data-cite="li2024wmdp" role="doc-biblioref">Li et al., 2024</a>; <a href="@@BASE@@references/#ref-marks2025sparse" class="cite cite-established" data-cite="marks2025sparse" role="doc-biblioref">Marks et al., 2025a</a>)</span>. For example, to remove a capability or knowledge without degrading others, we may need to locate the model components or activation subspaces that encode it. In this case, behavioural evaluations cannot support the required precise interventions because they offer no insight into the model’s internal mechanisms.</p>
 <div class="warningbox">
-<p><strong>The Sleeper Agent Experiment</strong></p>
+<p class="box-title"><strong>The Sleeper Agent Experiment</strong></p>
 <p><span id="war:sleeper" data-label="war:sleeper"></span> Researchers have shown that large language models can learn <em>strategic deception</em> by training them with a hidden “backdoor” objective: write secure code during the year 2023 (training phase) but insert vulnerabilities if the year is 2024 (deployment phase) <span class="citation" data-cites="hubinger2024sleeperagentstrainingdeceptive">(<a href="@@BASE@@references/#ref-hubinger2024sleeperagentstrainingdeceptive" class="cite cite-emerging" data-cite="hubinger2024sleeperagentstrainingdeceptive" role="doc-biblioref">Hubinger et al., 2024</a>)</span>. The experiment is as follows:<br />
 </p>
 <section id="training-objective." class="level4">
@@ -32,7 +32,7 @@
 </section>
 <section id="critical-finding." class="level4">
 <h4>Critical Finding.</h4>
-<p>Experimental results showed that standard safety interventions such as safety-oriented supervised fine-tuning (SFT), RLHF, and adversarial training failed to remove this deceptive trigger. Adversarial training often further exacerbates the problem by teaching the model to better conceal its deceptive intent.<br />
+<p>Experimental results showed that standard safety interventions such as safety-oriented supervised fine-tuning (SFT), RLHF, and adversarial training failed to remove this deceptive trigger. Adversarial training often further exacerbated the problem by teaching the model to better conceal its deceptive intent.<br />
 </p>
 </section>
 <section id="interpretation." class="level4">
@@ -40,7 +40,7 @@
 <p>The backdoor persists likely because safety training provides little gradient signal to remove the mechanism responsible for the triggering behaviour. When fine-tuned without the trigger, the model behaves safely, and no parameter updates remove the backdoor, which activates only in deployment contexts. Notably, follow-up work showed that linear probes can predict whether the backdoor is triggered, achieving <span class="math inline">&gt;</span>99% AUROC <span class="citation" data-cites="macdiarmid2024sleeperagentprobes">(<a href="@@BASE@@references/#ref-macdiarmid2024sleeperagentprobes" class="cite cite-emerging" data-cite="macdiarmid2024sleeperagentprobes" role="doc-biblioref">MacDiarmid et al., 2024</a>)</span>. This highlights a gap between <em>detecting</em> representations of deception and <em>removing</em> the underlying behaviour.</p>
 </section>
 </div>
-<p>A further challenge arises when models are updated after deployment through interactions with the environment or users, where evaluation results reflect their pre-tuning status. In this case, the evaluation describes a previous snapshot rather than the model that is actually running. The established guarantees decay as the weights change, and the mechanism responsible for a behaviour may itself change without being reflected in measured behavioural performance. More discussion of this challenge and research to mitigate it are in Section <a href="@@BASE@@handbook/learning-dynamics/#sec:training" data-reference-type="ref" data-reference="sec:training">10</a>.</p>
+<p>A further challenge arises when models are updated after deployment through interactions with the environment or users, where evaluation results reflect their pre-tuning status. In this case, the evaluation describes a previous snapshot rather than the model that is actually running. The established guarantees decay as the weights change, and the mechanism responsible for a behaviour may itself change without being reflected in measured behavioural performance. More discussion of this challenge and research to mitigate it is in Section <a href="@@BASE@@handbook/learning-dynamics/#sec:training" data-reference-type="ref" data-reference="sec:training">10</a>.</p>
 <p>In summary, these issues motivate the need for methods that examine model internals—not just what models output, but <em>how</em> they arrive at those outputs.</p>
 </section>
 </section>

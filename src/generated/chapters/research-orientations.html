@@ -61,10 +61,10 @@
 <p><em>Introspective Interpretability</em> (<span class="citation" data-cites="binder"><a href="@@BASE@@references/#ref-binder" class="cite cite-established" data-cite="binder" role="doc-biblioref">Binder et al., 2025</a></span>; <span class="citation" data-cites="plunkett li2025traininglanguagemodelsexplain guo2026introspectivecouplingselfexplanationtraining li2026introspective"><a href="@@BASE@@references/#ref-plunkett" class="cite cite-emerging" data-cite="plunkett" role="doc-biblioref">Plunkett et al., 2025</a>; <a href="@@BASE@@references/#ref-li2025traininglanguagemodelsexplain" class="cite cite-emerging" data-cite="li2025traininglanguagemodelsexplain" role="doc-biblioref">Li et al., 2025a</a>; <a href="@@BASE@@references/#ref-guo2026introspectivecouplingselfexplanationtraining" class="cite cite-emerging" data-cite="guo2026introspectivecouplingselfexplanationtraining" role="doc-biblioref">Guo et al., 2026</a>; <a href="@@BASE@@references/#ref-li2026introspective" class="cite cite-emerging" data-cite="li2026introspective" role="doc-biblioref">Li, 2026</a></span>) uses the model being explained as its own explainer. Its main practical advantage is its unique accessibility. For a given introspective model, it requires no white-box access or specialised tooling to explain its decisions; anyone can get the <em>self-explanation</em> (or interchangeably <em>self-report</em>) at deployment time by asking the model a follow-up question in an ordinary chat interface.</p>
 <p>This research direction is supported by the privileged access hypothesis discussed in Section <a href="@@BASE@@handbook/core-hypotheses/#subsec:privileged-access" data-reference-type="ref" data-reference="subsec:privileged-access">5.3</a>, which posits that models may have access to internal information that is difficult to recover through external analysis alone, including typical mechanistic analysis or a different model as the explainer. Recent work has leveraged this idea by fine-tuning target models to faithfully report their internal reasoning, behavioural tendencies, objectives, and even weight changes induced by training <span class="citation" data-cites="goel">(<a href="@@BASE@@references/#ref-goel" class="cite cite-established" data-cite="goel" role="doc-biblioref">Goel et al., 2026</a>)</span>.</p>
 <p>A related line of work fine-tunes metamodels (external explainers) on the internal representations of a target model (<span class="citation" data-cites="pan2024latentqateachingllmsdecode ao"><a href="@@BASE@@references/#ref-pan2024latentqateachingllmsdecode" class="cite cite-established" data-cite="pan2024latentqateachingllmsdecode" role="doc-biblioref">Pan et al., 2026</a>; <a href="@@BASE@@references/#ref-ao" class="cite cite-established" data-cite="ao" role="doc-biblioref">Karvonen et al., 2026a</a></span>; <span class="citation" data-cites="buildingbetterao pcd"><a href="@@BASE@@references/#ref-buildingbetterao" class="cite cite-emerging" data-cite="buildingbetterao" role="doc-biblioref">Bauer et al., 2026</a>; <a href="@@BASE@@references/#ref-pcd" class="cite cite-emerging" data-cite="pcd" role="doc-biblioref">Huang et al., 2026</a></span>). These methods are generally not considered instances of Introspective Interpretability because the explainer is technically a separate model. However, the distinction can be blurry in practice, as many of these explainers are initialised from the target model and can be viewed as specialised, fine-tuned descendants of the original model.</p>
-<section id="concerns-for-introspective-interpretability" class="level3"><h3 data-pdf-page="105"><span class="secnum">12.5.1</span> Concerns for Introspective Interpretability<a class="anchor" href="#concerns-for-introspective-interpretability" aria-label="Link to this section">#</a></h3>
+<section id="concerns-for-introspective-interpretability" class="level3"><h3 data-pdf-page="106"><span class="secnum">12.5.1</span> Concerns for Introspective Interpretability<a class="anchor" href="#concerns-for-introspective-interpretability" aria-label="Link to this section">#</a></h3>
 <p>Self-explanation also raises concerns. For example, generated explanations can be plausible yet unfaithful. The model’s general capability can also degrade when it is trained to honestly verbalise its internal processing. Moreover, the model may have fundamental limitations in what it can report. These concerns raise questions about whether we can trust self-explanations in safety-critical applications and how to validate potentially misleading reports. Below, we first discuss the main failure modes of self-explanation, followed by validation procedures in Section <a href="@@BASE@@handbook/research-orientations/#subsec:valproce model self-reports" data-reference-type="ref" data-reference="subsec:valproce model self-reports">12.5.2</a>.</p>
 <div class="warningbox">
-<p><strong>Failure Modes of Self-Explanation</strong></p>
+<p class="box-title"><strong>Failure Modes of Self-Explanation</strong></p>
 <p>Introspective methods can fail in several ways. In each case, the explanation appears plausible yet is unfaithful.<br />
 </p>
 <section id="confabulation." class="level4">
@@ -89,10 +89,10 @@
 </div>
 <p>Despite these limitations, targeted training can address some self-explanation failures. Studies show that models trained for introspection can produce more faithful reports of their internal objectives, behavioural tendencies, and training-induced changes (<span class="citation" data-cites="binder chloe goel"><a href="@@BASE@@references/#ref-binder" class="cite cite-established" data-cite="binder" role="doc-biblioref">Binder et al., 2025</a>; <a href="@@BASE@@references/#ref-chloe" class="cite cite-established" data-cite="chloe" role="doc-biblioref">Li et al., 2026b</a>; <a href="@@BASE@@references/#ref-goel" class="cite cite-established" data-cite="goel" role="doc-biblioref">Goel et al., 2026</a></span>; <span class="citation" data-cites="li2025traininglanguagemodelsexplain joglekar"><a href="@@BASE@@references/#ref-li2025traininglanguagemodelsexplain" class="cite cite-emerging" data-cite="li2025traininglanguagemodelsexplain" role="doc-biblioref">Li et al., 2025a</a>; <a href="@@BASE@@references/#ref-joglekar" class="cite cite-emerging" data-cite="joglekar" role="doc-biblioref">Joglekar et al., 2025</a></span>). In particular, models trained to disclose hidden objectives or emergent misalignment can report these properties with high accuracy (<span class="citation" data-cites="chloe"><a href="@@BASE@@references/#ref-chloe" class="cite cite-established" data-cite="chloe" role="doc-biblioref">Li et al., 2026b</a></span>; <span class="citation" data-cites="joglekar"><a href="@@BASE@@references/#ref-joglekar" class="cite cite-emerging" data-cite="joglekar" role="doc-biblioref">Joglekar et al., 2025</a></span>). Explanation faithfulness may also improve when task performance requires reasoning <span class="citation" data-cites="early-work-on-monitorability-evaluations">(<a href="@@BASE@@references/#ref-early-work-on-monitorability-evaluations" class="cite cite-emerging" data-cite="early-work-on-monitorability-evaluations" role="doc-biblioref">Kinniment et al., 2026</a>)</span>. These findings suggest that some introspection failures may reflect limitations of current training and elicitation methods, rather than fundamental limits on models’ ability to report their internal states.</p>
 </section>
-<section id="subsec:valproce model self-reports" class="level3"><h3 data-pdf-page="106"><span class="secnum">12.5.2</span> Validation Procedures for Model Self-Reports<a class="anchor" href="#subsec:valproce model self-reports" aria-label="Link to this section">#</a></h3>
+<section id="subsec:valproce model self-reports" class="level3"><h3 data-pdf-page="107"><span class="secnum">12.5.2</span> Validation Procedures for Model Self-Reports<a class="anchor" href="#subsec:valproce model self-reports" aria-label="Link to this section">#</a></h3>
 <p>Given these concerns, Introspective Interpretability methods must be validated against additional, independent evidence. Specifically, they must be shown to be <em>consistent</em> with model internals (as accessed by other mechanistic interpretability tools) and behavioural signatures (as tested by behavioural interpretability analysis). Validation procedures vary based on the type of self-report:</p>
 <div class="practicebox">
-<p><strong>Validation Procedures for Introspective Models</strong></p>
+<p class="box-title"><strong>Validation Procedures for Introspective Models</strong></p>
 <section id="causal-intervention-consistency." class="level4">
 <h4>1. Causal intervention consistency.</h4>
 <p>Self-explanations should be tested against intervention experiments. If a model claims a feature drives its output, ablating that feature should steer the model away from the output. If a model claims it considered a piece of information (e.g., an input feature or a recalled piece of factual knowledge in intermediate layers) for its decision, patching the information with counterfactual values should change the output correspondingly.<br />
@@ -123,7 +123,7 @@
 </section>
 </section>
 </section>
-<section id="sec:automated-interp" class="level2"><h2 data-pdf-page="107"><span class="secnum">12.6</span> Automated Interpretability: Scaling Discovery via Automation<a class="anchor" href="#sec:automated-interp" aria-label="Link to this section">#</a></h2>
+<section id="sec:automated-interp" class="level2"><h2 data-pdf-page="108"><span class="secnum">12.6</span> Automated Interpretability: Scaling Discovery via Automation<a class="anchor" href="#sec:automated-interp" aria-label="Link to this section">#</a></h2>
 <p><em>Automated Interpretability</em> seeks to scale mechanistic analysis to large models by replacing human analysis with automated pipelines. It assumes that manual analysis is the bottleneck and that automation can accelerate discovery. Methods include:</p>
 <ul>
 <li><p><strong>Automated circuit discovery</strong> to automatically find the critical computational graph inside the model that processes a given input prompt or implements a specific capability.</p></li>
@@ -131,7 +131,7 @@
 </ul>
 <p>Automated interpretability is not limited to any particular type of internal representation or mechanism. Depending on the research question, automated pipelines may analyse SAE features <span class="citation" data-cites="paulo2025automatically han2026sage">(<a href="@@BASE@@references/#ref-paulo2025automatically" class="cite cite-established" data-cite="paulo2025automatically" role="doc-biblioref">Paulo et al., 2025b</a>; <a href="@@BASE@@references/#ref-han2026sage" class="cite cite-established" data-cite="han2026sage" role="doc-biblioref">Han et al., 2026</a>)</span>, individual neurons (<span class="citation" data-cites="bills2023language foote2023neurongraphinterpretinglanguage"><a href="@@BASE@@references/#ref-bills2023language" class="cite cite-emerging" data-cite="bills2023language" role="doc-biblioref">Bills et al., 2023</a>; <a href="@@BASE@@references/#ref-foote2023neurongraphinterpretinglanguage" class="cite cite-emerging" data-cite="foote2023neurongraphinterpretinglanguage" role="doc-biblioref">Foote et al., 2023</a></span>; <span class="citation" data-cites="oikarinen2023clipdissect"><a href="@@BASE@@references/#ref-oikarinen2023clipdissect" class="cite cite-established" data-cite="oikarinen2023clipdissect" role="doc-biblioref">Oikarinen &amp; Weng, 2023</a></span>), circuits (<span class="citation" data-cites="conmy2023automatedcircuitdiscoverymechanistic"><a href="@@BASE@@references/#ref-conmy2023automatedcircuitdiscoverymechanistic" class="cite cite-established" data-cite="conmy2023automatedcircuitdiscoverymechanistic" role="doc-biblioref">Conmy et al., 2023</a></span>; <span class="citation" data-cites="khan2026can"><a href="@@BASE@@references/#ref-khan2026can" class="cite cite-emerging" data-cite="khan2026can" role="doc-biblioref">Khan et al., 2026</a></span>), or other model components <span class="citation" data-cites="nla">(<a href="@@BASE@@references/#ref-nla" class="cite cite-emerging" data-cite="nla" role="doc-biblioref">Fraser-Taliente et al., 2026</a>)</span>. This approach distinguishes itself by automatically discovering, explaining, or evaluating these objects rather than relying on manual analysis. Below, we illustrate a classical automated feature-explanation pipeline whose explanation and verification stages generally follow <span class="citation" data-cites="bills2023language"><a href="@@BASE@@references/#ref-bills2023language" class="cite cite-emerging" data-cite="bills2023language" role="doc-biblioref">Bills et al. (2023)</a></span>.</p>
 <div class="practicebox">
-<p><strong>Classical Automated Interpretability Pipeline</strong></p>
+<p class="box-title"><strong>Classical Automated Interpretability Pipeline</strong></p>
 <section id="stage-1-feature-extraction." class="level4">
 <h4>Stage 1 – Feature Extraction.</h4>
 <p>SAEs are trained to decompose raw activations of the target model into sparse linear features.<br />
@@ -157,7 +157,7 @@
 <section id="governance-concerns-for-automated-interpretability" class="level3"><h3 data-pdf-page="108"><span class="secnum">12.6.1</span> Governance Concerns for Automated Interpretability<a class="anchor" href="#governance-concerns-for-automated-interpretability" aria-label="Link to this section">#</a></h3>
 <p>Despite the promise, automated methods face fundamental concerns. In particular, although automation improves scalability, reduced human involvement may also increase the risk and severity of systematic errors, reward hacking, or deceptive explanations when automated oversight fails to catch them <span class="citation" data-cites="lermen2025deceptive">(<a href="@@BASE@@references/#ref-lermen2025deceptive" class="cite cite-emerging" data-cite="lermen2025deceptive" role="doc-biblioref">Lermen et al., 2025</a>)</span>. Therefore, success in this research orientation is measured not only by the analysis’s scalability, but also by its coverage, faithfulness, and trustworthiness. Below, we detail several governance challenges, including error propagation at scale, human oversight becoming a bottleneck, and systematic biases going undetected.</p>
 <div class="warningbox">
-<p><strong>Governance Risks of Automation</strong></p>
+<p class="box-title"><strong>Governance Risks of Automation</strong></p>
 <section id="error-propagation." class="level4">
 <h4>Error propagation.</h4>
 <p>Unlike human investigators, who are somewhat independent and introspective, the explanation-generation model can propagate its systematic errors to all features it analyses without rethinking what could have gone wrong.<br />
@@ -182,7 +182,7 @@
 <section id="proposed-guardrails-for-automated-interpretability" class="level3"><h3 data-pdf-page="109"><span class="secnum">12.6.2</span> Proposed Guardrails for Automated Interpretability<a class="anchor" href="#proposed-guardrails-for-automated-interpretability" aria-label="Link to this section">#</a></h3>
 <p>These concerns call for safeguards that combine technical validation, human oversight, and clear accountability. Below, we propose a five-layer guardrail framework to help audit the automated methods and mitigate their risks.</p>
 <div class="practicebox">
-<p><strong>Guardrail Framework for Automated Interpretability</strong></p>
+<p class="box-title"><strong>Guardrail Framework for Automated Interpretability</strong></p>
 <section id="layer-1-sampling-based-human-validation." class="level4">
 <h4>Layer 1: Sampling-Based Human Validation.</h4>
 <p>Auditors can randomly sample a predefined fraction (e.g., 5%) of generated explanations for human experts to review. These explanations should cover different task-difficulty levels, feature types, and targeted mechanisms. Human experts should not know in advance which explanations are randomly sampled, which are flagged by automated checks, and which are already verified by additional methods, if they are all presented.<br />
@@ -215,10 +215,10 @@
 <caption><span class="capnum">Table 12:</span> <strong>A human–Automated Interpretability pipeline.</strong> Automated methods perform discovery and analysis. Human experts set the objectives, audit intermediate results, and draw conclusions. We use feature and circuit discovery and analysis as an example.</caption>
 <thead>
 <tr>
-<th style="text-align: left;"><span style="color: white"><strong>Stage</strong></span></th>
-<th style="text-align: left;"><span style="color: white"><strong>Automated Role</strong></span></th>
-<th style="text-align: left;"><span style="color: white"><strong>Human Role</strong></span></th>
-<th style="text-align: left;"><span style="color: white"><strong>Deliverable</strong></span></th>
+<th style="text-align: left;"><strong>Stage</strong></th>
+<th style="text-align: left;"><strong>Automated Role</strong></th>
+<th style="text-align: left;"><strong>Human Role</strong></th>
+<th style="text-align: left;"><strong>Deliverable</strong></th>
 </tr>
 </thead>
 <tbody>
@@ -269,13 +269,13 @@
 <caption><span class="capnum">Table 13:</span> Comparison of six interpretability orientations across their core theses, evaluation criteria, methodological approaches, research time horizons, scalability, and robustness to model deception.</caption>
 <thead>
 <tr>
-<th style="text-align: left;"><span style="color: white"><strong>Dimension</strong></span></th>
-<th style="text-align: left;"><span style="color: white"><strong>Pragmatic</strong></span></th>
-<th style="text-align: left;"><span style="color: white"><strong>Ambitious</strong></span></th>
-<th style="text-align: left;"><span style="color: white"><strong>Developmental</strong></span></th>
-<th style="text-align: left;"><span style="color: white"><strong>Across Time</strong></span></th>
-<th style="text-align: left;"><span style="color: white"><strong>Introspective</strong></span></th>
-<th style="text-align: left;"><span style="color: white"><strong>Automated</strong></span></th>
+<th style="text-align: left;"><strong>Dimension</strong></th>
+<th style="text-align: left;"><strong>Pragmatic</strong></th>
+<th style="text-align: left;"><strong>Ambitious</strong></th>
+<th style="text-align: left;"><strong>Developmental</strong></th>
+<th style="text-align: left;"><strong>Across Time</strong></th>
+<th style="text-align: left;"><strong>Introspective</strong></th>
+<th style="text-align: left;"><strong>Automated</strong></th>
 </tr>
 </thead>
 <tbody>
@@ -336,7 +336,7 @@
 </tbody>
 </table>
 </section>
-<section id="subsec:choosing orientation" class="level2"><h2 data-pdf-page="111"><span class="secnum">12.8</span> Choosing an Orientation: A Decision Framework<a class="anchor" href="#subsec:choosing orientation" aria-label="Link to this section">#</a></h2>
+<section id="subsec:choosing orientation" class="level2"><h2 data-pdf-page="112"><span class="secnum">12.8</span> Choosing an Orientation: A Decision Framework<a class="anchor" href="#subsec:choosing orientation" aria-label="Link to this section">#</a></h2>
 <p>The investigator’s priorities and constraints determine the research orientation to select. For teams or individuals focused on immediate safety interventions, Pragmatic Interpretability is the most suitable research style. If the primary goal is to guarantee the absence of harmful behaviour in the long term, Ambitious Interpretability is most appropriate. Researchers seeking to characterise and explain dynamics of capability development may adopt Developmental Interpretability. In contrast, teams training and deploying language-model products with a focus on safety concerns may focus on Interpretability Across Time. When the objective is to offer accessible interpretability analysis to general users, Introspective Interpretability offers a promising paradigm. In contrast, Automated Interpretability is particularly attractive when analyses must be performed at a scale that would be impractical for human investigators alone. Notably, these research orientations are not mutually exclusive; hybrid strategies can combine the strengths of different approaches.</p>
 </section>
 <section id="critical-concerns-tensions-and-open-questions" class="level2"><h2 data-pdf-page="112"><span class="secnum">12.9</span> Critical Concerns, Tensions, and Open Questions<a class="anchor" href="#critical-concerns-tensions-and-open-questions" aria-label="Link to this section">#</a></h2>

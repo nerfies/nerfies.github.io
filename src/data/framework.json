@@ -1,5 +1,5 @@
 {
- "source": "Quoted from arXiv:2611.08438v1 (re-selected 6 Nov 2026). Orientations: src/data/orientations-arxiv.json.",
+ "source": "Quoted from arXiv:2611.08438v1 (re-selected 6 Nov 2026), re-anchored to manuscript revision f56b2a1 (8 Nov 2026). Orientations: src/data/orientations-arxiv.json.",
  "evaluation": {
   "chapter_sections": [
    "sec:evaluation-framework"
@@ -151,7 +151,7 @@
      "dimension-4-causal-validity",
      "subsec:five eval dim"
     ],
-    "definition": "Causal validity assesses whether the identified components or mechanisms are causal to the behaviour, particularly necessity (i.e., removing the components/mechanisms disrupts the behaviour) and sufficiency (i.e., the components/mechanisms alone are sufficient to preserve the behaviour).",
+    "definition": "Causal validity assesses whether the identified components or mechanisms are causally responsible for the behaviour, particularly necessity (i.e., removing the components/mechanisms disrupts the behaviour) and sufficiency (i.e., the components/mechanisms alone are sufficient to preserve the behaviour).",
     "metrics_named": [
      "Necessity Score",
      "Sufficiency Score",

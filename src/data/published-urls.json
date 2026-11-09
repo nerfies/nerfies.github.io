@@ -12,6 +12,10 @@
   {
    "date": "2026-11-06",
    "note": "arXiv v1 (2611.08438) ingested as final; adds learning-dynamics content and acknowledgements"
+  },
+  {
+   "date": "2026-11-08",
+   "note": "TMLR submission revision f56b2a1 (8 Nov 2026)"
   }
  ],
  "pages": {
@@ -584,6 +588,7 @@
    "fig:transcoders",
    "from-monosemanticity-to-concept-identification.",
    "identifiability-and-theoretical-concerns",
+   "independent-component-analysis",
    "independent-component-analysis-ica",
    "interpretability-gains.",
    "kolmogorov-arnold-networks",
@@ -594,10 +599,12 @@
    "mechanism.-1",
    "model-scale.",
    "motivation.",
+   "non-negative-matrix-factorisation",
    "non-negative-matrix-factorisation-nmf",
    "non-negative-matrix-factorization-nmf",
    "open-questions-for-clt-research.",
    "practical-recommendations",
+   "principal-component-analysis",
    "principal-component-analysis-pca",
    "principle-component-analysis-pca",
    "quick-reference-when-to-use-what",

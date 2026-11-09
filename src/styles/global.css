@@ -4,6 +4,7 @@
 /* Brand palette and type (6 Nov 2026):
    primary #0c0c0c for text, links, buttons and UI; background #f4f4f4;
    red #FF0000 and blue #0000FF for diagrams, data and highlights only, never UI.
+   Exception: citation colours follow the paper (see --tier-* below).
    Headers: Fragment Mono, letter-spacing -0.05em. Body and UI: Work Sans.
    Dark mode swaps primary and background; the accents stay. */
 :root {
@@ -24,7 +25,10 @@
   --link: var(--primary);
   --grid: #e4e4e4;
   --focus: var(--primary);
-  --tier-established: var(--accent-blue); --tier-emerging: var(--accent-red); --tier-flagged: var(--accent-red);
+  /* Citation evidence tiers use the paper's own colours (main.tex: citeestablished, citeemerging):
+     orange for peer-reviewed work, olive green for preprints. Same in both themes. */
+  --tier-established: #B86046; --tier-emerging: #6B8E23; --tier-flagged: var(--accent-red);
+  --box-tint: 6%; --box-frame-white: 20%; --box-base: #fff;  /* handbook boxes: tint of the box colour over --box-base; white mixed into the frame */
   --note-bg: var(--paper-2); --note-ink: var(--ink); --note-rule: var(--ink-3);
   --measured: var(--ink); --illustrative: var(--ink-2);
   --pos: var(--accent-blue); --neg: var(--accent-red); --zero: #e6e6e6;
@@ -41,17 +45,20 @@
   --mono: var(--font-headers);
   --radius: 0px;
   --measure: 42rem;
+  --measure-prose: 52rem;  /* handbook chapter text: about 90 characters a line at its 1.18rem size */
   --gutter: 12rem;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --primary: #f4f4f4; --paper: #0c0c0c; --paper-2: #1a1a1a; --ink-2: #c6c6c6; --ink-3: #8f8f8f; --hair: #2f2f2f; --grid: #1c1c1c; --zero: #1f1f1f;
+    --box-tint: 22%; --box-frame-white: 45%; --box-base: var(--paper);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --primary: #f4f4f4; --paper: #0c0c0c; --paper-2: #1a1a1a; --ink-2: #c6c6c6; --ink-3: #8f8f8f; --hair: #2f2f2f; --grid: #1c1c1c; --zero: #1f1f1f;
+  --box-tint: 22%; --box-frame-white: 45%; --box-base: var(--paper);
   color-scheme: dark;
 }
 
@@ -186,7 +193,7 @@ blockquote.excerpt footer a { color: var(--ink-3); }
   .nav-toggle { display: inline-block; margin-bottom: 1.2rem; }
 }
 
-.prose { font-family: var(--serif); font-size: 1.18rem; line-height: 1.62; max-width: var(--measure); font-weight: 400; }
+.prose { font-family: var(--serif); font-size: 1.18rem; line-height: 1.62; max-width: var(--measure-prose); font-weight: 400; }
 .prose h1 { font-size: clamp(2.2rem, 4.6vw, 3.1rem); margin: 0 0 2rem; }
 .prose h2 { font-size: 1.8rem; margin: 3.2rem 0 1rem; }
 .prose h3 { font-size: 1.35rem; margin: 2.4rem 0 .7rem; }
@@ -219,8 +226,23 @@ blockquote.excerpt footer a { color: var(--ink-3); }
 .tier-tag { display: inline-block; font: 500 .66rem/1.3 var(--sans); letter-spacing: .05em; text-transform: uppercase;
   border: 1px solid currentColor; padding: 0 .35em; margin-right: .45em; vertical-align: .12em; color: var(--ink-2); }
 .prose a.cite:hover { text-decoration: underline; }
-.prose :is(.definitionbox, .examplebox, .warningbox, .theorybox, .insightbox, .practicebox) { margin: 1.8rem 0; padding: .2rem 0 .2rem 1.2rem; border-left: 1px solid var(--hair-strong); font-size: 1.05rem; }
-.prose .warningbox { border-left-color: var(--accent); }
+/* Boxes follow the paper's tcolorbox styles (main.tex): a frame in the box colour, a light tint of it
+   behind the text, and the title on a tab in the full colour straddling the top edge.
+   Colours are the paper's defblue, examplegreen, insightgold, theorypurple, warningred, practiceteal. */
+.prose :is(.definitionbox, .examplebox, .warningbox, .theorybox, .insightbox, .practicebox) {
+  --box: #003366; margin: 2.4rem 0 1.8rem; padding: 1.1rem 1.2rem .9rem; font-size: 1.05rem;
+  border: 1.5px solid color-mix(in srgb, var(--box), white var(--box-frame-white));
+  background: color-mix(in srgb, var(--box) var(--box-tint), var(--box-base)); }
+.prose :is(.definitionbox, .examplebox, .warningbox, .theorybox, .insightbox, .practicebox) > :last-child { margin-bottom: 0; }
+.prose .definitionbox { --box: #003366; }
+.prose .examplebox { --box: #006633; }
+.prose .insightbox { --box: #996600; }
+.prose .theorybox { --box: #660099; }
+.prose .warningbox { --box: #990000; }
+.prose .practicebox { --box: #006666; }
+.prose p.box-title { display: table; margin: -1.95rem 0 .7rem; padding: .2rem .65rem; background: var(--box); color: #fff;
+  font: 600 .9rem/1.4 var(--sans); }
+.prose p.box-title a { color: inherit; text-decoration-color: color-mix(in srgb, #fff 60%, transparent); }
 .prose .unrendered { display: block; padding: 1rem 0; border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); font-family: var(--sans); font-size: .9rem; color: var(--ink-2); }
 .prose .math-error { color: var(--tier-flagged); }
 .prose :target { scroll-margin-top: 2rem; }

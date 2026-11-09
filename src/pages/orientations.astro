@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Excerpt from '../components/Excerpt.astro';
-import { excerptHtml } from '../lib/manuscript';
+import { excerptHtml, sectionLink } from '../lib/manuscript';
 import { resolveMethod } from '../lib/data';
 import { url } from '../lib/site';
 import data from '../data/orientations-arxiv.json';
@@ -12,6 +12,7 @@ const src = data.source;
 const ref = (num: string, title: string) => ({ num, title, href: src.abs });
 const orientations: any[] = data.orientations;
 const table = data.comparison;
+const figHref = sectionLink('fig:sixresearchorientation');
 import { draftHidden as __hide } from '../lib/manuscript';
 if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}held/`);
 ---
@@ -21,6 +22,16 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
     <h1>Research orientations</h1>
     <p class="small muted">From §{src.chapter} of the paper.</p>
     {data.intro.map((t: string) => <Excerpt text={t} section={ref(src.chapter, src.chapter_title)} />)}
+
+    {/* Figure 17 of the paper, rendered from figs/research_directions_compressed.pdf at 2400 px wide. */}
+    <figure class="fig-orient" id="figure-17">
+      <a href={url('static/images/research_orientations.png')} aria-label="Open Figure 17 at full resolution">
+        <img src={url('static/images/research_orientations.png')} width="2400" height="912" loading="lazy"
+          alt="Figure 17: the six research orientations, each with a small illustration: Pragmatic, Ambitious, Automated, Developmental, Introspective, and Interpretability Across Time." />
+      </a>
+      <figcaption><strong>Figure 17:</strong> Six research orientations of AI interpretability.
+        {figHref && <a href={figHref}>In the handbook</a>}</figcaption>
+    </figure>
 
     <div class="orient-grid" role="list">
       {orientations.map((o, i) => (
@@ -67,6 +78,11 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
   </div>
 </Base>
 <style>
+  .fig-orient { margin: 2rem 0 2.5rem; }
+  /* white backing so the figure (dark line art) stays legible in dark mode */
+  .fig-orient img { display: block; width: 100%; height: auto; background: #fff; }
+  .fig-orient figcaption { font-size: .84rem; color: var(--ink-2); margin-top: .7rem; }
+  .fig-orient figcaption a { margin-left: .4rem; }
   .orient-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr)); gap: 1rem; margin-top: 1.5rem; }
   .orient { position: relative; border-top: 3px solid var(--pillar-3); }
   .orient h2 { font-size: 1.1rem; margin: 0; padding-right: 2rem; }

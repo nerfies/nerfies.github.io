@@ -24,6 +24,10 @@
   {
    "date": "2026-11-08",
    "note": "Evaluation: Overview tab"
+  },
+  {
+   "date": "2026-11-08",
+   "note": "Orientations: Figure 17"
   }
  ],
  "pages": {
@@ -1179,6 +1183,7 @@
    "automated",
    "cmp",
    "developmental",
+   "figure-17",
    "interpretability-across-time",
    "introspective-interpretability",
    "pragmatic"

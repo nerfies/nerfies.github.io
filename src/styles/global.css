@@ -115,9 +115,12 @@ main { min-height: 70vh; }
 @media (min-width: 1100px) {
   .page, .page-narrow { padding-left: calc(var(--gutter) + 2.5rem); }
   .page-narrow > * { max-width: var(--measure); }
+  .page-wide > * { max-width: var(--measure-prose); }  /* method pages: same text width as handbook chapters */
 }
 .eyebrow { font-family: var(--sans); font-size: .72rem; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 1.4rem; font-weight: 500; }
 .eyebrow a { color: var(--ink-3); }
+.method-intro { font-size: 1.12rem; line-height: 1.55; margin: 1rem 0 .4rem; }
+.method-intro .label { margin-right: .35rem; }
 .lede { font-family: var(--serif); font-size: 1.3rem; line-height: 1.5; color: var(--ink-2); max-width: 40rem; font-weight: 300; }
 .muted { color: var(--ink-3); }
 .small { font-size: .86rem; }
@@ -148,6 +151,15 @@ label.chip { cursor: pointer; margin-right: .9rem; }
 .input { width: 100%; font: inherit; font-size: 1rem; color: var(--ink); background: transparent; border: 0; border-bottom: 1px solid var(--hair-strong); padding: .6rem 0; border-radius: 0; }
 .input::placeholder { color: var(--ink-3); }
 .input:focus { outline: none; border-bottom-color: var(--accent); }
+/* Search boxes: a blinking caret while the box is empty and unfocused, so it reads as "type here".
+   Once the box is focused or has text, the browser's own caret takes over. */
+.search-field { position: relative; display: block; }
+.search-field > .input { padding-left: .45rem; }
+.search-field::before { content: ''; position: absolute; left: 0; top: 50%; width: 1.5px; height: 1.15em; transform: translateY(-50%);
+  background: var(--ink); animation: caret-blink 1.1s steps(1, end) infinite; pointer-events: none; }
+.search-field:has(> .input:focus, > .input:not(:placeholder-shown))::before { display: none; }
+@keyframes caret-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .search-field::before { animation: none; } }
 
 /* tables: booktabs */
 table.data, .prose table { border-collapse: collapse; font-family: var(--sans); font-size: .88rem; line-height: 1.45; width: 100%; border-top: 1.5px solid var(--hair-strong); border-bottom: 1.5px solid var(--hair-strong); }
@@ -217,15 +229,15 @@ blockquote.excerpt footer a { color: var(--ink-3); }
 .prose .math-display { overflow-x: auto; overflow-y: hidden; margin: 1.2rem 0; padding: .2rem 0; }
 .prose .katex { font-size: 1em; }
 .prose a { text-decoration-color: var(--hair); }
-.prose a.cite { text-decoration: none; }
-.prose a.cite-established { color: var(--tier-established); }
-.prose a.cite-emerging { color: var(--tier-emerging); }
-.prose a.cite-missing, .prose a.cite-flagged { color: var(--tier-flagged); }
+a.cite { text-decoration: none; }
+a.cite-established { color: var(--tier-established); }
+a.cite-emerging { color: var(--tier-emerging); }
+a.cite-missing, a.cite-flagged { color: var(--tier-flagged); }
 /* evidence tier: colour (peer-reviewed vs preprint); missing/flagged also wavy */
 .prose a.cite-flagged, .prose a.cite-missing { text-decoration: underline wavy 1px; text-underline-offset: .2em; }
 .tier-tag { display: inline-block; font: 500 .66rem/1.3 var(--sans); letter-spacing: .05em; text-transform: uppercase;
   border: 1px solid currentColor; padding: 0 .35em; margin-right: .45em; vertical-align: .12em; color: var(--ink-2); }
-.prose a.cite:hover { text-decoration: underline; }
+a.cite:hover { text-decoration: underline; }
 /* Boxes follow the paper's tcolorbox styles (main.tex): a frame in the box colour, a light tint of it
    behind the text, and the title on a tab in the full colour straddling the top edge.
    Colours are the paper's defblue, examplegreen, insightgold, theorypurple, warningred, practiceteal. */

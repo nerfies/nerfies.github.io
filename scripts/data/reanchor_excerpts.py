@@ -24,7 +24,7 @@ NON_EXCERPT = {'id', 'name', 'family', 'title', 'subtitle', 'heading', 'step', '
   'related_orientations', 'orientations', 'related', 'sections', 'mentioned_in', 'chapter_sections', 'formulas_tex', 'public_name', 'draft_name',
   'draft_sections', 'status', 'source', 'gaps', 'table_id', 'caption', 'columns', 'rows', 'table_row', 'section', 'source_chapter', 'motivation_section',
   'protocol_section', 'framework_limitations_section', 'decision_framework_section', 'tensions_section', 'comparison_table', 'method_guidance',
-  'risk_taxonomy', 'evidence_key', 'items', 'groups'}
+  'risk_taxonomy', 'evidence_key', 'items', 'groups', 'intro'}
 SECTION_KEYS = {'sections', 'mentioned_in', 'chapter_sections', 'section', 'protocol_section', 'framework_limitations_section',
                 'decision_framework_section', 'tensions_section', 'motivation_section', 'draft_sections'}
 SENT = re.compile(r"(?<=[.!?:])\s+(?=[A-Z(“\"])")

@@ -7,3 +7,4 @@ dist/
 .ingest-plain/
 src/generated/withheld/
 CHANGELOG.md
+__pycache__/

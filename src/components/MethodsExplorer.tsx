@@ -49,8 +49,10 @@ export default function MethodsExplorer({ rows, families }: Props) {
     <div>
       <div style={{ display: 'grid', gap: '.6rem', margin: '1rem 0 1.25rem' }}>
         <label className="visually-hidden" htmlFor="mq">Search methods</label>
-        <input id="mq" className="input" type="search" value={q} onChange={(e) => setQ(e.target.value)}
-          placeholder="Search names and survey text, e.g. “causal”, “sparsity”, “unlearning”" />
+        <span className="search-field">
+          <input id="mq" className="input" type="search" value={q} onChange={(e) => setQ(e.target.value)}
+            placeholder="Search names and survey text, e.g. “causal”, “sparsity”, “unlearning”" />
+        </span>
         <div role="group" aria-label="Filter by family" style={{ display: 'flex', flexWrap: 'wrap', gap: '.35rem' }}>
           <button className={`chip ${!fam ? 'on' : ''}`} aria-pressed={!fam} onClick={() => setFam(null)}>All families ({rows.length})</button>
           {families.map((f) => (

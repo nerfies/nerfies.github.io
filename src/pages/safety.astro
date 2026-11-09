@@ -28,7 +28,7 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
     <DraftBanner />
     <div style="display:grid;gap:.5rem;margin:1.2rem 0">
       <label for="sq" class="visually-hidden">Filter applications and open problems</label>
-      <input id="sq" class="input" type="search" placeholder="Filter, e.g. “steering”, “deception”, “unlearning”" />
+      <span class="search-field"><input id="sq" class="input" type="search" placeholder="Filter, e.g. “steering”, “deception”, “unlearning”" /></span>
       <div role="group" aria-label="Show" style="display:flex;gap:.35rem;flex-wrap:wrap">
         <button class="chip on" data-kind="all" aria-pressed="true">All</button>
         <button class="chip" data-kind="app" aria-pressed="false">Safety applications ({apps.length})</button>

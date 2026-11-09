@@ -27,12 +27,12 @@ const groups: [string, string[]][] = [
 const nbAnchor = (p: string) => p.split('/').pop()!.replace('.ipynb', '');
 ---
 <Base title={m.name} description={`${m.name}: what the survey says about it, with its assumptions, evaluation, applications and limitations, plus links to the survey sections, key papers and notebooks.`} manuscript>
-  <div class="page-narrow">
+  <div class="page-narrow page-wide">
     <p class="eyebrow"><a href={url('methods/')}>Methods</a> · <a href={url(`methods/?family=${m.family}`)}>{fam?.name}</a></p>
     <h1 style="margin-bottom:.4rem">{m.name}</h1>
     <SectionLinks ids={m.sections} label="Survey sections" />
     <DraftBanner />
-    <p><ManuscriptNote /></p>
+    {m.intro && <p class="method-intro"><ManuscriptNote kind="editorial" /> {m.intro}</p>}
     {m.definition && <Excerpt text={/[.!?”)\]]$/.test(m.definition.trim()) ? m.definition : `${m.definition} …`} section={primary} />}
 
     {groups.filter(([, list]) => list?.length).map(([h, list]) => (
@@ -66,7 +66,7 @@ const nbAnchor = (p: string) => p.split('/').pop()!.replace('.ipynb', '');
     {papers.length > 0 && (
       <section><h2 style="font-size:1.15rem;margin-top:2rem">Key papers</h2>
         {primary?.num && <p class="small muted">Cited in §{primary.num}.</p>}
-        <ul class="small">{papers.map((p) => <li style="margin:.3rem 0"><a href={url(`references/#ref-${p.key}`)} style={`color:var(--tier-${p.tier ?? 'established'})`} aria-label="Open in references">■</a> {p.tier === 'emerging' && <span class="tier-tag">Preprint</span>}{p.tier === 'flagged' && <span class="tier-tag">Flagged</span>}{p.text}</li>)}</ul>
+        <ul class="small">{papers.map((p) => <li style="margin:.3rem 0"><span aria-hidden="true" style={`color:var(--tier-${p.tier ?? 'established'})`}>■</span> {p.tier === 'emerging' && <span class="tier-tag">Preprint</span>}{p.tier === 'flagged' && <span class="tier-tag">Flagged</span>}<a class={`cite cite-${p.tier ?? 'established'}`} href={url(`references/#ref-${p.key}`)}>{p.text}</a></li>)}</ul>
       </section>
     )}
 

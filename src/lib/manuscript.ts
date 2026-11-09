@@ -84,6 +84,45 @@ const MATH_RE = MATH_TEX.length
   ? new RegExp(MATH_TEX.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g') : null;
 const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const inlineMath = (tex: string) => renderMath(`<span class="math inline">${escHtml(tex)}</span>`);
+const reEsc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// Citations as natbib prints them in the chapters ("Rajamanoharan et al., 2024b", "Koh et al. (2020)"),
+// mapped to their reference key. Excerpts are plain text, so a label found in one is linked like the
+// chapter's own citation. Year-only anchors ("2019" in "Bau et al. (2019, 2020)") are ambiguous and
+// skipped, as is any label that points at two different references.
+const CITE_KEY = new Map<string, string | null>();
+for (const h of Object.values(raw)) {
+  for (const m of h.matchAll(/<a href="@@BASE@@references\/#ref-([^"]+)" class="cite[^"]*"[^>]*>([\s\S]*?)<\/a>/g)) {
+    const label = unescape(m[2].replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim();
+    if (!/\p{L}{2}/u.test(label)) continue;
+    for (const l of new Set([label, label.replace(/’/g, "'")])) {  // some curated text uses straight apostrophes
+      const prev = CITE_KEY.get(l);
+      CITE_KEY.set(l, prev === undefined || prev === m[1] ? m[1] : null);
+    }
+  }
+}
+const CITE_LABELS = [...CITE_KEY].filter(([, k]) => k).map(([l]) => escHtml(l)).sort((a, b) => b.length - a.length);
+// Cross-references to numbered figures, tables and sections, resolved through the LaTeX labels.
+const XREF = new Map<string, string>();
+for (const [id, l] of Object.entries(manifest.labels)) {
+  const kinds = l.kind === 'figure' ? ['Figure'] : l.kind === 'table' ? ['Table']
+    : /^(sub)*section$|^appendix$/.test(l.kind) ? (/^[A-Z]/.test(l.num) ? ['Appendix', 'Section'] : ['Section']) : [];
+  const href = l.chapter ? (withheld.has(l.chapter) ? null : `${base}handbook/${l.chapter}/#${id}`)
+    : id === 'fig:simplified-taxonomy' ? `${base}#taxonomy` : null;  // the taxonomy sits on the homepage
+  for (const kind of kinds) if (href && !XREF.has(`${kind} ${l.num}`)) XREF.set(`${kind} ${l.num}`, href);
+}
+const LINK_RE = new RegExp(
+  `(?<![\\p{L}\\p{N}])(?:(${CITE_LABELS.map(reEsc).join('|') || '(?!)'})|(Figure|Table|Section|Appendix)\\s+([A-Z]?\\d*(?:\\.\\d+)*))(?![\\p{L}\\p{N}]|\\.\\d)`, 'gu');
+/** Link citations and cross-references in already-escaped excerpt text. */
+const linkRefs = (s: string) => s.replace(LINK_RE, (m, cite: string | undefined, kind: string, num: string) => {
+  if (cite) {
+    const key = CITE_KEY.get(unescape(cite))!;
+    const tier = manifest.cite_tiers[key];
+    return `<a href="${base}references/#ref-${key}" class="cite${tier ? ` cite-${tier}` : ''}" data-cite="${key}">${m}</a>`;
+  }
+  const href = XREF.get(`${kind} ${num}`);
+  return href ? `<a href="${href}">${m}</a>` : m;
+});
 
 /** HTML for a verbatim excerpt: text escaped, the manuscript's inline maths rendered. */
 export function excerptHtml(text: string): string {
@@ -91,10 +130,10 @@ export function excerptHtml(text: string): string {
   let last = 0;
   const src = text.replace(/\\\((.+?)\\\)/g, '$1');
   if (MATH_RE) for (const m of src.matchAll(MATH_RE)) {
-    out.push(escHtml(src.slice(last, m.index)), inlineMath(m[0]));
+    out.push(linkRefs(escHtml(src.slice(last, m.index))), inlineMath(m[0]));
     last = m.index! + m[0].length;
   }
-  out.push(escHtml(src.slice(last)));
+  out.push(linkRefs(escHtml(src.slice(last))));
   return out.join('');
 }
 
@@ -138,6 +177,19 @@ export function sectionInfo(id: string): { num: string | null; title: string; hr
     const ch = chapters.find((c) => c.slug === lab.chapter);
     const title = ch && ch.num === lab.num ? ch.title : (ch?.sections.find((s) => s.num === lab.num)?.title ?? id);
     return { num: lab.num, title, href: `${base}handbook/${lab.chapter}/#${id}` };
+  }
+  // Unnumbered paragraph headings ("Per-Token Learning Curves."): number of the enclosing numbered section,
+  // title of the paragraph heading itself.
+  for (const c of chapters) {
+    if (withheld.has(c.slug)) continue;
+    const h = findRaw(c.slug);
+    const at = h?.indexOf(` id="${id}"`) ?? -1;
+    if (!h || at < 0) continue;
+    let num = c.num;
+    for (const s of c.sections) { const p = h.indexOf(` id="${s.id}"`); if (p >= 0 && p < at && s.num) num = s.num; }
+    const head = h.slice(at).match(/<h\d[^>]*>([\s\S]*?)<\/h\d>/);
+    const title = head ? unescape(head[1].replace(/<a class="anchor"[\s\S]*?<\/a>/, '').replace(/<[^>]+>/g, '')).trim().replace(/\.$/, '') : id;
+    return { num, title, href: `${base}handbook/${c.slug}/#${id}` };
   }
   return null;
 }

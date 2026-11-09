@@ -305,6 +305,7 @@
    "sections": [
     "subsec:sae-variants"
    ],
+   "intro": "Gated SAEs separate whether a feature is active from how strongly it activates: a gating path decides which features fire, and a separate magnitude path estimates their values, combined through multiplicative gates.",
    "definition": "Gated SAEs introduce multiplicative gates to decouple feature selection from magnitude",
    "assumptions": [],
    "evaluation": [],
@@ -535,7 +536,7 @@
    "sections": [
     "non-negative-matrix-factorisation"
    ],
-   "definition": "Because all components are non-negative, each feature contributes positively to the final representation, making it easier to interpret.",
+   "definition": "Non-negative matrix factorisation (NMF; Lee & Seung, 1999) decomposes a non-negative activation matrix H \\in \\mathbb{R}^{d \\times n} as H \\approx WA, where both the feature dictionary W \\in \\mathbb{R}^{d \\times m} (m is the preset number of features) and the coefficient matrix A \\in \\mathbb{R}^{m \\times n} are constrained to have non-negative elements. Because all components are non-negative, each feature contributes positively to the final representation, making it easier to interpret.",
    "assumptions": [
     "Additionally, classical NMF’s optimisation process uses simple multiplicative update rules that preserve non-negativity. Moreover, under assumptions like separability (each latent feature appears in at least one sufficiently “pure” example), NMF guarantees that the recovered decomposition is unique (Donoho & Stodden, 2003). However, classical NMF is not suitable for neural network activations because they can have negative elements, requiring additional preprocessing steps that may distort the activation-space structure."
    ],
@@ -688,6 +689,7 @@
    "sections": [
     "subsubsec: spartan"
    ],
+   "intro": "Attention-sparse training sparsifies attention patterns, which are usually diffuse and hard to interpret, so that each attention head attends only to specific tokens while model performance stays close to the original.",
    "definition": "Previous studies have therefore explored attention-sparse training, which aims to sparsify attention patterns to make them more interpretable (Lei et al., 2025; Draye et al., 2026). Specifically, Lei et al. (2025) proposed SPARse TrANsformer World model (SPARTAN), an object-centric world model trained with L_0 regularisation on attention patterns and a constrained optimisation objective to maintain cross-entropy performance equal to that of a dense counterpart.",
    "assumptions": [],
    "evaluation": [],
@@ -731,6 +733,7 @@
    "sections": [
     "subsubsec: molt"
    ],
+   "intro": "The sparse mixture of linear transforms (MOLT) reconsiders what the computational primitives should be, shifting from extracting features to extracting the transformations a model applies to its activations.",
    "definition": "A recent example is the sparse mixture of linear transforms (MOLT), which represents a conceptual shift from feature extraction towards transformation extraction (Lindsey et al., 2025b).",
    "assumptions": [
     "To achieve this, MOLT replaces the MLP with a sparse mixture of learned linear transformation matrices. The basic unit of analysis becomes transformations applied to model activations rather than features."
@@ -863,6 +866,7 @@
    "sections": [
     "sec:circuit-replacement"
    ],
+   "intro": "Circuit tracing discovers circuits in an interpretable replacement model: the original model’s computation is approximated with sparse linear features, for example from cross-layer transcoders, and circuit discovery is then performed over those features instead of coarse-grained components such as attention heads and MLP blocks.",
    "definition": "A complementary approach first constructs a more interpretable replacement model (Section 6.6.2) that approximates the original model’s computation using sparse linear features, and then performs circuit discovery within this replacement model.",
    "assumptions": [
     "Recent work has implemented this paradigm using cross-layer transcoders (CLTs; Section 6.6.2) (Ameisen et al., 2025; Merullo et al., 2025). In particular, Circuit Tracer (Ameisen et al., 2025) replaces the model’s MLPs with CLTs while retaining the underlying model’s attention and residual-stream computation. This yields a prompt-specific attribution graph whose principal internal nodes are sparse CLT features rather than entire MLP blocks or attention heads."
@@ -990,6 +994,7 @@
     "subsec:tuned-lens",
     "limitations-of-tuned-lens."
    ],
+   "intro": "Tuned lens extends logit lens by learning, for each layer, an affine transformation that maps intermediate activations into the output layer’s activation space before the unembedding matrix is applied, addressing the representational mismatch between layers.",
    "definition": "Tuned lens (Belrose et al., 2025) addresses logit lens’ concern of representational mismatch by learning per-layer affine transformations that map intermediate activations to the output layer’s activation space",
    "assumptions": [],
    "evaluation": [],
@@ -1234,6 +1239,7 @@
    "sections": [
     "sec:trak"
    ],
+   "intro": "TRAK (Tracing with the Randomly-projected After Kernel) estimates training-data attribution more cheaply than retraining-based datamodels, by approximating the trained model as a linear model and estimating influence in a randomly projected, lower-dimensional gradient space.",
    "definition": "Tracing with the Randomly-projected After Kernel (TRAK; Park et al., 2023) provides a more efficient alternative. TRAK first uses a first-order Taylor expansion around the model parameters to approximate a trained model as a linear model.",
    "assumptions": [
     "TRAK first uses a first-order Taylor expansion around the model parameters to approximate a trained model as a linear model. It then applies random projections to reduce gradient dimensionality and estimate training-sample influence in this lower-dimensional space. Finally, it averages the estimates across a small number of trained models to reduce variability due to training randomness."
@@ -1279,6 +1285,214 @@
    ]
   },
   {
+   "id": "trajectory-based-attribution",
+   "name": "Trajectory-Based Attribution",
+   "family": "developmental-interpretability",
+   "sections": [
+    "trajectory-based-attribution."
+   ],
+   "definition": "Training data attribution (TDA; Section 11) methods can integrate with the training trajectory to provide temporal analysis. For example, TracIn (Section 11.2.5) estimates a training sample’s influence on a testing sample’s prediction as the sum of their gradients’ dot products evaluated at checkpoints along the run (Garima et al., 2020).",
+   "assumptions": [],
+   "evaluation": [],
+   "applications": [
+    "Each checkpoint contributes separately to the influence estimate. By examining each checkpoint’s contribution, researchers can identify when a training example had the greatest influence on a downstream prediction."
+   ],
+   "limitations": [],
+   "related": [
+    "tracin",
+    "per-token-learning-curves"
+   ],
+   "mentioned_in": []
+  },
+  {
+   "id": "per-token-learning-curves",
+   "name": "Per-Token Learning Curves",
+   "family": "developmental-interpretability",
+   "sections": [
+    "per-token-learning-curves."
+   ],
+   "definition": "The learning curve of an individual token in context, usually evaluated on held-out text at every checkpoint, is the finest-grained localisation instrument.",
+   "assumptions": [],
+   "evaluation": [],
+   "applications": [
+    "Chang et al. (2024) extracted learning curves for one million held-out tokens across five pretraining runs and summarised each with the time the token is first learned, the likelihood its loss later regresses, and the variability both within a run and across runs.",
+    "Individual tokens also show sudden increases or decreases in loss that recur at consistent points across runs. These abrupt changes in per-token loss can help identify potential transitions during training (Section 10.3.1). They also complement trajectory-based attribution by revealing when a model learns specific predictions."
+   ],
+   "limitations": [],
+   "related": [
+    "trajectory-based-attribution",
+    "capability-specific-metrics"
+   ],
+   "mentioned_in": []
+  },
+  {
+   "id": "refined-llc",
+   "name": "Refined Local Learning Coefficients (Localising Change to Components)",
+   "family": "developmental-interpretability",
+   "sections": [
+    "localising-change-to-components."
+   ],
+   "definition": "Wang et al. (2025b) introduced refined variants of the Local Learning Coefficient (Section 10.3.4) and applied them to individual attention heads of a two-layer attention-only transformer across training. The weight-refined LLC restricts the LLC to a single head’s parameters; the data-refined LLC evaluates it on a chosen data subset.",
+   "assumptions": [
+    "Once a change is localised in time, the components that changed in that window are candidates for the mechanism."
+   ],
+   "evaluation": [],
+   "applications": [
+    "Heads of the same type cluster together in both their final values and the overall shape of the curve across training, revealing how heads differentiate into distinct functional roles.",
+    "The same analysis identifies a previously undocumented multigram circuit.",
+    "Unlike the proposed induction scores (Olsson et al., 2022) for identifying induction heads, the measure does not require specifying a head type in advance."
+   ],
+   "limitations": [
+    "However, estimating refined LLCs is computationally expensive, and the approach has so far been demonstrated only on toy models.",
+    "Localising a phase transition in a coarse-grained metric therefore does not help identify the responsible components. In contrast, component-level attribution may find only gradual change without being wrong."
+   ],
+   "related": [
+    "local-learning-coefficient"
+   ],
+   "mentioned_in": [
+    "sec:ld-attribution"
+   ]
+  },
+  {
+   "id": "forked-run-experiments",
+   "name": "Forked-Run Experiments and Linear Mode Connectivity",
+   "family": "developmental-interpretability",
+   "sections": [
+    "sec:ld-causal-interventions"
+   ],
+   "definition": "A forked-run experiment spawns two or more training continuations from the same checkpoint, varying a single factor such as SGD noise, data order, or random seed, and compares the models the continuations produce. Linear mode connectivity is a standard instrument for the comparison. Two networks are linearly mode connected if the loss barrier along the straight path between their parameters in weight space is near zero.",
+   "assumptions": [],
+   "evaluation": [],
+   "applications": [
+    "Specifically, Frankle et al. (2020) examined the sensitivity of the model’s training results to SGD noise by restarting training from different checkpoints, each time using different SGD noise. Early in training, these runs may converge to different loss basins. Later, they tend to converge to linearly mode-connected solutions, indicating that the training outcome has become stable to SGD noise.",
+    "For example, degrading the data early in training causes permanent deficits that the same degradation applied later does not, establishing critical learning periods (Achille et al., 2019), and forking a run across many random seeds distinguishes properties of the training setup from accidents of a single run (van der Wal et al., 2025)."
+   ],
+   "limitations": [
+    "Under this interpretation, a loss barrier between two checkpoints suggests that their mechanisms differ. However, the absence of a loss barrier does not guarantee that their mechanisms are the same."
+   ],
+   "related": [],
+   "mentioned_in": [
+    "sec:ld-temporal-stability",
+    "sec:ld-induction-case"
+   ]
+  },
+  {
+   "id": "loss-curve-derivatives",
+   "name": "Loss-Curve Derivatives",
+   "family": "developmental-interpretability",
+   "sections": [
+    "loss-curve-derivatives."
+   ],
+   "intro": "Loss-curve derivatives detect transitions during training by looking for local peaks in the derivative of the aggregate loss curve.",
+   "definition": "The crudest instrument is the aggregate loss curve itself: a transition large enough to affect overall performance appears as a bump, visible as a local peak in the loss derivative (Olsson et al., 2022).",
+   "assumptions": [],
+   "evaluation": [],
+   "applications": [],
+   "limitations": [
+    "However, most transitions are too small to detect this way. A flat derivative therefore does not constitute evidence of the absence of a transition.",
+    "A key challenge in detecting transitions is that aggregate loss can hide abrupt changes in individual capabilities."
+   ],
+   "related": [
+    "capability-specific-metrics",
+    "per-example-decomposition"
+   ],
+   "mentioned_in": []
+  },
+  {
+   "id": "capability-specific-metrics",
+   "name": "Capability-Specific Metrics",
+   "family": "developmental-interpretability",
+   "sections": [
+    "capability-specific-metrics."
+   ],
+   "definition": "A metric targeted at a single capability, evaluated at every checkpoint, resolves transitions the aggregate hides. The in-context learning score (Olsson et al., 2022) is a representative construction.",
+   "assumptions": [],
+   "evaluation": [
+    "Comparing results across random seeds helps determine whether these transitions are consistent across training runs (van der Wal et al., 2025).",
+    "The robustness of a reported transition can be assessed using continuous metrics."
+   ],
+   "applications": [
+    "The in-context learning score of Olsson et al. (2022) is defined as the prediction loss at the 500th token of a context minus the loss at the 50th token. Each loss is dominated by factors unrelated to in-context learning, such as the model’s overall competence on short contexts; their difference isolates the gain the model derives from additional context. Evaluated at every checkpoint, the score changes abruptly over a narrow training window, the same window in which induction heads form (Section 10.3.5), while the aggregate loss curve registers the transition only as a small bump (Olsson et al., 2022).",
+    "Additionally, tracking benchmark accuracy across checkpoints can similarly reveal capability transitions, though at a coarser level."
+   ],
+   "limitations": [
+    "Schaeffer et al. (2023) argued that the emergent abilities reported by Wei et al. (2022) are artefacts of discontinuous metrics. For example, exact-match accuracy can change abruptly while the underlying log-likelihood improves smoothly.",
+    "Metric choice does explain some reported cases, and claimed emergent abilities can appear or disappear under different metrics of the same task."
+   ],
+   "related": [
+    "loss-curve-derivatives",
+    "per-example-decomposition",
+    "progress-measures"
+   ],
+   "mentioned_in": [
+    "sec:ld-induction-case"
+   ]
+  },
+  {
+   "id": "per-example-decomposition",
+   "name": "Per-Example Decomposition (POLCA)",
+   "family": "developmental-interpretability",
+   "sections": [
+    "per-example-decomposition."
+   ],
+   "definition": "Transitions invisible in every predefined metric can be recovered from the training data itself. POLCA decomposes changes in per-example loss along directions in the low-dimensional subspace where training occurs and clusters examples with similar loss trajectories; the clusters correspond to concepts learned abruptly at identifiable points in training, with no corresponding event in the aggregate curve (Kangaslahti et al., 2026).",
+   "assumptions": [],
+   "evaluation": [],
+   "applications": [],
+   "limitations": [],
+   "related": [
+    "capability-specific-metrics",
+    "latent-state-models"
+   ],
+   "mentioned_in": []
+  },
+  {
+   "id": "latent-state-models",
+   "name": "Latent State Models",
+   "family": "developmental-interpretability",
+   "sections": [
+    "per-example-decomposition."
+   ],
+   "definition": "At coarser granularity, latent state models fit a hidden Markov model over a vector of training metrics and segment the run into discrete phases, with transitions between hidden states flagging candidate developmental events (Hu et al., 2023).",
+   "assumptions": [],
+   "evaluation": [],
+   "applications": [],
+   "limitations": [],
+   "related": [
+    "per-example-decomposition",
+    "capability-specific-metrics"
+   ],
+   "mentioned_in": []
+  },
+  {
+   "id": "progress-measures",
+   "name": "Progress Measures",
+   "family": "developmental-interpretability",
+   "sections": [
+    "sec:ld-progress"
+   ],
+   "definition": "A progress measure is a scalar quantity defined on a model’s internals that varies continuously as a mechanism forms, and can therefore track the mechanism’s development before the behaviour it supports changes (Nanda et al., 2023).",
+   "assumptions": [
+    "Progress measures are typically derived from a mechanistic analysis of the completed mechanism at the end of training, then evaluated retroactively at earlier checkpoints."
+   ],
+   "evaluation": [],
+   "applications": [
+    "Mechanistic analysis of grokked networks recovers the learned algorithm (trigonometric identities implementing modular addition) and defines progress measures that track its formation: the generalising circuit grows gradually during the plateau, and the sharp change in test accuracy corresponds to a transition from a memorising solution to the completed generalising circuit followed by removal of the memorising components (Nanda et al., 2023)."
+   ],
+   "limitations": [
+    "Currently, nearly all demonstrations that changes in internals lead to changes in behaviour are retrospective. In these studies, researchers analyse the completed mechanism after training to identify a progress measure or precursor structure, then evaluate it backwards over saved checkpoints.",
+    "The standard setting in grokking experiments differs from language model pretraining in many ways, including dataset size, weight decay, and the number of epochs over the data. Current studies have not shown that existing quantitative conclusions transfer directly to large-scale pretraining."
+   ],
+   "related": [
+    "internal-precursors",
+    "capability-specific-metrics"
+   ],
+   "mentioned_in": [
+    "internal-precursors-as-early-warning.",
+    "sec:ld-intervening"
+   ]
+  },
+  {
    "id": "local-learning-coefficient",
    "name": "Local Learning Coefficient (LLC)",
    "family": "developmental-interpretability",
@@ -1308,6 +1522,184 @@
     "subsec:dev interp",
     "comparative-analysis-trade-offs-between-orientations"
    ]
+  },
+  {
+   "id": "forecasting-smaller-partial-runs",
+   "name": "Forecasting from Smaller and Partial Runs",
+   "family": "developmental-interpretability",
+   "sections": [
+    "forecasting-from-smaller-runs-and-partial-runs."
+   ],
+   "intro": "This approach forecasts a specific behaviour of a model before the full training run, such as whether a training sequence will be memorised, using smaller fully trained models or early checkpoints of the target run.",
+   "definition": "Biderman et al. (2023a) introduced the problem of forecasting whether a specific training sequence will be memorised by a model before that model is trained.",
+   "assumptions": [
+    "Scaling laws demonstrate that aggregate loss is predictable before training (Kaplan et al., 2020; Hoffmann et al., 2022), but phase transitions break this style of extrapolation for individual capabilities (Section 10.3). Forecasting therefore targets specific behaviours directly."
+   ],
+   "evaluation": [
+    "They argued that recall is the metric to optimise (a false negative means training a full model that leaks the sequence, while a false positive only discards a cheap trial run).",
+    "To assess the reliability of a forecast, researchers can compare training runs with different random seeds."
+   ],
+   "applications": [
+    "They established baselines that forecast from smaller fully trained models and from partially trained checkpoints of the target run, together with equi-compute recommendations for dividing a fixed forecasting budget between model size and tokens."
+   ],
+   "limitations": [
+    "van der Wal et al. (2025) found that capabilities generally emerge at similar stages and representations develop consistently across training runs, although some runs differ substantially. These exceptions highlight the uncertainty of forecasts based on a single training run.",
+    "However, prospective forecasting for broader capability transitions relevant to AI safety remains underdeveloped."
+   ],
+   "related": [
+    "forecasting-safety-behaviours",
+    "internal-precursors"
+   ],
+   "mentioned_in": [
+    "run-to-run-variance."
+   ]
+  },
+  {
+   "id": "forecasting-safety-behaviours",
+   "name": "Forecasting Safety-Relevant Behaviours",
+   "family": "developmental-interpretability",
+   "sections": [
+    "forecasting-safety-relevant-behaviours."
+   ],
+   "intro": "This line of work forecasts safety-relevant behaviours before they appear in the full model or in deployment: capability emergence, rare harmful behaviours, reward hacking during RLHF, and misalignment after fine-tuning.",
+   "definition": "Emergence can be forecast by intervening on the training trajectory. Fine-tuning on a target task shifts capability emergence towards less capable models. Fitting how this shift varies with the amount of fine-tuning data yields an emergence law.",
+   "assumptions": [],
+   "evaluation": [],
+   "applications": [
+    "Rare harmful behaviours can also be forecast statistically. The largest elicitation probabilities observed in a small sample of queries scale predictably with query volume. This relationship allows harmful-behaviour risks to be extrapolated across up to three orders of magnitude of deployment-scale query volume.",
+    "A model fitted to training-dynamics diagnostics predicts future reward hacking with a ROC-AUC of 0.82. These diagnostics include reward-model uncertainty, policy drift, and output diversity (Abahana et al., 2026).",
+    "Internal signals extend forecasting to fine-tuning outcomes. Activation-space persona features predict whether a fine-tuned model will exhibit emergent misalignment (Wang et al., 2026a)."
+   ],
+   "limitations": [],
+   "related": [
+    "forecasting-smaller-partial-runs",
+    "internal-precursors",
+    "persona-vectors"
+   ],
+   "mentioned_in": []
+  },
+  {
+   "id": "internal-precursors",
+   "name": "Internal Precursors as Early Warning",
+   "family": "developmental-interpretability",
+   "sections": [
+    "internal-precursors-as-early-warning."
+   ],
+   "definition": "Where a mechanism forms before the capability it supports is behaviourally expressed, monitoring internals can flag the capability earlier than behavioural evaluation.",
+   "assumptions": [],
+   "evaluation": [],
+   "applications": [
+    "The recall circuits that precede factual-knowledge acquisition (Zucchet et al., 2025a) and the syntactic attention structure that precedes the break in grammatical capabilities (Chen et al., 2024a) show that this lead time can exist; progress measures (Section 10.3.2) are the instrument that would exploit it."
+   ],
+   "limitations": [
+    "Currently, nearly all demonstrations that changes in internals lead to changes in behaviour are retrospective. In these studies, researchers analyse the completed mechanism after training to identify a progress measure or precursor structure, then evaluate it backwards over saved checkpoints.",
+    "However, prospective forecasting for broader capability transitions relevant to AI safety remains underdeveloped. Early-warning signals therefore require prospective validation before they can be considered reliable."
+   ],
+   "related": [
+    "progress-measures",
+    "forecasting-safety-behaviours"
+   ],
+   "mentioned_in": [
+    "sec:ld-progress"
+   ]
+  },
+  {
+   "id": "deep-ignorance",
+   "name": "Pretraining Data Filtering (Deep Ignorance)",
+   "family": "developmental-interpretability",
+   "sections": [
+    "pretraining-data-filtering-deep-ignorance."
+   ],
+   "definition": "Deep Ignorance filters proxies for biohazardous knowledge out of the pretraining corpus and trains 6.9-billion-parameter models on the filtered data (Section 10.1.1; O’Brien et al., 2026).",
+   "assumptions": [],
+   "evaluation": [
+    "Filtering and unlearning interventions therefore need to be evaluated on what the model does with the data that stays, not only on what it no longer does with the data that was removed."
+   ],
+   "applications": [
+    "The filtered models do not acquire the targeted knowledge, making it difficult for the unwanted capability to emerge through adversarial fine-tuning. In contrast, post-training unlearning may suppress the unwanted behaviour without removing the underlying knowledge.",
+    "A follow-up moves the filter from documents to tokens: individual tokens are labelled using sparse autoencoders and efficient classifiers trained on those labels, and filtering at token granularity removes the undesired capability at lower cost to desired capabilities than document-level filtering, with effectiveness increasing with model scale across the two orders of magnitude tested and filtered models remaining alignable afterwards (Rathi & Radford, 2026).",
+    "Similarly, the order in which different categories of training data are presented matters. Bruijns et al. (2026) found that, in an imbalanced pretraining curriculum where one task is shown before another, the model packs the tasks sequentially into separable circuits, resulting in more targeted subsequent refusal fine-tuning."
+   ],
+   "limitations": [
+    "Removing data from a training set does not act only on the removed data.",
+    "Token-level filtering is motivated by data attribution, but it remains unclear whether methods such as influence functions (Section 11) can reliably identify the relevant data."
+   ],
+   "related": [
+    "gradient-routing",
+    "train-time-intervention-loop"
+   ],
+   "mentioned_in": [
+    "from-correlation-to-causation.",
+    "open-questions."
+   ]
+  },
+  {
+   "id": "gradient-routing",
+   "name": "Gradient Routing",
+   "family": "developmental-interpretability",
+   "sections": [
+    "architectural-modification-gradient-routing."
+   ],
+   "definition": "Gradient routing is an architectural modification informed by learning dynamics: it constrains which parameters receive gradient updates for chosen concepts during training, localising the corresponding computation into designated regions of the network (Cloud et al., 2024).",
+   "assumptions": [],
+   "evaluation": [],
+   "applications": [
+    "The antecedent for this style of intervention is the smeared-key modification (Olsson et al., 2022), which showed that an architectural change can control when and whether a mechanism forms at all (Section 10.3.5)."
+   ],
+   "limitations": [
+    "Although the modification does not make the trained model safer on its own, it shapes where a mechanism forms so that later interventions, such as gating the designated region, become clean and localised."
+   ],
+   "related": [
+    "deep-ignorance",
+    "train-time-intervention-loop"
+   ],
+   "mentioned_in": []
+  },
+  {
+   "id": "persona-vectors",
+   "name": "Monitoring and Steering During Fine-Tuning (Persona Vectors)",
+   "family": "developmental-interpretability",
+   "sections": [
+    "monitoring-and-steering-during-fine-tuning."
+   ],
+   "intro": "Persona vectors are used to intervene on the fine-tuning process itself: to monitor trait changes during fine-tuning, to steer against them, and to flag training data that would induce a trait.",
+   "definition": "A persona vector is an activation-space direction corresponding to a character trait such as sycophancy, hallucination propensity, or malice, extractable automatically from a natural-language trait description (Chen et al., 2025b).",
+   "assumptions": [],
+   "evaluation": [],
+   "applications": [
+    "Intended and unintended personality changes during fine-tuning correlate strongly with movement along the relevant vector, which yields the monitoring instrument. Preventative steering along the vector during fine-tuning limits acquisition of the trait. Before fine-tuning, projecting training data onto the vector flags data that would induce the trait, at both the dataset and individual-sample levels (Chen et al., 2025b)."
+   ],
+   "limitations": [],
+   "related": [
+    "steering-vectors",
+    "mechanistic-monitoring",
+    "train-time-intervention-loop"
+   ],
+   "mentioned_in": []
+  },
+  {
+   "id": "train-time-intervention-loop",
+   "name": "Train-Time Intervention Loop",
+   "family": "developmental-interpretability",
+   "sections": [
+    "sec:ld-intervening"
+   ],
+   "intro": "The train-time intervention loop is the survey’s general pipeline for intervening in a training run while it is in progress. It has four steps: monitor, define an acceptable range, intervene, and re-evaluate.",
+   "definition": "Monitor a target quantity at checkpoints, such as a capability-specific metric (Section 10.3.1) or a progress measure on model internals (Section 10.3.2). Define the acceptable range for that quantity in advance, including the response to a breach. Intervene when the range is breached, such as by adjusting the data mixture or filtering out unwanted data, applying a targeted architectural or regularisation change, rolling back to a pre-breach checkpoint, and resuming under the adjusted setup. Re-evaluate the model after the intervention to verify that the targeted capability has been suppressed and does not re-emerge during further training.",
+   "assumptions": [],
+   "evaluation": [],
+   "applications": [],
+   "limitations": [
+    "No published system implements this loop end to end at scale. Instead, existing studies have demonstrated individual steps of the proposed workflow."
+   ],
+   "related": [
+    "capability-specific-metrics",
+    "progress-measures",
+    "deep-ignorance",
+    "gradient-routing",
+    "persona-vectors"
+   ],
+   "mentioned_in": []
   },
   {
    "id": "model-diffing",
@@ -1462,6 +1854,7 @@
    "sections": [
     "nonlinear-and-optimisation-based-steering."
    ],
+   "intro": "Optimisation-based steering constructs steering directions by directly optimising an objective over intermediate activations, such as task performance or suppressing undesirable outputs, instead of using closed-form contrastive constructions.",
    "definition": "Separately, optimisation-based methods construct steering directions by directly optimising objectives over intermediate activations, offering an alternative to closed-form constructions.",
    "assumptions": [],
    "evaluation": [],
@@ -1485,6 +1878,7 @@
     "stage-3-concept-removal.",
     "result."
    ],
+   "intro": "PISCES (Precise In-parameter Suppression for Concept EraSure) is a concept-erasure method that edits model parameters in three stages, aiming to remove a target concept rather than only suppress its expression, as conventional unlearning techniques do.",
    "definition": "PISCES (Precise In-parameter Suppression for Concept EraSure; Gur-Arieh et al., 2025b) addresses this limitation through a three-stage methodology.",
    "assumptions": [
     "Use sparse autoencoders (SAEs) with feature explanations (via the Automated Interpretability pipeline) to disentangle and identify features associated with the target concept c (e.g., “biological toxins”)"

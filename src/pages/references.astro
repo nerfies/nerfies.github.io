@@ -17,7 +17,7 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
     <p class="lede">All {manifest.references.length} works cited in the survey. Filter by author, title, venue or year.</p>
     <div style="display:grid;gap:.6rem;margin:1.2rem 0" data-pagefind-ignore>
       <label for="ref-q" class="visually-hidden">Filter references</label>
-      <input id="ref-q" class="input" type="search" placeholder="Filter, e.g. “sparse autoencoder”, “Geva”, “2024”" autocomplete="off" />
+      <span class="search-field"><input id="ref-q" class="input" type="search" placeholder="Filter, e.g. “sparse autoencoder”, “Geva”, “2024”" autocomplete="off" /></span>
       <div style="display:flex;gap:.4rem;flex-wrap:wrap" role="group" aria-label="Filter by publication status">
         <button class="chip on" data-tier="all" aria-pressed="true">All</button>
         <button class="chip" data-tier="established" aria-pressed="false">Peer-reviewed ({counts.established ?? 0})</button>

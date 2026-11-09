@@ -23,7 +23,7 @@ const NON_EXCERPT = new Set(['id', 'name', 'family', 'title', 'subtitle', 'headi
   'related_orientations', 'orientations', 'related', 'sections', 'mentioned_in', 'chapter_sections', 'formulas_tex', 'public_name', 'draft_name',
   'draft_sections', 'status', 'source', 'gaps', 'table_id', 'caption', 'columns', 'rows', 'table_row', 'section', 'source_chapter', 'motivation_section',
   'protocol_section', 'framework_limitations_section', 'decision_framework_section', 'tensions_section', 'comparison_table', 'method_guidance',
-  'risk_taxonomy', 'evidence_key', 'items', 'groups']);
+  'risk_taxonomy', 'evidence_key', 'items', 'groups', 'intro']);
 function* excerpts(o: any, key = ''): Generator<[string, string]> {
   if (NON_EXCERPT.has(key)) return;
   if (typeof o === 'string') { yield [key, o]; return; }

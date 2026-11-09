@@ -121,7 +121,7 @@ main { min-height: 70vh; }
 .eyebrow a { color: var(--ink-3); }
 .method-intro { font-size: 1.12rem; line-height: 1.55; margin: 1rem 0 .4rem; }
 .method-intro .label { margin-right: .35rem; }
-.lede { font-family: var(--serif); font-size: 1.3rem; line-height: 1.5; color: var(--ink-2); max-width: 40rem; font-weight: 300; }
+.lede { font-family: var(--serif); font-size: 1.3rem; line-height: 1.5; color: var(--ink-2); max-width: var(--measure-prose); font-weight: 300; }
 .muted { color: var(--ink-3); }
 .small { font-size: .86rem; }
 .scroll-x { overflow-x: auto; }
@@ -301,7 +301,7 @@ a.cite:hover { text-decoration: underline; }
 .stat span { font-size: .68rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: .07em; }
 .viz { border-top: 1.5px solid var(--hair-strong); padding-top: 1rem; min-width: 0; }
 .viz svg text { fill: var(--ink-2); font-family: var(--sans); }
-.method-note { border-top: 1px solid var(--hair); padding-top: 1.5rem; margin-top: 3rem; font-family: var(--serif); font-size: 1.05rem; color: var(--ink-2); max-width: var(--measure); }
+.method-note { border-top: 1px solid var(--hair); padding-top: 1.5rem; margin-top: 3rem; font-family: var(--serif); font-size: 1.05rem; color: var(--ink-2); max-width: var(--measure-prose); }
 .method-note h2 { font-size: 1.2rem; margin: 1.5rem 0 .4rem; color: var(--ink); }
 .method-note code { font-size: .8em; }
 

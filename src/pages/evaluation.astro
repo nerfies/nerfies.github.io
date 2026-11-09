@@ -16,6 +16,13 @@ const sec = (id: string) => sections([id])[0];
 const guide = e.method_guidance;
 // First sentence of each dimension's definition, verbatim, for the overview list.
 const firstSentence = (t: string) => t.match(/^.*?[.!?](?=\s+[A-Z]|$)/)?.[0] ?? t;
+// List items that open with a run-in label ("Metric choice: …", "Necessity test: …") show the label in bold,
+// as the paper does.
+const LABEL = /^([A-Z][^:.,;()]{1,40}):\s+/;
+const labelled = (t: string) => { const m = t.match(LABEL);
+  return m ? `<strong>${excerptHtml(m[1])}:</strong> ${excerptHtml(t.slice(m[0].length))}` : excerptHtml(t); };
+const limLabelled = e.framework_limitations.filter((t: string) => LABEL.test(t));
+const limOther = e.framework_limitations.filter((t: string) => !LABEL.test(t));
 // Examples and limitations already shown in full inside a metric's paragraph are not repeated.
 const ws = (s: string) => s.replace(/\s+/g, ' ').trim();
 const notInMetrics = (d: any) => { const shown = ws(d.metrics.flatMap((m: any) => [...m.before, ...m.after]).join(' '));
@@ -72,7 +79,8 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
 
       <section class="ov-section">
         <h3>Limitations of the framework</h3>
-        {e.framework_limitations.map((t: string) => <Excerpt text={t} />)}
+        <ul class="lim-list">{limLabelled.map((t: string) => <li set:html={labelled(t)} />)}</ul>
+        {limOther.map((t: string) => <Excerpt text={t} />)}
         <SectionLinks ids={[e.framework_limitations_section]} />
       </section>
 
@@ -105,7 +113,7 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
         ))}
         {d.protocol?.length > 0 && (<>
           <h3 class="dim-h3">Evaluation protocol</h3>
-          <ol class="protocol">{d.protocol.map((t: string) => <li set:html={excerptHtml(t)} />)}</ol>
+          <ol class="protocol">{d.protocol.map((t: string) => <li set:html={labelled(t)} />)}</ol>
         </>)}
 
         <div class="dim-grid">
@@ -131,7 +139,7 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
   .dim-tab { display: flex; gap: .5rem; align-items: center; border: 1px solid var(--rule); background: var(--surface); color: var(--ink-2); padding: .55rem .9rem; border-radius: 6px; cursor: pointer; font: inherit; font-size: .92rem; }
   .dim-tab[aria-selected="true"] { border-color: var(--accent); color: var(--ink); box-shadow: inset 0 -3px 0 var(--gold); }
   .dim-n { font-family: var(--mono); color: var(--gold); font-weight: 700; }
-  .dim-panel > * { max-width: var(--measure-prose); }
+  .dim-panel > :global(*) { max-width: var(--measure-prose); }  /* :global so quotes from <Excerpt> are capped too */
   .dim-panel > .dim-grid, .dim-panel > .ov-section { max-width: none; }
   .dim-head { display: flex; flex-wrap: wrap; gap: .8rem; align-items: baseline; }
   .dim-head h2 { margin: 0 0 .6rem; }
@@ -141,6 +149,8 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
   .metric h4 a { text-decoration: none; } .metric h4 a:hover { text-decoration: underline; }
   .formula { overflow-x: auto; background: var(--surface-2); padding: .2rem .8rem; margin: .4rem 0 .6rem; }
   .protocol li { margin: .45rem 0; line-height: 1.5; }
+  .lim-list { margin: 0 0 1rem; padding-left: 1.2rem; max-width: var(--measure-prose); }
+  .lim-list li { margin: .5rem 0; font-family: var(--serif); font-size: 1.08rem; line-height: 1.55; }
   .dim-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 2rem; }
   .dim-list { list-style: none; padding: 0; margin: 1.5rem 0 0; max-width: var(--measure-prose); counter-reset: dim; }
   .dim-list li { counter-increment: dim; display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); column-gap: .4rem; padding: .6rem 0; border-top: 1px solid var(--hair); }
@@ -148,6 +158,7 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
   .dim-link { font-weight: 600; }
   .dim-def { color: var(--ink-2); font-size: .95rem; line-height: 1.5; }
   .ov-section { margin-top: 2.5rem; }
+  .ov-section > :global(:not(.scroll-x)) { max-width: var(--measure-prose); }  /* text at reading width; the wide table keeps the full width */
   .ov-section h3 { font-size: 1.25rem; margin: 0 0 .6rem; }
   .steps > li { margin: .8rem 0; } .steps ul { margin: .3rem 0; font-size: .95rem; color: var(--ink-2); }
 </style>

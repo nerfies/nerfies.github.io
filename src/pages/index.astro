@@ -238,7 +238,8 @@ const jsonld = {
   .figure-row img { display: block; background: transparent; }
   @media (prefers-color-scheme: dark) { :global(:root:not([data-theme="light"])) .figure-row img { background: #fff; } }
   :global(:root[data-theme="dark"]) .figure-row img { background: #fff; }
-  .figure-row figcaption { font-size: .84rem; color: var(--ink-2); margin-top: .8rem; max-width: 46rem; }
+  /* No max-width: the caption spans the figure, which is as wide as its image. */
+  .figure-row figcaption { font-size: .84rem; color: var(--ink-2); margin-top: .8rem; }
   /* The taxonomy's citation text is small relative to the figure, so it uses the full content column. */
   .tax { max-width: none; }
   #cite { padding-bottom: 4rem; }

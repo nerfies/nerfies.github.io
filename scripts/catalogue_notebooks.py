@@ -28,7 +28,7 @@ GH = "TSGLAB/Interpretability_Survey_Safety"
 # approximate parameter counts (billions) for models referenced in the notebooks
 MODEL_SIZES = [
     (r"llama-3\.3-70b", 70), (r"qwen3\.6-27b", 27), (r"llama-2-13b", 13), (r"gemma-2-9b", 9), (r"llama-3\.1-8b", 8),
-    (r"qwen3-8b", 8), (r"qwen2\.5-7b", 7), (r"qwen3\.5-4b", 4), (r"gemma-2-2b", 2.6), (r"qwen3-1\.7b", 1.7),
+    (r"qwen3-8b", 8), (r"nla-qwen2\.5-7b-l20-av", 7.6), (r"nla-qwen2\.5-7b-l20-ar", 5.4), (r"qwen2\.5-7b", 7), (r"qwen3\.5-4b", 4), (r"gemma-2-2b", 2.6), (r"qwen3-1\.7b", 1.7),
     (r"gpt2-large", 0.774), (r"qwen2\.5-0\.5b", 0.5), (r"gpt2-medium", 0.355), (r"gpt2-small", 0.124), (r"^gpt2$", 0.124),
 ]
 GATED = [r"^meta-llama/", r"^google/gemma", r"^gemma-2"]
@@ -97,10 +97,22 @@ def key_methods(mds):
     return []
 
 
+def strip_comments(code):
+    """Drop whole-line comments, so a commented-out alternative (e.g. '# MODEL_NAME = "Qwen/…-27B"') is not read as used."""
+    return "\n".join(l for l in code.splitlines() if not l.lstrip().startswith("#"))
+
+
+MODEL_RE = r"""(?:kitft/nla-[\w.-]+|openai-community/gpt2(?:-(?:medium|large|xl))?|gpt2(?:-(?:small|medium|large|xl))?|google/[\w.-]+|EleutherAI/[\w.-]+|meta-llama/[\w.-]+|Qwen/[\w.-]+|gemma-2-[\w.-]+|pythia-[\w.-]+)"""
+
+
 def models_in(code):
-    found = set(re.findall(r"""["']((?:gpt2(?:-(?:small|medium|large|xl))?|google/[\w.-]+|EleutherAI/[\w.-]+|meta-llama/[\w.-]+|Qwen/[\w.-]+|gemma-2-[\w.-]+|pythia-[\w.-]+))["']""", code))
-    # SAE release names (e.g. gpt2-small-res-jb) are not models
-    return sorted(m for m in found if not re.search(r"-res-|-jb$|-att-", m))
+    code = strip_comments(code)
+    not_sae = lambda m: not re.search(r"-res-|-jb$|-att-", m)  # SAE release names (e.g. gpt2-small-res-jb) are not models
+    found = {m for m in re.findall(rf"""["']({MODEL_RE})["']""", code) if not_sae(m)}
+    # Models the notebook actually loads: passed to from_pretrained(…) or assigned to a model-name variable.
+    # A notebook that also lists other supported models (e.g. a table of layer counts) is judged by what it loads.
+    loaded = {m for m in re.findall(rf"""(?:from_pretrained(?:_no_processing)?\(\s*|\b[A-Za-z_]*(?:model|MODEL|_REPO)[A-Za-z_]*\s*=\s*)["']({MODEL_RE})["']""", code) if not_sae(m)}
+    return sorted(loaded or found)
 
 
 def size_of(model):
@@ -112,8 +124,10 @@ def size_of(model):
 
 
 def compute_estimate(models, code):
+    # Models a notebook loads are usually in memory together (e.g. a base and a chat model for diffing,
+    # or a verbaliser, a reconstructor and the base model for NLAs), so the tier follows their combined size.
     sizes = [s for s in (size_of(m) for m in models) if s]
-    biggest = max(sizes) if sizes else 0
+    biggest = round(sum(sizes), 3) if sizes else 0
     if not models:
         tier = "cpu"
     elif biggest <= 1.0:
@@ -123,16 +137,17 @@ def compute_estimate(models, code):
     else:
         tier = "large-gpu"
     return {"tier": tier, "largest_model_b": biggest or None,
-            "basis": "Estimated from the largest model loaded in the code" if models else "No pretrained model loaded (toy or synthetic data)"}
+            "basis": "Estimated from the combined size of the models loaded in the code" if models else "No pretrained model loaded (toy or synthetic data)"}
 
 
 def external_services(code):
+    code = strip_comments(code)
     svc = []
     if re.search(r"^\s*(import openai|from openai)|OpenAI\(", code, re.M):
         svc.append("OpenAI API key")
     if re.search(r"^\s*(import anthropic|from anthropic)|Anthropic\(", code, re.M):
         svc.append("Anthropic API key")
-    if re.search(r"login\(|HF_TOKEN|use_auth_token|token=", code):
+    if re.search(r"login\(|HF_TOKEN|use_auth_token|(?<![\w])token=", code):  # not e.g. alt_token=
         svc.append("Hugging Face token")
     if re.search(r"urllib\.request|httpx\.|requests\.get|urlopen\(", code):
         svc.append("Downloads data at runtime")
@@ -195,7 +210,12 @@ def main():
         models = models_in(code)
         missing = sorted({PYPI_NAMES.get(m, m) for m in imps if m not in LOCAL_OR_UNPUBLISHED}
                          - {r.replace("_", "-") for r in reqs} - {r for r in reqs} - {"IPython", "ipywidgets"})
-        local = sorted(set(imps) & LOCAL_OR_UNPUBLISHED)
+        # Modules that are not on PyPI. They block "Open in Colab" only if they sit beside the notebook in this
+        # repository (Colab opens the notebook alone), or if the notebook does not fetch them itself
+        # (pip install git+… or git clone, as the Jacobian-lens and NLA notebooks do).
+        fetched = bool(re.search(r"pip install[^\n]*git\+https|git clone|[\"']git[\"'],\s*[\"']clone[\"']", strip_comments(code)))
+        local = sorted(m for m in set(imps) & LOCAL_OR_UNPUBLISHED
+                       if (p.parent / m).exists() or (p.parent / f"{m}.py").exists() or not fetched)
         has_outputs = any(c.get("outputs") for c in nb["cells"] if c["cell_type"] == "code")
         colab = f"https://colab.research.google.com/github/{GH}/blob/{a.branch}/{rel}"
         src = f"https://github.com/{GH}/blob/{a.branch}/{rel}"
@@ -204,8 +224,11 @@ def main():
         if local:
             colab_blockers.append(f"imports modules not on PyPI or kept beside the notebook ({', '.join(local)}); clone the repo first")
         comp = compute_estimate(models, code)
+        gb = 2 * (comp["largest_model_b"] or 0)  # bf16 weights, about 2 GB per billion parameters
         if comp["tier"] == "large-gpu":
-            colab_blockers.append("largest model exceeds a free Colab GPU")
+            colab_blockers.append(f"the models it loads (about {gb:.0f} GB of weights in bf16) exceed a free Colab GPU")
+        elif gb > 13:  # a free Colab T4 has 15 GB, and activations need room too
+            colab_blockers.append(f"the models it loads (about {gb:.0f} GB of weights in bf16) need more memory than a free Colab T4 (15 GB)")
         items.append({
             "path": rel,
             "section_dir": p.parent.name,
@@ -219,7 +242,8 @@ def main():
             "gated_models": [m for m in models if any(re.search(g, m) for g in GATED)],
             "compute": comp,
             "uses_cuda_if_available": "cuda" in code,
-            "external": external_services(code),
+            # a gated model needs a Hugging Face token even if the code never calls login()
+            "external": external_services(code) + ([] if "Hugging Face token" in external_services(code) or not any(any(re.search(g, m) for g in GATED) for m in models) else ["Hugging Face token"]),
             "imports": imps,
             "deps_missing_from_requirements": missing,
             "local_modules": local,

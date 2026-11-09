@@ -1,7 +1,7 @@
 {
  "repo": "TSGLAB/Interpretability_Survey_Safety",
  "branch": "main",
- "commit": "0f8841a",
+ "commit": "9f1bea3",
  "notebooks": [
   {
    "path": "notebooks/01_core_hypotheses/01_linear_representation_hypothesis.ipynb",
@@ -19,7 +19,7 @@
    "compute": {
     "tier": "cpu",
     "largest_model_b": 0.124,
-    "basis": "Estimated from the largest model loaded in the code"
+    "basis": "Estimated from the combined size of the models loaded in the code"
    },
    "uses_cuda_if_available": true,
    "external": [],
@@ -40,9 +40,7 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/01_core_hypotheses/01_linear_representation_hypothesis.ipynb"
    },
    "colab_blockers": [],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   },
   {
    "path": "notebooks/01_core_hypotheses/02_superposition_hypothesis.ipynb",
@@ -78,9 +76,7 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/01_core_hypotheses/02_superposition_hypothesis.ipynb"
    },
    "colab_blockers": [],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   },
   {
    "path": "notebooks/01_core_hypotheses/03_privileged_access_hypothesis.ipynb",
@@ -100,10 +96,12 @@
    "compute": {
     "tier": "gpu",
     "largest_model_b": 8,
-    "basis": "Estimated from the largest model loaded in the code"
+    "basis": "Estimated from the combined size of the models loaded in the code"
    },
    "uses_cuda_if_available": true,
-   "external": [],
+   "external": [
+    "Hugging Face token"
+   ],
    "imports": [
     "model",
     "numpy",
@@ -111,9 +109,7 @@
     "transformers",
     "yaml"
    ],
-   "deps_missing_from_requirements": [
-    "pyyaml"
-   ],
+   "deps_missing_from_requirements": [],
    "local_modules": [
     "model"
    ],
@@ -126,11 +122,10 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/01_core_hypotheses/03_privileged_access_hypothesis.ipynb"
    },
    "colab_blockers": [
-    "imports modules not on PyPI or kept beside the notebook (model); clone the repo first"
+    "imports modules not on PyPI or kept beside the notebook (model); clone the repo first",
+    "the models it loads (about 16 GB of weights in bf16) need more memory than a free Colab T4 (15 GB)"
    ],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   },
   {
    "path": "notebooks/02_feature_extraction/01_sparse_autoencoders_basics.ipynb",
@@ -156,9 +151,7 @@
     "torch",
     "tqdm"
    ],
-   "deps_missing_from_requirements": [
-    "tqdm"
-   ],
+   "deps_missing_from_requirements": [],
    "local_modules": [],
    "cells": 12,
    "has_saved_outputs": false,
@@ -169,9 +162,7 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/02_feature_extraction/01_sparse_autoencoders_basics.ipynb"
    },
    "colab_blockers": [],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   },
   {
    "path": "notebooks/02_feature_extraction/02_transcoders.ipynb",
@@ -197,9 +188,7 @@
     "torch",
     "tqdm"
    ],
-   "deps_missing_from_requirements": [
-    "tqdm"
-   ],
+   "deps_missing_from_requirements": [],
    "local_modules": [],
    "cells": 8,
    "has_saved_outputs": false,
@@ -210,9 +199,7 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/02_feature_extraction/02_transcoders.ipynb"
    },
    "colab_blockers": [],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   },
   {
    "path": "notebooks/02_feature_extraction/03_crosscoders.ipynb",
@@ -238,9 +225,7 @@
     "torch",
     "tqdm"
    ],
-   "deps_missing_from_requirements": [
-    "tqdm"
-   ],
+   "deps_missing_from_requirements": [],
    "local_modules": [],
    "cells": 4,
    "has_saved_outputs": false,
@@ -251,9 +236,7 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/02_feature_extraction/03_crosscoders.ipynb"
    },
    "colab_blockers": [],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   },
   {
    "path": "notebooks/03_circuits/01_circuit_discovery.ipynb",
@@ -274,7 +257,7 @@
    "compute": {
     "tier": "cpu",
     "largest_model_b": 0.124,
-    "basis": "Estimated from the largest model loaded in the code"
+    "basis": "Estimated from the combined size of the models loaded in the code"
    },
    "uses_cuda_if_available": true,
    "external": [],
@@ -285,9 +268,7 @@
     "tqdm",
     "transformer_lens"
    ],
-   "deps_missing_from_requirements": [
-    "tqdm"
-   ],
+   "deps_missing_from_requirements": [],
    "local_modules": [],
    "cells": 19,
    "has_saved_outputs": true,
@@ -298,9 +279,7 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/03_circuits/01_circuit_discovery.ipynb"
    },
    "colab_blockers": [],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   },
   {
    "path": "notebooks/04_intermediate_computation/01_logit_lens.ipynb",
@@ -318,12 +297,15 @@
     "Know the limitations and motivation for the Tuned Lens",
     "(Advanced) Use the logit lens to interpret SAE features"
    ],
-   "models": [],
+   "models": [
+    "openai-community/gpt2",
+    "openai-community/gpt2-large"
+   ],
    "gated_models": [],
    "compute": {
     "tier": "cpu",
-    "largest_model_b": null,
-    "basis": "No pretrained model loaded (toy or synthetic data)"
+    "largest_model_b": 0.898,
+    "basis": "Estimated from the combined size of the models loaded in the code"
    },
    "uses_cuda_if_available": true,
    "external": [],
@@ -334,9 +316,7 @@
     "torch",
     "transformers"
    ],
-   "deps_missing_from_requirements": [
-    "sae-lens"
-   ],
+   "deps_missing_from_requirements": [],
    "local_modules": [],
    "cells": 28,
    "has_saved_outputs": true,
@@ -347,9 +327,7 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/04_intermediate_computation/01_logit_lens.ipynb"
    },
    "colab_blockers": [],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   },
   {
    "path": "notebooks/04_intermediate_computation/02_tuned_lens.ipynb",
@@ -367,13 +345,13 @@
     "Analyze what the learned transforms reveal"
    ],
    "models": [
-    "gpt2-large"
+    "openai-community/gpt2-large"
    ],
    "gated_models": [],
    "compute": {
     "tier": "cpu",
     "largest_model_b": 0.774,
-    "basis": "Estimated from the largest model loaded in the code"
+    "basis": "Estimated from the combined size of the models loaded in the code"
    },
    "uses_cuda_if_available": true,
    "external": [],
@@ -386,10 +364,7 @@
     "transformers",
     "tuned_lens"
    ],
-   "deps_missing_from_requirements": [
-    "tqdm",
-    "tuned-lens"
-   ],
+   "deps_missing_from_requirements": [],
    "local_modules": [],
    "cells": 18,
    "has_saved_outputs": true,
@@ -400,9 +375,7 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/04_intermediate_computation/02_tuned_lens.ipynb"
    },
    "colab_blockers": [],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   },
   {
    "path": "notebooks/04_intermediate_computation/03_jacobian_lens.ipynb",
@@ -414,18 +387,16 @@
    "key_methods": [],
    "learning_objectives": [],
    "models": [
-    "Qwen/Qwen3.5-4B",
-    "Qwen/Qwen3.6-27B"
+    "Qwen/Qwen3.5-4B"
    ],
    "gated_models": [],
    "compute": {
-    "tier": "large-gpu",
-    "largest_model_b": 27,
-    "basis": "Estimated from the largest model loaded in the code"
+    "tier": "gpu",
+    "largest_model_b": 4,
+    "basis": "Estimated from the combined size of the models loaded in the code"
    },
    "uses_cuda_if_available": true,
    "external": [
-    "Hugging Face token",
     "Downloads data at runtime"
    ],
    "imports": [
@@ -434,9 +405,7 @@
     "transformers"
    ],
    "deps_missing_from_requirements": [],
-   "local_modules": [
-    "jlens"
-   ],
+   "local_modules": [],
    "cells": 24,
    "has_saved_outputs": true,
    "preview_image": null,
@@ -445,13 +414,8 @@
     "colab": "https://colab.research.google.com/github/TSGLAB/Interpretability_Survey_Safety/blob/main/notebooks/04_intermediate_computation/03_jacobian_lens.ipynb",
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/04_intermediate_computation/03_jacobian_lens.ipynb"
    },
-   "colab_blockers": [
-    "imports modules not on PyPI or kept beside the notebook (jlens); clone the repo first",
-    "largest model exceeds a free Colab GPU"
-   ],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "colab_blockers": [],
+   "link_check": null
   },
   {
    "path": "notebooks/04_intermediate_computation/04_patchscopes.ipynb",
@@ -475,7 +439,7 @@
    "compute": {
     "tier": "cpu",
     "largest_model_b": 0.355,
-    "basis": "Estimated from the largest model loaded in the code"
+    "basis": "Estimated from the combined size of the models loaded in the code"
    },
    "uses_cuda_if_available": true,
    "external": [],
@@ -496,9 +460,7 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/04_intermediate_computation/04_patchscopes.ipynb"
    },
    "colab_blockers": [],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   },
   {
    "path": "notebooks/04_intermediate_computation/05_probing_classifiers.ipynb",
@@ -525,8 +487,8 @@
    "gated_models": [],
    "compute": {
     "tier": "cpu",
-    "largest_model_b": 0.5,
-    "basis": "Estimated from the largest model loaded in the code"
+    "largest_model_b": 0.624,
+    "basis": "Estimated from the combined size of the models loaded in the code"
    },
    "uses_cuda_if_available": true,
    "external": [
@@ -541,9 +503,7 @@
     "tqdm",
     "transformers"
    ],
-   "deps_missing_from_requirements": [
-    "tqdm"
-   ],
+   "deps_missing_from_requirements": [],
    "local_modules": [],
    "cells": 37,
    "has_saved_outputs": true,
@@ -554,9 +514,7 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/04_intermediate_computation/05_probing_classifiers.ipynb"
    },
    "colab_blockers": [],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   },
   {
    "path": "notebooks/04_intermediate_computation/06_activation_oracles.ipynb",
@@ -575,21 +533,13 @@
     "Evaluate oracle reliability across layers, prompts, and input types"
    ],
    "models": [
-    "Qwen/Qwen3-1.7B",
-    "Qwen/Qwen3-8B",
-    "google/gemma-2-9b-it",
-    "meta-llama/Llama-3.1-8B-Instruct",
-    "meta-llama/Llama-3.3-70B-Instruct"
+    "Qwen/Qwen3-8B"
    ],
-   "gated_models": [
-    "google/gemma-2-9b-it",
-    "meta-llama/Llama-3.1-8B-Instruct",
-    "meta-llama/Llama-3.3-70B-Instruct"
-   ],
+   "gated_models": [],
    "compute": {
-    "tier": "large-gpu",
-    "largest_model_b": 70,
-    "basis": "Estimated from the largest model loaded in the code"
+    "tier": "gpu",
+    "largest_model_b": 8,
+    "basis": "Estimated from the combined size of the models loaded in the code"
    },
    "uses_cuda_if_available": true,
    "external": [],
@@ -601,10 +551,7 @@
     "tqdm",
     "transformers"
    ],
-   "deps_missing_from_requirements": [
-    "peft",
-    "tqdm"
-   ],
+   "deps_missing_from_requirements": [],
    "local_modules": [],
    "cells": 48,
    "has_saved_outputs": true,
@@ -615,11 +562,9 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/04_intermediate_computation/06_activation_oracles.ipynb"
    },
    "colab_blockers": [
-    "largest model exceeds a free Colab GPU"
+    "the models it loads (about 16 GB of weights in bf16) need more memory than a free Colab T4 (15 GB)"
    ],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   },
   {
    "path": "notebooks/04_intermediate_computation/07_natural_language_autoencoders.ipynb",
@@ -631,13 +576,15 @@
    "key_methods": [],
    "learning_objectives": [],
    "models": [
-    "Qwen/Qwen2.5-7B-Instruct"
+    "Qwen/Qwen2.5-7B-Instruct",
+    "kitft/nla-qwen2.5-7b-L20-ar",
+    "kitft/nla-qwen2.5-7b-L20-av"
    ],
    "gated_models": [],
    "compute": {
-    "tier": "gpu",
-    "largest_model_b": 7,
-    "basis": "Estimated from the largest model loaded in the code"
+    "tier": "large-gpu",
+    "largest_model_b": 20.0,
+    "basis": "Estimated from the combined size of the models loaded in the code"
    },
    "uses_cuda_if_available": true,
    "external": [
@@ -650,13 +597,8 @@
     "numpy",
     "transformers"
    ],
-   "deps_missing_from_requirements": [
-    "httpx",
-    "huggingface-hub"
-   ],
-   "local_modules": [
-    "nla_inference"
-   ],
+   "deps_missing_from_requirements": [],
+   "local_modules": [],
    "cells": 19,
    "has_saved_outputs": true,
    "preview_image": null,
@@ -666,11 +608,9 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/04_intermediate_computation/07_natural_language_autoencoders.ipynb"
    },
    "colab_blockers": [
-    "imports modules not on PyPI or kept beside the notebook (nla_inference); clone the repo first"
+    "the models it loads (about 40 GB of weights in bf16) exceed a free Colab GPU"
    ],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   },
   {
    "path": "notebooks/05_representation_analysis/01_model_diffing.ipynb",
@@ -697,8 +637,8 @@
    ],
    "compute": {
     "tier": "gpu",
-    "largest_model_b": 2.6,
-    "basis": "Estimated from the largest model loaded in the code"
+    "largest_model_b": 5.2,
+    "basis": "Estimated from the combined size of the models loaded in the code"
    },
    "uses_cuda_if_available": true,
    "external": [
@@ -713,9 +653,7 @@
     "torch",
     "transformer_lens"
    ],
-   "deps_missing_from_requirements": [
-    "huggingface-hub"
-   ],
+   "deps_missing_from_requirements": [],
    "local_modules": [],
    "cells": 28,
    "has_saved_outputs": true,
@@ -726,9 +664,7 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/05_representation_analysis/01_model_diffing.ipynb"
    },
    "colab_blockers": [],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   },
   {
    "path": "notebooks/05_representation_analysis/02_knowledge_localization.ipynb",
@@ -746,7 +682,7 @@
    "compute": {
     "tier": "cpu",
     "largest_model_b": 0.355,
-    "basis": "Estimated from the largest model loaded in the code"
+    "basis": "Estimated from the combined size of the models loaded in the code"
    },
    "uses_cuda_if_available": true,
    "external": [],
@@ -768,9 +704,7 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/05_representation_analysis/02_knowledge_localization.ipynb"
    },
    "colab_blockers": [],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   },
   {
    "path": "notebooks/05_representation_analysis/03_representation_engineering.ipynb",
@@ -790,8 +724,8 @@
    ],
    "compute": {
     "tier": "large-gpu",
-    "largest_model_b": 13,
-    "basis": "Estimated from the largest model loaded in the code"
+    "largest_model_b": 13.124,
+    "basis": "Estimated from the combined size of the models loaded in the code"
    },
    "uses_cuda_if_available": true,
    "external": [
@@ -807,10 +741,7 @@
     "tqdm",
     "transformers"
    ],
-   "deps_missing_from_requirements": [
-    "python-dotenv",
-    "tqdm"
-   ],
+   "deps_missing_from_requirements": [],
    "local_modules": [],
    "cells": 19,
    "has_saved_outputs": true,
@@ -821,11 +752,9 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/05_representation_analysis/03_representation_engineering.ipynb"
    },
    "colab_blockers": [
-    "largest model exceeds a free Colab GPU"
+    "the models it loads (about 26 GB of weights in bf16) exceed a free Colab GPU"
    ],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   },
   {
    "path": "notebooks/06_safety_applications/01_concept_erasure.ipynb",
@@ -843,7 +772,7 @@
    "compute": {
     "tier": "cpu",
     "largest_model_b": 0.124,
-    "basis": "Estimated from the largest model loaded in the code"
+    "basis": "Estimated from the combined size of the models loaded in the code"
    },
    "uses_cuda_if_available": true,
    "external": [],
@@ -864,9 +793,7 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/06_safety_applications/01_concept_erasure.ipynb"
    },
    "colab_blockers": [],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   },
   {
    "path": "notebooks/06_safety_applications/02_steering_vectors.ipynb",
@@ -889,7 +816,7 @@
    "compute": {
     "tier": "cpu",
     "largest_model_b": 0.124,
-    "basis": "Estimated from the largest model loaded in the code"
+    "basis": "Estimated from the combined size of the models loaded in the code"
    },
    "uses_cuda_if_available": true,
    "external": [],
@@ -910,27 +837,33 @@
     "raw": "https://raw.githubusercontent.com/TSGLAB/Interpretability_Survey_Safety/main/notebooks/06_safety_applications/02_steering_vectors.ipynb"
    },
    "colab_blockers": [],
-   "link_check": {
-    "source_exists_on_github": true
-   }
+   "link_check": null
   }
  ],
  "requirements": [
   "datasets",
   "einops",
+  "httpx",
+  "huggingface-hub",
   "ipykernel",
   "ipywidgets",
   "jupyter",
   "matplotlib",
   "numpy",
   "pandas",
+  "peft",
   "plotly",
+  "python-dotenv",
+  "pyyaml",
+  "sae-lens",
   "scikit-learn",
   "scipy",
   "seaborn",
   "torch",
+  "tqdm",
   "transformer-lens",
-  "transformers"
+  "transformers",
+  "tuned-lens"
  ],
- "link_check_run": true
+ "link_check_run": false
 }

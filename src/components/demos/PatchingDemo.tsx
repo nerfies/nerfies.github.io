@@ -64,7 +64,7 @@ export default function PatchingDemo({ data }: { data: Data }) {
         </div>
         <div className="card">
           {view === 'resid' ? (
-            <p className="small">Information that separates clean from corrupted sits at the <b>second name</b> (position {data.tokens_example.findIndex((t, i) => i > 4 && t.trim() === data.example.S)}) in early layers, then moves to the <b>final token</b> in the later layers. Reading off where each row “lights up” shows where the circuit carries the signal.</p>
+            <p className="small">Information that separates clean from corrupted sits at the <b>repeated name</b>, the subject of the second clause (position {data.tokens_example.findIndex((t, i) => i > 4 && t.trim() === data.example.S)}), in early layers, then moves to the <b>final token</b> in the later layers. Reading off where each row “lights up” shows where the circuit carries the signal.</p>
           ) : (<>
             <h3 style={{ fontSize: '.95rem', margin: '0 0 .4rem' }}>Largest effects</h3>
             <table className="data small"><thead><tr><th>Head</th><th>activation</th><th>attribution</th></tr></thead>

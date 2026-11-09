@@ -24,7 +24,8 @@ const TIER: Record<string, [string, string]> = {
 // Resolve the notebook's "Survey Reference" against the ingested manuscript by
 // TITLE, because the notebooks were numbered against a different manuscript version.
 const allSecs = chapters.flatMap((c) => [{ num: c.num, title: c.title, href: url(`handbook/${c.slug}/`) }, ...c.sections.map((s) => ({ num: s.num, title: s.title, href: url(`handbook/${c.slug}/#${s.id}`) }))]);
-const words = (s: string) => new Set(s.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').match(/[a-z]{4,}/g) ?? []);
+// British and American spellings count as the same word (localization / localisation, analyzing / analysing)
+const words = (s: string) => new Set((s.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').match(/[a-z]{4,}/g) ?? []).map((w) => w.replace(/iz(e|ed|es|ing|ation|ations)$/, 'is$1')));
 function resolve(ref: string | null) {
   if (!ref) return null;
   const m = ref.match(/Section\s+([\d.]+)\s*[-—–:]\s*(.+)/);
@@ -35,7 +36,8 @@ function resolve(ref: string | null) {
   for (const s of allSecs) {
     const sw = words(s.title); const inter = [...w].filter((x) => sw.has(x)).length;
     const sc = inter / Math.max(1, Math.min(w.size, sw.size));
-    if (sc > score) { score = sc; best = s; }
+    // at least two shared words (or the only word of a one-word title), so a lone "autoencoders" does not match
+    if (inter >= Math.min(2, w.size) && sc > score) { score = sc; best = s; }
   }
   return { statedNum, title, match: score >= 0.5 ? best : null, numMismatch: !!(best && statedNum && score >= 0.5 && best.num !== statedNum) };
 }
@@ -86,10 +88,9 @@ const stats = { total: notebooks.length, cpu: notebooks.filter((n) => n.compute.
                         {draftHidden ? <span>{n.survey_reference.replace(/\(\[.*$/, '').replace(/\]\(.*$/, '').trim()}</span> : <>
                         {r.match ? <a href={r.match.href}>§{r.match.num} {r.match.title}</a> : <span>{n.survey_reference.replace(/\(\[.*$/, '').trim()}</span>}</>}
                       </>) : <span class="muted">—</span>}</dd>
-                    <dt>Learning outcomes</dt>
+                    {(n.learning_objectives.length > 0 || n.key_methods.length > 0) && <><dt>Learning outcomes</dt>
                     <dd>{n.learning_objectives.length ? <ul>{n.learning_objectives.slice(0, 5).map((o: string) => <li>{o.replace(/\*\*/g, '')}</li>)}</ul>
-                      : n.key_methods.length ? <><span class="small muted">Covers:</span><ul>{n.key_methods.map((o: string) => <li>{o.replace(/\*\*/g, '')}</li>)}</ul></>
-                      : <span class="muted">—</span>}</dd>
+                      : <><span class="small muted">Covers:</span><ul>{n.key_methods.map((o: string) => <li>{o.replace(/\*\*/g, '')}</li>)}</ul></>}</dd></>}
                     <dt>Models</dt><dd>{n.models.length ? n.models.join(', ') : 'None (toy or synthetic data)'}{n.gated_models.length > 0 && <span class="chip note" title="Requires accepting the model licence on Hugging Face">gated: {n.gated_models.join(', ')}</span>}</dd>
                     <dt>Dependencies</dt><dd class="small"><code>{n.imports.join(', ')}</code>
                       

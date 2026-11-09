@@ -664,7 +664,7 @@
      "In practice, it was also found that current mechanistic tools, such as activation oracles (Karvonen et al., 2026a), do not provide clear gains to interpretability agents (Karvonen et al., 2026b)."
     ],
     "worked_example": [
-     "Agents designed to audit and explain deceptive model behaviour may also provide an important layer of safety. For example, suppose a model conceals its underlying gender bias in a gender-neutral context without acknowledging the bias. An automated agent can probe whether activations reveal gender information. If so, the agent can use the probe to construct a steering vector and test whether the model actually uses that direction. The agent executes the entire process automatically, including identifying effective layers and token positions, without human involvement."
+     "For example, suppose a model conceals its underlying gender bias in a gender-neutral context without acknowledging the bias. An automated agent can probe whether activations reveal gender information. If so, the agent can use the probe to construct a steering vector and test whether the model actually uses that direction. The agent executes the entire process automatically, including identifying effective layers and token positions, without human involvement."
     ],
     "limitations": [
      "A behaviour-based agent does not explain the internal mechanisms of the target model, but its explanations can be valuable as well if they enable us to extrapolate model behaviour to the held-out set (see Dimension 5: Human Interpretability in Section 7.5.2).",
@@ -788,7 +788,7 @@
   "chapter_sections": [
    "sec:open_problems"
   ],
-  "intro": "14 Open Problems# This section identifies and describes key conceptual questions in mechanistic interpretability that guide the field’s future direction.",
+  "intro": "This section identifies and describes key conceptual questions in mechanistic interpretability that guide the field’s future direction.",
   "problems": [
    {
     "id": "when-necessary",

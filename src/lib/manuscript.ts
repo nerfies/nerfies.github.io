@@ -68,6 +68,43 @@ export function withBase(html: string): string {
   return html.replaceAll('@@BASE@@', base);
 }
 
+/** The balanced element (e.g. <section …>…</section>) that opens at h[start]. */
+function balanced(h: string, start: number, tag: string): string {
+  const re = new RegExp(`<(/?)${tag}\\b`, 'g'); re.lastIndex = start; let depth = 0, m;
+  while ((m = re.exec(h))) { depth += m[1] ? -1 : 1; if (depth === 0) return h.slice(start, h.indexOf('>', m.index) + 1); }
+  return h.slice(start);
+}
+
+/** The paper's boxes (definition, example, warning, …) inside a section, rendered for use outside the
+ *  handbook: same-chapter links point back to the chapter, and element ids are dropped so they do not
+ *  collide with anchors on the host page. Returns [] if the section is not found or is withheld. */
+export function paperBoxes(sectionId: string): { kind: string; title: string; html: string; text: string }[] {
+  for (const c of chapters) {
+    if (withheld.has(c.slug)) continue;
+    const h = findRaw(c.slug); const at = h?.indexOf(`<section id="${sectionId}"`) ?? -1;
+    if (!h || at < 0) continue;
+    const sec = balanced(h, at, 'section'); const out = [];
+    for (const m of sec.matchAll(/<div class="(\w+box)">/g)) {
+      const raw = balanced(sec, m.index!, 'div');
+      const title = unescape((raw.match(/<p class="box-title"><strong>([\s\S]*?)<\/strong><\/p>/)?.[1] ?? '').replace(/<[^>]+>/g, '')).trim();
+      const html = raw.replace(/ id="[^"]*"/g, '').replace(/href="#([^"]+)"/g, `href="@@BASE@@handbook/${c.slug}/#$1"`);
+      out.push({ kind: m[1], title, html: withBase(renderMath(html)),
+        text: unescape(raw.replace(/<\/(p|li|h\d)>/g, ' ').replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim() });
+    }
+    return out;
+  }
+  return [];
+}
+
+// Plain text of all published chapters, in reading order, built as tests/data.test.ts builds it.
+let PLAIN: string | null = null;
+/** Where a verbatim excerpt sits in the manuscript (reading order); -1 if not found. Used to order quotes as the paper does. */
+export function textPosition(excerpt: string): number {
+  PLAIN ??= chapters.filter((c) => !withheld.has(c.slug)).map((c) => findRaw(c.slug) ?? '')
+    .map((h) => unescape(h.replace(/<\/(p|li|h\d|tr|figcaption|caption)>/g, '\n').replace(/<[^>]+>/g, ''))).join('\n').replace(/\s+/g, ' ');
+  return PLAIN.indexOf(excerpt.replace(/\s+/g, ' ').trim());
+}
+
 export function chapterHtml(slug: string): string {
   const h = findRaw(slug);
   if (h === undefined) throw new Error(`chapter ${slug} not found`);

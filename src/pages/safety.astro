@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import DraftBanner from '../components/DraftBanner.astro';
 import Excerpt from '../components/Excerpt.astro';
-import { excerptHtml } from '../lib/manuscript';
+import { excerptHtml, paperBoxes, textPosition } from '../lib/manuscript';
 import SectionLinks from '../components/SectionLinks.astro';
 import ManuscriptNote from '../components/ManuscriptNote.astro';
 import { framework, sections, resolveMethod, notebooksFor } from '../lib/data';
@@ -17,6 +17,25 @@ const ORIENT_KEYS: [string, string][] = orientationsArxiv.orientations.map((o: a
 const orientLink = (name: string) => { const k = ORIENT_KEYS.find(([w]) => name.toLowerCase().includes(w)); return k ? url(`orientations/#${k[1]}`) : null; };
 const methodLinks = (names: string[]) => names.map((n) => ({ n, m: resolveMethod(n) }));
 const search = (o: any) => [o.name ?? o.title, o.definition ?? o.statement, ...(o.details ?? []), ...(o.evidence ?? []), ...(o.limitations ?? []), ...(o.methods ?? o.related_methods ?? [])].join(' ').toLowerCase();
+const ws = (x: string) => x.replace(/\\[()]/g, '').replace(/\s+/g, ' ').trim();
+// Each application, laid out as in the paper: its motivation and definition in reading order, the paper's
+// worked-example box shown in full, and the methodology box, evidence, advantages and limitations behind a toggle.
+// Quotes the boxes already contain are not repeated.
+const appViews = apps.map((a) => {
+  const boxes = paperBoxes(a.sections[a.sections.length - 1]);
+  const example = boxes.find((b) => b.kind === 'examplebox') ?? null;
+  const methodBoxes = boxes.filter((b) => b.kind !== 'examplebox');
+  const inBoxes = ws(boxes.map((b) => b.text).join(' '));
+  const fresh = (list?: string[]) => (list ?? []).filter((x) => !inBoxes.includes(ws(x)));
+  const lead = [a.definition, ...(a.motivation ?? [])].filter(Boolean).sort((x, y) => textPosition(x) - textPosition(y));
+  const evidence = fresh(a.evidence), advantages = fresh(a.advantages), limitations = fresh(a.limitations);
+  const parts = [methodBoxes.length && 'How it works', evidence.length && 'evidence', advantages.length && 'advantages', limitations.length && 'limitations'].filter(Boolean) as string[];
+  const summary = parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts.at(-1)}` : parts[0] ?? '';
+  return { a, lead, example, methodBoxes, evidence, advantages, limitations,
+    summary: summary.charAt(0).toUpperCase() + summary.slice(1),
+    // search text without TeX: a stray ">" in an attribute would end the tag and expose the rest as page text
+    searchText: [search(a), ...boxes.map((b) => b.text.replace(/\\[a-zA-Z]+|[\\{}^_$<>]/g, ' ').toLowerCase())].join(' ').replace(/\s+/g, ' ') };
+});
 import { draftHidden as __hide } from '../lib/manuscript';
 if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}held/`);
 ---
@@ -38,23 +57,32 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
       <p class="small muted" id="s-count" aria-live="polite"></p>
     </div>
 
-    <h2 data-kind-head="app">Safety applications</h2>
-    <Excerpt text={s.intro} section={sec(s.chapter_sections[0])} />
+    <div data-kind-head="app">
+      <h2>Safety applications</h2>
+      <Excerpt text={s.intro} section={sec(s.chapter_sections[0])} />
+    </div>
     <div class="entries">
-      {apps.map((a) => (
-        <article class="card entry" data-kind="app" id={a.id} data-search={search(a)}>
+      {appViews.map(({ a, lead, example, methodBoxes, evidence, advantages, limitations, summary, searchText }) => (
+        <article class="card entry" data-kind="app" id={a.id} data-search={searchText}>
           <div class="e-head"><h3>{a.name}</h3><span class="chip">Application</span></div>
           <SectionLinks ids={a.sections} label="Survey" />
-          <Excerpt text={a.definition} />
+          {lead.map((t: string) => <Excerpt text={t} />)}
           {a.methods?.length > 0 && <p class="small"><span class="muted">Methods:</span> {methodLinks(a.methods).map(({ n, m }, j) => <>{j > 0 && ', '}{m ? <a href={url(`methods/${m.id}/`)}>{n}</a> : n}</>)}</p>}
           {a.orientations?.length > 0 && <p class="small"><span class="muted">Orientations:</span> {a.orientations.map((n: string, j: number) => <>{j > 0 && ', '}{orientLink(n) ? <a href={orientLink(n)!}>{n}</a> : n}</>)}</p>}
-          <details>
-            <summary class="small">Evidence and limitations</summary>
-            {a.evidence?.length > 0 && <><h4>Evidence</h4>{a.evidence.map((t: string) => <Excerpt text={t} />)}</>}
-            {a.worked_example?.length > 0 && <><h4>Worked example <span class="label illustrative">Illustrative</span></h4>
-              {a.worked_example.map((t: string) => <Excerpt text={t} />)}</>}
-            {a.limitations?.length > 0 && <><h4>Limitations</h4>{a.limitations.map((t: string) => <Excerpt text={t} />)}</>}
-          </details>
+          {/* the worked example is the paper's own example box, shown in full */}
+          {example ? <div class="paper-boxes worked" set:html={example.html} />
+            : a.worked_example?.length > 0 && (
+              <div class="paper-boxes worked"><div class="examplebox"><p class="box-title"><strong>Worked example</strong></p>
+                {a.worked_example.map((t: string) => <Excerpt text={t} />)}</div></div>)}
+          {summary && (
+            <details>
+              <summary class="small">{summary}</summary>
+              {methodBoxes.length > 0 && <div class="paper-boxes">{methodBoxes.map((b) => <Fragment set:html={b.html} />)}</div>}
+              {evidence.length > 0 && <><h4>Evidence</h4>{evidence.map((t: string) => <Excerpt text={t} />)}</>}
+              {advantages.length > 0 && <><h4>Advantages</h4>{advantages.map((t: string) => <Excerpt text={t} />)}</>}
+              {limitations.length > 0 && <><h4>Limitations</h4>{limitations.map((t: string) => <Excerpt text={t} />)}</>}
+            </details>
+          )}
           {notebooksFor('applications', a.id).map((n) => <p class="small"><a href={n.links.colab}>Open “{n.title}” in Colab</a></p>)}
         </article>
       ))}
@@ -76,8 +104,10 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
       </article>
     </div>
 
-    <h2 data-kind-head="problem" style="margin-top:3rem">Open problems</h2>
-    <Excerpt text={framework.open_problems.intro} />
+    <div data-kind-head="problem">
+      <h2 style="margin-top:3rem">Open problems</h2>
+      <Excerpt text={framework.open_problems.intro} section={sec(framework.open_problems.chapter_sections?.[0])} />
+    </div>
     <div class="entries">
       {problems.map((p) => (
         <article class="card entry" data-kind="problem" id={p.id} data-search={search(p)}>
@@ -98,7 +128,9 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
   .e-head h3 { margin: 0; font-size: 1.08rem; }
   .entry h4 { font-size: .85rem; margin: 1rem 0 .3rem; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); }
   .entry[hidden] { display: none; }
-  details summary { cursor: pointer; color: var(--link); }
+  details summary { cursor: pointer; color: var(--link); margin-top: .6rem; }
+  .worked { margin-top: .4rem; }
+  [data-kind-head][hidden] { display: none; }
   .checklist { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); gap: .8rem; }
   .checklist fieldset { border: 1px solid var(--rule); border-radius: 6px; padding: .5rem .8rem; }
   .checklist legend { font-weight: 650; font-size: .9rem; padding: 0 .3rem; }

@@ -241,20 +241,26 @@ a.cite:hover { text-decoration: underline; }
 /* Boxes follow the paper's tcolorbox styles (main.tex): a frame in the box colour, a light tint of it
    behind the text, and the title on a tab in the full colour straddling the top edge.
    Colours are the paper's defblue, examplegreen, insightgold, theorypurple, warningred, practiceteal. */
-.prose :is(.definitionbox, .examplebox, .warningbox, .theorybox, .insightbox, .practicebox) {
+:is(.prose, .paper-boxes) :is(.definitionbox, .examplebox, .warningbox, .theorybox, .insightbox, .practicebox) {
   --box: #003366; margin: 2.4rem 0 1.8rem; padding: 1.1rem 1.2rem .9rem; font-size: 1.05rem;
   border: 1.5px solid color-mix(in srgb, var(--box), white var(--box-frame-white));
   background: color-mix(in srgb, var(--box) var(--box-tint), var(--box-base)); }
-.prose :is(.definitionbox, .examplebox, .warningbox, .theorybox, .insightbox, .practicebox) > :last-child { margin-bottom: 0; }
-.prose .definitionbox { --box: #003366; }
-.prose .examplebox { --box: #006633; }
-.prose .insightbox { --box: #996600; }
-.prose .theorybox { --box: #660099; }
-.prose .warningbox { --box: #990000; }
-.prose .practicebox { --box: #006666; }
-.prose p.box-title { display: table; margin: -1.95rem 0 .7rem; padding: .2rem .65rem; background: var(--box); color: #fff;
+:is(.prose, .paper-boxes) :is(.definitionbox, .examplebox, .warningbox, .theorybox, .insightbox, .practicebox) > :last-child { margin-bottom: 0; }
+:is(.prose, .paper-boxes) .definitionbox { --box: #003366; }
+:is(.prose, .paper-boxes) .examplebox { --box: #006633; }
+:is(.prose, .paper-boxes) .insightbox { --box: #996600; }
+:is(.prose, .paper-boxes) .theorybox { --box: #660099; }
+:is(.prose, .paper-boxes) .warningbox { --box: #990000; }
+:is(.prose, .paper-boxes) .practicebox { --box: #006666; }
+:is(.prose, .paper-boxes) p.box-title { display: table; margin: -1.95rem 0 .7rem; padding: .2rem .65rem; background: var(--box); color: #fff;
   font: 600 .9rem/1.4 var(--sans); }
-.prose p.box-title a { color: inherit; text-decoration-color: color-mix(in srgb, #fff 60%, transparent); }
+:is(.prose, .paper-boxes) p.box-title a { color: inherit; text-decoration-color: color-mix(in srgb, #fff 60%, transparent); }
+/* Paper boxes shown outside the handbook (e.g. the safety page's worked examples) */
+.paper-boxes :is(.definitionbox, .examplebox, .warningbox, .theorybox, .insightbox, .practicebox) { margin: 2rem 0 1rem; font-family: var(--serif); line-height: 1.55; }
+.paper-boxes h4 { font-family: var(--sans); font-size: .92rem; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--ink); margin: 1rem 0 .3rem; }
+.paper-boxes p { margin: 0 0 .6rem; }
+.paper-boxes ul, .paper-boxes ol { margin: .3rem 0 .6rem; padding-left: 1.3rem; }
+.paper-boxes .math-display { overflow-x: auto; overflow-y: hidden; margin: .6rem 0; }
 .prose .unrendered { display: block; padding: 1rem 0; border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); font-family: var(--sans); font-size: .9rem; color: var(--ink-2); }
 .prose .math-error { color: var(--tier-flagged); }
 .prose :target { scroll-margin-top: 2rem; }

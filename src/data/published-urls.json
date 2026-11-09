@@ -20,6 +20,10 @@
   {
    "date": "2026-11-08",
    "note": "16 learning-dynamics methods added to the methods explorer (§10)"
+  },
+  {
+   "date": "2026-11-08",
+   "note": "Evaluation: Overview tab"
   }
  ],
  "pages": {
@@ -43,16 +47,19 @@
    "dim-tabs",
    "faithfulness",
    "human-interpretability",
+   "overview",
    "panel-causal-validity",
    "panel-completeness",
    "panel-faithfulness",
    "panel-human-interpretability",
+   "panel-overview",
    "panel-stability",
    "stability",
    "tab-causal-validity",
    "tab-completeness",
    "tab-faithfulness",
    "tab-human-interpretability",
+   "tab-overview",
    "tab-stability"
   ],
   "handbook/": [],

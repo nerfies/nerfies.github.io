@@ -35,21 +35,53 @@
      "Effect-Size Error",
      "Counterfactual Effect Recovery"
     ],
-    "how_measured": [
-     "Let a(S,x) denote the importance score assigned by an interpretability method to components S for a sample x \\sim B:",
-     "High agreement indicates that the attribution consistently reflects the identified components’ causal effects on behaviour B.",
-     "A low value indicates good calibration between estimated and actual intervention effects. If the two quantities are not naturally on the same scale, we may use normalised or rank-based measures instead.",
-     "A value near 1 indicates that the patching recovers much of the behaviour, while a value near 0 indicates little effect. This metric has been widely used in the circuit discovery literature (Hanna et al., 2024; Zhang et al., 2025b; Syed et al., 2024).",
+    "metrics": [
+     {
+      "name": "Intervention-Effect Agreement",
+      "section": "intervention-effect-agreement.",
+      "before": [
+       "Let a(S,x) denote the importance score assigned by an interpretability method to components S for a sample x \\sim B:"
+      ],
+      "formulas_tex": [
+       "\\mathrm{EffectAgreement} = \\rho_{x \\sim B}\\!\\left( a(S,x), s(S,x) \\right)"
+      ],
+      "after": [
+       "where \\rho may be Pearson or Spearman correlation. High agreement indicates that the attribution consistently reflects the identified components’ causal effects on behaviour B."
+      ]
+     },
+     {
+      "name": "Effect-Size Error",
+      "section": "effect-size-error.",
+      "before": [
+       "When attribution scores are calculated to estimate intervention effects, we measure the effect-size error as:"
+      ],
+      "formulas_tex": [
+       "\\mathrm{EffectError} = \\mathbb{E}_{x \\sim B} \\left[ \\left| a(S,x)-s(S,x) \\right| \\right]"
+      ],
+      "after": [
+       "A low value indicates good calibration between estimated and actual intervention effects. If the two quantities are not naturally on the same scale, we may use normalised or rank-based measures instead."
+      ]
+     },
+     {
+      "name": "Counterfactual Effect Recovery",
+      "section": "counterfactual-effect-recovery.",
+      "before": [
+       "Consider inputs x_1 \\sim B' and x_2 \\sim B, where B' is a reference behaviour (e.g., honesty) and B is the behaviour of interest (e.g., sycophancy). Patching S from x_2 into the computation on x_1 yields"
+      ],
+      "formulas_tex": [
+       "\\mathrm{CFRecovery}(S;B,B') = \\mathbb{E}_{x_1 \\sim B', x_2 \\sim B} \\frac{ M\\!\\left( f_\\theta\\!\\left( x_{1,[S \\leftarrow h_S(x_2)]} \\right) \\right) - M\\!\\left(f_\\theta(x_1)\\right) }{ M\\!\\left(f_\\theta(x_2)\\right) - M\\!\\left(f_\\theta(x_1)\\right) }"
+      ],
+      "after": [
+       "A value near 1 indicates that the patching recovers much of the behaviour, while a value near 0 indicates little effect. This metric has been widely used in the circuit discovery literature (Hanna et al., 2024; Zhang et al., 2025b; Syed et al., 2024). However, the denominator of this metric can be close to 0, and M\\!\\left( f_\\theta\\!\\left( x_{1,[S \\leftarrow h_S(x_2)]} \\right) \\right) empirically can exceed M\\!\\left(f_\\theta(x_2)\\right) or fall below M\\!\\left(f_\\theta(x_1)\\right). These may cause this metric to take values much larger than 1 or below 0, complicating the analysis. Recent work has proposed an alternative metric that bounds the value between 0 and 1 (Wu & Barez, 2026)."
+      ]
+     }
+    ],
+    "protocol": [
      "Apply the method to acquire attribution scores a(S,x) of model components and select those of interest (e.g., components with high scores).",
      "Measure the corresponding ground-truth intervention effects s(S,x).",
      "Compare them using correlation, error, or rank agreement.",
      "Evaluate how much of the behavioural difference between clean and corrupted inputs can be recovered by patching the identified components.",
      "Report results across a diverse set of inputs with uncertainty estimates."
-    ],
-    "formulas_tex": [
-     "\\mathrm{EffectAgreement} = \\rho_{x \\sim B}\\!\\left( a(S,x), s(S,x) \\right)",
-     "\\mathrm{EffectError} = \\mathbb{E}_{x \\sim B} \\left[ \\left| a(S,x)-s(S,x) \\right| \\right]",
-     "\\mathrm{CFRecovery}(S;B,B') = \\mathbb{E}_{x_1 \\sim B', x_2 \\sim B} \\frac{ M\\!\\left( f_\\theta\\!\\left( x_{1,[S \\leftarrow h_S(x_2)]} \\right) \\right) - M\\!\\left(f_\\theta(x_1)\\right) }{ M\\!\\left(f_\\theta(x_2)\\right) - M\\!\\left(f_\\theta(x_1)\\right) }"
     ],
     "examples": [],
     "limitations": [
@@ -76,21 +108,51 @@
      "Behavioural Coverage",
      "Unexplained Variance"
     ],
-    "how_measured": [
-     "For methods that reconstruct model activations (e.g., SAEs and CLTs), after replacing the target component’s activations with the reconstructions, we measure the fraction of the original model performance that is recovered:",
-     "A value near 1 indicates that the reconstruction preserves most of the information.",
-     "Across input prompts x \\sim B, we measure the fraction for which the identified components have a meaningful intervention effect:",
-     "Higher coverage indicates that the identified components account for the behaviour across a larger fraction of inputs.",
-     "For methods that reconstruct activations of the components, we measure the fraction of unexplained activation variance as:",
-     "Lower values indicate that the identified components explain a larger fraction of the variance in the original activations.",
+    "metrics": [
+     {
+      "name": "Loss Recovery",
+      "section": "loss-recovery.",
+      "before": [
+       "For methods that reconstruct model activations (e.g., SAEs and CLTs), after replacing the target component’s activations with the reconstructions, we measure the fraction of the original model performance that is recovered:"
+      ],
+      "formulas_tex": [
+       "\\mathrm{LR} = \\frac{ \\mathcal{L}_{\\mathrm{reconstructed}} - \\mathcal{L}_{\\mathrm{ablated}} }{ \\mathcal{L}_{\\mathrm{original}} - \\mathcal{L}_{\\mathrm{ablated}} }"
+      ],
+      "after": [
+       "where \\mathcal{L}_{\\mathrm{original}} is the downstream test loss of the original model, \\mathcal{L}_{\\mathrm{reconstructed}} is the loss after replacing the original activations with reconstructions, and \\mathcal{L}_{\\mathrm{ablated}} is the baseline loss where activations are replaced with zero ablation, mean ablation, or Gaussian noise matching the layer statistics. A value near 1 indicates that the reconstruction preserves most of the information. Similar to the vanilla Counterfactual Effect Recovery metric discussed above, this metric can take arbitrary values. A simple solution is to develop a bounded variant, as has been done for Counterfactual Effect Recovery (Wu & Barez, 2026)."
+      ]
+     },
+     {
+      "name": "Behavioural Coverage",
+      "section": "behavioural-coverage.",
+      "before": [
+       "Across input prompts x \\sim B, we measure the fraction for which the identified components have a meaningful intervention effect:"
+      ],
+      "formulas_tex": [
+       "\\mathrm{Coverage}(S,B) = \\mathbb{E}_{x \\sim B} \\left[ \\mathbbm{1} \\left( |s(S,x)| \\geq \\tau \\right) \\right]"
+      ],
+      "after": [
+       "where s(S,x) is the intervention effect defined above and \\tau specifies the minimum effect considered meaningful. Higher coverage indicates that the identified components account for the behaviour across a larger fraction of inputs."
+      ]
+     },
+     {
+      "name": "Unexplained Variance",
+      "section": "unexplained-variance.",
+      "before": [
+       "For methods that reconstruct activations of the components, we measure the fraction of unexplained activation variance as:"
+      ],
+      "formulas_tex": [
+       "\\mathrm{UV}(S,B) = \\frac{ \\mathbb{E}_{x \\sim B} \\left[ \\|h(x)-\\hat{h}_S(x)\\|_2^2 \\right] }{ \\mathbb{E}_{x \\sim B} \\left[ \\|h(x)-\\bar{h}_B\\|_2^2 \\right] }"
+      ],
+      "after": [
+       "where \\bar{h}_B = \\mathbb{E}_{x \\sim B}[h(x)], h(x) is the original model activation, and \\hat{h}_S(x) is its reconstruction from the identified components S. Lower values indicate that the identified components explain a larger fraction of the variance in the original activations."
+      ]
+     }
+    ],
+    "protocol": [
      "Report behavioural coverage using the intervention effects s(S,x).",
      "Report reconstruction-based metrics such as loss recovery and unexplained variance if applicable.",
      "Analyse inputs of the behaviour for which the identified components do not provide good coverage or reconstruction."
-    ],
-    "formulas_tex": [
-     "\\mathrm{LR} = \\frac{ \\mathcal{L}_{\\mathrm{reconstructed}} - \\mathcal{L}_{\\mathrm{ablated}} }{ \\mathcal{L}_{\\mathrm{original}} - \\mathcal{L}_{\\mathrm{ablated}} }",
-     "\\mathrm{Coverage}(S,B) = \\mathbb{E}_{x \\sim B} \\left[ \\mathbbm{1} \\left( |s(S,x)| \\geq \\tau \\right) \\right]",
-     "\\mathrm{UV}(S,B) = \\frac{ \\mathbb{E}_{x \\sim B} \\left[ \\|h(x)-\\hat{h}_S(x)\\|_2^2 \\right] }{ \\mathbb{E}_{x \\sim B} \\left[ \\|h(x)-\\bar{h}_B\\|_2^2 \\right] }"
     ],
     "examples": [],
     "limitations": [
@@ -117,20 +179,50 @@
      "Hyperparameter Sensitivity",
      "Paraphrase Consistency"
     ],
-    "how_measured": [
-     "We train or apply the interpretability method K times under different random seeds.",
-     "We measure the sensitivity of mechanistic analyses or methods under reasonable hyperparameter variations.",
-     "Lower values indicate that the finding is less sensitive to hyperparameter choices and therefore more robust.",
-     "We measure the consistency of explanations or attributions across \\mathcal{P}(x).",
-     "The score lies in [0, 1]. A value of 1 indicates that the intervention effect is identical across all paraphrases.",
+    "metrics": [
+     {
+      "name": "Cross-Seed Agreement",
+      "section": "cross-seed-agreement.",
+      "before": [
+       "We train or apply the interpretability method K times under different random seeds. Let \\mathcal{F}_i denote the set of features or mechanisms, such as SAE features and circuits, discovered under seed i. We measure the cross-seed agreement as:"
+      ],
+      "formulas_tex": [
+       "\\text{Seed-Stability} = \\frac{1}{K(K-1)} \\sum_{i \\neq j} \\text{Align}(\\mathcal{F}_i, \\mathcal{F}_j)"
+      ],
+      "after": [
+       "where \\text{Align}(\\cdot) measures similarity between sets. For example, Paulo & Belrose (2026) calculate the Hungarian matching between two sets of SAE features based on their pairwise cosine similarities."
+      ]
+     },
+     {
+      "name": "Hyperparameter Sensitivity",
+      "section": "hyperparameter-sensitivity.",
+      "before": [
+       "We measure the sensitivity of mechanistic analyses or methods under reasonable hyperparameter variations. Let \\Omega denote the set of evaluated hyperparameter configurations and \\text{Metric}(\\omega) denote the experimental result (e.g., a method’s performance) under a configuration \\omega \\in \\Omega. We calculate the hyperparameter sensitivity as:"
+      ],
+      "formulas_tex": [
+       "\\text{HP-Sensitivity} = \\frac{ \\max_{\\omega \\in \\Omega} \\text{Metric}(\\omega) - \\min_{\\omega \\in \\Omega} \\text{Metric}(\\omega) }{ \\mathbb{E}_{\\omega \\in \\Omega}[\\text{Metric}(\\omega)] }"
+      ],
+      "after": [
+       "Lower values indicate that the finding is less sensitive to hyperparameter choices and therefore more robust."
+      ]
+     },
+     {
+      "name": "Paraphrase Consistency",
+      "before": [
+       "For each input x \\sim B, let \\mathcal{P}(x) = \\{x^{(1)}, \\dots, x^{(K)}\\} denote a set of semantics-preserving paraphrases of x. We measure the consistency of explanations or attributions across \\mathcal{P}(x). For example, we can measure whether the intervention effect of S remains consistent:"
+      ],
+      "formulas_tex": [
+       "\\text{Para-Consistency}(S, B) = \\mathbb{E}_{x \\sim B}\\left[ 1 - \\frac{\\mathrm{Var}_{x' \\in \\mathcal{P}(x)}\\left[s(S, x')\\right]}{\\mathbb{E}_{x' \\in \\mathcal{P}(x)}\\left[s(S, x')^2\\right]} \\right]"
+      ],
+      "after": [
+       "The score lies in [0, 1]. A value of 1 indicates that the intervention effect is identical across all paraphrases. A value of 0 indicates that, for each x, the expected intervention effect, i.e., \\mathbb{E}_{x' \\in \\mathcal{P}(x)}s(S, x'), is 0."
+      ]
+     }
+    ],
+    "protocol": [
      "Execute the interpretability method with several random seeds and compute alignment of the discovered units or findings across seeds.",
      "Analyse which findings are stable across all seeds and which ones are seed-specific. Key claims need to remain consistent under subsequent tests on hyperparameter variation and input paraphrasing, if applicable.",
      "Distinguish robust findings from fragile ones and report both of them."
-    ],
-    "formulas_tex": [
-     "\\text{Seed-Stability} = \\frac{1}{K(K-1)} \\sum_{i \\neq j} \\text{Align}(\\mathcal{F}_i, \\mathcal{F}_j)",
-     "\\text{HP-Sensitivity} = \\frac{ \\max_{\\omega \\in \\Omega} \\text{Metric}(\\omega) - \\min_{\\omega \\in \\Omega} \\text{Metric}(\\omega) }{ \\mathbb{E}_{\\omega \\in \\Omega}[\\text{Metric}(\\omega)] }",
-     "\\text{Para-Consistency}(S, B) = \\mathbb{E}_{x \\sim B}\\left[ 1 - \\frac{\\mathrm{Var}_{x' \\in \\mathcal{P}(x)}\\left[s(S, x')\\right]}{\\mathbb{E}_{x' \\in \\mathcal{P}(x)}\\left[s(S, x')^2\\right]} \\right]"
     ],
     "examples": [
      "For example, Paulo & Belrose (2026) calculate the Hungarian matching between two sets of SAE features based on their pairwise cosine similarities."
@@ -157,22 +249,52 @@
      "Sufficiency Score",
      "Specificity"
     ],
-    "how_measured": [
-     "Necessity measures the fraction of the model’s performance on behaviour B that is lost when S is ablated (i.e., its activations are replaced with some reference values).",
-     "A higher value indicates that S is necessary for the behaviour.",
-     "Sufficiency measures how much of the original behaviour is achieved when only S is active (i.e., activations of all components outside S are replaced with some reference values).",
-     "A high value indicates that S alone implements much of the behaviour.",
-     "Specificity measures the effect on non-target behaviours by interventions on S.",
-     "A high value indicates that the causal effect of S is specific to B.",
+    "metrics": [
+     {
+      "name": "Necessity Score",
+      "section": "necessity-score.",
+      "before": [
+       "Necessity measures the fraction of the model’s performance on behaviour B that is lost when S is ablated (i.e., its activations are replaced with some reference values). It is calculated as:"
+      ],
+      "formulas_tex": [
+       "\\mathrm{Necessity}(S,B) = 1- \\frac{ \\mathbb{E}_{x\\sim B} \\left[ M\\!\\left( f_\\theta\\!\\left( x_{[S\\leftarrow\\tilde h_S]} \\right) \\right) \\right] }{ \\mathbb{E}_{x\\sim B} \\left[ M\\!\\left(f_\\theta(x)\\right) \\right] }"
+      ],
+      "after": [
+       "A higher value indicates that S is necessary for the behaviour."
+      ]
+     },
+     {
+      "name": "Sufficiency Score",
+      "section": "sufficiency-score.",
+      "before": [
+       "Let \\bar S denote the components outside S. Sufficiency measures how much of the original behaviour is achieved when only S is active (i.e., activations of all components outside S are replaced with some reference values). It is calculated as:"
+      ],
+      "formulas_tex": [
+       "\\mathrm{Sufficiency}(S,B) = \\frac{ \\mathbb{E}_{x\\sim B} \\left[ M\\!\\left( f_\\theta\\!\\left( x_{[\\bar S \\leftarrow \\tilde h_{\\bar S}]} \\right) \\right) \\right] }{ \\mathbb{E}_{x\\sim B} \\left[ M\\!\\left(f_\\theta(x)\\right) \\right] }"
+      ],
+      "after": [
+       "A high value indicates that S alone implements much of the behaviour."
+      ]
+     },
+     {
+      "name": "Specificity",
+      "section": "specificity.",
+      "before": [
+       "Specificity measures the effect on non-target behaviours by interventions on S. It is calculated as:"
+      ],
+      "formulas_tex": [
+       "\\mathrm{Specificity}(S,B) = \\frac{ |s(S,B)| }{ \\sum_{B' \\in \\mathcal{B}} |s(S,B')| }"
+      ],
+      "after": [
+       "where \\mathcal{B} contains the target behaviour together with a set of relevant control behaviours. A high value indicates that the causal effect of S is specific to B."
+      ]
+     }
+    ],
+    "protocol": [
      "Necessity test: Ablate S and measure the resulting degradation on behaviour B. Compare against ablating random components of matched size.",
      "Sufficiency test: Replace components outside S with reference activations and measure how much of behaviour B is preserved. Compare against random component sets of matched size.",
      "Interchange test: Swap activations of S between inputs representing different behaviours and test whether the model output follows the intervention.",
      "Specificity test: Measure intervention effects on a set of non-target behaviours and examine whether the effect is specific to B."
-    ],
-    "formulas_tex": [
-     "\\mathrm{Necessity}(S,B) = 1- \\frac{ \\mathbb{E}_{x\\sim B} \\left[ M\\!\\left( f_\\theta\\!\\left( x_{[S\\leftarrow\\tilde h_S]} \\right) \\right) \\right] }{ \\mathbb{E}_{x\\sim B} \\left[ M\\!\\left(f_\\theta(x)\\right) \\right] }",
-     "\\mathrm{Sufficiency}(S,B) = \\frac{ \\mathbb{E}_{x\\sim B} \\left[ M\\!\\left( f_\\theta\\!\\left( x_{[\\bar S \\leftarrow \\tilde h_{\\bar S}]} \\right) \\right) \\right] }{ \\mathbb{E}_{x\\sim B} \\left[ M\\!\\left(f_\\theta(x)\\right) \\right] }",
-     "\\mathrm{Specificity}(S,B) = \\frac{ |s(S,B)| }{ \\sum_{B' \\in \\mathcal{B}} |s(S,B')| }"
     ],
     "examples": [
      "The MI community has developed several benchmarks that examine the causal validity of interpretability methods. For example, MIB (Mueller et al., 2025) provides standardised tasks for assessing discovered circuits and causal variables (e.g., features); AxBench (Wu et al., 2025b) evaluates methods’ ability to steer models towards given concepts; RAVEL (Huang et al., 2024) investigates methods’ ability to localise features of given concepts by using interchange interventions to validate discovered features; and SAEBench (Karvonen et al., 2025) evaluates SAEs specifically, pairing reconstruction metrics with downstream intervention tasks such as gender bias erasure."
@@ -199,19 +321,48 @@
      "Debugging Utility",
      "Consistency of Interpretation"
     ],
-    "how_measured": [
-     "Explanation Utility. This metric tests whether humans can predict model behaviour more accurately in the held-out set based on the explanation.",
-     "Debugging Utility. This metric examines whether the explanations help humans identify and repair model errors, such as incorrect outputs or misaligned behaviour, in the wild.",
-     "Consistency of Interpretation. This metric inspects whether different humans interpret the same explanation consistently.",
+    "metrics": [
+     {
+      "name": "Explanation Utility",
+      "section": "explanation-utility.",
+      "before": [
+       "This metric tests whether humans can predict model behaviour more accurately in the held-out set based on the explanation. It is formulated as:"
+      ],
+      "formulas_tex": [
+       "\\text{Expl-Utility} = P(\\text{correct prediction} \\mid \\text{with explanation}) - P(\\text{correct prediction} \\mid \\text{no explanation})"
+      ],
+      "after": []
+     },
+     {
+      "name": "Debugging Utility",
+      "section": "debugging-utility.",
+      "before": [
+       "This metric examines whether the explanations help humans identify and repair model errors, such as incorrect outputs or misaligned behaviour, in the wild."
+      ],
+      "formulas_tex": [
+       "\\text{Debug-Utility} = P(\\text{error fixed}\\mid\\text{with explanation}) - P(\\text{error fixed}\\mid\\text{no explanation})"
+      ],
+      "after": []
+     },
+     {
+      "name": "Consistency of Interpretation",
+      "section": "consistency-of-interpretation.",
+      "before": [
+       "This metric inspects whether different humans interpret the same explanation consistently."
+      ],
+      "formulas_tex": [
+       "\\text{Inter-Rater} = \\kappa(\\text{human}_1 \\text{ labels}, \\text{human}_2 \\text{ labels})"
+      ],
+      "after": [
+       "where \\kappa(\\cdot) is Cohen’s kappa or a similar agreement metric."
+      ]
+     }
+    ],
+    "protocol": [
      "Prediction task: Show humans explanations of model components or mechanisms and ask them to predict model behaviour on held-out inputs. Compare accuracy to a no-explanation baseline.",
      "Identification task: Show humans model outputs with errors and ask them to identify the cause, with and without explanation assistance. Measure accuracy and required time to complete the task.",
      "Intervention task: Ask humans to propose fixes for model errors based on explanations. Measure the success rate of proposed interventions.",
      "Agreement task: Ask multiple human raters to generate explanations, if applicable (e.g., write a summary of highly activated samples of an SAE feature as its explanation). Measure inter-rater reliability and agreement with machine-generated explanations."
-    ],
-    "formulas_tex": [
-     "\\text{Expl-Utility} = P(\\text{correct prediction} \\mid \\text{with explanation}) - P(\\text{correct prediction} \\mid \\text{no explanation})",
-     "\\text{Debug-Utility} = P(\\text{error fixed}\\mid\\text{with explanation}) - P(\\text{error fixed}\\mid\\text{no explanation})",
-     "\\text{Inter-Rater} = \\kappa(\\text{human}_1 \\text{ labels}, \\text{human}_2 \\text{ labels})"
     ],
     "examples": [],
     "limitations": [

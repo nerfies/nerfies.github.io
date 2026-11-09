@@ -14,6 +14,12 @@ const publicName: Record<string, string> = { faithfulness: 'Attribution faithful
 const tex = (t: string) => renderMath(`<span class="math display">${t.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</span>`);
 const sec = (id: string) => sections([id])[0];
 const guide = e.method_guidance;
+// First sentence of each dimension's definition, verbatim, for the overview list.
+const firstSentence = (t: string) => t.match(/^.*?[.!?](?=\s+[A-Z]|$)/)?.[0] ?? t;
+// Examples and limitations already shown in full inside a metric's paragraph are not repeated.
+const ws = (s: string) => s.replace(/\s+/g, ' ').trim();
+const notInMetrics = (d: any) => { const shown = ws(d.metrics.flatMap((m: any) => [...m.before, ...m.after]).join(' '));
+  return (t: string) => !shown.includes(ws(t)); };
 import { draftHidden as __hide } from '../lib/manuscript';
 if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}held/`);
 ---
@@ -24,84 +30,125 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
     <p class="lede">Five dimensions for evaluating interpretability claims.</p>
     <SectionLinks ids={e.chapter_sections.slice(0, 1)} />
     <DraftBanner />
-    {e.framework_intro.map((t: string) => <Excerpt text={t} />)}
 
-    <nav aria-label="Dimensions" class="dim-tabs" role="tablist" id="dim-tabs">
-      {dims.map((d, i) => <button role="tab" id={`tab-${d.id}`} aria-controls={`panel-${d.id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} class="dim-tab">
+    <nav aria-label="Evaluation framework" class="dim-tabs" role="tablist" id="dim-tabs">
+      <button role="tab" id="tab-overview" aria-controls="panel-overview" aria-selected="true" tabindex="0" class="dim-tab">Overview</button>
+      {dims.map((d, i) => <button role="tab" id={`tab-${d.id}`} aria-controls={`panel-${d.id}`} aria-selected="false" tabindex="-1" class="dim-tab">
         <span class="dim-n">{i + 1}</span>{publicName[d.id] ?? d.name}</button>)}
     </nav>
-    {dims.map((d, i) => (
-      <section role="tabpanel" id={`panel-${d.id}`} aria-labelledby={`tab-${d.id}`} hidden={i !== 0} class="dim-panel card">
+
+    <section role="tabpanel" id="panel-overview" aria-labelledby="tab-overview" class="dim-panel">
+      <h2 id="overview" class="visually-hidden">Overview</h2>
+      {e.framework_intro.map((t: string) => <Excerpt text={t} />)}
+
+      <ol class="dim-list">
+        {dims.map((d) => (
+          <li>
+            <a class="dim-link" href={`#${d.id}`} data-tab={`tab-${d.id}`}>{publicName[d.id] ?? d.name}</a>
+            <span class="dim-def" set:html={excerptHtml(firstSentence(d.definition))} />
+          </li>
+        ))}
+      </ol>
+
+      {guide && (
+        <section class="ov-section">
+          <h3>Applying it to each method family</h3>
+          <p class="small muted">{guide.caption}</p>
+          <div class="scroll-x"><table class="data">
+            <thead><tr>{guide.columns.map((c: string) => <th>{c}</th>)}</tr></thead>
+            <tbody>{guide.rows.map((r: any) => <tr>{guide.columns.map((c: string) => <td set:html={excerptHtml(String(r[c] ?? ''))} />)}</tr>)}</tbody>
+          </table></div>
+          <SectionLinks ids={[guide.section]} />
+        </section>
+      )}
+
+      <section class="ov-section">
+        <h3>The protocol, step by step</h3>
+        <ol class="steps">
+          {e.protocol_steps.map((s: any) => <li><strong>{s.step}</strong><ul>{s.items.map((t: string) => <li>{t}</li>)}</ul></li>)}
+        </ol>
+        <SectionLinks ids={[e.protocol_section]} />
+      </section>
+
+      <section class="ov-section">
+        <h3>Limitations of the framework</h3>
+        {e.framework_limitations.map((t: string) => <Excerpt text={t} />)}
+        <SectionLinks ids={[e.framework_limitations_section]} />
+      </section>
+
+      {e.related_elsewhere?.length > 0 && (
+        <section class="ov-section">
+          <h3>Elsewhere in the survey</h3>
+          {e.related_elsewhere.map((r: any) => <Excerpt text={r.text} section={sec(r.section)} />)}
+        </section>
+      )}
+      <p class="small" style="margin-top:2rem"><a href={url('demos/patching/')}>See causal validity in practice: the activation-patching demo →</a></p>
+    </section>
+
+    {dims.map((d) => ({ ...d, examples: (d.examples ?? []).filter(notInMetrics(d)), limitations: (d.limitations ?? []).filter(notInMetrics(d)) })).map((d) => (
+      <section role="tabpanel" id={`panel-${d.id}`} aria-labelledby={`tab-${d.id}`} hidden class="dim-panel">
         <div class="dim-head">
           <h2 id={d.id}>{publicName[d.id] ?? d.name}</h2>
           <ManuscriptNote />
         </div>
         <Excerpt text={d.definition} section={sections(d.sections).find((x) => x.href) ?? null} />
+
+        <h3 class="dim-h3">How it is measured</h3>
+        {/* each metric as in the paper: the text introducing it, its formula, then the text that reads it */}
+        {d.metrics.map((m: any) => (
+          <div class="metric">
+            <h4>{m.section ? <a href={sec(m.section)?.href ?? undefined}>{m.name}</a> : m.name}</h4>
+            {m.before.map((t: string) => <Excerpt text={t} />)}
+            {m.formulas_tex.map((f: string) => <div class="formula"><Fragment set:html={tex(f)} /></div>)}
+            {m.after.map((t: string) => <Excerpt text={t} />)}
+          </div>
+        ))}
+        {d.protocol?.length > 0 && (<>
+          <h3 class="dim-h3">Evaluation protocol</h3>
+          <ol class="protocol">{d.protocol.map((t: string) => <li set:html={excerptHtml(t)} />)}</ol>
+        </>)}
+
         <div class="dim-grid">
-          <div>
-            <h3>How it is measured</h3>
-            {d.metrics_named?.length > 0 && <p class="small">{d.metrics_named.map((m: string) => <span class="chip" style="margin:0 .3rem .3rem 0">{m}</span>)}</p>}
-            {/* each "…measured as:" sentence is followed by its formula */}
-            {d.how_measured.map((t: string) => <Excerpt text={t} />)}
-            {d.formulas_tex?.map((f: string) => <div class="formula"><Fragment set:html={tex(f)} /></div>)}
-          </div>
-          <div>
-            {d.table_row && Object.keys(d.table_row).length > 0 && (<>
-              <h3>Summary</h3>
+          {d.table_row && Object.keys(d.table_row).length > 0 && (
+            <div>
+              <h3 class="dim-h3">Summary</h3>
               <table class="data"><tbody>{Object.entries(d.table_row).filter(([k]) => k !== 'section').map(([k, v]) => <tr><th scope="row">{k}</th><td set:html={excerptHtml(String(v))} /></tr>)}</tbody></table>
-            </>)}
-            {d.examples?.length > 0 && <><h3>Examples</h3>{d.examples.map((t: string) => <Excerpt text={t} />)}</>}
-            {d.limitations?.length > 0 && <><h3>Limitations</h3>{d.limitations.map((t: string) => <Excerpt text={t} />)}</>}
-          </div>
+            </div>
+          )}
+          {(d.examples?.length > 0 || d.limitations?.length > 0) && (
+            <div>
+              {d.examples?.length > 0 && <><h3 class="dim-h3">Examples</h3>{d.examples.map((t: string) => <Excerpt text={t} />)}</>}
+              {d.limitations?.length > 0 && <><h3 class="dim-h3">Limitations</h3>{d.limitations.map((t: string) => <Excerpt text={t} />)}</>}
+            </div>
+          )}
         </div>
       </section>
     ))}
-
-    {guide && (
-      <section style="margin-top:3rem">
-        <h2>Applying it to each method family</h2>
-        <p class="small muted">{guide.caption}</p>
-        <div class="scroll-x"><table class="data">
-          <thead><tr>{guide.columns.map((c: string) => <th>{c}</th>)}</tr></thead>
-          <tbody>{guide.rows.map((r: any) => <tr>{guide.columns.map((c: string) => <td set:html={excerptHtml(String(r[c] ?? ''))} />)}</tr>)}</tbody>
-        </table></div>
-        <SectionLinks ids={[guide.section]} />
-      </section>
-    )}
-
-    <section style="margin-top:3rem">
-      <h2>The protocol, step by step</h2>
-      <ol class="steps">
-        {e.protocol_steps.map((s: any) => <li><strong>{s.step}</strong><ul>{s.items.map((t: string) => <li>{t}</li>)}</ul></li>)}
-      </ol>
-      <SectionLinks ids={[e.protocol_section]} />
-    </section>
-
-    <section style="margin-top:3rem">
-      <h2>Limitations of the framework</h2>
-      {e.framework_limitations.map((t: string) => <Excerpt text={t} />)}
-      <SectionLinks ids={[e.framework_limitations_section]} />
-    </section>
-
-    {e.related_elsewhere?.length > 0 && (
-      <section style="margin-top:3rem">
-        <h2>Elsewhere in the survey</h2>
-        {e.related_elsewhere.map((r: any) => <Excerpt text={r.text} section={sec(r.section)} />)}
-      </section>
-    )}
-    <p class="small" style="margin-top:2rem"><a href={url('demos/patching/')}>See causal validity in practice: the activation-patching demo →</a></p>
   </div>
 </Base>
 <style>
-  .dim-tabs { display: flex; gap: .4rem; flex-wrap: wrap; margin: 2rem 0 1rem; }
+  .dim-tabs { display: flex; gap: .4rem; flex-wrap: wrap; margin: 2rem 0 1.5rem; }
   .dim-tab { display: flex; gap: .5rem; align-items: center; border: 1px solid var(--rule); background: var(--surface); color: var(--ink-2); padding: .55rem .9rem; border-radius: 6px; cursor: pointer; font: inherit; font-size: .92rem; }
   .dim-tab[aria-selected="true"] { border-color: var(--accent); color: var(--ink); box-shadow: inset 0 -3px 0 var(--gold); }
   .dim-n { font-family: var(--mono); color: var(--gold); font-weight: 700; }
+  .dim-panel > * { max-width: var(--measure-prose); }
+  .dim-panel > .dim-grid, .dim-panel > .ov-section { max-width: none; }
   .dim-head { display: flex; flex-wrap: wrap; gap: .8rem; align-items: baseline; }
-  .dim-head h2 { margin: 0; }
-  .dim-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 2rem; margin-top: 1rem; }
-  .dim-grid h3 { font-size: .95rem; margin: 1.2rem 0 .4rem; }
-  .formula { overflow-x: auto; background: var(--surface-2); border-radius: 6px; padding: .2rem .8rem; margin: .5rem 0; }
+  .dim-head h2 { margin: 0 0 .6rem; }
+  .dim-h3 { font-size: 1.1rem; margin: 2rem 0 .6rem; }
+  .metric { border-top: 1px solid var(--hair); padding-top: .9rem; margin-top: 1rem; }
+  .metric h4 { font-family: var(--sans); font-size: .95rem; font-weight: 600; letter-spacing: 0; margin: 0 0 .4rem; }
+  .metric h4 a { text-decoration: none; } .metric h4 a:hover { text-decoration: underline; }
+  .formula { overflow-x: auto; background: var(--surface-2); padding: .2rem .8rem; margin: .4rem 0 .6rem; }
+  .protocol li { margin: .45rem 0; line-height: 1.5; }
+  .dim-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 2rem; }
+  .dim-list { list-style: none; padding: 0; margin: 1.5rem 0 0; max-width: var(--measure-prose); counter-reset: dim; }
+  .dim-list li { counter-increment: dim; display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); column-gap: .4rem; padding: .6rem 0; border-top: 1px solid var(--hair); }
+  .dim-list li::before { content: counter(dim); font-family: var(--mono); color: var(--gold); font-weight: 700; grid-row: span 2; }
+  .dim-link { font-weight: 600; }
+  .dim-def { color: var(--ink-2); font-size: .95rem; line-height: 1.5; }
+  .ov-section { margin-top: 2.5rem; }
+  .ov-section h3 { font-size: 1.25rem; margin: 0 0 .6rem; }
   .steps > li { margin: .8rem 0; } .steps ul { margin: .3rem 0; font-size: .95rem; color: var(--ink-2); }
 </style>
 <script>
@@ -119,5 +166,13 @@ if (__hide) return Astro.rewrite(`${import.meta.env.BASE_URL.replace(/\/?$/, '/'
       if (e.key === 'ArrowLeft') select(tabs[(i - 1 + tabs.length) % tabs.length]);
     });
   });
-  const h = location.hash.slice(1); const t = tabs.find((x) => x.id === 'tab-' + h); if (t) select(t, false);
+  // The overview's dimension list opens the matching tab.
+  document.querySelectorAll<HTMLAnchorElement>('a[data-tab]').forEach((a) => a.addEventListener('click', (ev) => {
+    const t = document.getElementById(a.dataset.tab!) as HTMLButtonElement | null;
+    if (t) { ev.preventDefault(); select(t); window.scrollTo({ top: document.getElementById('dim-tabs')!.offsetTop - 16 }); }
+  }));
+  // Deep links (#faithfulness, #panel-stability, …) open their tab.
+  const fromHash = () => { const h = location.hash.slice(1).replace(/^(tab|panel)-/, '');
+    const t = tabs.find((x) => x.id === 'tab-' + h); if (t) select(t, false); };
+  fromHash(); window.addEventListener('hashchange', fromHash);
 </script>

@@ -1,16 +1,14 @@
-# Nerfies
+# EgoM³ project page
 
-This is the repository that contains source code for the [Nerfies website](https://nerfies.github.io).
+Project page of *EgoM³: Multi-View Multi-Human Mesh Reconstruction from Egocentric Videos*.
 
-If you find Nerfies useful for your work please cite:
-```
-@article{park2021nerfies
-  author    = {Park, Keunhong and Sinha, Utkarsh and Barron, Jonathan T. and Bouaziz, Sofien and Goldman, Dan B and Seitz, Steven M. and Martin-Brualla, Ricardo},
-  title     = {Nerfies: Deformable Neural Radiance Fields},
-  journal   = {ICCV},
-  year      = {2021},
-}
-```
+The page is static: `index.html`, with styles and scripts in `static/`.
+To preview it locally, run `python3 -m http.server` in this directory.
+
+To add a result video, put the mp4 in `static/videos/` and set the `data-video` attribute of its button in the Video Results section of `index.html`.
 
 # Website License
+
+The design is borrowed from the [Nerfies website](https://github.com/nerfies/nerfies.github.io).
+
 <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
